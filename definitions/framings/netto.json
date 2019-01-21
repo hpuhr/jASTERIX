@@ -1,0 +1,10 @@
+{
+  "name": "netto",
+  "header_items" : [],
+  "frame_items" : [
+    {
+       "name" : "content",
+       "type": "dynamic_bytes"
+    }
+  ]
+}
