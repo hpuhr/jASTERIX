@@ -18,6 +18,7 @@
 #include "jasterix.h"
 #include "files.h"
 #include "logger.h"
+#include "asterixparser.h"
 #include "frameparser.h"
 #include "frameparsertask.h"
 
@@ -162,8 +163,11 @@ void jASTERIX::decodeFile (const std::string& filename, const std::string& frami
         throw runtime_error ("jASTERIX parsing error in framing definition '"+framing+"': "+e.what());
     }
 
+    // create ASTERIX parser
+    ASTERIXParser asterix_parser (data_block_definition_, asterix_category_definitions_, debug_);
+
     // create frame parser
-    FrameParser frame_parser (framing_definition, data_block_definition_, asterix_category_definitions_, debug_);
+    FrameParser frame_parser (framing_definition, asterix_parser, debug_);
 
     nlohmann::json json_header;
 

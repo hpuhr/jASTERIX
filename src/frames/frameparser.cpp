@@ -17,9 +17,7 @@
 
 #include "frameparser.h"
 #include "logger.h"
-
-#include <iostream>
-#include <iomanip>
+#include "asterixparser.h"
 
 #include <tbb/tbb.h>
 
@@ -28,8 +26,8 @@ using namespace nlohmann;
 
 namespace jASTERIX {
 
-FrameParser::FrameParser(const json& framing_definition, const json& data_block_definition,
-                         const std::map<unsigned int, nlohmann::json>& asterix_category_definitions, bool debug)
+FrameParser::FrameParser(const json& framing_definition, ASTERIXParser& asterix_parser, bool debug)
+    : asterix_parser_(asterix_parser)
 {
     if (framing_definition.find("name") == framing_definition.end())
         throw runtime_error ("frame parser construction without JSON name definition");
@@ -71,46 +69,6 @@ FrameParser::FrameParser(const json& framing_definition, const json& data_block_
         item = ItemParser::createItemParser(data_item_it);
         assert (item);
         frame_items_.push_back(std::unique_ptr<ItemParser>{item});
-    }
-
-    // data block
-
-    if (data_block_definition.find("name") == data_block_definition.end())
-        throw runtime_error ("data block construction without JSON name definition");
-
-    data_block_name_ = data_block_definition.at("name");
-
-    if (data_block_definition.find("items") == data_block_definition.end())
-        throw runtime_error ("data block construction without header items");
-
-    if (!data_block_definition.at("items").is_array())
-        throw runtime_error ("data block construction with items non-array");
-
-    for (const json& data_item_it : data_block_definition.at("items"))
-    {
-        item_name = data_item_it.at("name");
-
-        if (debug)
-            loginf << "frame parser constructing data block item '" << item_name << "'";
-
-        item = ItemParser::createItemParser(data_item_it);
-        assert (item);
-        data_block_items_.push_back(std::unique_ptr<ItemParser>{item});
-    }
-
-    // asterix definitions
-
-    for (auto& ast_cat_def_it : asterix_category_definitions)
-    {
-
-        if (debug)
-            loginf << "frame parser constructing cat '" << setfill('0') << setw(3) << ast_cat_def_it.first << "'";
-
-        item = ItemParser::createItemParser(ast_cat_def_it.second);
-        assert (item);
-        asterix_category_definitions_.insert(
-                    std::pair<unsigned int, std::unique_ptr<ItemParser>>
-                    (ast_cat_def_it.first, std::unique_ptr<ItemParser>{item}));
     }
 }
 
@@ -221,86 +179,11 @@ size_t FrameParser::decodeFrame (const char* data, json& json_frame, bool debug)
 
     size_t index {frame_content.at("index")};
     size_t length {frame_content.at("length")};
-    size_t parsed_bytes {0};
-    size_t num_records {0};
 
     if (debug)
         loginf << "frame parser decoding frame at index " << index << " length " << length;
 
-    for (auto& r_item : data_block_items_)
-    {
-        parsed_bytes += r_item->parseItem(data, index+parsed_bytes, length, parsed_bytes,
-                                          frame_content[data_block_name_], debug);
-        //++record_cnt;
-    }
-
-//    {
-//        "cnt": 0,
-//        "content": {
-//            "index": 134,
-//            "length": 56,
-//            "record": {
-//                "category": 1,
-//                "content": {
-//                    "index": 137,
-//                    "length": 42
-//                },
-//                "length": 45
-//            }
-//        },
-//        "frame_length": 56,
-//        "frame_relative_time_ms": 2117
-//    }
-    // check record information
-    json& record = frame_content.at(data_block_name_);
-
-    if (debug && record.find ("category") == record.end())
-        throw runtime_error("frame parser record does not contain category information");
-
-    unsigned int cat = record.at("category");
-
-    if (debug && record.find ("content") == record.end())
-        throw runtime_error("frame parser record does not contain content information");
-
-    json& record_content = record.at("content");
-
-    if (debug && record_content.find ("index") == record_content.end())
-        throw runtime_error("frame parser record content does not contain index information");
-
-    size_t record_index = record_content.at("index");
-
-    if (debug && record_content.find ("length") == record_content.end())
-        throw runtime_error("frame parser record content does not contain length information");
-
-    size_t record_length = record_content.at("length");
-
-    // try to decode
-    if (asterix_category_definitions_.count(cat) != 0)
-    {
-        // decode
-        if (debug)
-            loginf << "frame parser decoding record with cat " << cat << " index " << record_index
-                 << " length " << record_length;
-
-        //const json& asterix_category_definition = asterix_category_definitions_.at(cat);
-
-        //std::string record_content_name = asterix_category_definition.at("name");
-
-        // TODO
-        parsed_bytes = asterix_category_definitions_.at(cat)->parseItem(
-                    data, record_index, record_length, parsed_bytes,
-                    record_content[asterix_category_definitions_.at(cat)->name()], debug);
-
-        if (debug)
-            loginf << "frame parser decoding record with cat " << cat << " index " << record_index
-                     << ": " << record_content.at(asterix_category_definitions_.at(cat)->name()).dump(4) << "'";
-        ++num_records;
-    }
-    else if (debug)
-        loginf << "frame parser decoding record with cat " << cat << " index " << record_index
-             << " length " << record_length << " skipped since cat definition is missing ";
-
-    return num_records;
+    return asterix_parser_.decodeDataBlock(data, index, length, frame_content, debug);
 }
 
 }
