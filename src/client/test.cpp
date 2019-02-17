@@ -37,31 +37,11 @@
 
 namespace po = boost::program_options;
 
-//void handler(int sig) {
-//  void *array[10];
-//  size_t size;
-
-//  // get void*'s for all entries on the stack
-//  size = backtrace(array, 10);
-
-//  // print out all the frames to stderr
-//  fprintf(stderr, "Error: signal %d:\n", sig);
-//  backtrace_symbols_fd(array, size, STDERR_FILENO);
-//  exit(1);
-//}
-
 using namespace std;
-
-void callback (nlohmann::json&& data_chunk, size_t num_frames, size_t num_records)
-{
-    //loginf << "jASTERIX: decoded " << num_frames << " frames, " << num_records << " records: " << data_chunk.dump(4);
-}
 
 int main (int argc, char **argv)
 {
     static_assert (sizeof(size_t) >= 8, "code requires size_t with at least 8 bytes");
-
-    //signal(SIGSEGV, handler);   // install our handler
 
     // setup logging
     log4cpp::Appender *console_appender_ = new log4cpp::OstreamAppender("console", &std::cout);
@@ -71,21 +51,21 @@ int main (int argc, char **argv)
     root.setPriority(log4cpp::Priority::INFO);
     root.addAppender(console_appender_);
 
-    std::string filename;
-    std::string framing {"netto"};
+    //std::string filename;
+    //std::string framing {"netto"};
     std::string definition_path;
-    bool debug {false};
-    bool print {false};
+    //bool debug {false};
+    //bool print {false};
 
     po::options_description desc("Allowed options");
     desc.add_options()
         ("help", "produce help message")
-        ("filename", po::value<std::string>(&filename), "input file name")
+        //("filename", po::value<std::string>(&filename), "input file name")
         ("definition_path", po::value<std::string>(&definition_path), "path to jASTERIX definition files")
-        ("framing", po::value<std::string>(&framing), "input framine format, as specified in the framing definitions."
-                                                      " netto is default")
-        ("debug", po::bool_switch(&debug), "print debug output")
-        ("print", po::bool_switch(&print), "print JSON output")
+        //("framing", po::value<std::string>(&framing), "input framine format, as specified in the framing definitions."
+        //                                              " netto is default")
+        //("debug", po::bool_switch(&debug), "print debug output")
+        //("print", po::bool_switch(&print), "print JSON output")
     ;
 
     try
@@ -110,13 +90,12 @@ int main (int argc, char **argv)
     try
     {
         if (debug)
-            loginf << "jASTERIX client: startup with filename '" << filename << "' framing '" << framing
-                   << "' definition_path '" << definition_path << "' debug " << debug;
+            loginf << "jASTERIX test: startup with ' definition_path '" << definition_path << "';
 
-        jASTERIX::jASTERIX asterix (definition_path, print, debug);
+        jASTERIX::jASTERIX asterix (filename, definition_path, framing, print, debug);
         boost::posix_time::ptime start_time = boost::posix_time::microsec_clock::local_time();
 
-        asterix.decodeFile (filename, framing, callback);
+        asterix.decode();
 
         size_t num_frames = asterix.numFrames();
         size_t num_records = asterix.numRecords();

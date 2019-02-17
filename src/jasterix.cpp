@@ -34,26 +34,9 @@ namespace jASTERIX {
 using namespace Files;
 using namespace std;
 
-jASTERIX::jASTERIX(const std::string& filename, const std::string& definition_path, const std::string& framing,
-                   bool print, bool debug)
-    : filename_(filename), definition_path_(definition_path), framing_(framing), print_(print), debug_(debug)
+jASTERIX::jASTERIX(const std::string& definition_path, bool print, bool debug)
+    : definition_path_(definition_path), print_(print), debug_(debug)
 {
-    // check and open file
-    if (!fileExists(filename_))
-        throw invalid_argument ("jASTERIX called with non-existing file '"+filename_+"'");
-
-    file_size_ = fileSize (filename_);
-
-    if (!file_size_)
-        throw invalid_argument ("jASTERIX called with empty file '"+filename_+"'");
-
-    if (debug_)
-        loginf << "jASTERIX: file " << filename_ << " size " << file_size_;
-
-    file_.open(filename_, file_size_);
-
-    if(!file_.is_open())
-        throw runtime_error ("jASTERIX unable to map file '"+filename_+"'");
 
     // check framing definitions
     if (!directoryExists(definition_path_))
@@ -62,9 +45,6 @@ jASTERIX::jASTERIX(const std::string& filename, const std::string& definition_pa
     if (!directoryExists(definition_path_+"/framings"))
         throw invalid_argument ("jASTERIX called with incorrect definition path '"+definition_path_
                                      +"', framings are missing");
-
-    if (!fileExists(definition_path_+"/framings/"+framing_+".json"))
-        throw invalid_argument ("jASTERIX called with unknown framing '"+framing_+"'");
 
     if (!fileExists(definition_path_+"/data_block_definition.json"))
         throw invalid_argument ("jASTERIX called without asterix data block definition");
@@ -77,15 +57,6 @@ jASTERIX::jASTERIX(const std::string& filename, const std::string& definition_pa
 
     if (!fileExists(definition_path_+"/categories/categories.json"))
         throw invalid_argument ("jASTERIX called without asterix categories list definition");
-
-    try // create framing definition
-    {
-        framing_definition_ = json::parse(ifstream(definition_path_+"/framings/"+framing_+".json"));
-    }
-    catch (json::exception& e)
-    {
-        throw runtime_error ("jASTERIX parsing error in framing definition '"+framing_+"': "+e.what());
-    }
 
     try // asterix record definition
     {
@@ -148,8 +119,6 @@ jASTERIX::jASTERIX(const std::string& filename, const std::string& definition_pa
         throw runtime_error (string{"jASTERIX parsing error in asterix category definitions: "}+e.what());
     }
 
-    frame_parser_.reset(new FrameParser(framing_definition_, data_block_definition_, asterix_category_definitions_,
-                                        debug_));
 }
 
 jASTERIX::~jASTERIX()
@@ -158,27 +127,60 @@ jASTERIX::~jASTERIX()
         file_.close();
 }
 
-void jASTERIX::decode ()
+void jASTERIX::decodeFile (const std::string& filename, const std::string& framing,
+                           std::function<void(nlohmann::json&&, size_t, size_t)> callback)
 {
-    assert (frame_parser_);
-    assert (file_.is_open());
+    // check and open file
+    if (!fileExists(filename))
+        throw invalid_argument ("jASTERIX called with non-existing file '"+filename+"'");
+
+    size_t file_size = fileSize (filename);
+
+    if (!file_size)
+        throw invalid_argument ("jASTERIX called with empty file '"+filename+"'");
+
+    if (debug_)
+        loginf << "jASTERIX: file " << filename << " size " << file_size;
+
+    file_.open(filename, file_size);
+
+    if(!file_.is_open())
+        throw runtime_error ("jASTERIX unable to map file '"+filename+"'");
+
+    // check framing
+    if (!fileExists(definition_path_+"/framings/"+framing+".json"))
+        throw invalid_argument ("jASTERIX called with unknown framing '"+framing+"'");
+
+    nlohmann::json framing_definition;
+
+    try // create framing definition
+    {
+        framing_definition = json::parse(ifstream(definition_path_+"/framings/"+framing+".json"));
+    }
+    catch (json::exception& e)
+    {
+        throw runtime_error ("jASTERIX parsing error in framing definition '"+framing+"': "+e.what());
+    }
+
+    // create frame parser
+    FrameParser frame_parser (framing_definition, data_block_definition_, asterix_category_definitions_, debug_);
 
     nlohmann::json json_header;
 
     size_t index;
 
     // parsing header
-    index = frame_parser_->parseHeader(file_.data(), 0, file_size_, json_header, debug_);
+    index = frame_parser.parseHeader(file_.data(), 0, file_size, json_header, debug_);
 
     FrameParserTask* task = new (tbb::task::allocate_root()) FrameParserTask (
-                *this, *frame_parser_.get(), json_header, file_.data(), index, file_size_, debug_);
+                *this, frame_parser, json_header, file_.data(), index, file_size, debug_);
     tbb::task::enqueue(*task);
 
     nlohmann::json data_chunk;
 
     while (1)
     {
-        if (frame_parser_->done() && data_chunks_.empty())
+        if (frame_parser.done() && data_chunks_.empty())
             break;
 
         if (data_chunks_.try_pop(data_chunk))
@@ -187,11 +189,12 @@ void jASTERIX::decode ()
                 loginf << "jASTERIX processing " << num_frames_ << " frames, " << num_records_ << " records";
 
             num_frames_ += data_chunk.at("frames").size();
-            num_records_ += frame_parser_->decodeFrames(file_.data(), data_chunk, debug_);
+            num_records_ += frame_parser.decodeFrames(file_.data(), data_chunk, debug_);
 
             if (print_)
                 loginf << data_chunk.dump(4);
 
+            callback(std::move(data_chunk), num_frames_, num_records_);
         }
         else
         {

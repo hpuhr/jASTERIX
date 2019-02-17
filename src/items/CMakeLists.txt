@@ -5,9 +5,7 @@ include_directories (
 
 target_sources(jasterix
     PUBLIC
-        "${CMAKE_CURRENT_LIST_DIR}/frameparser.h"
         "${CMAKE_CURRENT_LIST_DIR}/itemparser.h"
-        "${CMAKE_CURRENT_LIST_DIR}/frameparsertask.h"
         "${CMAKE_CURRENT_LIST_DIR}/fixedbitsitemparser.h"
         "${CMAKE_CURRENT_LIST_DIR}/fixedbytesitemparser.h"
         "${CMAKE_CURRENT_LIST_DIR}/skipbytesitemparser.h"
@@ -19,7 +17,6 @@ target_sources(jasterix
         "${CMAKE_CURRENT_LIST_DIR}/optionalitemparser.h"
         "${CMAKE_CURRENT_LIST_DIR}/repetetiveitemparser.h"
     PRIVATE
-        "${CMAKE_CURRENT_LIST_DIR}/frameparser.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/itemparser.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/fixedbitsitemparser.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/fixedbytesitemparser.cpp"
