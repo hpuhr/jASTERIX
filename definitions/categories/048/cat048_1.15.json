@@ -39,7 +39,7 @@
         "data_fields":
         [
             {
-                "name":"time_of_day",
+                "name":"time-of-day",
                 "type":"fixed_bytes",
                 "length":3,
                 "data_type":"uint"
@@ -71,7 +71,7 @@
                         "bit_length":1
                     },
                     {
-                        "name":"rdb",
+                        "name":"rdp",
                         "type":"fixed_bits",
                         "start_bit": 3,
                         "bit_length":1
@@ -89,7 +89,7 @@
                         "bit_length":1
                     },
                     {
-                        "name":"extent_present",
+                        "name":"fx",
                         "type":"fixed_bits",
                         "start_bit": 0,
                         "bit_length":1
@@ -101,7 +101,7 @@
                 "type":"fixed_bitfield",
                 "length":1,
                 "optional":true,
-                "optional_variable_name":"020.extent_present",
+                "optional_variable_name":"020.fx",
                 "optional_variable_value":1,
                 "items":[
                     {
@@ -129,7 +129,7 @@
                         "bit_length":2
                     },
                     {
-                        "name":"extent2_present",
+                        "name":"fx2",
                         "type":"fixed_bits",
                         "start_bit": 0,
                         "bit_length":1
@@ -167,7 +167,7 @@
         "data_fields":
         [
             {
-                "name":"mode_3a",
+                "name":"mode-3/a",
                 "type":"fixed_bitfield",
                 "length":2,
                 "items":[
@@ -190,7 +190,7 @@
                         "bit_length": 1
                     },                    
                     {
-                        "name":"code",
+                        "name":"mode-3/a",
                         "type":"fixed_bits",
                         "data_type":"digits",
                         "start_bit": 0,

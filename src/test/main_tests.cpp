@@ -48,6 +48,8 @@ void test_cat048_callback (nlohmann::json&& json_data, size_t num_frames, size_t
 {
     loginf << "cat048 test: decoded " << num_frames << " frames, " << num_records << " records: " << json_data.dump(4);
 
+    loginf << "cat048 test: data block";
+
     assert (json_data["data_block"]["category"] == 48);
     assert (json_data["data_block"]["length"] == 65);
 
@@ -101,7 +103,7 @@ void test_cat048_callback (nlohmann::json&& json_data, size_t num_frames, size_t
 //                        }
 //                    },
 //                    "140": {
-//                        "time_of_day": 4287979
+//                        "time-of-day": 4287979
 //                    },
 //                    "161": {
 //                        "track_number": 919
@@ -181,11 +183,12 @@ void test_cat048_callback (nlohmann::json&& json_data, size_t num_frames, size_t
 //            },
 //            "length": 65
 //        }
+
     //    ; FSPEC: 0x ff f7 02
+    // 111111111111011100000010
 
-    //111111111111011100000010
-
-    assert (json_data["data_block"]["content"]["record"]["fspec"].size() == 3*8);
+    loginf << "cat048 test: fspec";
+    assert (json_data.at("data_block").at("content").at("record").at("fspec").size() == 3*8);
 
 //    std::vector<bool> ref ({1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,0,0,0,0,0,0,1,0});
 //    std::vector<bool> tmp = json_data["data_block"]["content"]["record"]["fspec"];
@@ -193,29 +196,78 @@ void test_cat048_callback (nlohmann::json&& json_data, size_t num_frames, size_t
 //    for (size_t cnt=0; cnt < 3*8; ++cnt)
 //        loginf << "cnt " << cnt << " tmp " << tmp.at(cnt) << " ref " << ref.at(cnt);
 
-    assert (json_data["data_block"]["content"]["record"]["fspec"]
+    assert (json_data.at("data_block").at("content").at("record").at("fspec")
             == std::vector<bool>({1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,0,0,0,0,0,0,1,0}));
 
     //    ; Data Record:
     //    ;  I048/010: =0x 00 01
     //    ;  Data Source Identifier: 0x0001 (SAC=0; SIC=1)
+
+    loginf << "cat048 test: 010";
+    assert (json_data.at("data_block").at("content").at("record").at("010").at("sac") == 0);
+    assert (json_data.at("data_block").at("content").at("record").at("010").at("sic") == 1);
+
     //    ;  I048/140: =0x 41 6d eb
     //    ;  Time of Day: 0x416deb (4287979; 33499.835938 secs; 09:18:19.836 UTC)
+
+    loginf << "cat048 test: 140";
+    assert (json_data.at("data_block").at("content").at("record").at("140").at("time-of-day") == 4287979);
+
     //    ;  I048/020: =0x a8
     //    ;  Target Report Descriptor: TYP='Single ModeS Roll-Call' ACT RDP-2
+
+    loginf << "cat048 test: 020";
+    assert (json_data.at("data_block").at("content").at("record").at("020").at("typ") == 5);
+    assert (json_data.at("data_block").at("content").at("record").at("020").at("sim") == 0);
+    assert (json_data.at("data_block").at("content").at("record").at("020").at("rdp") == 1);
+    assert (json_data.at("data_block").at("content").at("record").at("020").at("spi") == 0);
+    assert (json_data.at("data_block").at("content").at("record").at("020").at("rab") == 0);
+    assert (json_data.at("data_block").at("content").at("record").at("020").at("fx") == 0);
+
     //    ;  I048/040: =0x 49 ec 3f c4
     //    ;  Measured Position: srg=18924 (73.922 nmi); azm=16324 (89.670 deg)
+
+    loginf << "cat048 test: 040";
+    assert (json_data.at("data_block").at("content").at("record").at("040").at("rho") == 18924);
+    assert (json_data.at("data_block").at("content").at("record").at("040").at("theta") == 16324);
+
+
     //    ;  I048/070: =0x 21 38
     //    ;  Mode 3/A Code: v=0; g=0; l=1; code=00470
+
+    loginf << "cat048 test: 070";
+    assert (json_data.at("data_block").at("content").at("record").at("070").at("v") == 0);
+    assert (json_data.at("data_block").at("content").at("record").at("070").at("g") == 0);
+    assert (json_data.at("data_block").at("content").at("record").at("070").at("l") == 1);
+    assert (json_data.at("data_block").at("content").at("record").at("070").at("mode-3/a") == 470);
+
     //    ;  I048/090: =0x 05 c8
     //    ;  Flight Level: v=0; g=0; code=1480 (370.00 FL)
+
+    loginf << "cat048 test: 090";
+    assert (json_data.at("data_block").at("content").at("record").at("090").at("v") == 0);
+    assert (json_data.at("data_block").at("content").at("record").at("090").at("g") == 0);
+    assert (json_data.at("data_block").at("content").at("record").at("090").at("flight_level") == 1480);
+
     //    ;  I048/130: 0x 20 c1
     //    ;  Radar Plot Characteristics:
     //    ;   Amplitude of (M)SSR reply: -63 dBm
+
+    loginf << "cat048 test: 130";
+    assert (json_data.at("data_block").at("content").at("record").at("130").at("available")
+            == std::vector<bool>({0,0,0,0,0,1,0,0}));
+    assert (json_data.at("data_block").at("content").at("record").at("130").at("sam").at("value") == -63);
+
     //    ;  I048/220: =0x ab 4c bd
     //    ;  Aircraft Address: 0xab4cbd (11226301)
+
+    loginf << "cat048 test: 220";
+    assert (json_data.at("data_block").at("content").at("record").at("220").at("aircraft_address") == 11226301);
+
     //    ;  I048/240: =0x 49 94 b5 61  78 20
     //    ;  Aircraft Identification: "RYR5XW  "
+
+
     //    ;  I048/250: =0x 03 8b d9 eb  2f bf e4 00  60 80 91 9f  39 a0 04 dd
     //    ;            +0x 50 c8 48 00  30 a8 00 00  40
     //    ;  Mode S MB Data:

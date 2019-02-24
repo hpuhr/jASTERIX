@@ -17,6 +17,8 @@
 
 #include "fixedbitsitemparser.h"
 
+#include <algorithm>
+
 using namespace std;
 using namespace nlohmann;
 
@@ -137,6 +139,7 @@ FixedBitsItemParser::FixedBitsItemParser (const nlohmann::json& item_definition,
                 digits_bitmasks4.push_back(bitmask4);
                 bitmask4 <<= digit_bit_length_;
             }
+            //reverse(digits_bitmasks4.begin(), digits_bitmasks4.end());
 
             bitmask4 = 0;
             assert (digits_bitmasks4.size() == num_digits_);
@@ -157,6 +160,7 @@ FixedBitsItemParser::FixedBitsItemParser (const nlohmann::json& item_definition,
                 digits_bitmasks8.push_back(bitmask8);
                 bitmask8 <<= digit_bit_length_;
             }
+            //reverse(digits_bitmasks8.begin(), digits_bitmasks8.end());
 
             bitmask8 = 0;
             assert (digits_bitmasks8.size() == num_digits_);
@@ -174,9 +178,11 @@ size_t FixedBitsItemParser::parseItem (const char* data, size_t index, size_t si
     if (debug)
         loginf << "parsing fixed bits item '" << name_ << "' byte length " << byte_length_;
 
+    unsigned char tmp1{0};
+
     if (byte_length_ == 1)
     {
-        unsigned char tmp1 = *reinterpret_cast<const unsigned char*> (&data[index]);
+        tmp1 = *reinterpret_cast<const unsigned char*> (&data[index]);
 
         if (data_type_ == "uint")
         {
@@ -211,8 +217,13 @@ size_t FixedBitsItemParser::parseItem (const char* data, size_t index, size_t si
         {
             size_t digits_tmp {0};
 
-            for (unsigned int cnt=0; cnt < num_digits_; ++cnt)
+            for (int cnt=num_digits_-1; cnt >= 0; --cnt)
             {
+                if (debug)
+                    loginf << "parsing fixed bits item '" << name_ << "' type digits cnt " << cnt
+                           << " digits1 tmp " << digits_tmp << " value " << (size_t) tmp1
+                           << " bitmask " << digits_bitmasks1[cnt];
+
                 digits_tmp *= 10;
                 digits_tmp += tmp1 & digits_bitmasks1[cnt];
             }
@@ -223,7 +234,17 @@ size_t FixedBitsItemParser::parseItem (const char* data, size_t index, size_t si
     }
     else if (byte_length_ <= 4)
     {
-        unsigned int tmp4 = *reinterpret_cast<const unsigned int*> (&data[index]);
+        size_t tmp4 {0};
+
+        for (size_t cnt = 0; cnt < byte_length_; ++cnt)
+        {
+            tmp1 = *reinterpret_cast<const unsigned char*> (&data[index+cnt]);
+            tmp4 = (tmp4 << 8) + tmp1;
+
+            if (debug)
+                loginf << "parsing fixed bits item '" << name_ << "' tmp1 " << (size_t) tmp1
+                       << " tmp4 " << (size_t) tmp4;
+        }
 
         if (data_type_ == "uint")
         {
@@ -257,11 +278,20 @@ size_t FixedBitsItemParser::parseItem (const char* data, size_t index, size_t si
         else if (data_type_ == "digits")
         {
             size_t digits_tmp {0};
+            size_t digit_tmp;
 
-            for (unsigned int cnt=0; cnt < num_digits_; ++cnt)
+            for (int cnt=num_digits_-1; cnt >= 0; --cnt)
             {
                 digits_tmp *= 10;
-                digits_tmp += tmp4 & digits_bitmasks4[cnt];
+                digit_tmp = tmp4 & digits_bitmasks4[cnt];
+                digit_tmp >>= cnt*digit_bit_length_;
+                digits_tmp += digit_tmp;
+
+                if (debug)
+                    loginf << "parsing fixed bits item '" << name_ << "' type digits cnt " << cnt
+                           << " digits4 tmp " << digits_tmp << " value " << (size_t) tmp4
+                           << " bitmask " << digits_bitmasks4[cnt];
+
             }
             target.emplace(name_, digits_tmp);
         }
@@ -271,8 +301,17 @@ size_t FixedBitsItemParser::parseItem (const char* data, size_t index, size_t si
     }
     else if (byte_length_ <= 8)
     {
-        size_t tmp8 = *reinterpret_cast<const size_t*> (&data[index]);
+        size_t tmp8 {0};
 
+        for (size_t cnt = 0; cnt < byte_length_; ++cnt)
+        {
+            tmp1 = *reinterpret_cast<const unsigned char*> (&data[index+cnt]);
+            tmp8 = (tmp8 << 8) + tmp1;
+
+            if (debug)
+                loginf << "parsing fixed bits item '" << name_ << "' tmp1 " << (size_t) tmp1
+                       << " tmp8 " << (size_t) tmp8;
+        }
         if (data_type_ == "uint")
         {
             tmp8 &= bitmask8;
@@ -306,8 +345,13 @@ size_t FixedBitsItemParser::parseItem (const char* data, size_t index, size_t si
         {
             size_t digits_tmp {0};
 
-            for (unsigned int cnt=0; cnt < num_digits_; ++cnt)
+            for (int cnt=num_digits_-1; cnt >= 0; --cnt)
             {
+                if (debug)
+                    loginf << "parsing fixed bits item '" << name_ << "' type digits cnt " << cnt
+                           << " digits8 tmp " << digits_tmp << " value " << (size_t) tmp8
+                           << " bitmask " << digits_bitmasks8[cnt];
+
                 digits_tmp *= 10;
                 digits_tmp += tmp8 & digits_bitmasks8[cnt];
             }
