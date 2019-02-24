@@ -28,6 +28,8 @@
 
 namespace jASTERIX {
 
+class Category;
+
 class jASTERIX
 {
 public:
@@ -52,9 +54,9 @@ private:
     bool debug_ {false};
 
     nlohmann::json data_block_definition_;
-    nlohmann::json asterix_list_definition_;
-    std::map<unsigned int, nlohmann::json> asterix_category_definitions_;
-    //std::unique_ptr<FrameParser> frame_parser_;
+    nlohmann::json categories_definition_;
+    std::map<std::string, Category> category_definitions_;
+    std::map<unsigned int, nlohmann::json> current_category_edition_definitions_;
 
     boost::iostreams::mapped_file_source file_;
 

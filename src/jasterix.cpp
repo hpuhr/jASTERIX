@@ -21,6 +21,8 @@
 #include "asterixparser.h"
 #include "frameparser.h"
 #include "frameparsertask.h"
+#include "category.h"
+#include "edition.h"
 
 #include <exception>
 #include <fstream>
@@ -70,48 +72,48 @@ jASTERIX::jASTERIX(const std::string& definition_path, bool print, bool debug)
 
     try // asterix categories list definition
     {
-        asterix_list_definition_ = json::parse(ifstream(definition_path_+"/categories/categories.json"));
+        categories_definition_ = json::parse(ifstream(definition_path_+"/categories/categories.json"));
     }
     catch (json::exception& e)
     {
-        throw runtime_error (string{"jASTERIX parsing error in asterix categories list definition: "}+e.what());
+        throw runtime_error (string{"jASTERIX parsing error in asterix categories definition: "}+e.what());
     }
 
-    if (!asterix_list_definition_.is_object())
+    if (!categories_definition_.is_object())
         throw invalid_argument ("jASTERIX called with non-object asterix categories list definition");
 
     try // asterix category definitions
     {
         std::string cat_str;
-        std::string file_str;
         int cat;
 
-        for (auto ast_def_it = asterix_list_definition_.begin(); ast_def_it != asterix_list_definition_.end();
-             ++ast_def_it)
+        for (auto cat_def_it = categories_definition_.begin(); cat_def_it != categories_definition_.end();
+             ++cat_def_it)
         {
             cat = -1;
-            cat_str = ast_def_it.key();
-            file_str = ast_def_it.value();
+            cat_str = cat_def_it.key();
             cat = stoi(cat_str);
 
-            if (cat < 0 || cat > 255 || asterix_category_definitions_.count(cat) != 0)
+            if (cat < 0 || cat > 255 || current_category_edition_definitions_.count(cat) != 0)
                 throw invalid_argument ("jASTERIX called with wrong asterix category '"+cat_str+"' in list definition");
 
             if (debug)
-                loginf << "jASTERIX found asterix category " << cat << " definition in '" << file_str << "'";
+                loginf << "jASTERIX found asterix category " << cat_str;
+
 
             try
             {
-                if (debug)
-                   loginf << "jASTERIX loading file from path '"+definition_path_+"/categories/"+file_str << "'";
+                category_definitions_.emplace(std::piecewise_construct,
+                                  std::forward_as_tuple(cat_str),
+                                  std::forward_as_tuple(cat_str, cat_def_it.value(), definition_path_));
 
-                asterix_category_definitions_[cat] =
-                        json::parse(ifstream(definition_path_+"/categories/"+file_str));
+                assert (category_definitions_.count(cat_str) == 1);
+
+                current_category_edition_definitions_[cat] = category_definitions_.at(cat_str).getCurrentEdition();
             }
             catch (json::exception& e)
             {
-                throw runtime_error ("jASTERIX parsing error in asterix category "+cat_str
-                                     +" definition '"+file_str+"':"+e.what());
+                throw runtime_error ("jASTERIX parsing error in asterix category "+cat_str);
             }
         }
     }
@@ -164,7 +166,7 @@ void jASTERIX::decodeFile (const std::string& filename, const std::string& frami
     }
 
     // create ASTERIX parser
-    ASTERIXParser asterix_parser (data_block_definition_, asterix_category_definitions_, debug_);
+    ASTERIXParser asterix_parser (data_block_definition_, current_category_edition_definitions_, debug_);
 
     // create frame parser
     FrameParser frame_parser (framing_definition, asterix_parser, debug_);
@@ -211,7 +213,7 @@ void jASTERIX::decodeASTERIX (const char* data, size_t size,
              std::function<void(nlohmann::json&&, size_t, size_t)> callback)
 {
     // create ASTERIX parser
-    ASTERIXParser asterix_parser (data_block_definition_, asterix_category_definitions_, debug_);
+    ASTERIXParser asterix_parser (data_block_definition_, current_category_edition_definitions_, debug_);
 
     nlohmann::json data_chunk;
 

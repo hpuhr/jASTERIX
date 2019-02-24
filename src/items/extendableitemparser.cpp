@@ -24,7 +24,7 @@ namespace jASTERIX
 {
 
 ExtendableItemParser::ExtendableItemParser (const nlohmann::json& item_definition)
- : ItemParser (item_definition)
+    : ItemParser (item_definition)
 {
     assert (type_ == "extendable");
 
@@ -49,7 +49,7 @@ ExtendableItemParser::ExtendableItemParser (const nlohmann::json& item_definitio
 }
 
 size_t ExtendableItemParser::parseItem (const char* data, size_t index, size_t size, size_t current_parsed_bytes,
-                              nlohmann::json& target, bool debug)
+                                        nlohmann::json& target, bool debug)
 {
     if (debug)
         loginf << "parsing extendable item '" << name_ << "' with " << items_.size() << " items";
