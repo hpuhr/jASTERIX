@@ -15,5 +15,6 @@ include("${CMAKE_CURRENT_LIST_DIR}/frames/CMakeLists.txt")
 include("${CMAKE_CURRENT_LIST_DIR}/items/CMakeLists.txt")
 include("${CMAKE_CURRENT_LIST_DIR}/utils/CMakeLists.txt")
 include("${CMAKE_CURRENT_LIST_DIR}/client/CMakeLists.txt")
+include("${CMAKE_CURRENT_LIST_DIR}/test/CMakeLists.txt")
 
 

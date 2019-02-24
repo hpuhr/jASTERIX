@@ -25,30 +25,11 @@
 #include "jasterix.h"
 #include "logger.h"
 
-#include <stdio.h>
-#include <execinfo.h>
-#include <signal.h>
-#include <stdlib.h>
-#include <unistd.h>
-
 #include "log4cpp/OstreamAppender.hh"
 #include "log4cpp/Layout.hh"
 #include "log4cpp/SimpleLayout.hh"
 
 namespace po = boost::program_options;
-
-//void handler(int sig) {
-//  void *array[10];
-//  size_t size;
-
-//  // get void*'s for all entries on the stack
-//  size = backtrace(array, 10);
-
-//  // print out all the frames to stderr
-//  fprintf(stderr, "Error: signal %d:\n", sig);
-//  backtrace_symbols_fd(array, size, STDERR_FILENO);
-//  exit(1);
-//}
 
 using namespace std;
 
@@ -60,8 +41,6 @@ void callback (nlohmann::json&& data_chunk, size_t num_frames, size_t num_record
 int main (int argc, char **argv)
 {
     static_assert (sizeof(size_t) >= 8, "code requires size_t with at least 8 bytes");
-
-    //signal(SIGSEGV, handler);   // install our handler
 
     // setup logging
     log4cpp::Appender *console_appender_ = new log4cpp::OstreamAppender("console", &std::cout);
@@ -151,7 +130,6 @@ int main (int argc, char **argv)
     }
 
     loginf << "jASTERIX: shutdown";
-    //std::cout.flush();
 
     return 0;
 }

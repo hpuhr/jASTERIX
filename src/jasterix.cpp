@@ -207,6 +207,20 @@ void jASTERIX::decodeFile (const std::string& filename, const std::string& frami
     }
 }
 
+void jASTERIX::decodeASTERIX (const char* data, size_t size,
+             std::function<void(nlohmann::json&&, size_t, size_t)> callback)
+{
+    // create ASTERIX parser
+    ASTERIXParser asterix_parser (data_block_definition_, asterix_category_definitions_, debug_);
+
+    nlohmann::json data_chunk;
+
+    asterix_parser.decodeDataBlock(data, 0, size, data_chunk, debug_);
+
+    callback(std::move(data_chunk), 0, 0);
+}
+
+
 size_t jASTERIX::numFrames() const
 {
     return num_frames_;

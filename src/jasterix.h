@@ -38,6 +38,9 @@ public:
                      std::function<void(nlohmann::json&&, size_t, size_t)> callback);
     // callback gets moved chunk, accumulated number of frames, number of records
 
+    void decodeASTERIX (const char* data, size_t size,
+                 std::function<void(nlohmann::json&&, size_t, size_t)> callback);
+
     size_t numFrames() const;
     size_t numRecords() const;
 
