@@ -386,57 +386,18 @@
         "data_fields":
         [
             {
-                "name":"aircraft_indentification1",
+                "name":"aircraft_identification",
                 "type":"fixed_bitfield",
                 "length":6,
                 "items":[
                     {
-                        "name":"c1",
+                        "name":"aircraft_identification",
                         "type":"fixed_bits",
-                        "start_bit": 42,
-                        "bit_length": 6
-                    },
-                    {
-                        "name":"c2",
-                        "type":"fixed_bits",
-                        "start_bit": 36,
-                        "bit_length": 6
-                    },
-                    {
-                        "name":"c3",
-                        "type":"fixed_bits",
-                        "start_bit": 30,
-                        "bit_length": 6
-                    },
-                    {
-                        "name":"c4",
-                        "type":"fixed_bits",
-                        "start_bit": 24,
-                        "bit_length": 6
-                    },
-                    {
-                        "name":"c5",
-                        "type":"fixed_bits",
-                        "start_bit": 18,
-                        "bit_length": 6
-                    },
-                    {
-                        "name":"c6",
-                        "type":"fixed_bits",
-                        "start_bit": 12,
-                        "bit_length": 6
-                    },
-                    {
-                        "name":"c7",
-                        "type":"fixed_bits",
-                        "start_bit": 6,
-                        "bit_length": 6
-                    },
-                    {
-                        "name":"c8",
-                        "type":"fixed_bits",
+                        "data_type":"characters",
                         "start_bit": 0,
-                        "bit_length": 6
+                        "bit_length": 47,
+                        "num_characters": 8,
+                        "character_bit_length": 6
                     }
                 ]
             }
@@ -589,7 +550,7 @@
                         "bit_length":2
                     },
                     {
-                        "name":"extent_present",
+                        "name":"fx",
                         "type":"fixed_bits",
                         "start_bit": 0,
                         "bit_length":1
@@ -601,7 +562,7 @@
                 "type":"fixed_bitfield",
                 "length":1,
                 "optional":true,
-                "optional_variable_name":"170.extent_present",
+                "optional_variable_name":"170.fx",
                 "optional_variable_value":1,
                 "items":[
                     {
@@ -719,7 +680,7 @@
         "name":"100",
         "type": "optional_item",
         "optional_bitfield_name":"fspec",
-        "optional_bitfield_index":18,
+        "optional_bitfield_index":19,
         "data_fields":
         [
             {
@@ -759,7 +720,7 @@
         "name":"110",
         "type": "optional_item",
         "optional_bitfield_name":"fspec",
-        "optional_bitfield_index":19,
+        "optional_bitfield_index":20,
         "data_fields":
         [
             {
@@ -774,7 +735,7 @@
         "name":"120",
         "type": "optional_item",
         "optional_bitfield_name":"fspec",
-        "optional_bitfield_index":20,
+        "optional_bitfield_index":21,
         "data_fields":
         [
             {
@@ -865,7 +826,7 @@
         "name":"230",
         "type": "optional_item",
         "optional_bitfield_name":"fspec",
-        "optional_bitfield_index":21,
+        "optional_bitfield_index":22,
         "data_fields":
         [
             {
@@ -923,7 +884,7 @@
         "name":"260",
         "type": "optional_item",
         "optional_bitfield_name":"fspec",
-        "optional_bitfield_index":23,
+        "optional_bitfield_index":24,
         "data_fields":
         [
             {
@@ -938,7 +899,7 @@
         "name":"055",
         "type": "optional_item",
         "optional_bitfield_name":"fspec",
-        "optional_bitfield_index":24,
+        "optional_bitfield_index":25,
         "data_fields":
         [
             {
@@ -978,7 +939,7 @@
         "name":"050",
         "type": "optional_item",
         "optional_bitfield_name":"fspec",
-        "optional_bitfield_index":25,
+        "optional_bitfield_index":26,
         "data_fields":
         [
             {
@@ -1036,7 +997,7 @@
         "name":"065",
         "type": "optional_item",
         "optional_bitfield_name":"fspec",
-        "optional_bitfield_index":26,
+        "optional_bitfield_index":27,
         "data_fields":
         [
             {
@@ -1051,7 +1012,7 @@
         "name":"060",
         "type": "optional_item",
         "optional_bitfield_name":"fspec",
-        "optional_bitfield_index":27,
+        "optional_bitfield_index":28,
         "data_fields":
         [
             {

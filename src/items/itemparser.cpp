@@ -17,7 +17,6 @@
 
 #include "itemparser.h"
 #include "logger.h"
-#include "base64.h"
 
 #include "compounditemparser.h"
 #include "dynamicbytesitemparser.h"

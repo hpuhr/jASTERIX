@@ -267,6 +267,8 @@ void test_cat048_callback (nlohmann::json&& json_data, size_t num_frames, size_t
     //    ;  I048/240: =0x 49 94 b5 61  78 20
     //    ;  Aircraft Identification: "RYR5XW  "
 
+    loginf << "cat048 test: 240";
+    assert (json_data.at("data_block").at("content").at("record").at("240").at("aircraft_identification") == "RYR5XW  ");
 
     //    ;  I048/250: =0x 03 8b d9 eb  2f bf e4 00  60 80 91 9f  39 a0 04 dd
     //    ;            +0x 50 c8 48 00  30 a8 00 00  40
@@ -275,14 +277,48 @@ void test_cat048_callback (nlohmann::json&& json_data, size_t num_frames, size_t
     //    ;   BDS 5,0 data=0x 80 91 9f 39 a0 04 dd
     //    ;   BDS 4,0 data=0x c8 48 00 30 a8 00 00
     //    ;           mcp_fcu_selected_altitude=37008[ft]
+
+    loginf << "cat048 test: 250";
+    assert (json_data.at("data_block").at("content").at("record").at("250").at("mode_s_mb_data").size() == 3);
+    assert (json_data.at("data_block").at("content").at("record").at("250").at("mode_s_mb_data")[0].at("bds1") == 6);
+    assert (json_data.at("data_block").at("content").at("record").at("250").at("mode_s_mb_data")[0].at("bds2") == 0);
+    assert (json_data.at("data_block").at("content").at("record").at("250").at("mode_s_mb_data")[0].at("mb_data")
+            == "8bd9eb2fbfe400");
+
     //    ;  I048/161: =0x 03 97
     //    ;  Track Number: num=919
+
+    loginf << "cat048 test: 161";
+    assert (json_data.at("data_block").at("content").at("record").at("161").at("track_number") == 919);
+
     //    ;  I048/200: =0x 08 3c 17 30
     //    ;  Calculated Track Velocity: spd=2108 (463.184 kts); hdg=5936 (32.607 deg)
+
+    loginf << "cat048 test: 200";
+    assert (json_data.at("data_block").at("content").at("record").at("200").at("calculated_groundspeed") == 2108);
+    assert (json_data.at("data_block").at("content").at("record").at("200").at("calculated_heading") == 5936);
+
     //    ;  I048/170: =0x 40
     //    ;  Track Status: CNF SRT LVL
+
+    loginf << "cat048 test: 170";
+    assert (json_data.at("data_block").at("content").at("record").at("170").at("cnf") == 0);
+    assert (json_data.at("data_block").at("content").at("record").at("170").at("rad") == 2);
+    assert (json_data.at("data_block").at("content").at("record").at("170").at("dou") == 0);
+    assert (json_data.at("data_block").at("content").at("record").at("170").at("mah") == 0);
+    assert (json_data.at("data_block").at("content").at("record").at("170").at("cdm") == 0);
+
     //    ;  I048/230: =0x 20 fd
     //    ;  Communications Capability: CC=1; FS=0 (airborne); MSSC; ARC=25ft; AIC; B1A=1; B1B=13
+
+    loginf << "cat048 test: 230";
+    assert (json_data.at("data_block").at("content").at("record").at("230").at("com") == 1);
+    assert (json_data.at("data_block").at("content").at("record").at("230").at("stat") == 0);
+    assert (json_data.at("data_block").at("content").at("record").at("230").at("mssc") == 1);
+    assert (json_data.at("data_block").at("content").at("record").at("230").at("arc") == 1);
+    assert (json_data.at("data_block").at("content").at("record").at("230").at("aic") == 1);
+    assert (json_data.at("data_block").at("content").at("record").at("230").at("b1a") == 1);
+    assert (json_data.at("data_block").at("content").at("record").at("230").at("b1b") == 13);
 }
 
 

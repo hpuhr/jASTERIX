@@ -16,6 +16,7 @@
  */
 
 #include "fixedbitsitemparser.h"
+#include "string_conv.h"
 
 #include <algorithm>
 
@@ -26,7 +27,7 @@ namespace jASTERIX
 {
 
 FixedBitsItemParser::FixedBitsItemParser (const nlohmann::json& item_definition, unsigned int byte_length)
- : ItemParser (item_definition), byte_length_(byte_length)
+    : ItemParser (item_definition), byte_length_(byte_length)
 {
     assert (type_ == "fixed_bits");
 
@@ -46,7 +47,6 @@ FixedBitsItemParser::FixedBitsItemParser (const nlohmann::json& item_definition,
     if (start_bit_+bit_length_ > byte_length*8)
         throw runtime_error ("fixed byte bitfield item '"+name_+"' wrong length "+to_string(byte_length*8)
                              +" for bitsize "+to_string(start_bit_+bit_length_));
-
 
     if (item_definition.find("data_type") != item_definition.end())
         data_type_ = item_definition.at("data_type");
@@ -90,10 +90,6 @@ FixedBitsItemParser::FixedBitsItemParser (const nlohmann::json& item_definition,
     }
     else if (data_type_ == "digits")
     {
-        if (start_bit_+num_digits_*digit_bit_length_ > byte_length*8)
-            throw runtime_error ("fixed byte bitfield item '"+name_+"' wrong length "+to_string(byte_length*8)
-                                 +" for digits bitsize "+to_string(start_bit_+num_digits_*digit_bit_length_));
-
         if (item_definition.find("num_digits") == item_definition.end())
             throw runtime_error ("fixed byte bitfield item '"+name_+"' data type digits without number of digits");
 
@@ -104,6 +100,9 @@ FixedBitsItemParser::FixedBitsItemParser (const nlohmann::json& item_definition,
 
         digit_bit_length_ = item_definition.at("digit_bit_length");
 
+        if (start_bit_+num_digits_*digit_bit_length_ > byte_length*8)
+            throw runtime_error ("fixed byte bitfield item '"+name_+"' wrong length "+to_string(byte_length*8)
+                                 +" for digits bitsize "+to_string(start_bit_+num_digits_*digit_bit_length_));
         if (byte_length_ == 1)
         {
             bitmask1 = 1;
@@ -168,12 +167,96 @@ FixedBitsItemParser::FixedBitsItemParser (const nlohmann::json& item_definition,
         else
             throw runtime_error ("fixed byte bitfield item '"+name_+"' with length"+to_string(byte_length_));
     }
+    else if (data_type_ == "characters")
+    {
+        if (item_definition.find("num_characters") == item_definition.end())
+            throw runtime_error ("fixed byte bitfield item '"+name_
+                                 +"' data type characters without number of characters");
+
+        num_characters_ = item_definition.at("num_characters");
+
+        if (item_definition.find("character_bit_length") == item_definition.end())
+            throw runtime_error ("fixed byte bitfield item '"+name_
+                                 +"' data type characters without characters bit length");
+
+        character_bit_length_ = item_definition.at("character_bit_length");
+
+        if (start_bit_+num_digits_*digit_bit_length_ > byte_length*8)
+            throw runtime_error ("fixed byte bitfield item '"+name_+"' wrong length "+to_string(byte_length*8)
+                                 +" for digits bitsize "+to_string(start_bit_+num_digits_*digit_bit_length_));
+
+        if (character_bit_length_ != 6)
+            throw invalid_argument ("fixed byte bitfield item '"+name_+"' wrong character bit length "
+                                    +to_string(character_bit_length_));
+
+        if (byte_length_ == 1)
+        {
+            bitmask1 = 1;
+            for (unsigned cnt=0; cnt < character_bit_length_-1; ++cnt)
+            {
+                bitmask1 <<= 1;
+                bitmask1 += 1;
+            }
+            bitmask1 <<= start_bit_;
+
+            for (unsigned cnt=0; cnt < num_characters_; ++cnt)
+            {
+                chars_bitmasks1.push_back(bitmask1);
+                bitmask1 <<= character_bit_length_;
+            }
+
+            bitmask1 = 0;
+            assert (chars_bitmasks1.size() == num_characters_);
+        }
+        else if (byte_length_ <= 4)
+        {
+            bitmask4 = 1;
+            for (unsigned cnt=0; cnt < character_bit_length_-1; ++cnt)
+            {
+                bitmask4 <<= 1;
+                bitmask4 += 1;
+            }
+
+            bitmask4 <<= start_bit_;
+
+            for (unsigned cnt=0; cnt < num_characters_; ++cnt)
+            {
+                chars_bitmasks4.push_back(bitmask4);
+                bitmask4 <<= character_bit_length_;
+            }
+
+            bitmask4 = 0;
+            assert (chars_bitmasks4.size() == num_characters_);
+        }
+        else if (byte_length_ <= 8)
+        {
+            bitmask8 = 1;
+            for (unsigned cnt=0; cnt < character_bit_length_-1; ++cnt)
+            {
+                bitmask8 <<= 1;
+                bitmask8 += 1;
+            }
+
+            bitmask8 <<= start_bit_;
+
+            for (unsigned cnt=0; cnt < num_characters_; ++cnt)
+            {
+                chars_bitmasks8.push_back(bitmask8);
+                bitmask8 <<= character_bit_length_;
+            }
+
+            bitmask8 = 0;
+            assert (chars_bitmasks8.size() == num_characters_);
+        }
+        else
+            throw runtime_error ("fixed byte bitfield item '"+name_+"' with length"+to_string(byte_length_));
+    }
     else
         throw runtime_error ("fixed byte bitfield item '"+name_+"' with unknown data type '"+data_type_+"'");
 }
 
 size_t FixedBitsItemParser::parseItem (const char* data, size_t index, size_t size, size_t current_parsed_bytes,
-                              nlohmann::json& target, bool debug)
+                                       nlohmann::json& target, bool debug)
 {
     if (debug)
         loginf << "parsing fixed bits item '" << name_ << "' byte length " << byte_length_;
@@ -216,18 +299,41 @@ size_t FixedBitsItemParser::parseItem (const char* data, size_t index, size_t si
         else if (data_type_ == "digits")
         {
             size_t digits_tmp {0};
+            size_t digit_tmp1 {0};
 
             for (int cnt=num_digits_-1; cnt >= 0; --cnt)
             {
+                digits_tmp *= 10;
+                digit_tmp1 = tmp1 & digits_bitmasks1[cnt];
+                digit_tmp1 >>= cnt*character_bit_length_;
+                digits_tmp += digit_tmp1;
+
                 if (debug)
                     loginf << "parsing fixed bits item '" << name_ << "' type digits cnt " << cnt
                            << " digits1 tmp " << digits_tmp << " value " << (size_t) tmp1
                            << " bitmask " << digits_bitmasks1[cnt];
 
-                digits_tmp *= 10;
-                digits_tmp += tmp1 & digits_bitmasks1[cnt];
             }
             target.emplace(name_, digits_tmp);
+        }
+        else if (data_type_ == "characters")
+        {
+            string characters_tmp;
+            char char_tmp1;
+
+            for (int cnt=num_characters_-1; cnt >= 0; --cnt)
+            {
+                char_tmp1 = tmp1 & chars_bitmasks1[cnt];
+                char_tmp1 >>= cnt*character_bit_length_;
+                characters_tmp += getIcaoChar(char_tmp1);
+
+                if (debug)
+                    loginf << "parsing fixed bits item '" << name_ << "' type characters cnt " << cnt
+                           << " characters tmp '" << characters_tmp << "' value " << (size_t) char_tmp1
+                           << " bitmask " << chars_bitmasks1[cnt];
+
+            }
+            target.emplace(name_, characters_tmp);
         }
         else
             throw runtime_error ("fixed bits item '"+name_+"' parsing with unknown data type '"+data_type_+"'");
@@ -295,6 +401,25 @@ size_t FixedBitsItemParser::parseItem (const char* data, size_t index, size_t si
             }
             target.emplace(name_, digits_tmp);
         }
+        else if (data_type_ == "characters")
+        {
+            string characters_tmp;
+            size_t char_tmp4;
+
+            for (int cnt=num_characters_-1; cnt >= 0; --cnt)
+            {
+                char_tmp4 = tmp4 & chars_bitmasks4[cnt];
+                char_tmp4 >>= cnt*character_bit_length_;
+                characters_tmp += getIcaoChar(char_tmp4);
+
+                if (debug)
+                    loginf << "parsing fixed bits item '" << name_ << "' type characters cnt " << cnt
+                           << " characters tmp '" << characters_tmp << "' value " << (size_t) char_tmp4
+                           << " bitmask " << chars_bitmasks4[cnt];
+
+            }
+            target.emplace(name_, characters_tmp);
+        }
         else
             throw runtime_error ("fixed bits item '"+name_+"' parsing with unknown data type '"+data_type_+"'");
 
@@ -356,6 +481,25 @@ size_t FixedBitsItemParser::parseItem (const char* data, size_t index, size_t si
                 digits_tmp += tmp8 & digits_bitmasks8[cnt];
             }
             target.emplace(name_, digits_tmp);
+        }
+        else if (data_type_ == "characters")
+        {
+            string characters_tmp;
+            size_t char_tmp8;
+
+            for (int cnt=num_characters_-1; cnt >= 0; --cnt)
+            {
+                char_tmp8 = tmp8 & chars_bitmasks8[cnt];
+                char_tmp8 >>= cnt*character_bit_length_;
+                characters_tmp += getIcaoChar(char_tmp8);
+
+                if (debug)
+                    loginf << "parsing fixed bits item '" << name_ << "' type characters cnt " << cnt
+                           << " characters tmp '" << characters_tmp << "' value " << (size_t) char_tmp8
+                           << " bitmask " << chars_bitmasks8[cnt];
+
+            }
+            target.emplace(name_, characters_tmp);
         }
         else
             throw runtime_error ("fixed bits item '"+name_+"' parsing with unknown data type '"+data_type_+"'");

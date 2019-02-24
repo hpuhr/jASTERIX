@@ -17,9 +17,8 @@
 
 #include "fixedbytesitemparser.h"
 #include "logger.h"
-#include "base64.h"
+#include "string_conv.h"
 
-#include <iomanip>
 #include <iostream>
 
 using namespace std;
@@ -187,21 +186,12 @@ size_t FixedBytesItemParser::parseItem (const char* data, size_t index, size_t s
     }
     else if (data_type_ == "bin")
     {
-        std::string data_str = base64_encode(reinterpret_cast<const unsigned char*>(current_data), length_);
+        std::string data_str = binary2hex(reinterpret_cast<const unsigned char*>(current_data), length_);
 
         if (debug)
         {
-            stringstream ss;
-            unsigned char tmp;
-            for (unsigned int cnt=0; cnt < length_; ++cnt)
-            {
-                tmp = current_data[cnt];
-                ss << std::setfill('0') << std::setw(2) << std::hex << (int)tmp;
-            }
-
             loginf << "fixed bytes item '"+name_+"' parsing index " << index << " length " << length_
-                   << " data type " << data_type_ << " value '" << data_str << "'"
-                   << " value hex '" << ss.str() << "'";
+                   << " data type " << data_type_ << " value '" << data_str << "'";
         }
 
         assert (target.find(name_) == target.end());

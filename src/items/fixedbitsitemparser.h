@@ -39,16 +39,27 @@ protected:
     std::string data_type_ {"uint"};
     unsigned int negative_bit_pos_{0};
 
-    unsigned int num_digits_{0};
-    unsigned int digit_bit_length_{0};
-
     unsigned char bitmask1;
     unsigned int bitmask4;
     size_t bitmask8;
 
+    // data type digits stuff
+    unsigned int num_digits_{0};
+    unsigned int digit_bit_length_{0};
+
     std::vector<unsigned char> digits_bitmasks1;
     std::vector<unsigned int> digits_bitmasks4;
     std::vector<size_t> digits_bitmasks8;
+
+    // data type characters stuff
+
+    unsigned int num_characters_{0};
+    unsigned int character_bit_length_{0};
+
+    std::vector<unsigned char> chars_bitmasks1;
+    std::vector<unsigned int> chars_bitmasks4;
+    std::vector<size_t> chars_bitmasks8;
+
 };
 
 }
