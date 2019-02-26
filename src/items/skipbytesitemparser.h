@@ -18,12 +18,12 @@
 #ifndef SKIPBYTESITEMPARSER_H
 #define SKIPBYTESITEMPARSER_H
 
-#include "itemparser.h"
+#include "itemparserbase.h"
 
 namespace jASTERIX
 {
 // skips fixed number of bytes
-class SkipBytesItemParser : public ItemParser
+class SkipBytesItemParser : public ItemParserBase
 {
 public:
     SkipBytesItemParser (const nlohmann::json& item_definition);

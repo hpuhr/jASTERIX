@@ -24,7 +24,7 @@ namespace jASTERIX
 {
 
 ExtendableItemParser::ExtendableItemParser (const nlohmann::json& item_definition)
-    : ItemParser (item_definition)
+    : ItemParserBase (item_definition)
 {
     assert (type_ == "extendable");
 
@@ -37,14 +37,14 @@ ExtendableItemParser::ExtendableItemParser (const nlohmann::json& item_definitio
         throw runtime_error ("parsing extendable item '"+name_+"' items specification is not an array");
 
     std::string item_name;
-    ItemParser* item {nullptr};
+    ItemParserBase* item {nullptr};
 
     for (const json& data_item_it : items)
     {
         item_name = data_item_it.at("name");
-        item = ItemParser::createItemParser(data_item_it);
+        item = ItemParserBase::createItemParser(data_item_it);
         assert (item);
-        items_.push_back(std::unique_ptr<ItemParser>{item});
+        items_.push_back(std::unique_ptr<ItemParserBase>{item});
     }
 }
 

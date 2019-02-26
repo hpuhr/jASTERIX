@@ -43,7 +43,7 @@ ASTERIXParser::ASTERIXParser(const nlohmann::json& data_block_definition,
         throw runtime_error ("data block construction with items non-array");
 
     std::string item_name;
-    ItemParser* item {nullptr};
+    ItemParserBase* item {nullptr};
 
     for (const json& data_item_it : data_block_definition.at("items"))
     {
@@ -52,9 +52,9 @@ ASTERIXParser::ASTERIXParser(const nlohmann::json& data_block_definition,
         if (debug)
             loginf << "frame parser constructing data block item '" << item_name << "'";
 
-        item = ItemParser::createItemParser(data_item_it);
+        item = ItemParserBase::createItemParser(data_item_it);
         assert (item);
-        data_block_items_.push_back(std::unique_ptr<ItemParser>{item});
+        data_block_items_.push_back(std::unique_ptr<ItemParserBase>{item});
     }
 
     // asterix recird definitions

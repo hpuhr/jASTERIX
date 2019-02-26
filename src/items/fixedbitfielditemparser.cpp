@@ -25,7 +25,7 @@ namespace jASTERIX
 {
 
 FixedBitFieldItemParser::FixedBitFieldItemParser (const nlohmann::json& item_definition)
-    : ItemParser (item_definition)
+    : ItemParserBase (item_definition)
 {
     assert (type_ == "fixed_bitfield");
 
@@ -68,7 +68,7 @@ FixedBitFieldItemParser::FixedBitFieldItemParser (const nlohmann::json& item_def
         item_name = data_item_it.at("name");
         item = new FixedBitsItemParser(data_item_it, length_);
         assert (item);
-        items_.push_back(std::unique_ptr<ItemParser>{item});
+        items_.push_back(std::unique_ptr<ItemParserBase>{item});
     }
 }
 

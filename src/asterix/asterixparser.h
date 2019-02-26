@@ -19,10 +19,12 @@
 #define ASTERIXPARSER_H
 
 #include "json.hpp"
-#include "itemparser.h"
+//#include "itemparser.h"
 #include "edition.h"
 
 namespace jASTERIX {
+
+class ItemParserBase;
 
 class ASTERIXParser
 {
@@ -36,7 +38,7 @@ private:
     //const std::map<unsigned int, std::shared_ptr<Edition>>& asterix_category_definitions_;
 
     std::string data_block_name_;
-    std::vector<std::unique_ptr<ItemParser>> data_block_items_;
+    std::vector<std::unique_ptr<ItemParserBase>> data_block_items_;
     std::map<unsigned int, std::shared_ptr<Record>> records_;
 };
 

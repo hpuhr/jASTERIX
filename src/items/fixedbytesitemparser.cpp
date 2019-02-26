@@ -28,7 +28,7 @@ namespace jASTERIX
 {
 
 FixedBytesItemParser::FixedBytesItemParser (const nlohmann::json& item_definition)
- : ItemParser (item_definition)
+ : ItemParserBase (item_definition)
 {
     assert (type_ == "fixed_bytes");
 

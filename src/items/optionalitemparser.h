@@ -18,12 +18,12 @@
 #ifndef OPTIONALITEMPARSER_H
 #define OPTIONALITEMPARSER_H
 
-#include "itemparser.h"
+#include "itemparserbase.h"
 
 namespace jASTERIX
 {
 
-class OptionalItemParser : public ItemParser
+class OptionalItemParser : public ItemParserBase
 {
 public:
     OptionalItemParser (const nlohmann::json& item_definition);
@@ -34,7 +34,7 @@ public:
 protected:
     std::string bitfield_name_;
     unsigned int bitfield_index_{0};
-    std::vector<std::unique_ptr<ItemParser>> data_fields_;
+    std::vector<std::unique_ptr<ItemParserBase>> data_fields_;
 };
 
 }

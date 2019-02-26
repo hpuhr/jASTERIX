@@ -25,7 +25,7 @@ namespace jASTERIX
 {
 
 SkipBytesItemParser::SkipBytesItemParser (const nlohmann::json& item_definition)
- : ItemParser (item_definition)
+ : ItemParserBase (item_definition)
 {
     assert (type_ == "skip_bytes");
 

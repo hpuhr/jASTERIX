@@ -18,7 +18,7 @@
 #ifndef EXTENDABLEITEMPARSER_H
 #define EXTENDABLEITEMPARSER_H
 
-#include "itemparser.h"
+#include "itemparserbase.h"
 
 #include <vector>
 #include <memory>
@@ -27,7 +27,7 @@ namespace jASTERIX
 {
 
 // parses item into array, extend into next has to signified by bool extend
-class ExtendableItemParser : public ItemParser
+class ExtendableItemParser : public ItemParserBase
 {
 public:
     ExtendableItemParser (const nlohmann::json& item_definition);
@@ -36,7 +36,7 @@ public:
     virtual size_t parseItem (const char* data, size_t index, size_t size, size_t current_parsed_bytes,
                               nlohmann::json& target, bool debug) override;
 protected:
-    std::vector<std::unique_ptr<ItemParser>> items_;
+    std::vector<std::unique_ptr<ItemParserBase>> items_;
 };
 
 }

@@ -18,12 +18,12 @@
 #ifndef FIXEDBITSITEMPARSER_H
 #define FIXEDBITSITEMPARSER_H
 
-#include "itemparser.h"
+#include "itemparserbase.h"
 
 namespace jASTERIX
 {
 
-class FixedBitsItemParser : public ItemParser
+class FixedBitsItemParser : public ItemParserBase
 {
 public:
     FixedBitsItemParser (const nlohmann::json& item_definition, unsigned int byte_length);

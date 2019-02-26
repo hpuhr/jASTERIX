@@ -24,7 +24,7 @@ namespace jASTERIX
 {
 
 OptionalItemParser::OptionalItemParser (const nlohmann::json& item_definition)
- : ItemParser (item_definition)
+ : ItemParserBase (item_definition)
 {
     assert (type_ == "optional_item");
 
@@ -47,14 +47,14 @@ OptionalItemParser::OptionalItemParser (const nlohmann::json& item_definition)
         throw runtime_error ("parsing optional item '"+name_+"' data fields container is not an array");
 
     std::string item_name;
-    ItemParser* item {nullptr};
+    ItemParserBase* item {nullptr};
 
     for (const json& data_item_it : data_fields)
     {
         item_name = data_item_it.at("name");
-        item = ItemParser::createItemParser(data_item_it);
+        item = ItemParserBase::createItemParser(data_item_it);
         assert (item);
-        data_fields_.push_back(std::unique_ptr<ItemParser>{item});
+        data_fields_.push_back(std::unique_ptr<ItemParserBase>{item});
     }
 }
 

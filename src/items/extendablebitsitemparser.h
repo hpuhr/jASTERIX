@@ -19,13 +19,13 @@
 #define EXTENDABLEBITSITEMPARSER_H
 
 
-#include "itemparser.h"
+#include "itemparserbase.h"
 
 namespace jASTERIX
 {
 
 // parses all bits per byte into array<bool>, the last of each byte signifying the extension into next byte
-class ExtendableBitsItemParser : public ItemParser
+class ExtendableBitsItemParser : public ItemParserBase
 {
 public:
     ExtendableBitsItemParser (const nlohmann::json& item_definition);

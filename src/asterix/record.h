@@ -19,7 +19,7 @@
 #define RECORD_H
 
 
-#include "itemparser.h"
+#include "itemparserbase.h"
 
 #include <vector>
 #include <memory>
@@ -27,7 +27,7 @@
 namespace jASTERIX
 {
 // decodes a field specification/availablity field (ending with extend bit), and list of items
-class Record : public ItemParser
+class Record : public ItemParserBase
 {
 public:
     Record (const nlohmann::json& item_definition);
@@ -36,8 +36,9 @@ public:
     virtual size_t parseItem (const char* data, size_t index, size_t size, size_t current_parsed_bytes,
                               nlohmann::json& target, bool debug) override;
 protected:
-    std::unique_ptr<ItemParser> field_specification_;
-    std::vector<std::unique_ptr<ItemParser>> items_;
+    std::unique_ptr<ItemParserBase> field_specification_;
+    std::vector<std::string> uap_names_;
+    std::map<std::string, std::unique_ptr<ItemParserBase>> items_;
 };
 
 }

@@ -8,13 +8,46 @@
     "reverse_bits": true,
     "data_type":"bitfield"
 },
+"uap":
+[
+    "010",
+    "140",
+    "020",
+    "040",
+    "070",
+    "090",
+    "130",
+    "FX",
+    "220",
+    "240",
+    "250",
+    "161",
+    "042",
+    "200",
+    "170",
+    "FX",
+    "210",
+    "030",
+    "080",
+    "100",
+    "110",
+    "120",
+    "230",
+    "FX",
+    "260",
+    "55",
+    "50",
+    "65",
+    "60",
+    "SP",
+    "RE",
+    "FX"
+],
 "items":
 [
     {
         "name":"010",
-        "type": "optional_item",
-        "optional_bitfield_name":"fspec",
-        "optional_bitfield_index":0,
+        "type": "item",
         "data_fields":
         [
             {
@@ -32,25 +65,8 @@
         ]
     },
     {
-        "name":"140",
-        "type": "optional_item",
-        "optional_bitfield_name":"fspec",
-        "optional_bitfield_index":1,
-        "data_fields":
-        [
-            {
-                "name":"time-of-day",
-                "type":"fixed_bytes",
-                "length":3,
-                "data_type":"uint"
-            }
-        ]
-    },
-    {
         "name":"020",
-        "type": "optional_item",
-        "optional_bitfield_name":"fspec",
-        "optional_bitfield_index":2,
+        "type": "item",
         "data_fields":
         [
             {
@@ -139,10 +155,41 @@
         ]
     },
     {
+        "name":"030",
+        "type": "item",
+        "data_fields":
+        [
+            {
+                "name":"warning/error_conditions",
+                "type":"extendable",
+                "items":
+                [
+                    {
+                        "name":"warning/error_condition",
+                        "type":"fixed_bitfield",
+                        "length":1,
+                        "items":[
+                            {
+                                "name":"w/e_value",
+                                "type":"fixed_bits",
+                                "start_bit": 1,
+                                "bit_length": 7
+                            },
+                            {
+                                "name":"extend",
+                                "type":"fixed_bits",
+                                "start_bit": 0,
+                                "bit_length": 1
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
         "name":"040",
-        "type": "optional_item",
-        "optional_bitfield_name":"fspec",
-        "optional_bitfield_index":3,
+        "type": "item",
         "data_fields":
         [
             {
@@ -160,10 +207,147 @@
         ]
     },
     {
+        "name":"042",
+        "type": "item",
+        "data_fields":
+        [
+            {
+                "name":"x-component",
+                "type":"fixed_bytes",
+                "length":2,
+                "data_type":"int"
+            },
+            {
+                "name":"y-component",
+                "type":"fixed_bytes",
+                "length":2,
+                "data_type":"int"
+            }
+        ]
+    },
+    {
+        "name":"050",
+        "type": "item",
+        "data_fields":
+        [
+            {
+                "name":"mode_2",
+                "type":"fixed_bitfield",
+                "length":2,
+                "items":[
+                    {
+                        "name":"v",
+                        "type":"fixed_bits",
+                        "start_bit":15,
+                        "bit_length":1
+                    },
+                    {
+                        "name":"g",
+                        "type":"fixed_bits",
+                        "start_bit":14,
+                        "bit_length":1
+                    },
+                    {
+                        "name":"l",
+                        "type":"fixed_bits",
+                        "start_bit":13,
+                        "bit_length":1
+                    },
+                    {
+                        "name":"a",
+                        "type":"fixed_bits",
+                        "start_bit":9,
+                        "bit_length":3
+                    },
+                    {
+                        "name":"b",
+                        "type":"fixed_bits",
+                        "start_bit":6,
+                        "bit_length":3
+                    },
+                    {
+                        "name":"c",
+                        "type":"fixed_bits",
+                        "start_bit":3,
+                        "bit_length":3
+                    },
+                    {
+                        "name":"d",
+                        "type":"fixed_bits",
+                        "start_bit":0,
+                        "bit_length":3
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name":"055",
+        "type": "item",
+        "data_fields":
+        [
+            {
+                "name":"mode_1",
+                "type":"fixed_bitfield",
+                "length":1,
+                "items":[
+                    {
+                        "name":"v",
+                        "type":"fixed_bits",
+                        "start_bit":7,
+                        "bit_length":1
+                    },
+                    {
+                        "name":"g",
+                        "type":"fixed_bits",
+                        "start_bit":6,
+                        "bit_length":1
+                    },
+                    {
+                        "name":"l",
+                        "type":"fixed_bits",
+                        "start_bit":5,
+                        "bit_length":1
+                    },
+                    {
+                        "name":"code",
+                        "type":"fixed_bits",
+                        "start_bit":0,
+                        "bit_length":5
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name":"060",
+        "type": "item",
+        "data_fields":
+        [
+            {
+                "name":"mode_2_confidence",
+                "type":"fixed_bytes",
+                "length":2,
+                "data_type":"uint"
+            }
+        ]
+    },
+    {
+        "name":"065",
+        "type": "item",
+        "data_fields":
+        [
+            {
+                "name":"mode_1_confidence",
+                "type":"fixed_bytes",
+                "length":1,
+                "data_type":"uint"
+            }
+        ]
+    },
+    {
         "name":"070",
-        "type": "optional_item",
-        "optional_bitfield_name":"fspec",
-        "optional_bitfield_index":4,
+        "type": "item",
         "data_fields":
         [
             {
@@ -203,10 +387,21 @@
         ]
     },  
     {
+        "name":"080",
+        "type": "item",
+        "data_fields":
+        [
+            {
+                "name":"mode_3a_confidence",
+                "type":"fixed_bytes",
+                "length":2,
+                "data_type":"int"
+            }
+        ]
+    },
+    {
         "name":"090",
-        "type": "optional_item",
-        "optional_bitfield_name":"fspec",
-        "optional_bitfield_index":5,
+        "type": "item",
         "data_fields":
         [
             {
@@ -237,10 +432,148 @@
         ]
     },
     {
+        "name":"100",
+        "type": "item",
+        "data_fields":
+        [
+            {
+                "name":"mode_c_confidence",
+                "type":"fixed_bitfield",
+                "length":2,
+                "items":[
+                    {
+                        "name":"v",
+                        "type":"fixed_bits",
+                        "start_bit":15,
+                        "bit_length": 1
+                    },
+                    {
+                        "name":"g",
+                        "type":"fixed_bits",
+                        "start_bit":14,
+                        "bit_length":1
+                    },
+                    {
+                        "name":"mode_c_confidence",
+                        "type":"fixed_bits",
+                        "start_bit":0,
+                        "bit_length":12
+                    }
+                ]
+            },
+            {
+                "name":"mode_3a_confidence",
+                "type":"fixed_bytes",
+                "length":2,
+                "data_type":"uint"
+            }
+        ]
+    },
+    {
+        "name":"110",
+        "type": "item",
+        "data_fields":
+        [
+            {
+                "name":"3d_height",
+                "type":"fixed_bytes",
+                "length":2,
+                "data_type":"int"
+            }
+        ]
+    },
+    {
+        "name":"120",
+        "type": "item",
+        "data_fields":
+        [
+            {
+                "name":"120",
+                "type":"compound",
+                "field_specification":
+                {
+                    "name":"available",
+                    "type":"extendable_bits",
+                    "data_type":"bitfield"
+                },
+                "items":
+                [
+                    {
+                        "name":"cal",
+                        "type": "optional_item",
+                        "optional_bitfield_name":"available",
+                        "optional_bitfield_index":7,
+                        "data_fields":
+                        [
+                            {
+                                "name":"calculated_doppler_speed",
+                                "type":"fixed_bitfield",
+                                "length":2,
+                                "items":[
+                                    {
+                                        "name":"d",
+                                        "type":"fixed_bits",
+                                        "start_bit":15,
+                                        "bit_length": 1
+                                    },
+                                    {
+                                        "name":"cal",
+                                        "type":"fixed_bits",
+                                        "start_bit":0,
+                                        "bit_length":10,
+                                        "data_type": "int"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "name":"rds",
+                        "type": "optional_item",
+                        "optional_bitfield_name":"available",
+                        "optional_bitfield_index":6,
+                        "data_fields":
+                        [
+                            {
+                                "name":"rds",
+                                "type":"repetitive",
+                                "repetition_item" : 
+                                    {
+                                        "name" : "rep",
+                                        "type": "fixed_bytes",
+                                        "length" : 1,
+                                        "data_type" : "uint"
+                                    },
+                                "items":[
+                                    {
+                                        "name":"dop",
+                                        "type":"fixed_bytes",
+                                        "length": 2,
+                                        "data_type" : "uinr"
+                                    },
+                                    {
+                                        "name":"amb",
+                                        "type":"fixed_bytes",
+                                        "length": 2,
+                                        "data_type" : "uinr"
+                                    },
+                                    {
+                                        "name":"frq",
+                                        "type":"fixed_bytes",
+                                        "length": 2,
+                                        "data_type" : "uinr"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
         "name":"130",
-        "type": "optional_item",
-        "optional_bitfield_name":"fspec",
-        "optional_bitfield_index":6,
+        "type": "item",
         "data_fields":
         [
             {
@@ -364,14 +697,12 @@
         ]
     },
     {
-        "name":"220",
-        "type": "optional_item",
-        "optional_bitfield_name":"fspec",
-        "optional_bitfield_index":8,
+        "name":"140",
+        "type": "item",
         "data_fields":
         [
             {
-                "name":"aircraft_address",
+                "name":"time-of-day",
                 "type":"fixed_bytes",
                 "length":3,
                 "data_type":"uint"
@@ -379,82 +710,8 @@
         ]
     },
     {
-        "name":"240",
-        "type": "optional_item",
-        "optional_bitfield_name":"fspec",
-        "optional_bitfield_index":9,
-        "data_fields":
-        [
-            {
-                "name":"aircraft_identification",
-                "type":"fixed_bitfield",
-                "length":6,
-                "items":[
-                    {
-                        "name":"aircraft_identification",
-                        "type":"fixed_bits",
-                        "data_type":"characters",
-                        "start_bit": 0,
-                        "bit_length": 47,
-                        "num_characters": 8,
-                        "character_bit_length": 6
-                    }
-                ]
-            }
-        ]
-    },
-    {
-        "name":"250",
-        "type": "optional_item",
-        "optional_bitfield_name":"fspec",
-        "optional_bitfield_index":10,
-        "data_fields":
-        [
-            {
-                "name":"mode_s_mb_data",
-                "type":"repetitive",
-                "repetition_item" : 
-                    {
-                        "name" : "rep",
-                        "type": "fixed_bytes",
-                        "length" : 1,
-                        "data_type" : "uint"
-                    },
-                "items":[
-                    {
-                        "name":"mb_data",
-                        "type":"fixed_bytes",
-                        "length": 7,
-                        "data_type" : "bin"
-                    },
-                    {
-                        "name":"address",
-                        "type":"fixed_bitfield",
-                        "length":1,
-                        "items":[
-                            {
-                                "name":"bds1",
-                                "type":"fixed_bits",
-                                "start_bit": 4,
-                                "bit_length": 4
-                            },
-                            {
-                                "name":"bds2",
-                                "type":"fixed_bits",
-                                "start_bit": 0,
-                                "bit_length": 4
-                            }
-                        ]
-                    }
-                ]
-            }
-        ]
-    },
-    {
         "name":"161",
-        "type": "optional_item",
-        "optional_bitfield_name":"fspec",
-        "optional_bitfield_index":11,
+        "type": "item",
         "data_fields":
         [
             {
@@ -466,52 +723,8 @@
         ]
     },
     {
-        "name":"042",
-        "type": "optional_item",
-        "optional_bitfield_name":"fspec",
-        "optional_bitfield_index":12,
-        "data_fields":
-        [
-            {
-                "name":"calculated_position_x",
-                "type":"fixed_bytes",
-                "length":2,
-                "data_type":"int"
-            },
-            {
-                "name":"calculated_position_y",
-                "type":"fixed_bytes",
-                "length":2,
-                "data_type":"int"
-            }
-        ]
-    },
-    {
-        "name":"200",
-        "type": "optional_item",
-        "optional_bitfield_name":"fspec",
-        "optional_bitfield_index":13,
-        "data_fields":
-        [
-            {
-                "name":"calculated_groundspeed",
-                "type":"fixed_bytes",
-                "length":2,
-                "data_type":"int"
-            },
-            {
-                "name":"calculated_heading",
-                "type":"fixed_bytes",
-                "length":2,
-                "data_type":"uint"
-            }
-        ]
-    },
-    {
         "name":"170",
-        "type": "optional_item",
-        "optional_bitfield_name":"fspec",
-        "optional_bitfield_index":14,
+        "type": "item",
         "data_fields":
         [
             {
@@ -594,10 +807,27 @@
         ]
     },
     {
+        "name":"200",
+        "type": "item",
+        "data_fields":
+        [
+            {
+                "name":"calculated_groundspeed",
+                "type":"fixed_bytes",
+                "length":2,
+                "data_type":"int"
+            },
+            {
+                "name":"calculated_heading",
+                "type":"fixed_bytes",
+                "length":2,
+                "data_type":"uint"
+            }
+        ]
+    },
+    {
         "name":"210",
-        "type": "optional_item",
-        "optional_bitfield_name":"fspec",
-        "optional_bitfield_index":16,
+        "type": "item",
         "data_fields":
         [
             {
@@ -627,206 +857,21 @@
         ]
     },
     {
-        "name":"030",
-        "type": "optional_item",
-        "optional_bitfield_name":"fspec",
-        "optional_bitfield_index":17,
+        "name":"220",
+        "type": "item",
         "data_fields":
         [
             {
-                "name":"warning_error_conditions",
-                "type":"extendable",
-                "items":
-                [
-                    {
-                        "name":"warning_error_condition",
-                        "type":"fixed_bitfield",
-                        "length":1,
-                        "items":[
-                            {
-                                "name":"w_e_value",
-                                "type":"fixed_bits",
-                                "start_bit": 1,
-                                "bit_length": 7
-                            },
-                            {
-                                "name":"extend",
-                                "type":"fixed_bits",
-                                "start_bit": 0,
-                                "bit_length": 1
-                            }
-                        ]
-                    }
-                ]
-            }
-        ]
-    },
-    {
-        "name":"080",
-        "type": "optional_item",
-        "optional_bitfield_name":"fspec",
-        "optional_bitfield_index":18,
-        "data_fields":
-        [
-            {
-                "name":"mode_3a_confidence",
+                "name":"aircraft_address",
                 "type":"fixed_bytes",
-                "length":2,
-                "data_type":"int"
-            }
-        ]
-    },
-    {
-        "name":"100",
-        "type": "optional_item",
-        "optional_bitfield_name":"fspec",
-        "optional_bitfield_index":19,
-        "data_fields":
-        [
-            {
-                "name":"mode_c_confidence",
-                "type":"fixed_bitfield",
-                "length":2,
-                "items":[
-                    {
-                        "name":"v",
-                        "type":"fixed_bits",
-                        "start_bit":15,
-                        "bit_length": 1
-                    },
-                    {
-                        "name":"g",
-                        "type":"fixed_bits",
-                        "start_bit":14,
-                        "bit_length":1
-                    },
-                    {
-                        "name":"mode_c_confidence",
-                        "type":"fixed_bits",
-                        "start_bit":0,
-                        "bit_length":12
-                    }
-                ]
-            },
-            {
-                "name":"mode_3a_confidence",
-                "type":"fixed_bytes",
-                "length":2,
+                "length":3,
                 "data_type":"uint"
             }
         ]
     },
     {
-        "name":"110",
-        "type": "optional_item",
-        "optional_bitfield_name":"fspec",
-        "optional_bitfield_index":20,
-        "data_fields":
-        [
-            {
-                "name":"3d_height",
-                "type":"fixed_bytes",
-                "length":2,
-                "data_type":"int"
-            }
-        ]
-    },
-    {
-        "name":"120",
-        "type": "optional_item",
-        "optional_bitfield_name":"fspec",
-        "optional_bitfield_index":21,
-        "data_fields":
-        [
-            {
-                "name":"120",
-                "type":"compound",
-                "field_specification":
-                {
-                    "name":"available",
-                    "type":"extendable_bits",
-                    "data_type":"bitfield"
-                },
-                "items":
-                [
-                    {
-                        "name":"cal",
-                        "type": "optional_item",
-                        "optional_bitfield_name":"available",
-                        "optional_bitfield_index":7,
-                        "data_fields":
-                        [
-                            {
-                                "name":"calculated_doppler_speed",
-                                "type":"fixed_bitfield",
-                                "length":2,
-                                "items":[
-                                    {
-                                        "name":"d",
-                                        "type":"fixed_bits",
-                                        "start_bit":15,
-                                        "bit_length": 1
-                                    },
-                                    {
-                                        "name":"cal",
-                                        "type":"fixed_bits",
-                                        "start_bit":0,
-                                        "bit_length":10,
-                                        "data_type": "int"
-                                    }
-                                ]
-                            }
-                        ]
-                    },
-                    {
-                        "name":"rds",
-                        "type": "optional_item",
-                        "optional_bitfield_name":"available",
-                        "optional_bitfield_index":6,
-                        "data_fields":
-                        [
-                            {
-                                "name":"rds",
-                                "type":"repetitive",
-                                "repetition_item" : 
-                                    {
-                                        "name" : "rep",
-                                        "type": "fixed_bytes",
-                                        "length" : 1,
-                                        "data_type" : "uint"
-                                    },
-                                "items":[
-                                    {
-                                        "name":"dop",
-                                        "type":"fixed_bytes",
-                                        "length": 2,
-                                        "data_type" : "uinr"
-                                    },
-                                    {
-                                        "name":"amb",
-                                        "type":"fixed_bytes",
-                                        "length": 2,
-                                        "data_type" : "uinr"
-                                    },
-                                    {
-                                        "name":"frq",
-                                        "type":"fixed_bytes",
-                                        "length": 2,
-                                        "data_type" : "uinr"
-                                    }
-                                ]
-                            }
-                        ]
-                    }
-                ]
-            }
-        ]
-    },
-    {
         "name":"230",
-        "type": "optional_item",
-        "optional_bitfield_name":"fspec",
-        "optional_bitfield_index":22,
+        "type": "item",
         "data_fields":
         [
             {
@@ -881,10 +926,76 @@
         ]
     },
     {
+        "name":"240",
+        "type": "item",
+        "data_fields":
+        [
+            {
+                "name":"aircraft_identification",
+                "type":"fixed_bitfield",
+                "length":6,
+                "items":[
+                    {
+                        "name":"aircraft_identification",
+                        "type":"fixed_bits",
+                        "data_type":"characters",
+                        "start_bit": 0,
+                        "bit_length": 47,
+                        "num_characters": 8,
+                        "character_bit_length": 6
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name":"250",
+        "type": "item",
+        "data_fields":
+        [
+            {
+                "name":"mode_s_mb_data",
+                "type":"repetitive",
+                "repetition_item" : 
+                    {
+                        "name" : "rep",
+                        "type": "fixed_bytes",
+                        "length" : 1,
+                        "data_type" : "uint"
+                    },
+                "items":[
+                    {
+                        "name":"mb_data",
+                        "type":"fixed_bytes",
+                        "length": 7,
+                        "data_type" : "bin"
+                    },
+                    {
+                        "name":"address",
+                        "type":"fixed_bitfield",
+                        "length":1,
+                        "items":[
+                            {
+                                "name":"bds1",
+                                "type":"fixed_bits",
+                                "start_bit": 4,
+                                "bit_length": 4
+                            },
+                            {
+                                "name":"bds2",
+                                "type":"fixed_bits",
+                                "start_bit": 0,
+                                "bit_length": 4
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
         "name":"260",
-        "type": "optional_item",
-        "optional_bitfield_name":"fspec",
-        "optional_bitfield_index":24,
+        "type": "item",
         "data_fields":
         [
             {
@@ -894,136 +1005,6 @@
                 "data_type":"bin"
             }
         ]
-    },
-    {
-        "name":"055",
-        "type": "optional_item",
-        "optional_bitfield_name":"fspec",
-        "optional_bitfield_index":25,
-        "data_fields":
-        [
-            {
-                "name":"mode_1",
-                "type":"fixed_bitfield",
-                "length":1,
-                "items":[
-                    {
-                        "name":"v",
-                        "type":"fixed_bits",
-                        "start_bit":7,
-                        "bit_length":1
-                    },
-                    {
-                        "name":"g",
-                        "type":"fixed_bits",
-                        "start_bit":6,
-                        "bit_length":1
-                    },
-                    {
-                        "name":"l",
-                        "type":"fixed_bits",
-                        "start_bit":5,
-                        "bit_length":1
-                    },
-                    {
-                        "name":"code",
-                        "type":"fixed_bits",
-                        "start_bit":0,
-                        "bit_length":5
-                    }
-                ]
-            }
-        ]
-    },
-    {
-        "name":"050",
-        "type": "optional_item",
-        "optional_bitfield_name":"fspec",
-        "optional_bitfield_index":26,
-        "data_fields":
-        [
-            {
-                "name":"mode_2",
-                "type":"fixed_bitfield",
-                "length":2,
-                "items":[
-                    {
-                        "name":"v",
-                        "type":"fixed_bits",
-                        "start_bit":15,
-                        "bit_length":1
-                    },
-                    {
-                        "name":"g",
-                        "type":"fixed_bits",
-                        "start_bit":14,
-                        "bit_length":1
-                    },
-                    {
-                        "name":"l",
-                        "type":"fixed_bits",
-                        "start_bit":13,
-                        "bit_length":1
-                    },
-                    {
-                        "name":"a",
-                        "type":"fixed_bits",
-                        "start_bit":9,
-                        "bit_length":3
-                    },
-                    {
-                        "name":"b",
-                        "type":"fixed_bits",
-                        "start_bit":6,
-                        "bit_length":3
-                    },
-                    {
-                        "name":"c",
-                        "type":"fixed_bits",
-                        "start_bit":3,
-                        "bit_length":3
-                    },
-                    {
-                        "name":"d",
-                        "type":"fixed_bits",
-                        "start_bit":0,
-                        "bit_length":3
-                    }
-                ]
-            }
-        ]
-    },
-    {
-        "name":"065",
-        "type": "optional_item",
-        "optional_bitfield_name":"fspec",
-        "optional_bitfield_index":27,
-        "data_fields":
-        [
-            {
-                "name":"mode_1_confidence",
-                "type":"fixed_bytes",
-                "length":1,
-                "data_type":"uint"
-            }
-        ]
-    },
-    {
-        "name":"060",
-        "type": "optional_item",
-        "optional_bitfield_name":"fspec",
-        "optional_bitfield_index":28,
-        "data_fields":
-        [
-            {
-                "name":"mode_2_confidence",
-                "type":"fixed_bytes",
-                "length":2,
-                "data_type":"uint"
-            }
-        ]
     }
-    
-    
 ]
 }

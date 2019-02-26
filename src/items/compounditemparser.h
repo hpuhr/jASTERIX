@@ -18,7 +18,7 @@
 #ifndef COMPOUNDITEMPARSER_H
 #define COMPOUNDITEMPARSER_H
 
-#include "itemparser.h"
+#include "itemparserbase.h"
 
 #include <vector>
 #include <memory>
@@ -26,7 +26,7 @@
 namespace jASTERIX
 {
 // decodes a field specification/availablity field (ending with extend bit), and list of items
-class CompoundItemParser : public ItemParser
+class CompoundItemParser : public ItemParserBase
 {
 public:
     CompoundItemParser (const nlohmann::json& item_definition);
@@ -36,8 +36,8 @@ public:
                               nlohmann::json& target, bool debug) override;
 protected:
     //std::string field_specification_name_;
-    std::unique_ptr<ItemParser> field_specification_;
-    std::vector<std::unique_ptr<ItemParser>> items_;
+    std::unique_ptr<ItemParserBase> field_specification_;
+    std::vector<std::unique_ptr<ItemParserBase>> items_;
 };
 
 }

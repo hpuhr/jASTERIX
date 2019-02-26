@@ -24,7 +24,7 @@ namespace jASTERIX
 {
 
 ExtendableBitsItemParser::ExtendableBitsItemParser (const nlohmann::json& item_definition)
-    : ItemParser (item_definition)
+    : ItemParserBase (item_definition)
 {
     assert (type_ == "extendable_bits");
 

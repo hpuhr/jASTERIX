@@ -18,12 +18,12 @@
 #ifndef REPETETIVEITEMPARSER_H
 #define REPETETIVEITEMPARSER_H
 
-#include "itemparser.h"
+#include "itemparserbase.h"
 
 namespace jASTERIX
 {
 
-class RepetetiveItemParser : public ItemParser
+class RepetetiveItemParser : public ItemParserBase
 {
 public:
     RepetetiveItemParser (const nlohmann::json& item_definition);
@@ -32,8 +32,8 @@ public:
     virtual size_t parseItem (const char* data, size_t index, size_t size, size_t current_parsed_bytes,
                               nlohmann::json& target, bool debug) override;
 protected:
-    std::unique_ptr<ItemParser> repetition_item_;
-    std::vector<std::unique_ptr<ItemParser>> items_;
+    std::unique_ptr<ItemParserBase> repetition_item_;
+    std::vector<std::unique_ptr<ItemParserBase>> items_;
 };
 
 }

@@ -24,7 +24,7 @@ namespace jASTERIX
 {
 
 DynamicBytesItemParser::DynamicBytesItemParser (const nlohmann::json& item_definition)
- : ItemParser (item_definition)
+ : ItemParserBase (item_definition)
 {
     assert (type_ == "dynamic_bytes");
 

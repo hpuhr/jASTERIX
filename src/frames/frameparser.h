@@ -19,11 +19,12 @@
 #define FRAMEPARSER_H
 
 #include "json.hpp"
-#include "itemparser.h"
+//#include "itemparserbase.h"
 
 namespace jASTERIX {
 
 class ASTERIXParser;
+class ItemParserBase;
 
 class FrameParser
 {
@@ -43,8 +44,8 @@ public:
 private:
     ASTERIXParser& asterix_parser_;
 
-    std::vector<std::unique_ptr<ItemParser>> header_items_;
-    std::vector<std::unique_ptr<ItemParser>> frame_items_;
+    std::vector<std::unique_ptr<ItemParserBase>> header_items_;
+    std::vector<std::unique_ptr<ItemParserBase>> frame_items_;
 
     bool done_ {false};
 

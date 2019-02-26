@@ -18,7 +18,7 @@
 #ifndef FIXEDBITFIELDITEMPARSER_H
 #define FIXEDBITFIELDITEMPARSER_H
 
-#include "itemparser.h"
+#include "itemparserbase.h"
 #include "json.hpp"
 
 #include <vector>
@@ -27,7 +27,7 @@
 namespace jASTERIX
 {
 
-class FixedBitFieldItemParser : public ItemParser
+class FixedBitFieldItemParser : public ItemParserBase
 {
 public:
     FixedBitFieldItemParser (const nlohmann::json& item_definition);
@@ -40,7 +40,7 @@ protected:
     std::string optional_variable_name_;
     nlohmann::json optional_variable_value_;
     size_t length_; // byte length
-    std::vector<std::unique_ptr<ItemParser>> items_;
+    std::vector<std::unique_ptr<ItemParserBase>> items_;
 };
 
 }

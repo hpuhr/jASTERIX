@@ -26,7 +26,6 @@ using namespace nlohmann;
 namespace jASTERIX
 {
 
-
 Category::Category(const std::string& number, const nlohmann::json& definition, const std::string& definition_path)
     : number_(number)
 {

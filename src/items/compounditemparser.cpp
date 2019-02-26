@@ -24,7 +24,7 @@ namespace jASTERIX
 {
 
 CompoundItemParser::CompoundItemParser (const nlohmann::json& item_definition)
- : ItemParser (item_definition)
+ : ItemParserBase (item_definition)
 {
     assert (type_ == "compound");
 
@@ -38,7 +38,7 @@ CompoundItemParser::CompoundItemParser (const nlohmann::json& item_definition)
 
     //field_specification_name_ = field_specification.at("name");
 
-    field_specification_.reset(ItemParser::createItemParser(field_specification));
+    field_specification_.reset(ItemParserBase::createItemParser(field_specification));
     assert (field_specification_);
 
     if (item_definition.find("items") == item_definition.end())
@@ -50,14 +50,14 @@ CompoundItemParser::CompoundItemParser (const nlohmann::json& item_definition)
         throw runtime_error ("parsing compound item '"+name_+"' field specification is not an array");
 
     std::string item_name;
-    ItemParser* item {nullptr};
+    ItemParserBase* item {nullptr};
 
     for (const json& data_item_it : items)
     {
         item_name = data_item_it.at("name");
-        item = ItemParser::createItemParser(data_item_it);
+        item = ItemParserBase::createItemParser(data_item_it);
         assert (item);
-        items_.push_back(std::unique_ptr<ItemParser>{item});
+        items_.push_back(std::unique_ptr<ItemParserBase>{item});
     }
 }
 

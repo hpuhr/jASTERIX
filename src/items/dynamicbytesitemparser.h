@@ -18,12 +18,12 @@
 #ifndef DYNAMICBYTESITEMPARSER_H
 #define DYNAMICBYTESITEMPARSER_H
 
-#include "itemparser.h"
+#include "itemparserbase.h"
 
 namespace jASTERIX
 {
 // calculates the index and length based on other decoded variable
-class DynamicBytesItemParser : public ItemParser
+class DynamicBytesItemParser : public ItemParserBase
 {
 public:
     DynamicBytesItemParser (const nlohmann::json& item_definition);

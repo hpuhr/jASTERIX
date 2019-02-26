@@ -39,7 +39,7 @@ FrameParser::FrameParser(const json& framing_definition, ASTERIXParser& asterix_
         throw runtime_error ("frame parser construction with header items non-array");
 
     std::string item_name;
-    ItemParser* item {nullptr};
+    ItemParserBase* item {nullptr};
 
     for (const json& data_item_it : framing_definition.at("header_items"))
     {
@@ -48,9 +48,9 @@ FrameParser::FrameParser(const json& framing_definition, ASTERIXParser& asterix_
         if (debug)
             loginf << "frame parser constructing header item '" << item_name << "'";
 
-        item = ItemParser::createItemParser(data_item_it);
+        item = ItemParserBase::createItemParser(data_item_it);
         assert (item);
-        header_items_.push_back(std::unique_ptr<ItemParser>{item});
+        header_items_.push_back(std::unique_ptr<ItemParserBase>{item});
     }
 
     if (framing_definition.find("frame_items") == framing_definition.end())
@@ -66,9 +66,9 @@ FrameParser::FrameParser(const json& framing_definition, ASTERIXParser& asterix_
         if (debug)
             loginf << "frame parser constructing frame item '" << item_name << "'";
 
-        item = ItemParser::createItemParser(data_item_it);
+        item = ItemParserBase::createItemParser(data_item_it);
         assert (item);
-        frame_items_.push_back(std::unique_ptr<ItemParser>{item});
+        frame_items_.push_back(std::unique_ptr<ItemParserBase>{item});
     }
 }
 
