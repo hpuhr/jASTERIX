@@ -94,7 +94,7 @@ jASTERIX::jASTERIX(const std::string& definition_path, bool print, bool debug)
             cat_str = cat_def_it.key();
             cat = stoi(cat_str);
 
-            if (cat < 0 || cat > 255 || current_category_edition_definitions_.count(cat) != 0)
+            if (cat < 0 || cat > 255 || current_category_editions_.count(cat) != 0)
                 throw invalid_argument ("jASTERIX called with wrong asterix category '"+cat_str+"' in list definition");
 
             if (debug)
@@ -109,7 +109,7 @@ jASTERIX::jASTERIX(const std::string& definition_path, bool print, bool debug)
 
                 assert (category_definitions_.count(cat_str) == 1);
 
-                current_category_edition_definitions_[cat] = category_definitions_.at(cat_str).getCurrentEdition();
+                current_category_editions_[cat] = category_definitions_.at(cat_str).getCurrentEdition();
             }
             catch (json::exception& e)
             {
@@ -166,7 +166,7 @@ void jASTERIX::decodeFile (const std::string& filename, const std::string& frami
     }
 
     // create ASTERIX parser
-    ASTERIXParser asterix_parser (data_block_definition_, current_category_edition_definitions_, debug_);
+    ASTERIXParser asterix_parser (data_block_definition_, current_category_editions_, debug_);
 
     // create frame parser
     FrameParser frame_parser (framing_definition, asterix_parser, debug_);
@@ -213,7 +213,7 @@ void jASTERIX::decodeASTERIX (const char* data, size_t size,
              std::function<void(nlohmann::json&&, size_t, size_t)> callback)
 {
     // create ASTERIX parser
-    ASTERIXParser asterix_parser (data_block_definition_, current_category_edition_definitions_, debug_);
+    ASTERIXParser asterix_parser (data_block_definition_, current_category_editions_, debug_);
 
     nlohmann::json data_chunk;
 

@@ -57,9 +57,12 @@ Category::Category(const std::string& number, const nlohmann::json& definition, 
     for (auto ed_def_it = edition_definitions.begin(); ed_def_it != edition_definitions.end();
          ++ed_def_it)
     {
-        editions_.emplace(std::piecewise_construct,
-                          std::forward_as_tuple(ed_def_it.key()),
-                          std::forward_as_tuple(ed_def_it.key(), ed_def_it.value(), definition_path));
+        editions_[ed_def_it.key()] = std::shared_ptr<Edition> (
+                    new Edition(ed_def_it.key(), ed_def_it.value(), definition_path));
+
+//        editions_.emplace(std::piecewise_construct,
+//                          std::forward_as_tuple(ed_def_it.key()),
+//                          std::forward_as_tuple(ed_def_it.key(), ed_def_it.value(), definition_path));
 
         //editions_.emplace(ed_def_it.key(), ed_def_it.value(), definition_path);
     }
@@ -93,10 +96,10 @@ std::string Category::defaultEdition() const
     return default_edition_;
 }
 
-const json& Category::getCurrentEdition()
+std::shared_ptr<Edition> Category::getCurrentEdition()
 {
     assert (editions_.count(default_edition_) == 1);
-    return editions_.at(default_edition_).definition();
+    return editions_.at(default_edition_);
 }
 
 }

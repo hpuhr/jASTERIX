@@ -15,30 +15,30 @@
  * along with jASTERIX.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef ASTERIXPARSER_H
-#define ASTERIXPARSER_H
+#ifndef RECORD_H
+#define RECORD_H
 
-#include "json.hpp"
+
 #include "itemparser.h"
-#include "edition.h"
 
-namespace jASTERIX {
+#include <vector>
+#include <memory>
 
-class ASTERIXParser
+namespace jASTERIX
+{
+// decodes a field specification/availablity field (ending with extend bit), and list of items
+class Record : public ItemParser
 {
 public:
-    ASTERIXParser(const nlohmann::json& data_block_definition,
-                  const std::map<unsigned int, std::shared_ptr<Edition>>& asterix_category_definitions, bool debug);
+    Record (const nlohmann::json& item_definition);
+    virtual ~Record() {}
 
-    size_t decodeDataBlock (const char* data, size_t index, size_t length, nlohmann::json& target, bool debug);
-
-private:
-    //const std::map<unsigned int, std::shared_ptr<Edition>>& asterix_category_definitions_;
-
-    std::string data_block_name_;
-    std::vector<std::unique_ptr<ItemParser>> data_block_items_;
-    std::map<unsigned int, std::shared_ptr<Record>> records_;
+    virtual size_t parseItem (const char* data, size_t index, size_t size, size_t current_parsed_bytes,
+                              nlohmann::json& target, bool debug) override;
+protected:
+    std::unique_ptr<ItemParser> field_specification_;
+    std::vector<std::unique_ptr<ItemParser>> items_;
 };
 
 }
-#endif // ASTERIXPARSER_H
+#endif // RECORD_H

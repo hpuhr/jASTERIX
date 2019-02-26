@@ -38,13 +38,14 @@ public:
     std::string comment() const;
     std::string defaultEdition() const;
 
-    const nlohmann::json& getCurrentEdition();
+    std::shared_ptr<Edition> getCurrentEdition();
+
 protected:
     std::string number_;
     std::string comment_;
     std::string default_edition_;
 
-    std::map<std::string, Edition> editions_;
+    std::map<std::string, std::shared_ptr<Edition>> editions_;
 };
 
 }

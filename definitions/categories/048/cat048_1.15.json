@@ -1,6 +1,6 @@
 {
 "name":"record",
-"type":"compound",
+"type":"record",
 "field_specification":
 {
     "name":"fspec",

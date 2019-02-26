@@ -25,6 +25,7 @@
 
 #include "json.hpp"
 #include "frameparser.h"
+#include "edition.h"
 
 namespace jASTERIX {
 
@@ -56,7 +57,7 @@ private:
     nlohmann::json data_block_definition_;
     nlohmann::json categories_definition_;
     std::map<std::string, Category> category_definitions_;
-    std::map<unsigned int, nlohmann::json> current_category_edition_definitions_;
+    std::map<unsigned int, std::shared_ptr<Edition>> current_category_editions_;
 
     boost::iostreams::mapped_file_source file_;
 

@@ -26,7 +26,8 @@ using namespace nlohmann;
 namespace jASTERIX {
 
 ASTERIXParser::ASTERIXParser(const nlohmann::json& data_block_definition,
-                             const std::map<unsigned int, nlohmann::json>& asterix_category_definitions, bool debug)
+                             const std::map<unsigned int, std::shared_ptr<Edition>>& asterix_category_definitions,
+                             bool debug)
 {
     // data block
 
@@ -56,7 +57,7 @@ ASTERIXParser::ASTERIXParser(const nlohmann::json& data_block_definition,
         data_block_items_.push_back(std::unique_ptr<ItemParser>{item});
     }
 
-    // asterix definitions
+    // asterix recird definitions
 
     for (auto& ast_cat_def_it : asterix_category_definitions)
     {
@@ -64,11 +65,11 @@ ASTERIXParser::ASTERIXParser(const nlohmann::json& data_block_definition,
         if (debug)
             loginf << "frame parser constructing cat '" << setfill('0') << setw(3) << ast_cat_def_it.first << "'";
 
-        item = ItemParser::createItemParser(ast_cat_def_it.second);
-        assert (item);
-        asterix_category_definitions_.insert(
-                    std::pair<unsigned int, std::unique_ptr<ItemParser>>
-                    (ast_cat_def_it.first, std::unique_ptr<ItemParser>{item}));
+        //item = ItemParser::createItemParser(ast_cat_def_it.second);
+        //assert (item);
+        records_.insert(
+                    std::pair<unsigned int, std::shared_ptr<Record>>
+                    (ast_cat_def_it.first, std::shared_ptr<Record>{ast_cat_def_it.second->record()}));
     }
 }
 
@@ -113,20 +114,20 @@ size_t ASTERIXParser::decodeDataBlock (const char* data, size_t index, size_t le
         if (debug && record.find ("content") == record.end())
             throw runtime_error("frame parser record does not contain content information");
 
-        json& record_content = record.at("content");
+        json& data_block_content = record.at("content");
 
-        if (debug && record_content.find ("index") == record_content.end())
+        if (debug && data_block_content.find ("index") == data_block_content.end())
             throw runtime_error("frame parser record content does not contain index information");
 
-        size_t record_index = record_content.at("index");
+        size_t record_index = data_block_content.at("index");
 
-        if (debug && record_content.find ("length") == record_content.end())
+        if (debug && data_block_content.find ("length") == data_block_content.end())
             throw runtime_error("frame parser record content does not contain length information");
 
-        size_t record_length = record_content.at("length");
+        size_t record_length = data_block_content.at("length");
 
         // try to decode
-        if (asterix_category_definitions_.count(cat) != 0)
+        if (records_.count(cat) != 0)
         {
             // decode
             if (debug)
@@ -137,14 +138,17 @@ size_t ASTERIXParser::decodeDataBlock (const char* data, size_t index, size_t le
 
             //std::string record_content_name = asterix_category_definition.at("name");
 
+            data_block_content["records"] = json::array();
+            size_t cnt = 0;
+
             // TODO
-            parsed_bytes = asterix_category_definitions_.at(cat)->parseItem(
+            parsed_bytes = records_.at(cat)->parseItem(
                         data, record_index, record_length, parsed_bytes,
-                        record_content[asterix_category_definitions_.at(cat)->name()], debug);
+                        data_block_content.at("records")[cnt], debug);
 
             if (debug)
                 loginf << "frame parser decoding record with cat " << cat << " index " << record_index
-                         << ": " << record_content.at(asterix_category_definitions_.at(cat)->name()).dump(4) << "'";
+                         << ": " << data_block_content.at("records")[cnt].dump(4) << "'";
             ++num_records;
         }
         else if (debug)

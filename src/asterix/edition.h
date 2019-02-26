@@ -20,6 +20,7 @@
 #define EDITION_H
 
 #include "json.hpp"
+#include "record.h"
 
 #include <string>
 
@@ -36,7 +37,8 @@ public:
     std::string document() const;
     std::string date() const;
     std::string file() const;
-    const nlohmann::json& definition() const;
+
+    std::shared_ptr<Record> record() const;
 
 protected:
     std::string number_;
@@ -45,6 +47,7 @@ protected:
     std::string file_;
 
     nlohmann::json definition_; // from file
+    std::shared_ptr<Record> record_;
 };
 
 }
