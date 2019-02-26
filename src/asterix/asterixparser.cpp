@@ -16,6 +16,9 @@
  */
 
 #include "asterixparser.h"
+#include "logger.h"
+#include "itemparserbase.h"
+#include "record.h"
 
 #include <iostream>
 #include <iomanip>

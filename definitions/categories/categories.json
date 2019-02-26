@@ -3,6 +3,7 @@
     {
     "comment": "Category 048 Transmission of Monoradar Target Reports",
     "default_edition" : "1.15",
+    "default_mapping" : "1.0",
     "editions":
         {
             "1.15":
@@ -10,6 +11,14 @@
                 "document": "SUR.ET1.ST05.2000-STD-04-01",
                 "date": "April 2007",
                 "file": "048/cat048_1.15.json"
+            }
+        },
+    "mappings":
+        {
+            "1.0":
+            {
+                "comment":"conversion to general format 1.0",
+                "file": "048/cat048_1.15_mapping.json"
             }
         }
     }

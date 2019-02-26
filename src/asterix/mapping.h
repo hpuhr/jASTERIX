@@ -15,40 +15,33 @@
  * along with jASTERIX.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-#ifndef CATEGORY_H
-#define CATEGORY_H
+#ifndef MAPPING_H
+#define MAPPING_H
 
 #include "json.hpp"
-#include "edition.h"
-#include "mapping.h"
 
 #include <string>
 
 namespace jASTERIX
 {
 
-class Category
+class Mapping
 {
 public:
-    Category(const std::string& number, const nlohmann::json& definition, const std::string& definition_path);
-    virtual ~Category() {}
+    Mapping(const std::string& name, const nlohmann::json& definition, const std::string& definition_path);
+    virtual ~Mapping() {}
 
-    std::string number() const;
+    std::string name() const;
     std::string comment() const;
-    std::string defaultEdition() const;
-
-    std::shared_ptr<Edition> getCurrentEdition();
+    std::string file() const;
 
 protected:
-    std::string number_;
+    std::string name_;
     std::string comment_;
-    std::string default_edition_;
-    std::string default_mapping_;
+    std::string file_;
 
-    std::map<std::string, std::shared_ptr<Edition>> editions_;
-    std::map<std::string, std::shared_ptr<Mapping>> mappings_;
+    nlohmann::json definition_; // from file
 };
 
 }
-#endif // CATEGORY_H
+#endif // MAPPING_H

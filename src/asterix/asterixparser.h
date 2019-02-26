@@ -19,7 +19,7 @@
 #define ASTERIXPARSER_H
 
 #include "json.hpp"
-//#include "itemparser.h"
+#include "record.h"
 #include "edition.h"
 
 namespace jASTERIX {
@@ -35,8 +35,6 @@ public:
     size_t decodeDataBlock (const char* data, size_t index, size_t length, nlohmann::json& target, bool debug);
 
 private:
-    //const std::map<unsigned int, std::shared_ptr<Edition>>& asterix_category_definitions_;
-
     std::string data_block_name_;
     std::vector<std::unique_ptr<ItemParserBase>> data_block_items_;
     std::map<unsigned int, std::shared_ptr<Record>> records_;

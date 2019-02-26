@@ -58,26 +58,37 @@ Category::Category(const std::string& number, const nlohmann::json& definition, 
     {
         editions_[ed_def_it.key()] = std::shared_ptr<Edition> (
                     new Edition(ed_def_it.key(), ed_def_it.value(), definition_path));
-
-//        editions_.emplace(std::piecewise_construct,
-//                          std::forward_as_tuple(ed_def_it.key()),
-//                          std::forward_as_tuple(ed_def_it.key(), ed_def_it.value(), definition_path));
-
-        //editions_.emplace(ed_def_it.key(), ed_def_it.value(), definition_path);
     }
-
-    //        {
-    //            "1.15":
-    //            {
-    //                "document": "SUR.ET1.ST05.2000-STD-04-01",
-    //                "date": "April 2007",
-    //                "file": "048/cat048_1.15.json"
-    //            }
-    //        }
 
     if (editions_.count(default_edition_) != 1)
         throw invalid_argument ("category '"+number_+"' default edition '"+default_edition_+"' not defined");
 
+    //    "default_mapping" : "1.0",
+
+    if (definition.find("default_mapping") == definition.end())
+        throw runtime_error ("category '"+number_+"' has no default mapping");
+
+    default_mapping_ = definition.at("default_mapping");
+
+    //    "mappings":
+
+    if (definition.find("mappings") == definition.end())
+        throw runtime_error ("category '"+number_+"' has no mappings");
+
+    const json& emapping_definitions = definition.at("mappings");
+
+    if (!emapping_definitions.is_object())
+        throw invalid_argument ("category '"+number_+"' with non-object mapping definition");
+
+    for (auto map_def_it = emapping_definitions.begin(); map_def_it != emapping_definitions.end();
+         ++map_def_it)
+    {
+        mappings_[map_def_it.key()] = std::shared_ptr<Mapping> (
+                    new Mapping(map_def_it.key(), map_def_it.value(), definition_path));
+    }
+
+    if (mappings_.count(default_mapping_) != 1)
+        throw invalid_argument ("category '"+number_+"' default mapping '"+default_mapping_+"' not defined");
 }
 
 std::string Category::number() const

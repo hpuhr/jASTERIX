@@ -18,6 +18,7 @@
 #include "frameparser.h"
 #include "logger.h"
 #include "asterixparser.h"
+#include "itemparserbase.h"
 
 #include <tbb/tbb.h>
 

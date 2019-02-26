@@ -15,10 +15,8 @@
  * along with jASTERIX.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-#include "edition.h"
+#include "mapping.h"
 #include "files.h"
-#include "record.h"
 
 #include <fstream>
 
@@ -29,58 +27,42 @@ using namespace Files;
 using namespace std;
 using namespace nlohmann;
 
-Edition::Edition(const std::string& number, const nlohmann::json& definition, const std::string& definition_path)
-  : number_(number)
+
+Mapping::Mapping(const std::string& name, const nlohmann::json& definition, const std::string& definition_path)
+: name_(name)
 {
-    //    "document": "SUR.ET1.ST05.2000-STD-04-01",
-    if (definition.find("document") == definition.end())
-        throw runtime_error ("edition '"+number_+"' has no document reference");
+    //    "comment":"conversion to general format 1.0",
+    if (definition.find("comment") == definition.end())
+        throw runtime_error ("mapping '"+name_+"' has no comment");
 
-    document_ = definition.at("document");
-
-    //    "date": "April 2007",
-    if (definition.find("date") == definition.end())
-        throw runtime_error ("edition '"+number_+"' has no date");
-
-    date_ = definition.at("date");
+    comment_ = definition.at("comment");
 
     //    "file": "048/cat048_1.15.json"
     if (definition.find("file") == definition.end())
-        throw runtime_error ("edition '"+number_+"' has no file");
+        throw runtime_error ("mapping '"+name_+"' has no file");
 
     file_ = definition.at("file");
 
     if (!fileExists(definition_path+"/categories/"+file_))
-        throw invalid_argument ("edition "+number_+" file '"+definition_path+"/categories/"+file_+"' not found");
+        throw invalid_argument ("mapping "+name_+" file '"+definition_path+"/categories/"+file_+"' not found");
 
     definition_ = json::parse(ifstream(definition_path+"/categories/"+file_));
 
-    record_.reset(new Record(definition_));
 }
 
-std::string Edition::document() const
+std::string Mapping::name() const
 {
-    return document_;
+    return name_;
 }
 
-std::string Edition::date() const
+std::string Mapping::comment() const
 {
-    return date_;
+    return comment_;
 }
 
-std::string Edition::file() const
+std::string Mapping::file() const
 {
     return file_;
-}
-
-std::shared_ptr<Record> Edition::record() const
-{
-    return record_;
-}
-
-std::string Edition::number() const
-{
-    return number_;
 }
 
 }

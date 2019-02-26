@@ -12,7 +12,7 @@
         "tst":"target_report.test",
         "me":"target.alert.military_emergency",
         "mi":"target.type.is_military",
-        "foe/fri":"target.type	friend_foe"
+        "foe/fri":"target.type.friend_foe"
     },
     "030":{
         "warning/error_conditions":"target.alert.codes"
@@ -147,5 +147,5 @@
     },
     "260":{
         "acas_rap":""
-    },
+    }
 }

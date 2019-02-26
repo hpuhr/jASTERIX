@@ -27,6 +27,8 @@
 namespace jASTERIX
 {
 
+class Record;
+
 class Edition
 {
 public:
