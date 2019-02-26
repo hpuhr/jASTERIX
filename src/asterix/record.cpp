@@ -112,8 +112,20 @@ size_t Record::parseItem (const char* data, size_t index, size_t size, size_t cu
         {
             item_name = uap_names_.at(cnt);
 
-            if (item_name == "FX" || item_name == "SP" || item_name == "RE")
+            if (item_name == "FX")
                 continue;
+
+            if (item_name == "SP")
+            {
+                loginf << "WARN: record item '"+name_+"' has special purpose field, not implemented yet";
+                continue;
+            }
+
+            if (item_name == "RE")
+            {
+                loginf << "WARN: record item '"+name_+"' has reserved expansion field, not implemented yet";
+                continue;
+            }
 
             if (debug)
                 loginf << "parsing record item '" << name_ << "' data item '" << item_name << "' index "
