@@ -91,6 +91,17 @@ Category::Category(const std::string& number, const nlohmann::json& definition, 
         throw invalid_argument ("category '"+number_+"' default mapping '"+default_mapping_+"' not defined");
 }
 
+bool Category::hasEdition (const std::string& edition_str)
+{
+    return editions_.count(edition_str) == 1;
+}
+
+std::shared_ptr<Edition> Category::edition (const std::string& edition_str)
+{
+    assert (hasEdition(edition_str));
+    return editions_.at(edition_str);
+}
+
 std::string Category::number() const
 {
     return number_;

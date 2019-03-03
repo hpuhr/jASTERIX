@@ -133,6 +133,30 @@ jASTERIX::~jASTERIX()
         file_.close();
 }
 
+bool jASTERIX::hasCategory(const std::string& cat_str)
+{
+    return category_definitions_.count(cat_str) == 1;
+}
+
+bool jASTERIX::hasEdition (const std::string& cat_str, const std::string& edition_str)
+{
+    if (!hasCategory(cat_str))
+        return false;
+
+    return category_definitions_.at(cat_str).hasEdition(edition_str);
+}
+
+void jASTERIX::setEdition (const std::string& cat_str, const std::string& edition_str)
+{
+    assert (hasEdition(cat_str, edition_str));
+
+    int cat = -1;
+    cat = stoi(cat_str);
+    assert (cat > 0);
+
+    current_category_editions_[cat] = category_definitions_.at(cat_str).edition(edition_str);
+}
+
 void jASTERIX::decodeFile (const std::string& filename, const std::string& framing,
                            std::function<void(nlohmann::json&&, size_t, size_t)> callback)
 {

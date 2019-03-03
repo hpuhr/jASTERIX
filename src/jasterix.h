@@ -38,6 +38,11 @@ public:
     jASTERIX( const std::string& definition_path, bool print, bool debug);
     virtual ~jASTERIX();
 
+    bool hasCategory(const std::string& cat_str);
+
+    bool hasEdition (const std::string& cat_str, const std::string& edition_str);
+    void setEdition (const std::string& cat_str, const std::string& edition_str);
+
     void decodeFile (const std::string& filename, const std::string& framing_str,
                      std::function<void(nlohmann::json&&, size_t, size_t)> callback);
     // callback gets moved chunk, accumulated number of frames, number of records

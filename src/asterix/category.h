@@ -37,6 +37,9 @@ public:
     std::string number() const;
     std::string comment() const;
 
+    bool hasEdition (const std::string& edition_str);
+    std::shared_ptr<Edition> edition (const std::string& edition_str);
+
     std::string defaultEdition() const;
     std::shared_ptr<Edition> getCurrentEdition();
 

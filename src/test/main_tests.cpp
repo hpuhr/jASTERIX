@@ -38,6 +38,10 @@ void test_cat048 (jASTERIX::jASTERIX& jasterix)
 
     assert (size == 65);
 
+    assert (jasterix.hasCategory("048"));
+    assert (jasterix.hasEdition("048", "1.15"));
+    jasterix.setEdition("048", "1.15");
+
     jasterix.decodeASTERIX(target, size, test_cat048_callback);
 
 
