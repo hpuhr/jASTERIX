@@ -17,6 +17,8 @@
 
 #include "mapping.h"
 #include "files.h"
+#include "logger.h"
+#include "string_conv.h"
 
 #include <fstream>
 
@@ -63,6 +65,65 @@ std::string Mapping::comment() const
 std::string Mapping::file() const
 {
     return file_;
+}
+
+void Mapping::map (nlohmann::json& src, nlohmann::json& dest)
+{
+    assert (src.is_object());
+    //loginf << "mapping: map";
+    mapObject(definition_, src, dest);
+}
+
+void Mapping::mapObject (nlohmann::json& object_definition, const nlohmann::json& src, nlohmann::json& dest)
+{
+    std::string def_key;
+    std::string def_value;
+
+    //loginf << "mapping: mapObject";
+
+    for (auto def_it = object_definition.begin(); def_it != object_definition.end(); ++def_it)
+    {
+        //std::cout << def_it.key() << " | " << def_it.value() << "\n";
+
+        def_key = def_it.key();
+
+        // check if exists in src
+        if (src.find (def_key) != src.end())
+        {
+            const json& src_value = src.at(def_key);
+
+            if (src_value.is_object())
+            {
+                assert (def_it.value().is_object());
+                mapObject(def_it.value(), src_value, dest);
+            }
+            else
+            {
+                def_value = def_it.value();
+                if (def_value.size()) // skip unmapped
+                    mapKey (def_value, src_value, dest);
+            }
+        }
+    }
+}
+
+void Mapping::mapKey (std::string& key_definition, const nlohmann::json& src_value, nlohmann::json& dest)
+{
+    //loginf << "mapping key '" << key_definition << "' src value '" << src_value << "'";
+
+    std::vector<std::string> sub_keys;
+    split(key_definition, '.', sub_keys);
+
+    nlohmann::json* val_ptr = &dest;
+
+    for (const std::string& sub_key : sub_keys)
+    {
+        val_ptr = &(*val_ptr)[sub_key];
+    }
+
+    *val_ptr = src_value;
+
+    //loginf << "mapping key '" << key_definition << "' dest '" << dest.dump(4) << "'";
 }
 
 }

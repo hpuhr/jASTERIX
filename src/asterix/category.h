@@ -36,9 +36,13 @@ public:
 
     std::string number() const;
     std::string comment() const;
-    std::string defaultEdition() const;
 
+    std::string defaultEdition() const;
     std::shared_ptr<Edition> getCurrentEdition();
+
+    std::string defaultMapping() const;
+    bool hasCurrentMapping();
+    std::shared_ptr<Mapping> getCurrentMapping();
 
 protected:
     std::string number_;

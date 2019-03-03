@@ -35,12 +35,17 @@ public:
     std::string comment() const;
     std::string file() const;
 
+    void map (nlohmann::json& src, nlohmann::json& dest);
+
 protected:
     std::string name_;
     std::string comment_;
     std::string file_;
 
     nlohmann::json definition_; // from file
+
+    void mapObject (nlohmann::json& object_definition, const nlohmann::json& src, nlohmann::json& dest);
+    void mapKey (std::string& key_definition, const nlohmann::json& src_value, nlohmann::json& dest);
 };
 
 }

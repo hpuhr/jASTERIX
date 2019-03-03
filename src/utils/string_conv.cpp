@@ -5,6 +5,7 @@
 #include <cassert>
 #include <iomanip>
 
+#include "string_conv.h"
 
 int char2int(char input)
 {
@@ -63,3 +64,20 @@ std::string binary2hex(const unsigned char* src, size_t length)
         ss << std::setfill('0') << std::setw(2) << std::hex << (int)src[i];
     return ss.str();
 }
+
+std::vector<std::string> &split(const std::string &s, char delim, std::vector<std::string> &elems)
+{
+    std::stringstream ss(s);
+    std::string item;
+    while(std::getline(ss, item, delim))
+    {
+        elems.push_back(item);
+    }
+    return elems;
+}
+
+//std::vector<std::string> split(const std::string &s, char delim)
+//{
+//    std::vector<std::string> elems;
+//    return split(s, delim, elems);
+//}

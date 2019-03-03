@@ -30,7 +30,9 @@ namespace jASTERIX {
 
 ASTERIXParser::ASTERIXParser(const nlohmann::json& data_block_definition,
                              const std::map<unsigned int, std::shared_ptr<Edition>>& asterix_category_definitions,
+                             const std::map<unsigned int, std::shared_ptr<Mapping>>& mappings,
                              bool debug)
+    : mappings_(mappings)
 {
     // data block
 
@@ -53,7 +55,7 @@ ASTERIXParser::ASTERIXParser(const nlohmann::json& data_block_definition,
         item_name = data_item_it.at("name");
 
         if (debug)
-            loginf << "frame parser constructing data block item '" << item_name << "'";
+            loginf << "asterix parser constructing data block item '" << item_name << "'";
 
         item = ItemParserBase::createItemParser(data_item_it);
         assert (item);
@@ -64,15 +66,19 @@ ASTERIXParser::ASTERIXParser(const nlohmann::json& data_block_definition,
 
     for (auto& ast_cat_def_it : asterix_category_definitions)
     {
-
         if (debug)
-            loginf << "frame parser constructing cat '" << setfill('0') << setw(3) << ast_cat_def_it.first << "'";
+            loginf << "asterix parser constructing cat '" << setfill('0') << setw(3) << ast_cat_def_it.first << "'";
 
-        //item = ItemParser::createItemParser(ast_cat_def_it.second);
-        //assert (item);
         records_.insert(
                     std::pair<unsigned int, std::shared_ptr<Record>>
                     (ast_cat_def_it.first, std::shared_ptr<Record>{ast_cat_def_it.second->record()}));
+
+//        if (ast_cat_def_it.second->hasCurrentMapping())
+//        {
+//            mappings_.insert(
+//                        std::pair<unsigned int, std::shared_ptr<Mapping>>
+//                        (ast_cat_def_it.first, std::shared_ptr<Mapping>{ast_cat_def_it.second->record()}));
+//        }
     }
 }
 
@@ -110,22 +116,22 @@ size_t ASTERIXParser::decodeDataBlock (const char* data, size_t index, size_t le
         json& record = target.at(data_block_name_);
 
         if (debug && record.find ("category") == record.end())
-            throw runtime_error("frame parser record does not contain category information");
+            throw runtime_error("asterix parser record does not contain category information");
 
         unsigned int cat = record.at("category");
 
         if (debug && record.find ("content") == record.end())
-            throw runtime_error("frame parser record does not contain content information");
+            throw runtime_error("asterix parser record does not contain content information");
 
         json& data_block_content = record.at("content");
 
         if (debug && data_block_content.find ("index") == data_block_content.end())
-            throw runtime_error("frame parser record content does not contain index information");
+            throw runtime_error("asterix parser record content does not contain index information");
 
         size_t record_index = data_block_content.at("index");
 
         if (debug && data_block_content.find ("length") == data_block_content.end())
-            throw runtime_error("frame parser record content does not contain length information");
+            throw runtime_error("asterix parser record content does not contain length information");
 
         size_t record_length = data_block_content.at("length");
 
@@ -134,7 +140,7 @@ size_t ASTERIXParser::decodeDataBlock (const char* data, size_t index, size_t le
         {
             // decode
             if (debug)
-                loginf << "frame parser decoding record with cat " << cat << " index " << record_index
+                loginf << "asterix parser decoding record with cat " << cat << " index " << record_index
                      << " length " << record_length;
 
             //const json& asterix_category_definition = asterix_category_definitions_.at(cat);
@@ -150,13 +156,29 @@ size_t ASTERIXParser::decodeDataBlock (const char* data, size_t index, size_t le
                         data_block_content.at("records")[cnt], debug);
 
             if (debug)
-                loginf << "frame parser decoding record with cat " << cat << " index " << record_index
+                loginf << "asterix parser decoding record with cat " << cat << " index " << record_index
                          << ": " << data_block_content.at("records")[cnt].dump(4) << "'";
             ++num_records;
         }
         else if (debug)
-            loginf << "frame parser decoding record with cat " << cat << " index " << record_index
+            loginf << "asterix parser decoding record with cat " << cat << " index " << record_index
                  << " length " << record_length << " skipped since cat definition is missing ";
+
+        if (num_records && mappings_.count(cat))
+        {
+            if (debug)
+                loginf << "asterix parser decoding mapping cat " << cat << ", num records " << num_records;
+
+            std::shared_ptr<Mapping> current_mapping = mappings_.at(cat);
+            json& mapping_src = data_block_content.at("records");
+            json mapping_dest = json::array();
+
+            for (size_t cnt=0; cnt < num_records; ++cnt)
+                current_mapping->map(mapping_src[cnt], mapping_dest[cnt]);
+
+            data_block_content["records"] = std::move(mapping_dest);
+
+        }
 
         return num_records;
 }

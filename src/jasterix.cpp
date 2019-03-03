@@ -110,6 +110,9 @@ jASTERIX::jASTERIX(const std::string& definition_path, bool print, bool debug)
                 assert (category_definitions_.count(cat_str) == 1);
 
                 current_category_editions_[cat] = category_definitions_.at(cat_str).getCurrentEdition();
+
+                if (category_definitions_.at(cat_str).hasCurrentMapping())
+                    current_category_mappings_[cat] = category_definitions_.at(cat_str).getCurrentMapping();
             }
             catch (json::exception& e)
             {
@@ -166,7 +169,8 @@ void jASTERIX::decodeFile (const std::string& filename, const std::string& frami
     }
 
     // create ASTERIX parser
-    ASTERIXParser asterix_parser (data_block_definition_, current_category_editions_, debug_);
+    ASTERIXParser asterix_parser (data_block_definition_, current_category_editions_,
+                                  current_category_mappings_, debug_);
 
     // create frame parser
     FrameParser frame_parser (framing_definition, asterix_parser, debug_);
@@ -213,7 +217,8 @@ void jASTERIX::decodeASTERIX (const char* data, size_t size,
              std::function<void(nlohmann::json&&, size_t, size_t)> callback)
 {
     // create ASTERIX parser
-    ASTERIXParser asterix_parser (data_block_definition_, current_category_editions_, debug_);
+    ASTERIXParser asterix_parser (data_block_definition_, current_category_editions_,
+                                  current_category_mappings_, debug_);
 
     nlohmann::json data_chunk;
 
