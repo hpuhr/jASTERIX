@@ -25,18 +25,30 @@
 
 #include "json.hpp"
 #include "frameparser.h"
+#include "edition.h"
+#include "mapping.h"
 
 namespace jASTERIX {
+
+class Category;
 
 class jASTERIX
 {
 public:
-    jASTERIX(const std::string& filename, const std::string& definition_path, const std::string& framing_str,
-             bool print, bool debug);
+    jASTERIX( const std::string& definition_path, bool print, bool debug);
     virtual ~jASTERIX();
 
-    // returns number of decoded records
-    void decode ();
+    bool hasCategory(const std::string& cat_str);
+
+    bool hasEdition (const std::string& cat_str, const std::string& edition_str);
+    void setEdition (const std::string& cat_str, const std::string& edition_str);
+
+    void decodeFile (const std::string& filename, const std::string& framing_str,
+                     std::function<void(nlohmann::json&, size_t, size_t)> callback);
+    // callback gets moved chunk, accumulated number of frames, number of records
+
+    void decodeASTERIX (const char* data, size_t size,
+                 std::function<void(nlohmann::json&, size_t, size_t)> callback);
 
     size_t numFrames() const;
     size_t numRecords() const;
@@ -44,23 +56,19 @@ public:
     void addDataChunk (nlohmann::json& data_chunk);
 
 private:
-    std::string filename_;
     std::string definition_path_;
-    std::string framing_;
     bool print_ {false};
     bool debug_ {false};
 
-    nlohmann::json framing_definition_;
     nlohmann::json data_block_definition_;
-    nlohmann::json asterix_list_definition_;
-    std::map<unsigned int, nlohmann::json> asterix_category_definitions_;
-    std::unique_ptr<FrameParser> frame_parser_;
+    nlohmann::json categories_definition_;
+    std::map<std::string, Category> category_definitions_;
+    std::map<unsigned int, std::shared_ptr<Edition>> current_category_editions_; // cat -> edition
+    std::map<unsigned int, std::shared_ptr<Mapping>> current_category_mappings_; // cat -> edition
 
-    size_t file_size_{0};
     boost::iostreams::mapped_file_source file_;
 
     tbb::concurrent_queue<nlohmann::json> data_chunks_;
-
 
     size_t num_frames_{0};
     size_t num_records_{0};

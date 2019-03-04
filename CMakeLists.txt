@@ -36,6 +36,10 @@ message("  LOG4CPP_LIBRARY: ${LOG4CPP_LIBRARIES}")
 
 find_package(TBB REQUIRED)
 
+find_package ( LibArchive REQUIRED )
+message("  LibArchive_INCLUDE_DIRS: ${LibArchive_INCLUDE_DIRS}")
+message("  LibArchive_LIBRARIES: ${LibArchive_LIBRARIES}")
+
 add_library(jasterix "")
 
 message("Install path: ${CMAKE_INSTALL_PREFIX}")
@@ -49,6 +53,7 @@ include_directories (
     ${CMAKE_CURRENT_BINARY_DIR}
     ${PROJECT_BINARY_DIR}/include
     ${Boost_INCLUDE_DIRS}
+    ${LibArchive_INCLUDE_DIRS}
     )
 
 link_directories(
@@ -59,7 +64,9 @@ target_link_libraries ( jasterix
     ${Boost_LIBRARIES}
     ${LOG4CPP_LIBRARIES}
     ${MySQLpp_LIBRARY}
-    ${TBB_LIBRARIES})
+    ${TBB_LIBRARIES}
+    ${LibArchive_LIBRARIES}
+    )
 
 message("Installing using prefix: ${CMAKE_INSTALL_PREFIX}")
 install(DIRECTORY "specifications" DESTINATION jasterix)

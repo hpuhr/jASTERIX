@@ -15,6 +15,10 @@
  * along with jASTERIX.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "jasterix.h"
+#include "logger.h"
+#include "jsonwriter.h"
+
 #include <boost/filesystem.hpp>
 #include <boost/program_options.hpp>
 #include "boost/date_time/posix_time/posix_time.hpp"
@@ -22,41 +26,34 @@
 #include <iostream>
 #include <cstdlib>
 
-#include "jasterix.h"
-#include "logger.h"
-
-#include <stdio.h>
-#include <execinfo.h>
-#include <signal.h>
-#include <stdlib.h>
-#include <unistd.h>
-
 #include "log4cpp/OstreamAppender.hh"
 #include "log4cpp/Layout.hh"
 #include "log4cpp/SimpleLayout.hh"
 
 namespace po = boost::program_options;
 
-//void handler(int sig) {
-//  void *array[10];
-//  size_t size;
-
-//  // get void*'s for all entries on the stack
-//  size = backtrace(array, 10);
-
-//  // print out all the frames to stderr
-//  fprintf(stderr, "Error: signal %d:\n", sig);
-//  backtrace_symbols_fd(array, size, STDERR_FILENO);
-//  exit(1);
-//}
-
 using namespace std;
+using namespace jASTERIX;
+
+JSONWriter* json_writer {nullptr};
+
+void callback (nlohmann::json& data_chunk, size_t num_frames, size_t num_records)
+{
+    //loginf << "jASTERIX: decoded " << num_frames << " frames, " << num_records << " records: " << data_chunk.dump(4);
+}
+
+void write_callback (nlohmann::json& data_chunk, size_t num_frames, size_t num_records)
+{
+    //loginf << "jASTERIX: decoded " << num_frames << " frames, " << num_records << " records: " << data_chunk.dump(4);
+    assert (json_writer);
+
+    json_writer->write(data_chunk);
+}
+
 
 int main (int argc, char **argv)
 {
     static_assert (sizeof(size_t) >= 8, "code requires size_t with at least 8 bytes");
-
-    //signal(SIGSEGV, handler);   // install our handler
 
     // setup logging
     log4cpp::Appender *console_appender_ = new log4cpp::OstreamAppender("console", &std::cout);
@@ -71,6 +68,8 @@ int main (int argc, char **argv)
     std::string definition_path;
     bool debug {false};
     bool print {false};
+    std::string write_type;
+    std::string write_filename;
 
     po::options_description desc("Allowed options");
     desc.add_options()
@@ -81,6 +80,8 @@ int main (int argc, char **argv)
                                                       " netto is default")
         ("debug", po::bool_switch(&debug), "print debug output")
         ("print", po::bool_switch(&print), "print JSON output")
+        ("write_type", po::value<std::string>(&write_type), "optional write type, e.g. text,zip. needs write_filename.")
+        ("write_filename", po::value<std::string>(&write_filename), "optional write filename, e.g. test.zip")
     ;
 
     try
@@ -101,6 +102,26 @@ int main (int argc, char **argv)
         return -1;
     }
 
+    if (write_type.size())
+    {
+        if (write_type != "text" && write_type != "zip")
+        {
+            logerr << "jASTERIX: unknown write_type '" << write_type << "'";
+            return -1;
+        }
+
+        if (!write_filename.size())
+        {
+            logerr << "jASTERIX: write_type '" << write_type << "' requires write_filename to be set";
+            return -1;
+        }
+
+        if (write_type == "text")
+            json_writer = new JSONWriter(JSON_TEXT, write_filename, 100);
+        else if (write_type == "zip")
+            json_writer = new JSONWriter(JSON_ZIP_TEXT, write_filename, 100);
+    }
+
     // check if basic configuration works
     try
     {
@@ -108,10 +129,13 @@ int main (int argc, char **argv)
             loginf << "jASTERIX client: startup with filename '" << filename << "' framing '" << framing
                    << "' definition_path '" << definition_path << "' debug " << debug;
 
-        jASTERIX::jASTERIX asterix (filename, definition_path, framing, print, debug);
+        jASTERIX::jASTERIX asterix (definition_path, print, debug);
         boost::posix_time::ptime start_time = boost::posix_time::microsec_clock::local_time();
 
-        asterix.decode();
+        if (json_writer)
+            asterix.decodeFile (filename, framing, write_callback);
+        else
+            asterix.decodeFile (filename, framing, callback);
 
         size_t num_frames = asterix.numFrames();
         size_t num_records = asterix.numRecords();
@@ -145,8 +169,10 @@ int main (int argc, char **argv)
         return -1;
     }
 
+    if (json_writer)
+        delete json_writer;
+
     loginf << "jASTERIX: shutdown";
-    //std::cout.flush();
 
     return 0;
 }
