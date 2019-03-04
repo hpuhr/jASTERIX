@@ -41,9 +41,6 @@ JSONWriter::JSONWriter(JSON_OUTPUT_TYPE json_output_type, const std::string& jso
 {
     switch (json_output_type_)
     {
-    case JSON_NONE:
-    case JSON_PRINT:
-        break;
     case JSON_TEXT:
         openJsonFile();
         break;
@@ -75,14 +72,6 @@ void JSONWriter::write(nlohmann::json& data)
 {
     switch (json_output_type_)
     {
-    case JSON_NONE:
-        break;
-    case JSON_PRINT:
-    {
-        data["rec_num"] = rec_num_cnt_++;
-        loginf<< "json: " << data.dump(4);
-    }
-        break;
     case JSON_TEXT:
     case JSON_ZIP_TEXT:
     {
@@ -113,7 +102,6 @@ void JSONWriter::writeData()
     case JSON_ZIP_TEXT:
         convertJSON2Text();
         break;
-    case JSON_PRINT:
     default:
         throw runtime_error ("unhandled JSON output type "+to_string(json_output_type_)+" write data");
         break;
@@ -129,7 +117,6 @@ void JSONWriter::writeData()
     case JSON_ZIP_TEXT:
         writeTextToZipFile();
         break;
-    case JSON_PRINT:
     default:
         throw runtime_error ("unhandled JSON output type "+to_string(json_output_type_)+" write data");
         break;

@@ -34,9 +34,7 @@ namespace jASTERIX
 
 typedef enum
 {
-    JSON_NONE = 0,
-    JSON_PRINT,
-    JSON_TEXT,
+    JSON_TEXT = 0,
     JSON_ZIP_TEXT
 } JSON_OUTPUT_TYPE;
 

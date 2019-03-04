@@ -35,7 +35,7 @@ namespace po = boost::program_options;
 using namespace std;
 using namespace jASTERIX;
 
-JSONWriter test (JSON_ZIP_TEXT, "test.zip", 100);
+JSONWriter* json_writer {nullptr};
 
 void callback (nlohmann::json& data_chunk, size_t num_frames, size_t num_records)
 {
@@ -45,7 +45,9 @@ void callback (nlohmann::json& data_chunk, size_t num_frames, size_t num_records
 void write_callback (nlohmann::json& data_chunk, size_t num_frames, size_t num_records)
 {
     //loginf << "jASTERIX: decoded " << num_frames << " frames, " << num_records << " records: " << data_chunk.dump(4);
-    test.write(data_chunk);
+    assert (json_writer);
+
+    json_writer->write(data_chunk);
 }
 
 
@@ -66,6 +68,8 @@ int main (int argc, char **argv)
     std::string definition_path;
     bool debug {false};
     bool print {false};
+    std::string write_type;
+    std::string write_filename;
 
     po::options_description desc("Allowed options");
     desc.add_options()
@@ -76,6 +80,8 @@ int main (int argc, char **argv)
                                                       " netto is default")
         ("debug", po::bool_switch(&debug), "print debug output")
         ("print", po::bool_switch(&print), "print JSON output")
+        ("write_type", po::value<std::string>(&write_type), "optional write type, e.g. text,zip. needs write_filename.")
+        ("write_filename", po::value<std::string>(&write_filename), "optional write filename, e.g. test.zip")
     ;
 
     try
@@ -96,6 +102,26 @@ int main (int argc, char **argv)
         return -1;
     }
 
+    if (write_type.size())
+    {
+        if (write_type != "text" && write_type != "zip")
+        {
+            logerr << "jASTERIX: unknown write_type '" << write_type << "'";
+            return -1;
+        }
+
+        if (!write_filename.size())
+        {
+            logerr << "jASTERIX: write_type '" << write_type << "' requires write_filename to be set";
+            return -1;
+        }
+
+        if (write_type == "text")
+            json_writer = new JSONWriter(JSON_TEXT, write_filename, 100);
+        else if (write_type == "zip")
+            json_writer = new JSONWriter(JSON_ZIP_TEXT, write_filename, 100);
+    }
+
     // check if basic configuration works
     try
     {
@@ -106,7 +132,10 @@ int main (int argc, char **argv)
         jASTERIX::jASTERIX asterix (definition_path, print, debug);
         boost::posix_time::ptime start_time = boost::posix_time::microsec_clock::local_time();
 
-        asterix.decodeFile (filename, framing, write_callback);
+        if (json_writer)
+            asterix.decodeFile (filename, framing, write_callback);
+        else
+            asterix.decodeFile (filename, framing, callback);
 
         size_t num_frames = asterix.numFrames();
         size_t num_records = asterix.numRecords();
@@ -139,6 +168,9 @@ int main (int argc, char **argv)
 
         return -1;
     }
+
+    if (json_writer)
+        delete json_writer;
 
     loginf << "jASTERIX: shutdown";
 
