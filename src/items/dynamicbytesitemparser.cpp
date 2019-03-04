@@ -41,7 +41,7 @@ size_t DynamicBytesItemParser::parseItem (const char* data, size_t index, size_t
                               nlohmann::json& target, bool debug)
 {
     if (debug)
-        loginf << "parsing dynamic bytes item '" << name_ << "'";
+        loginf << "parsing dynamic bytes item '" << name_ << "'" << logendl;
 
     if (debug && target.find(length_variable_name_) == target.end())
         throw runtime_error ("dynamic bytes item '"+name_+"' parsing without given length");
@@ -55,7 +55,7 @@ size_t DynamicBytesItemParser::parseItem (const char* data, size_t index, size_t
     }
 
     if (debug)
-        loginf << "parsing dynamic bytes item '"+name_+"' index " << index << " length " << length;
+        loginf << "parsing dynamic bytes item '"+name_+"' index " << index << " length " << length << logendl;
 
     assert (target.find(name_) == target.end());
 

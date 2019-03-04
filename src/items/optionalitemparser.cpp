@@ -62,7 +62,7 @@ size_t OptionalItemParser::parseItem (const char* data, size_t index, size_t siz
                               nlohmann::json& target, bool debug)
 {
     if (debug)
-        loginf << "parsing optional item '" << name_ << "'";
+        loginf << "parsing optional item '" << name_ << "'" << logendl;
 
     if (debug && target.find(bitfield_name_) == target.end())
         throw runtime_error ("parsing optional item '"+name_+"' without defined bitfield '"+bitfield_name_+"'");
@@ -76,7 +76,7 @@ size_t OptionalItemParser::parseItem (const char* data, size_t index, size_t siz
     {
         if (debug)
             loginf << "parsing optional item '" << name_ << "' bitfield length " << bitfield.size()
-                   << " index " << bitfield_index_ << " out of fspec size";
+                   << " index " << bitfield_index_ << " out of fspec size" << logendl;
         return 0;
     }
 
@@ -85,13 +85,13 @@ size_t OptionalItemParser::parseItem (const char* data, size_t index, size_t siz
 
     if (debug)
         loginf << "parsing optional item '" << name_ << "' bitfield length " << bitfield.size()
-               << " index " << bitfield_index_;
+               << " index " << bitfield_index_ << logendl;
 
     bool item_exists = bitfield.at(bitfield_index_);
 
     if (debug)
         loginf << "parsing optional item '" << name_ << "' with " << data_fields_.size() << " data fields, exists "
-               << item_exists;
+               << item_exists << logendl;
 
     if (!item_exists)
         return 0;
@@ -107,7 +107,7 @@ size_t OptionalItemParser::parseItem (const char* data, size_t index, size_t siz
     }
 
     if (debug)
-        loginf << "parsing optional item '"+name_+"' done, " << parsed_bytes << " bytes parsed";
+        loginf << "parsing optional item '"+name_+"' done, " << parsed_bytes << " bytes parsed" << logendl;
 
     return parsed_bytes;
 }

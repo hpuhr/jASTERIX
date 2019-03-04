@@ -18,6 +18,7 @@
 #include "jasterix.h"
 #include "logger.h"
 #include "jsonwriter.h"
+#include "global.h"
 
 #include <boost/filesystem.hpp>
 #include <boost/program_options.hpp>
@@ -26,9 +27,11 @@
 #include <iostream>
 #include <cstdlib>
 
+#if USE_LOG4CPP
 #include "log4cpp/OstreamAppender.hh"
 #include "log4cpp/Layout.hh"
 #include "log4cpp/SimpleLayout.hh"
+#endif
 
 namespace po = boost::program_options;
 
@@ -56,12 +59,15 @@ int main (int argc, char **argv)
     static_assert (sizeof(size_t) >= 8, "code requires size_t with at least 8 bytes");
 
     // setup logging
+
+#if USE_LOG4CPP
     log4cpp::Appender *console_appender_ = new log4cpp::OstreamAppender("console", &std::cout);
     console_appender_->setLayout(new log4cpp::SimpleLayout());
 
     log4cpp::Category& root = log4cpp::Category::getRoot();
     root.setPriority(log4cpp::Priority::INFO);
     root.addAppender(console_appender_);
+#endif
 
     std::string filename;
     std::string framing {"netto"};
@@ -98,7 +104,7 @@ int main (int argc, char **argv)
     }
     catch (exception& e)
     {
-        logerr << "jASTERIX: unable to parse command line parameters: \n" << e.what();
+        logerr << "jASTERIX: unable to parse command line parameters: \n" << e.what() << logendl;
         return -1;
     }
 
@@ -106,13 +112,13 @@ int main (int argc, char **argv)
     {
         if (write_type != "text" && write_type != "zip")
         {
-            logerr << "jASTERIX: unknown write_type '" << write_type << "'";
+            logerr << "jASTERIX: unknown write_type '" << write_type << "'" << logendl;
             return -1;
         }
 
         if (!write_filename.size())
         {
-            logerr << "jASTERIX: write_type '" << write_type << "' requires write_filename to be set";
+            logerr << "jASTERIX: write_type '" << write_type << "' requires write_filename to be set" << logendl;
             return -1;
         }
 
@@ -127,7 +133,7 @@ int main (int argc, char **argv)
     {
         if (debug)
             loginf << "jASTERIX client: startup with filename '" << filename << "' framing '" << framing
-                   << "' definition_path '" << definition_path << "' debug " << debug;
+                   << "' definition_path '" << definition_path << "' debug " << debug << logendl;
 
         jASTERIX::jASTERIX asterix (definition_path, print, debug);
         boost::posix_time::ptime start_time = boost::posix_time::microsec_clock::local_time();
@@ -150,11 +156,11 @@ int main (int argc, char **argv)
         //if (debug)
             loginf << "jASTERIX client: decoded " << num_frames << " frames, "
                    << num_records << " records in " << time_str << ": "
-                   << num_frames/seconds << " fr/s, " << num_records/seconds << " rec/s";
+                   << num_frames/seconds << " fr/s, " << num_records/seconds << " rec/s" << logendl;
     }
     catch (exception &ex)
     {
-        logerr << "jASTERIX: caught exception: " << ex.what();
+        logerr << "jASTERIX: caught exception: " << ex.what() << logendl;
 
         //assert (false);
 
@@ -162,7 +168,7 @@ int main (int argc, char **argv)
     }
     catch(...)
     {
-        logerr << "jASTERIX: caught exception";
+        logerr << "jASTERIX: caught exception" << logendl;
 
         //assert (false);
 
@@ -172,7 +178,7 @@ int main (int argc, char **argv)
     if (json_writer)
         delete json_writer;
 
-    loginf << "jASTERIX: shutdown";
+    loginf << "jASTERIX: shutdown" << logendl;
 
     return 0;
 }

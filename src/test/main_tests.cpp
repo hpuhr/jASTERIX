@@ -11,12 +11,13 @@
 namespace po = boost::program_options;
 
 using namespace std;
+using namespace jASTERIX;
 
 void test_cat048_callback (nlohmann::json& json_data, size_t num_frames, size_t num_records);
 
 void test_cat048 (jASTERIX::jASTERIX& jasterix)
 {
-    loginf << "cat048 test: start";
+    loginf << "cat048 test: start" << logendl;
 
     //    ; ASTERIX data block at pos 0: cat=48; len=65
     //      0x 30 00 41 ff  f7 02 00 01  41 6d eb a8  49 ec 3f c4
@@ -34,7 +35,7 @@ void test_cat048 (jASTERIX::jASTERIX& jasterix)
 
     size_t size = hex2bin (cat048_ed115, target);
 
-    loginf << "cat048 test: src len " << strlen(cat048_ed115) << " bin len " << size;
+    loginf << "cat048 test: src len " << strlen(cat048_ed115) << " bin len " << size << logendl;
 
     assert (size == 65);
 
@@ -44,14 +45,15 @@ void test_cat048 (jASTERIX::jASTERIX& jasterix)
 
     jasterix.decodeASTERIX(target, size, test_cat048_callback);
 
-    loginf << "cat048 test: end";
+    loginf << "cat048 test: end" << logendl;
 }
 
 void test_cat048_callback (nlohmann::json& json_data, size_t num_frames, size_t num_records)
 {
-    loginf << "cat048 test: decoded " << num_frames << " frames, " << num_records << " records: " << json_data.dump(4);
+    loginf << "cat048 test: decoded " << num_frames << " frames, " << num_records << " records: " << json_data.dump(4)
+               << logendl;
 
-    loginf << "cat048 test: data block";
+    loginf << "cat048 test: data block" << logendl;
 
     assert (json_data["data_block"]["category"] == 48);
     assert (json_data["data_block"]["length"] == 65);
@@ -193,13 +195,13 @@ void test_cat048_callback (nlohmann::json& json_data, size_t num_frames, size_t 
 //    }
 //   }
 
-    loginf << "cat048 test: num records";
+    loginf << "cat048 test: num records" << logendl;
     assert (json_data.at("data_block").at("content").at("records").size() == 1);
 
     //    ; FSPEC: 0x ff f7 02
     // 111111111111011100000010
 
-    loginf << "cat048 test: fspec";
+    loginf << "cat048 test: fspec" << logendl;
     assert (json_data.at("data_block").at("content").at("records")[0].at("fspec").size() == 3*8);
 
 //    std::vector<bool> ref ({1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,0,0,0,0,0,0,1,0});
@@ -215,20 +217,20 @@ void test_cat048_callback (nlohmann::json& json_data, size_t num_frames, size_t 
     //    ;  I048/010: =0x 00 01
     //    ;  Data Source Identifier: 0x0001 (SAC=0; SIC=1)
 
-    loginf << "cat048 test: 010";
+    loginf << "cat048 test: 010" << logendl;
     assert (json_data.at("data_block").at("content").at("records")[0].at("010").at("sac") == 0);
     assert (json_data.at("data_block").at("content").at("records")[0].at("010").at("sic") == 1);
 
     //    ;  I048/140: =0x 41 6d eb
     //    ;  Time of Day: 0x416deb (4287979; 33499.835938 secs; 09:18:19.836 UTC)
 
-    loginf << "cat048 test: 140";
+    loginf << "cat048 test: 140" << logendl;
     assert (json_data.at("data_block").at("content").at("records")[0].at("140").at("time-of-day") == 4287979);
 
     //    ;  I048/020: =0x a8
     //    ;  Target Report Descriptor: TYP='Single ModeS Roll-Call' ACT RDP-2
 
-    loginf << "cat048 test: 020";
+    loginf << "cat048 test: 020" << logendl;
     assert (json_data.at("data_block").at("content").at("records")[0].at("020").at("typ") == 5);
     assert (json_data.at("data_block").at("content").at("records")[0].at("020").at("sim") == 0);
     assert (json_data.at("data_block").at("content").at("records")[0].at("020").at("rdp") == 1);
@@ -239,7 +241,7 @@ void test_cat048_callback (nlohmann::json& json_data, size_t num_frames, size_t 
     //    ;  I048/040: =0x 49 ec 3f c4
     //    ;  Measured Position: srg=18924 (73.922 nmi); azm=16324 (89.670 deg)
 
-    loginf << "cat048 test: 040";
+    loginf << "cat048 test: 040" << logendl;
     assert (json_data.at("data_block").at("content").at("records")[0].at("040").at("rho") == 18924);
     assert (json_data.at("data_block").at("content").at("records")[0].at("040").at("theta") == 16324);
 
@@ -247,7 +249,7 @@ void test_cat048_callback (nlohmann::json& json_data, size_t num_frames, size_t 
     //    ;  I048/070: =0x 21 38
     //    ;  Mode 3/A Code: v=0; g=0; l=1; code=00470
 
-    loginf << "cat048 test: 070";
+    loginf << "cat048 test: 070" << logendl;
     assert (json_data.at("data_block").at("content").at("records")[0].at("070").at("v") == 0);
     assert (json_data.at("data_block").at("content").at("records")[0].at("070").at("g") == 0);
     assert (json_data.at("data_block").at("content").at("records")[0].at("070").at("l") == 1);
@@ -256,7 +258,7 @@ void test_cat048_callback (nlohmann::json& json_data, size_t num_frames, size_t 
     //    ;  I048/090: =0x 05 c8
     //    ;  Flight Level: v=0; g=0; code=1480 (370.00 FL)
 
-    loginf << "cat048 test: 090";
+    loginf << "cat048 test: 090" << logendl;
     assert (json_data.at("data_block").at("content").at("records")[0].at("090").at("v") == 0);
     assert (json_data.at("data_block").at("content").at("records")[0].at("090").at("g") == 0);
     assert (json_data.at("data_block").at("content").at("records")[0].at("090").at("flight_level") == 1480);
@@ -265,7 +267,7 @@ void test_cat048_callback (nlohmann::json& json_data, size_t num_frames, size_t 
     //    ;  Radar Plot Characteristics:
     //    ;   Amplitude of (M)SSR reply: -63 dBm
 
-    loginf << "cat048 test: 130";
+    loginf << "cat048 test: 130" << logendl;
     assert (json_data.at("data_block").at("content").at("records")[0].at("130").at("available")
             == std::vector<bool>({0,0,0,0,0,1,0,0}));
     assert (json_data.at("data_block").at("content").at("records")[0].at("130").at("sam").at("value") == -63);
@@ -273,13 +275,13 @@ void test_cat048_callback (nlohmann::json& json_data, size_t num_frames, size_t 
     //    ;  I048/220: =0x ab 4c bd
     //    ;  Aircraft Address: 0xab4cbd (11226301)
 
-    loginf << "cat048 test: 220";
+    loginf << "cat048 test: 220" << logendl;
     assert (json_data.at("data_block").at("content").at("records")[0].at("220").at("aircraft_address") == 11226301);
 
     //    ;  I048/240: =0x 49 94 b5 61  78 20
     //    ;  Aircraft Identification: "RYR5XW  "
 
-    loginf << "cat048 test: 240";
+    loginf << "cat048 test: 240" << logendl;
     assert (json_data.at("data_block").at("content").at("records")[0].at("240").at("aircraft_identification") == "RYR5XW  ");
 
     //    ;  I048/250: =0x 03 8b d9 eb  2f bf e4 00  60 80 91 9f  39 a0 04 dd
@@ -290,7 +292,7 @@ void test_cat048_callback (nlohmann::json& json_data, size_t num_frames, size_t 
     //    ;   BDS 4,0 data=0x c8 48 00 30 a8 00 00
     //    ;           mcp_fcu_selected_altitude=37008[ft]
 
-    loginf << "cat048 test: 250";
+    loginf << "cat048 test: 250" << logendl;
     assert (json_data.at("data_block").at("content").at("records")[0].at("250").at("mode_s_mb_data").size() == 3);
     assert (json_data.at("data_block").at("content").at("records")[0].at("250").at("mode_s_mb_data")[0].at("bds1") == 6);
     assert (json_data.at("data_block").at("content").at("records")[0].at("250").at("mode_s_mb_data")[0].at("bds2") == 0);
@@ -300,20 +302,20 @@ void test_cat048_callback (nlohmann::json& json_data, size_t num_frames, size_t 
     //    ;  I048/161: =0x 03 97
     //    ;  Track Number: num=919
 
-    loginf << "cat048 test: 161";
+    loginf << "cat048 test: 161" << logendl;
     assert (json_data.at("data_block").at("content").at("records")[0].at("161").at("track_number") == 919);
 
     //    ;  I048/200: =0x 08 3c 17 30
     //    ;  Calculated Track Velocity: spd=2108 (463.184 kts); hdg=5936 (32.607 deg)
 
-    loginf << "cat048 test: 200";
+    loginf << "cat048 test: 200" << logendl;
     assert (json_data.at("data_block").at("content").at("records")[0].at("200").at("calculated_groundspeed") == 2108);
     assert (json_data.at("data_block").at("content").at("records")[0].at("200").at("calculated_heading") == 5936);
 
     //    ;  I048/170: =0x 40
     //    ;  Track Status: CNF SRT LVL
 
-    loginf << "cat048 test: 170";
+    loginf << "cat048 test: 170" << logendl;
     assert (json_data.at("data_block").at("content").at("records")[0].at("170").at("cnf") == 0);
     assert (json_data.at("data_block").at("content").at("records")[0].at("170").at("rad") == 2);
     assert (json_data.at("data_block").at("content").at("records")[0].at("170").at("dou") == 0);
@@ -323,7 +325,7 @@ void test_cat048_callback (nlohmann::json& json_data, size_t num_frames, size_t 
     //    ;  I048/230: =0x 20 fd
     //    ;  Communications Capability: CC=1; FS=0 (airborne); MSSC; ARC=25ft; AIC; B1A=1; B1B=13
 
-    loginf << "cat048 test: 230";
+    loginf << "cat048 test: 230" << logendl;
     assert (json_data.at("data_block").at("content").at("records")[0].at("230").at("com") == 1);
     assert (json_data.at("data_block").at("content").at("records")[0].at("230").at("stat") == 0);
     assert (json_data.at("data_block").at("content").at("records")[0].at("230").at("mssc") == 1);
@@ -339,12 +341,14 @@ int main (int argc, char **argv)
     static_assert (sizeof(size_t) >= 8, "code requires size_t with at least 8 bytes");
 
     // setup logging
+#if USE_LOG4CPP
     log4cpp::Appender *console_appender_ = new log4cpp::OstreamAppender("console", &std::cout);
     console_appender_->setLayout(new log4cpp::SimpleLayout());
 
     log4cpp::Category& root = log4cpp::Category::getRoot();
     root.setPriority(log4cpp::Priority::INFO);
     root.addAppender(console_appender_);
+#endif
 
     std::string definition_path;
 
@@ -362,19 +366,19 @@ int main (int argc, char **argv)
 
         if (vm.count("help"))
         {
-            loginf << desc;
+            loginf << desc << logendl;
             return 1;
         }
     }
     catch (exception& e)
     {
-        logerr << "jASTERIX test: unable to parse command line parameters: \n" << e.what();
+        logerr << "jASTERIX test: unable to parse command line parameters: \n" << e.what() << logendl;
         return -1;
     }
 
     try
     {
-        loginf << "jASTERIX test: startup with definition_path '" << definition_path << "'";
+        loginf << "jASTERIX test: startup with definition_path '" << definition_path << "'" << logendl;
 
         jASTERIX::jASTERIX asterix (definition_path, true, true);
 
@@ -383,18 +387,18 @@ int main (int argc, char **argv)
     }
     catch (exception &ex)
     {
-        logerr << "jASTERIX test: caught exception: " << ex.what();
+        logerr << "jASTERIX test: caught exception: " << ex.what() << logendl;
 
         return -1;
     }
     catch(...)
     {
-        logerr << "jASTERIX test: caught exception";
+        logerr << "jASTERIX test: caught exception" << logendl;
 
         return -1;
     }
 
-    loginf << "jASTERIX: shutdown";
+    loginf << "jASTERIX test: shutdown" << logendl;
 
     return 0;
 }

@@ -259,7 +259,7 @@ size_t FixedBitsItemParser::parseItem (const char* data, size_t index, size_t si
                                        nlohmann::json& target, bool debug)
 {
     if (debug)
-        loginf << "parsing fixed bits item '" << name_ << "' byte length " << byte_length_;
+        loginf << "parsing fixed bits item '" << name_ << "' byte length " << byte_length_ << logendl;
 
     unsigned char tmp1{0};
 
@@ -274,7 +274,7 @@ size_t FixedBitsItemParser::parseItem (const char* data, size_t index, size_t si
 
             if (debug)
                 loginf << "parsing fixed bits item '" << name_ << "' with start bit " << start_bit_
-                       << " length " << bit_length_ << " value " << (size_t) tmp1;
+                       << " length " << bit_length_ << " value " << (size_t) tmp1 << logendl;
 
             target.emplace(name_, tmp1);
         }
@@ -285,7 +285,7 @@ size_t FixedBitsItemParser::parseItem (const char* data, size_t index, size_t si
 
             if (debug)
                 loginf << "parsing fixed bits item '" << name_ << "' with start bit " << start_bit_
-                       << " length " << bit_length_ << " value " << (size_t) tmp1;
+                       << " length " << bit_length_ << " value " << (size_t) tmp1 << logendl;
 
             int data_int;
 
@@ -311,7 +311,7 @@ size_t FixedBitsItemParser::parseItem (const char* data, size_t index, size_t si
                 if (debug)
                     loginf << "parsing fixed bits item '" << name_ << "' type digits cnt " << cnt
                            << " digits1 tmp " << digits_tmp << " value " << (size_t) tmp1
-                           << " bitmask " << digits_bitmasks1[cnt];
+                           << " bitmask " << digits_bitmasks1[cnt] << logendl;
 
             }
             target.emplace(name_, digits_tmp);
@@ -330,7 +330,7 @@ size_t FixedBitsItemParser::parseItem (const char* data, size_t index, size_t si
                 if (debug)
                     loginf << "parsing fixed bits item '" << name_ << "' type characters cnt " << cnt
                            << " characters tmp '" << characters_tmp << "' value " << (size_t) char_tmp1
-                           << " bitmask " << chars_bitmasks1[cnt];
+                           << " bitmask " << chars_bitmasks1[cnt] << logendl;
 
             }
             target.emplace(name_, characters_tmp);
@@ -349,7 +349,7 @@ size_t FixedBitsItemParser::parseItem (const char* data, size_t index, size_t si
 
             if (debug)
                 loginf << "parsing fixed bits item '" << name_ << "' tmp1 " << (size_t) tmp1
-                       << " tmp4 " << (size_t) tmp4;
+                       << " tmp4 " << (size_t) tmp4 << logendl;
         }
 
         if (data_type_ == "uint")
@@ -370,7 +370,7 @@ size_t FixedBitsItemParser::parseItem (const char* data, size_t index, size_t si
 
             if (debug)
                 loginf << "parsing fixed bits item '" << name_ << "' with start bit " << start_bit_
-                       << " length " << bit_length_ << " value " << (size_t) tmp4;
+                       << " length " << bit_length_ << " value " << (size_t) tmp4 << logendl;
 
             int data_int;
 
@@ -396,7 +396,7 @@ size_t FixedBitsItemParser::parseItem (const char* data, size_t index, size_t si
                 if (debug)
                     loginf << "parsing fixed bits item '" << name_ << "' type digits cnt " << cnt
                            << " digits4 tmp " << digits_tmp << " value " << (size_t) tmp4
-                           << " bitmask " << digits_bitmasks4[cnt];
+                           << " bitmask " << digits_bitmasks4[cnt] << logendl;
 
             }
             target.emplace(name_, digits_tmp);
@@ -415,7 +415,7 @@ size_t FixedBitsItemParser::parseItem (const char* data, size_t index, size_t si
                 if (debug)
                     loginf << "parsing fixed bits item '" << name_ << "' type characters cnt " << cnt
                            << " characters tmp '" << characters_tmp << "' value " << (size_t) char_tmp4
-                           << " bitmask " << chars_bitmasks4[cnt];
+                           << " bitmask " << chars_bitmasks4[cnt] << logendl;
 
             }
             target.emplace(name_, characters_tmp);
@@ -435,7 +435,7 @@ size_t FixedBitsItemParser::parseItem (const char* data, size_t index, size_t si
 
             if (debug)
                 loginf << "parsing fixed bits item '" << name_ << "' tmp1 " << (size_t) tmp1
-                       << " tmp8 " << (size_t) tmp8;
+                       << " tmp8 " << (size_t) tmp8 << logendl;
         }
         if (data_type_ == "uint")
         {
@@ -444,7 +444,7 @@ size_t FixedBitsItemParser::parseItem (const char* data, size_t index, size_t si
 
             if (debug)
                 loginf << "parsing fixed bits item '" << name_ << "' with start bit " << start_bit_
-                       << " length " << bit_length_ << " value " << (size_t) tmp8;
+                       << " length " << bit_length_ << " value " << (size_t) tmp8 << logendl;
 
             target.emplace(name_, tmp8);
         }
@@ -455,7 +455,7 @@ size_t FixedBitsItemParser::parseItem (const char* data, size_t index, size_t si
 
             if (debug)
                 loginf << "parsing fixed bits item '" << name_ << "' with start bit " << start_bit_
-                       << " length " << bit_length_ << " value " << (size_t) tmp8;
+                       << " length " << bit_length_ << " value " << (size_t) tmp8 << logendl;
 
             long int data_lint;
 
@@ -475,7 +475,7 @@ size_t FixedBitsItemParser::parseItem (const char* data, size_t index, size_t si
                 if (debug)
                     loginf << "parsing fixed bits item '" << name_ << "' type digits cnt " << cnt
                            << " digits8 tmp " << digits_tmp << " value " << (size_t) tmp8
-                           << " bitmask " << digits_bitmasks8[cnt];
+                           << " bitmask " << digits_bitmasks8[cnt] << logendl;
 
                 digits_tmp *= 10;
                 digits_tmp += tmp8 & digits_bitmasks8[cnt];
@@ -496,7 +496,7 @@ size_t FixedBitsItemParser::parseItem (const char* data, size_t index, size_t si
                 if (debug)
                     loginf << "parsing fixed bits item '" << name_ << "' type characters cnt " << cnt
                            << " characters tmp '" << characters_tmp << "' value " << (size_t) char_tmp8
-                           << " bitmask " << chars_bitmasks8[cnt];
+                           << " bitmask " << chars_bitmasks8[cnt] << logendl;
 
             }
             target.emplace(name_, characters_tmp);

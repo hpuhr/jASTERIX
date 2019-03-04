@@ -42,7 +42,7 @@ size_t ExtendableBitsItemParser::parseItem (const char* data, size_t index, size
                                             nlohmann::json& target, bool debug)
 {
     if (debug)
-        loginf << "parsing extendable bits item '" << name_ << "'";
+        loginf << "parsing extendable bits item '" << name_ << "'" << logendl;
 
     const char* current_data = &data[index];
 
@@ -72,7 +72,7 @@ size_t ExtendableBitsItemParser::parseItem (const char* data, size_t index, size
                         loginf << "extendable bits item '" << name_ << "' index " << index+parsed_bytes
                                << " current byte " << static_cast<unsigned int>(current_byte)
                                << " reverse true "
-                               << " bit field index " << cnt << " bitmask " << bitmask << " value " << value;
+                               << " bit field index " << cnt << " bitmask " << bitmask << " value " << value << logendl;
 
                     bitmask >>= 1;
                 }
@@ -90,7 +90,7 @@ size_t ExtendableBitsItemParser::parseItem (const char* data, size_t index, size
                         loginf << "extendable bits item '" << name_ << "' index " << index+parsed_bytes
                                << " current byte " << static_cast<unsigned int>(current_byte)
                                << " reverse false "
-                               << " bit field index " << cnt << " bitmask " << bitmask << " value " << value;
+                               << " bit field index " << cnt << " bitmask " << bitmask << " value " << value << logendl;
 
                     bitmask = bitmask << 1;
                 }
@@ -102,7 +102,7 @@ size_t ExtendableBitsItemParser::parseItem (const char* data, size_t index, size
 
         if (debug)
             loginf << "extendable bits item '"+name_+"'" << " index " << index
-                   << " parsed " << parsed_bytes << " bytes";
+                   << " parsed " << parsed_bytes << " bytes" << logendl;
 
         return parsed_bytes;
     }
