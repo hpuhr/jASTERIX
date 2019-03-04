@@ -15,15 +15,16 @@
  * along with jASTERIX.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "jasterix.h"
+#include "logger.h"
+#include "jsonwriter.h"
+
 #include <boost/filesystem.hpp>
 #include <boost/program_options.hpp>
 #include "boost/date_time/posix_time/posix_time.hpp"
 
 #include <iostream>
 #include <cstdlib>
-
-#include "jasterix.h"
-#include "logger.h"
 
 #include "log4cpp/OstreamAppender.hh"
 #include "log4cpp/Layout.hh"
@@ -32,11 +33,21 @@
 namespace po = boost::program_options;
 
 using namespace std;
+using namespace jASTERIX;
 
-void callback (nlohmann::json&& data_chunk, size_t num_frames, size_t num_records)
+JSONWriter test (JSON_ZIP_TEXT, "test.zip", 100);
+
+void callback (nlohmann::json& data_chunk, size_t num_frames, size_t num_records)
 {
     //loginf << "jASTERIX: decoded " << num_frames << " frames, " << num_records << " records: " << data_chunk.dump(4);
 }
+
+void write_callback (nlohmann::json& data_chunk, size_t num_frames, size_t num_records)
+{
+    //loginf << "jASTERIX: decoded " << num_frames << " frames, " << num_records << " records: " << data_chunk.dump(4);
+    test.write(data_chunk);
+}
+
 
 int main (int argc, char **argv)
 {
@@ -95,7 +106,7 @@ int main (int argc, char **argv)
         jASTERIX::jASTERIX asterix (definition_path, print, debug);
         boost::posix_time::ptime start_time = boost::posix_time::microsec_clock::local_time();
 
-        asterix.decodeFile (filename, framing, callback);
+        asterix.decodeFile (filename, framing, write_callback);
 
         size_t num_frames = asterix.numFrames();
         size_t num_records = asterix.numRecords();

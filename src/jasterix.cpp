@@ -158,7 +158,7 @@ void jASTERIX::setEdition (const std::string& cat_str, const std::string& editio
 }
 
 void jASTERIX::decodeFile (const std::string& filename, const std::string& framing,
-                           std::function<void(nlohmann::json&&, size_t, size_t)> callback)
+                           std::function<void(nlohmann::json&, size_t, size_t)> callback)
 {
     // check and open file
     if (!fileExists(filename))
@@ -228,7 +228,7 @@ void jASTERIX::decodeFile (const std::string& filename, const std::string& frami
             if (print_)
                 loginf << data_chunk.dump(4);
 
-            callback(std::move(data_chunk), num_frames_, num_records_);
+            callback(data_chunk, num_frames_, num_records_);
         }
         else
         {
@@ -238,7 +238,7 @@ void jASTERIX::decodeFile (const std::string& filename, const std::string& frami
 }
 
 void jASTERIX::decodeASTERIX (const char* data, size_t size,
-             std::function<void(nlohmann::json&&, size_t, size_t)> callback)
+             std::function<void(nlohmann::json&, size_t, size_t)> callback)
 {
     // create ASTERIX parser
     ASTERIXParser asterix_parser (data_block_definition_, current_category_editions_,
@@ -248,7 +248,7 @@ void jASTERIX::decodeASTERIX (const char* data, size_t size,
 
     asterix_parser.decodeDataBlock(data, 0, size, data_chunk, debug_);
 
-    callback(std::move(data_chunk), 0, 0);
+    callback(data_chunk, 0, 0);
 }
 
 

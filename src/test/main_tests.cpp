@@ -12,7 +12,7 @@ namespace po = boost::program_options;
 
 using namespace std;
 
-void test_cat048_callback (nlohmann::json&& json_data, size_t num_frames, size_t num_records);
+void test_cat048_callback (nlohmann::json& json_data, size_t num_frames, size_t num_records);
 
 void test_cat048 (jASTERIX::jASTERIX& jasterix)
 {
@@ -44,11 +44,10 @@ void test_cat048 (jASTERIX::jASTERIX& jasterix)
 
     jasterix.decodeASTERIX(target, size, test_cat048_callback);
 
-
     loginf << "cat048 test: end";
 }
 
-void test_cat048_callback (nlohmann::json&& json_data, size_t num_frames, size_t num_records)
+void test_cat048_callback (nlohmann::json& json_data, size_t num_frames, size_t num_records)
 {
     loginf << "cat048 test: decoded " << num_frames << " frames, " << num_records << " records: " << json_data.dump(4);
 
