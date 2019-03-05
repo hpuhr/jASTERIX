@@ -23,16 +23,36 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 # Instruct CMake to run moc automatically when needed.
 set(CMAKE_AUTOMOC ON)
 
-find_package ( Boost REQUIRED COMPONENTS regex system program_options filesystem iostreams)
+set (USE_LOG4CPP true)
+message("USE_LOG4CPP: ${USE_LOG4CPP}")
+
+set (USE_BOOST_PO true)
+message("USE_BOOST_PO: ${USE_BOOST_PO}")
+
+configure_file(src/utils/global.h.in include/global.h)
+
+IF (USE_BOOST_PO)
+find_package ( Boost REQUIRED COMPONENTS system program_options filesystem iostreams)
+ELSE (USE_BOOST_PO)
+find_package ( Boost REQUIRED COMPONENTS system filesystem iostreams)
+ENDIF()
 message("  Boost_INCLUDE_DIR: ${Boost_INCLUDE_DIR}")
 message("  Boost_LIBRARY_DIR: ${Boost_LIBRARY_DIR}")
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH};${ATSDB_PATH}/cmake_modules)
 message("  CMAKE_MODULE_PATH: ${CMAKE_MODULE_PATH}") 
 
+add_library(jasterix "")
+
+IF (USE_LOG4CPP)
 find_package ( LOG4CPP REQUIRED )
 message("  LOG4CPP_INCLUDE_DIR: ${LOG4CPP_INCLUDE_DIR}")
 message("  LOG4CPP_LIBRARY: ${LOG4CPP_LIBRARIES}") 
+
+target_link_libraries ( jasterix
+    ${LOG4CPP_LIBRARIES}
+    )
+ENDIF()
 
 find_package(TBB REQUIRED)
 
@@ -40,7 +60,6 @@ find_package ( LibArchive REQUIRED )
 message("  LibArchive_INCLUDE_DIRS: ${LibArchive_INCLUDE_DIRS}")
 message("  LibArchive_LIBRARIES: ${LibArchive_LIBRARIES}")
 
-add_library(jasterix "")
 
 message("Install path: ${CMAKE_INSTALL_PREFIX}")
 
@@ -62,8 +81,6 @@ link_directories(
 
 target_link_libraries ( jasterix
     ${Boost_LIBRARIES}
-    ${LOG4CPP_LIBRARIES}
-    ${MySQLpp_LIBRARY}
     ${TBB_LIBRARIES}
     ${LibArchive_LIBRARIES}
     )

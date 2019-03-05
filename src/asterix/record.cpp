@@ -84,12 +84,12 @@ size_t Record::parseItem (const char* data, size_t index, size_t size, size_t cu
                               nlohmann::json& target, bool debug)
 {
     if (debug)
-        loginf << "parsing record item '" << name_ << "' with " << items_.size() << " items";
+        loginf << "parsing record item '" << name_ << "' with " << items_.size() << " items" << logendl;
 
     size_t parsed_bytes {0};
 
     if (debug)
-        loginf << "parsing record item '"+name_+"' field specification";
+        loginf << "parsing record item '"+name_+"' field specification" << logendl;
 
     parsed_bytes = field_specification_->parseItem(data, index+parsed_bytes, size, parsed_bytes, target, debug);
 
@@ -102,7 +102,7 @@ size_t Record::parseItem (const char* data, size_t index, size_t size, size_t cu
         throw runtime_error ("record item '"+name_+"' has more fspec bits than define uap items");
 
     if (debug)
-        loginf << "parsing record item '"+name_+"' data items";
+        loginf << "parsing record item '"+name_+"' data items" << logendl;
 
     std::string item_name;
 
@@ -117,19 +117,19 @@ size_t Record::parseItem (const char* data, size_t index, size_t size, size_t cu
 
             if (item_name == "SP")
             {
-                loginf << "WARN: record item '"+name_+"' has special purpose field, not implemented yet";
+                loginf << "WARN: record item '"+name_+"' has special purpose field, not implemented yet" << logendl;
                 continue;
             }
 
             if (item_name == "RE")
             {
-                loginf << "WARN: record item '"+name_+"' has reserved expansion field, not implemented yet";
+                loginf << "WARN: record item '"+name_+"' has reserved expansion field, not implemented yet" << logendl;
                 continue;
             }
 
             if (debug)
                 loginf << "parsing record item '" << name_ << "' data item '" << item_name << "' index "
-                       << index+parsed_bytes;
+                       << index+parsed_bytes << logendl;
 
             if (items_.count(item_name) != 1)
                 throw runtime_error ("record item '"+name_+"' references undefined item '"+item_name+"'");

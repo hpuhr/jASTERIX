@@ -18,16 +18,32 @@
 #ifndef LOGGER_H_
 #define LOGGER_H_
 
+#include <iostream>
+
+#include "global.h"
+
+#if USE_LOG4CPP
 #include "log4cpp/Category.hh"
+#endif
 
 namespace jASTERIX
 {
 
+#if USE_LOG4CPP
 #define logerr log4cpp::Category::getRoot().errorStream()
-#define logwrn log4cpp::Category::getRoot().warnStream()
+//#define logwrn log4cpp::Category::getRoot().warnStream()
 #define loginf log4cpp::Category::getRoot().infoStream()
 //#define logdbg log4cpp::Category::getRoot().debugStream()
-#define logdbg if(0) log4cpp::Category::getRoot().debugStream() // for improved performance
+//#define logdbg if(0) log4cpp::Category::getRoot().debugStream() // for improved
+#define logendl ""
+
+#else
+
+#define logerr std::cerr
+#define loginf std::cout
+#define logendl std::endl
+
+#endif
 
 }
 

@@ -57,7 +57,7 @@ size_t FixedBytesItemParser::parseItem (const char* data, size_t index, size_t s
     if (debug)
     {
         assert (type_ == "fixed_bytes");
-        loginf << "parsing fixed bytes item '" << name_ << "'";
+        loginf << "parsing fixed bytes item '" << name_ << "'" << logendl;
     }
 
     unsigned char tmp{0};
@@ -72,7 +72,7 @@ size_t FixedBytesItemParser::parseItem (const char* data, size_t index, size_t s
 
         if (debug)
             loginf << "fixed bytes item '"+name_+"' parsing index " << index << " length " << length_
-                   << " data type " << data_type_ << " value '" << data_str << "'";
+                   << " data type " << data_type_ << " value '" << data_str << "'" << logendl;
 
         assert (target.find(name_) == target.end());
         target.emplace(name_, std::move(data_str));
@@ -93,7 +93,7 @@ size_t FixedBytesItemParser::parseItem (const char* data, size_t index, size_t s
                 if (debug)
                     loginf << "fixed bytes item '"+name_+"' cnt " << cnt << " byte "
                            << std::hex << static_cast<unsigned int> (tmp) << " reverse bytes false bits "
-                           << reverse_bits_ << " data " << data_uint;
+                           << reverse_bits_ << " data " << data_uint << logendl;
 
                 if (reverse_bits_)
                     reverseBits(tmp);
@@ -110,7 +110,7 @@ size_t FixedBytesItemParser::parseItem (const char* data, size_t index, size_t s
                 if (debug)
                     loginf << "fixed bytes item '"+name_+"' cnt " << cnt << " byte "
                            << std::hex << static_cast<unsigned int> (tmp) << " reverse bytes true bits "
-                           << reverse_bits_ << " data " << data_uint;
+                           << reverse_bits_ << " data " << data_uint << logendl;
 
                 if (reverse_bits_)
                     reverseBits(tmp);
@@ -121,7 +121,7 @@ size_t FixedBytesItemParser::parseItem (const char* data, size_t index, size_t s
 
         if (debug)
             loginf << "parsing fixed bytes item '"+name_+"' index " << index << " length " << length_
-                   << " data type " << data_type_ << " value '" << data_uint << "'";
+                   << " data type " << data_type_ << " value '" << data_uint << "'" << logendl;
 
         assert (target.find(name_) == target.end());
         //target[name_] = data_uint;
@@ -143,7 +143,7 @@ size_t FixedBytesItemParser::parseItem (const char* data, size_t index, size_t s
                 if (debug)
                     loginf << "fixed bytes item '"+name_+"' cnt " << cnt << " byte "
                            << std::hex << static_cast<unsigned int> (tmp) << " reverse bytes false bits "
-                           << reverse_bits_ << " data " << data_uint;
+                           << reverse_bits_ << " data " << data_uint << logendl;
 
                 if (reverse_bits_)
                     reverseBits(tmp);
@@ -160,7 +160,7 @@ size_t FixedBytesItemParser::parseItem (const char* data, size_t index, size_t s
                 if (debug)
                     loginf << "fixed bytes item '"+name_+"' cnt " << cnt << " byte "
                            << std::hex << static_cast<unsigned int> (tmp) << " reverse bytes true bits "
-                           << reverse_bits_ << " data " << data_uint;
+                           << reverse_bits_ << " data " << data_uint << logendl;
 
                 if (reverse_bits_)
                     reverseBits(tmp);
@@ -176,7 +176,7 @@ size_t FixedBytesItemParser::parseItem (const char* data, size_t index, size_t s
 
         if (debug)
             loginf << "parsing fixed bytes item '"+name_+"' index " << index << " length " << length_
-                   << " data type " << data_type_ << " value '" << data_int << "'";
+                   << " data type " << data_type_ << " value '" << data_int << "'" << logendl;
 
         assert (target.find(name_) == target.end());
         //target[name_] = data_int;
@@ -191,7 +191,7 @@ size_t FixedBytesItemParser::parseItem (const char* data, size_t index, size_t s
         if (debug)
         {
             loginf << "fixed bytes item '"+name_+"' parsing index " << index << " length " << length_
-                   << " data type " << data_type_ << " value '" << data_str << "'";
+                   << " data type " << data_type_ << " value '" << data_str << "'" << logendl;
         }
 
         assert (target.find(name_) == target.end());

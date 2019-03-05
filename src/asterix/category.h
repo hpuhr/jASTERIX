@@ -43,6 +43,10 @@ public:
     std::string defaultEdition() const;
     std::shared_ptr<Edition> getCurrentEdition();
 
+    bool hasMapping (const std::string& mapping_str);
+    std::shared_ptr<Mapping> mapping (const std::string& mapping_str);
+
+
     std::string defaultMapping() const;
     bool hasCurrentMapping();
     std::shared_ptr<Mapping> getCurrentMapping();

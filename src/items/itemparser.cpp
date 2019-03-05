@@ -49,7 +49,7 @@ size_t ItemParser::parseItem (const char* data, size_t index, size_t size, size_
                               nlohmann::json& target, bool debug)
 {
     if (debug)
-        loginf << "parsing item '" << name_ << "'";
+        loginf << "parsing item '" << name_ << "'" << logendl;
 
     size_t parsed_bytes {0};
 
@@ -59,7 +59,7 @@ size_t ItemParser::parseItem (const char* data, size_t index, size_t size, size_
     }
 
     if (debug)
-        loginf << "parsing item '"+name_+"' done, " << parsed_bytes << " bytes parsed";
+        loginf << "parsing item '"+name_+"' done, " << parsed_bytes << " bytes parsed" << logendl;
 
     return parsed_bytes;
 }

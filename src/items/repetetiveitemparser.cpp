@@ -66,12 +66,12 @@ size_t RepetetiveItemParser::parseItem (const char* data, size_t index, size_t s
                               nlohmann::json& target, bool debug)
 {
     if (debug)
-        loginf << "parsing repetitive item '" << name_ << "' with " << items_.size() << " items";
+        loginf << "parsing repetitive item '" << name_ << "' with " << items_.size() << " items" << logendl;
 
     size_t parsed_bytes {0};
 
     if (debug)
-        loginf << "parsing repetitive item '"+name_+"' repetition item";
+        loginf << "parsing repetitive item '"+name_+"' repetition item" << logendl;
 
     parsed_bytes = repetition_item_->parseItem(data, index+parsed_bytes, size, parsed_bytes, target, debug);
 
@@ -81,7 +81,7 @@ size_t RepetetiveItemParser::parseItem (const char* data, size_t index, size_t s
     json j_data = json::array();
 
     if (debug)
-        loginf << "parsing repetitive item '"+name_+"' items " << rep << " times";
+        loginf << "parsing repetitive item '"+name_+"' items " << rep << " times" << logendl;
 
     for (unsigned int cnt=0; cnt < rep; ++cnt)
     {
@@ -89,7 +89,7 @@ size_t RepetetiveItemParser::parseItem (const char* data, size_t index, size_t s
         {
             if (debug)
                 loginf << "parsing repetitive item '" << name_ << "' data item '" << data_item_it->name() << "' index "
-                       << index+parsed_bytes << " cnt " << cnt;
+                       << index+parsed_bytes << " cnt " << cnt << logendl;
 
             parsed_bytes += data_item_it->parseItem(data, index+parsed_bytes, size, parsed_bytes,
                                                     j_data[cnt], debug);

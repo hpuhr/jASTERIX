@@ -47,7 +47,7 @@ FrameParser::FrameParser(const json& framing_definition, ASTERIXParser& asterix_
         item_name = data_item_it.at("name");
 
         if (debug)
-            loginf << "frame parser constructing header item '" << item_name << "'";
+            loginf << "frame parser constructing header item '" << item_name << "'" << logendl;
 
         item = ItemParserBase::createItemParser(data_item_it);
         assert (item);
@@ -65,7 +65,7 @@ FrameParser::FrameParser(const json& framing_definition, ASTERIXParser& asterix_
         item_name = data_item_it.at("name");
 
         if (debug)
-            loginf << "frame parser constructing frame item '" << item_name << "'";
+            loginf << "frame parser constructing frame item '" << item_name << "'" << logendl;
 
         item = ItemParserBase::createItemParser(data_item_it);
         assert (item);
@@ -115,7 +115,7 @@ size_t FrameParser::parseFrames (const char* data, size_t index, size_t size, nl
         for (auto& j_item : frame_items_)
         {
             if (debug)
-                loginf << "parsing frame at index " << index+parsed_bytes << " cnt " << frames_cnt;
+                loginf << "parsing frame at index " << index+parsed_bytes << " cnt " << frames_cnt << logendl;
 
             parsed_bytes += j_item->parseItem(data, index+parsed_bytes, size, current_parsed_bytes,
                                               j_frames[frames_cnt], debug);
@@ -161,7 +161,7 @@ size_t FrameParser::decodeFrames (const char* data, json& target, bool debug)
     }
 
     if (debug)
-        loginf << "frames decoded, num frames " << num_records_sum;
+        loginf << "frames decoded, num frames " << num_records_sum << logendl;
 
     return num_records_sum;
 }
@@ -182,7 +182,7 @@ size_t FrameParser::decodeFrame (const char* data, json& json_frame, bool debug)
     size_t length {frame_content.at("length")};
 
     if (debug)
-        loginf << "frame parser decoding frame at index " << index << " length " << length;
+        loginf << "frame parser decoding frame at index " << index << " length " << length << logendl;
 
     return asterix_parser_.decodeDataBlock(data, index, length, frame_content, debug);
 }

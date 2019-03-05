@@ -52,12 +52,12 @@ size_t ExtendableItemParser::parseItem (const char* data, size_t index, size_t s
                                         nlohmann::json& target, bool debug)
 {
     if (debug)
-        loginf << "parsing extendable item '" << name_ << "' with " << items_.size() << " items";
+        loginf << "parsing extendable item '" << name_ << "' with " << items_.size() << " items" << logendl;
 
     size_t parsed_bytes {0};
 
     if (debug)
-        loginf << "parsing extendable item '"+name_+"' items";
+        loginf << "parsing extendable item '"+name_+"' items" << logendl;
 
     unsigned int extend = 1;
     unsigned int cnt = 0;
@@ -73,7 +73,7 @@ size_t ExtendableItemParser::parseItem (const char* data, size_t index, size_t s
         {
             if (debug)
                 loginf << "parsing extendable item '" << name_ << "' data item '" << data_item_it->name() << "' index "
-                       << index+parsed_bytes << " cnt " << cnt;
+                       << index+parsed_bytes << " cnt " << cnt << logendl;
 
             parsed_bytes += data_item_it->parseItem(data, index+parsed_bytes, size, parsed_bytes,
                                                     j_data[cnt], debug);
