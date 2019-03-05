@@ -31,7 +31,11 @@ message("USE_BOOST_PO: ${USE_BOOST_PO}")
 
 configure_file(src/utils/global.h.in include/global.h)
 
+IF (USE_BOOST_PO)
 find_package ( Boost REQUIRED COMPONENTS system program_options filesystem iostreams)
+ELSE (USE_BOOST_PO)
+find_package ( Boost REQUIRED COMPONENTS system filesystem iostreams)
+ENDIF()
 message("  Boost_INCLUDE_DIR: ${Boost_INCLUDE_DIR}")
 message("  Boost_LIBRARY_DIR: ${Boost_LIBRARY_DIR}")
 
