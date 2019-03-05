@@ -123,6 +123,17 @@ std::shared_ptr<Edition> Category::getCurrentEdition()
     return editions_.at(default_edition_);
 }
 
+bool Category::hasMapping (const std::string& mapping_str)
+{
+    return mappings_.count(mapping_str) == 1;
+}
+
+std::shared_ptr<Mapping> Category::mapping (const std::string& mapping_str)
+{
+    assert (hasMapping(mapping_str));
+    return mappings_.at(mapping_str);
+}
+
 std::string Category::defaultMapping() const
 {
     return default_mapping_;

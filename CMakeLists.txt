@@ -26,6 +26,9 @@ set(CMAKE_AUTOMOC ON)
 set (USE_LOG4CPP true)
 message("USE_LOG4CPP: ${USE_LOG4CPP}")
 
+set (USE_BOOST_PO false)
+message("USE_BOOST_PO: ${USE_BOOST_PO}")
+
 configure_file(src/utils/global.h.in include/global.h)
 
 find_package ( Boost REQUIRED COMPONENTS system program_options filesystem iostreams)

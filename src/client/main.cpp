@@ -21,8 +21,16 @@
 #include "global.h"
 
 #include <boost/filesystem.hpp>
-#include <boost/program_options.hpp>
 #include "boost/date_time/posix_time/posix_time.hpp"
+
+#if USE_BOOST_PO
+#include <boost/program_options.hpp>
+
+namespace po = boost::program_options;
+#else
+#include <vector>
+#include <algorithm>
+#endif
 
 #include <iostream>
 #include <cstdlib>
@@ -33,7 +41,6 @@
 #include "log4cpp/SimpleLayout.hh"
 #endif
 
-namespace po = boost::program_options;
 
 using namespace std;
 using namespace jASTERIX;
@@ -77,6 +84,7 @@ int main (int argc, char **argv)
     std::string write_type;
     std::string write_filename;
 
+#if USE_BOOST_PO
     po::options_description desc("Allowed options");
     desc.add_options()
         ("help", "produce help message")
@@ -87,7 +95,7 @@ int main (int argc, char **argv)
         ("debug", po::bool_switch(&debug), "print debug output")
         ("print", po::bool_switch(&print), "print JSON output")
         ("write_type", po::value<std::string>(&write_type), "optional write type, e.g. text,zip. needs write_filename.")
-        ("write_filename", po::value<std::string>(&write_filename), "optional write filename, e.g. test.zip")
+        ("write_filename", po::value<std::string>(&write_filename), "optional write filename, e.g. test.zip.")
     ;
 
     try
@@ -107,6 +115,48 @@ int main (int argc, char **argv)
         logerr << "jASTERIX: unable to parse command line parameters: \n" << e.what() << logendl;
         return -1;
     }
+#else
+    std::vector<std::string> arguments;
+    arguments.assign(argv, argv+argc);
+
+    if (arguments.size() == 1 || find(arguments.begin(), arguments.end(), "--help") != arguments.end())
+    {
+        loginf << "help:" << logendl;
+        loginf << "filename (value): input filename." << logendl;
+        loginf << "definition_path (value): path to jASTERIX definition files." << logendl;
+        loginf << "framing (value): input framine format, as specified in the framing definitions."
+                  " netto is default" << logendl;
+        loginf << "debug: print debug output" << logendl;
+        loginf << "print: print JSON output" << logendl;
+        loginf << "write_type (value): optional write type, e.g. text,zip. needs write_filename." << logendl;
+        loginf << "write_filename (value): optional write filename, e.g. test.zip." << logendl;
+
+        return 0;
+    }
+
+    if (find(arguments.begin(), arguments.end(), "--filename") != arguments.end())
+        filename = *(find(arguments.begin(), arguments.end(), "--filename")+1);
+
+    if (find(arguments.begin(), arguments.end(), "--definition_path") != arguments.end())
+        definition_path = *(find(arguments.begin(), arguments.end(), "--definition_path")+1);
+
+    if (find(arguments.begin(), arguments.end(), "--framing") != arguments.end())
+        framing = *(find(arguments.begin(), arguments.end(), "--framing")+1);
+
+    if (find(arguments.begin(), arguments.end(), "--debug") != arguments.end())
+        debug = true;
+
+    if (find(arguments.begin(), arguments.end(), "--print") != arguments.end())
+        print = true;
+
+    if (find(arguments.begin(), arguments.end(), "--write_type") != arguments.end())
+        write_type = *(find(arguments.begin(), arguments.end(), "--write_type")+1);
+
+    if (find(arguments.begin(), arguments.end(), "--write_filename") != arguments.end())
+        write_filename = *(find(arguments.begin(), arguments.end(), "--write_filename")+1);
+
+#endif
+
 
     if (write_type.size())
     {

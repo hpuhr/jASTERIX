@@ -2,13 +2,15 @@
 #include "logger.h"
 #include "string_conv.h"
 
-#include <boost/program_options.hpp>
-
 #include "log4cpp/OstreamAppender.hh"
 #include "log4cpp/Layout.hh"
 #include "log4cpp/SimpleLayout.hh"
 
+#if USE_BOOST_PO
+#include <boost/program_options.hpp>
+
 namespace po = boost::program_options;
+#endif
 
 using namespace std;
 using namespace jASTERIX;
@@ -42,6 +44,7 @@ void test_cat048 (jASTERIX::jASTERIX& jasterix)
     assert (jasterix.hasCategory("048"));
     assert (jasterix.hasEdition("048", "1.15"));
     jasterix.setEdition("048", "1.15");
+    jasterix.setMapping("048", "");
 
     jasterix.decodeASTERIX(target, size, test_cat048_callback);
 
@@ -352,6 +355,7 @@ int main (int argc, char **argv)
 
     std::string definition_path;
 
+#if USE_BOOST_PO
     po::options_description desc("Allowed options");
     desc.add_options()
             ("help", "produce help message")
@@ -375,6 +379,22 @@ int main (int argc, char **argv)
         logerr << "jASTERIX test: unable to parse command line parameters: \n" << e.what() << logendl;
         return -1;
     }
+#else
+    std::vector<std::string> arguments;
+    arguments.assign(argv, argv+argc);
+
+    if (arguments.size() == 1 || find(arguments.begin(), arguments.end(), "--help") != arguments.end())
+    {
+        loginf << "help:" << logendl;
+        loginf << "definition_path (value): path to jASTERIX definition files." << logendl;
+
+        return 0;
+    }
+
+    if (find(arguments.begin(), arguments.end(), "--definition_path") != arguments.end())
+        definition_path = *(find(arguments.begin(), arguments.end(), "--definition_path")+1);
+
+#endif
 
     try
     {

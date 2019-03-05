@@ -157,6 +157,33 @@ void jASTERIX::setEdition (const std::string& cat_str, const std::string& editio
     current_category_editions_[cat] = category_definitions_.at(cat_str).edition(edition_str);
 }
 
+bool jASTERIX::hasMapping (const std::string& cat_str, const std::string& mapping_str)
+{
+    if (!hasCategory(cat_str))
+        return false;
+
+    return category_definitions_.at(cat_str).hasMapping(mapping_str);
+}
+
+void jASTERIX::setMapping (const std::string& cat_str, const std::string& mapping_str)
+{
+    int cat = -1;
+    cat = stoi(cat_str);
+    assert (cat > 0);
+
+    if (!mapping_str.size()) // "" for no mapping
+    {
+        if (current_category_mappings_.count(cat))
+            current_category_mappings_.erase(cat);
+        return;
+    }
+
+    assert (hasMapping(cat_str, mapping_str));
+
+    current_category_mappings_[cat] = category_definitions_.at(cat_str).mapping(mapping_str);
+}
+
+
 void jASTERIX::decodeFile (const std::string& filename, const std::string& framing,
                            std::function<void(nlohmann::json&, size_t, size_t)> callback)
 {
