@@ -26,7 +26,7 @@ set(CMAKE_AUTOMOC ON)
 set (USE_LOG4CPP true)
 message("USE_LOG4CPP: ${USE_LOG4CPP}")
 
-set (USE_BOOST_PO false)
+set (USE_BOOST_PO true)
 message("USE_BOOST_PO: ${USE_BOOST_PO}")
 
 configure_file(src/utils/global.h.in include/global.h)
