@@ -129,8 +129,16 @@ jASTERIX::jASTERIX(const std::string& definition_path, bool print, bool debug)
 
 jASTERIX::~jASTERIX()
 {
+#if USE_BOOST
     if(file_.is_open())
         file_.close();
+#else
+    if (file_buffer_)
+    {
+        delete file_buffer_;
+        file_buffer_ = nullptr;
+    }
+#endif
 }
 
 bool jASTERIX::hasCategory(const std::string& cat_str)
@@ -199,10 +207,26 @@ void jASTERIX::decodeFile (const std::string& filename, const std::string& frami
     if (debug_)
         loginf << "jASTERIX: file " << filename << " size " << file_size << logendl;
 
+#if USE_BOOST
     file_.open(filename, file_size);
 
     if(!file_.is_open())
         throw runtime_error ("jASTERIX unable to map file '"+filename+"'");
+
+    const char* data = file_.data();
+#else
+    ifstream file (filename, ios::in | ios::binary);
+    file_buffer_ = new char[file_size];
+    file.read (file_buffer_, file_size);
+    if (!file)
+    {
+        // An error occurred!
+        throw runtime_error ("jASTERIX unable to read file '"+filename+"'");
+    }
+    file.close();
+
+    char* data = file_buffer_;
+#endif
 
     // check framing
     if (!fileExists(definition_path_+"/framings/"+framing+".json"))
@@ -231,10 +255,10 @@ void jASTERIX::decodeFile (const std::string& filename, const std::string& frami
     size_t index;
 
     // parsing header
-    index = frame_parser.parseHeader(file_.data(), 0, file_size, json_header, debug_);
+    index = frame_parser.parseHeader(data, 0, file_size, json_header, debug_);
 
     FrameParserTask* task = new (tbb::task::allocate_root()) FrameParserTask (
-                *this, frame_parser, json_header, file_.data(), index, file_size, debug_);
+                *this, frame_parser, json_header, data, index, file_size, debug_);
     tbb::task::enqueue(*task);
 
     nlohmann::json data_chunk;
@@ -250,7 +274,7 @@ void jASTERIX::decodeFile (const std::string& filename, const std::string& frami
                 loginf << "jASTERIX processing " << num_frames_ << " frames, " << num_records_ << " records" << logendl;
 
             num_frames_ += data_chunk.at("frames").size();
-            num_records_ += frame_parser.decodeFrames(file_.data(), data_chunk, debug_);
+            num_records_ += frame_parser.decodeFrames(data, data_chunk, debug_);
 
             if (print_)
                 loginf << data_chunk.dump(4) << logendl;
