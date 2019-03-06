@@ -20,11 +20,9 @@
 #include "jsonwriter.h"
 #include "global.h"
 
-#include <boost/filesystem.hpp>
-#include "boost/date_time/posix_time/posix_time.hpp"
-
-#if USE_BOOST_PO
+#if USE_BOOST
 #include <boost/program_options.hpp>
+#include "boost/date_time/posix_time/posix_time.hpp"
 
 namespace po = boost::program_options;
 #else
@@ -84,7 +82,7 @@ int main (int argc, char **argv)
     std::string write_type;
     std::string write_filename;
 
-#if USE_BOOST_PO
+#if USE_BOOST
     po::options_description desc("Allowed options");
     desc.add_options()
         ("help", "produce help message")
@@ -186,7 +184,10 @@ int main (int argc, char **argv)
                    << "' definition_path '" << definition_path << "' debug " << debug << logendl;
 
         jASTERIX::jASTERIX asterix (definition_path, print, debug);
+
+#if USE_BOOST
         boost::posix_time::ptime start_time = boost::posix_time::microsec_clock::local_time();
+#endif
 
         if (json_writer)
             asterix.decodeFile (filename, framing, write_callback);
@@ -196,6 +197,7 @@ int main (int argc, char **argv)
         size_t num_frames = asterix.numFrames();
         size_t num_records = asterix.numRecords();
 
+#if USE_BOOST
         boost::posix_time::time_duration diff = boost::posix_time::microsec_clock::local_time() - start_time;
 
         string time_str = to_string(diff.hours())+"h "+to_string(diff.minutes())+"m "+to_string(diff.seconds())+"s "+
@@ -207,6 +209,7 @@ int main (int argc, char **argv)
             loginf << "jASTERIX client: decoded " << num_frames << " frames, "
                    << num_records << " records in " << time_str << ": "
                    << num_frames/seconds << " fr/s, " << num_records/seconds << " rec/s" << logendl;
+#endif
     }
     catch (exception &ex)
     {

@@ -16,13 +16,21 @@
  */
 
 #include "files.h"
+#include "global.h"
 
 #include <cassert>
 #include <stdexcept>
 #include <iostream>
 
+#if USE_BOOST
 #include <boost/filesystem.hpp>
+#else
+#include <fstream>
+#include <dirent.h>
+#include <errno.h>
+#endif
 
+using namespace std;
 
 namespace jASTERIX
 {
@@ -30,6 +38,7 @@ namespace jASTERIX
 namespace Files
 {
 
+#if USE_BOOST
 bool fileExists(const std::string& path)
 {
     return boost::filesystem::exists(path);
@@ -66,5 +75,66 @@ std::vector<std::string> getFilesInDirectory(const std::string& path)
     return tmp;
 }
 
+#else
+bool fileExists(const std::string& path)
+{
+    ifstream f(path.c_str());
+    return f.good();
 }
+
+size_t fileSize(const std::string& path)
+{
+    assert (fileExists(path));
+    std::ifstream in(path.c_str(), std::ifstream::ate | std::ifstream::binary);
+    return in.tellg();
+}
+
+bool directoryExists(const std::string& path)
+{
+    DIR* dir = opendir(path.c_str());
+    if (dir)
+    {
+        /* Directory exists. */
+        closedir(dir);
+        return true;
+    }
+    else if (ENOENT == errno)
+    {
+        /* Directory does not exist. */
+        return false;
+    }
+    else
+    {
+        /* opendir() failed for some other reason. */
+        return false;
+    }
+}
+
+std::vector<std::string> getFilesInDirectory(const std::string& path)
+{
+    std::vector<std::string> tmp;
+
+    DIR *dir;
+    struct dirent *ent;
+    if ((dir = opendir (path.c_str())) != NULL)
+    {
+        /* print all the files and directories within directory */
+        while ((ent = readdir (dir)) != NULL)
+        {
+            tmp.push_back(ent->d_name);
+            //printf ("%s\n", ent->d_name);
+        }
+        closedir (dir);
+    }
+    else
+    {
+        /* could not open directory */
+        return tmp;
+    }
+    return tmp;
+}
+#endif
+
+}
+
 }

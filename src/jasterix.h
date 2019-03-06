@@ -20,7 +20,12 @@
 
 #include <string>
 #include <map>
+#include "global.h"
+
+#if USE_BOOST
 #include <boost/iostreams/device/mapped_file.hpp>
+#endif
+
 #include "tbb/concurrent_queue.h"
 
 #include "json.hpp"
@@ -69,7 +74,11 @@ private:
     std::map<unsigned int, std::shared_ptr<Edition>> current_category_editions_; // cat -> edition
     std::map<unsigned int, std::shared_ptr<Mapping>> current_category_mappings_; // cat -> edition
 
+#if USE_BOOST
     boost::iostreams::mapped_file_source file_;
+#else
+    char* file_buffer_{nullptr};
+#endif
 
     tbb::concurrent_queue<nlohmann::json> data_chunks_;
 

@@ -2,11 +2,13 @@
 #include "logger.h"
 #include "string_conv.h"
 
+#if USE_LOG4CPP
 #include "log4cpp/OstreamAppender.hh"
 #include "log4cpp/Layout.hh"
 #include "log4cpp/SimpleLayout.hh"
+#endif
 
-#if USE_BOOST_PO
+#if USE_BOOST
 #include <boost/program_options.hpp>
 
 namespace po = boost::program_options;
@@ -355,7 +357,7 @@ int main (int argc, char **argv)
 
     std::string definition_path;
 
-#if USE_BOOST_PO
+#if USE_BOOST
     po::options_description desc("Allowed options");
     desc.add_options()
             ("help", "produce help message")

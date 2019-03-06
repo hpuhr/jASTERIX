@@ -23,26 +23,38 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 # Instruct CMake to run moc automatically when needed.
 set(CMAKE_AUTOMOC ON)
 
+add_library(jasterix "")
+
 set (USE_LOG4CPP true)
 message("USE_LOG4CPP: ${USE_LOG4CPP}")
 
-set (USE_BOOST_PO true)
-message("USE_BOOST_PO: ${USE_BOOST_PO}")
+set (USE_BOOST true)
+message("USE_BOOST: ${USE_BOOST}")
 
 configure_file(src/utils/global.h.in include/global.h)
 
-IF (USE_BOOST_PO)
+IF (USE_BOOST)
 find_package ( Boost REQUIRED COMPONENTS system program_options filesystem iostreams)
-ELSE (USE_BOOST_PO)
-find_package ( Boost REQUIRED COMPONENTS system filesystem iostreams)
-ENDIF()
 message("  Boost_INCLUDE_DIR: ${Boost_INCLUDE_DIR}")
 message("  Boost_LIBRARY_DIR: ${Boost_LIBRARY_DIR}")
+
+include_directories (
+    ${Boost_INCLUDE_DIRS}
+    )
+
+link_directories(
+    ${Boost_LIBRARY_DIR}
+    )
+
+target_link_libraries ( jasterix
+    ${Boost_LIBRARIES}
+    )
+
+ENDIF()
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH};${ATSDB_PATH}/cmake_modules)
 message("  CMAKE_MODULE_PATH: ${CMAKE_MODULE_PATH}") 
 
-add_library(jasterix "")
 
 IF (USE_LOG4CPP)
 find_package ( LOG4CPP REQUIRED )
@@ -71,16 +83,10 @@ include_directories (
     ${CMAKE_SOURCE_DIR}
     ${CMAKE_CURRENT_BINARY_DIR}
     ${PROJECT_BINARY_DIR}/include
-    ${Boost_INCLUDE_DIRS}
     ${LibArchive_INCLUDE_DIRS}
     )
 
-link_directories(
-    ${Boost_LIBRARY_DIR}
-    )
-
 target_link_libraries ( jasterix
-    ${Boost_LIBRARIES}
     ${TBB_LIBRARIES}
     ${LibArchive_LIBRARIES}
     )
