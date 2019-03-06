@@ -49,6 +49,12 @@ FixedBytesItemParser::FixedBytesItemParser (const nlohmann::json& item_definitio
             && item_definition.at("reverse_bytes") == true);
 
     negative_bit_pos_ = length_*8-1;
+
+    if (item_definition.find("lsb") != item_definition.end())
+    {
+        has_lsb_ = true;
+        lsb_ = item_definition.at("lsb");
+    }
 }
 
 size_t FixedBytesItemParser::parseItem (const char* data, size_t index, size_t size, size_t current_parsed_bytes,
@@ -119,13 +125,18 @@ size_t FixedBytesItemParser::parseItem (const char* data, size_t index, size_t s
             }
         }
 
+
         if (debug)
             loginf << "parsing fixed bytes item '"+name_+"' index " << index << " length " << length_
-                   << " data type " << data_type_ << " value '" << data_uint << "'" << logendl;
+                   << " data type " << data_type_ << " value '" << data_uint << "'"
+                   << (has_lsb_ ? " lsb "+to_string(lsb_) : "") << logendl;
 
         assert (target.find(name_) == target.end());
-        //target[name_] = data_uint;
-        target.emplace(name_, data_uint);
+
+        if (has_lsb_)
+            target.emplace(name_, lsb_*data_uint);
+        else
+            target.emplace(name_, data_uint);
 
         return length_;
     }
@@ -176,11 +187,15 @@ size_t FixedBytesItemParser::parseItem (const char* data, size_t index, size_t s
 
         if (debug)
             loginf << "parsing fixed bytes item '"+name_+"' index " << index << " length " << length_
-                   << " data type " << data_type_ << " value '" << data_int << "'" << logendl;
+                   << " data type " << data_type_ << " value '" << data_int << "'"
+                   << (has_lsb_ ? " lsb "+to_string(lsb_) : "") << logendl;
 
         assert (target.find(name_) == target.end());
-        //target[name_] = data_int;
-        target.emplace(name_, data_int);
+
+        if (has_lsb_)
+            target.emplace(name_, lsb_*data_int);
+        else
+            target.emplace(name_, data_int);
 
         return length_;
     }
