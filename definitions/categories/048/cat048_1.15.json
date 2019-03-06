@@ -197,13 +197,15 @@
                     "name":"rho",
                     "type":"fixed_bytes",
                     "length":2,
-                    "data_type":"uint"
+                    "data_type":"uint",
+                    "lsb":0.00390625
                 },
                 {
                     "name":"theta",
                     "type":"fixed_bytes",
                     "length":2,
-                    "data_type":"uint"
+                    "data_type":"uint",
+                    "lsb":0.00549316406
                 }
             ]
         },
@@ -216,13 +218,15 @@
                     "name":"x-component",
                     "type":"fixed_bytes",
                     "length":2,
-                    "data_type":"int"
+                    "data_type":"int",
+                    "lsb":0.0078125
                 },
                 {
                     "name":"y-component",
                     "type":"fixed_bytes",
                     "length":2,
-                    "data_type":"int"
+                    "data_type":"int",
+                    "lsb":0.0078125
                 }
             ]
         },
@@ -483,7 +487,8 @@
                     "name":"3d_height",
                     "type":"fixed_bytes",
                     "length":2,
-                    "data_type":"int"
+                    "data_type":"int",
+                    "lsb":25.0
                 }
             ]
         },
@@ -603,7 +608,8 @@
                                     "name":"srl",
                                     "type":"fixed_bytes",
                                     "length":1,
-                                    "data_type":"uint"
+                                    "data_type":"uint",
+                                    "lsb":0.0439453125
                                 }
                             ]
                         },
@@ -648,7 +654,8 @@
                                     "name":"value",
                                     "type":"fixed_bytes",
                                     "length":1,
-                                    "data_type":"uint"
+                                    "data_type":"uint",
+                                    "lsb":0.0439453125
                                 }
                             ]
                         },
@@ -663,7 +670,7 @@
                                     "name":"value",
                                     "type":"fixed_bytes",
                                     "length":1,
-                                    "data_type":"uint"
+                                    "data_type":"int"
                                 }
                             ]
                         },
@@ -678,7 +685,8 @@
                                     "name":"value",
                                     "type":"fixed_bytes",
                                     "length":1,
-                                    "data_type":"uint"
+                                    "data_type":"int",
+                                    "lsb":0.00390625
                                 }
                             ]
                         },
@@ -693,7 +701,8 @@
                                     "name":"value",
                                     "type":"fixed_bytes",
                                     "length":1,
-                                    "data_type":"uint"
+                                    "data_type":"int",
+                                    "lsb":0.02197265625
                                 }
                             ]
                         }
@@ -710,7 +719,8 @@
                     "name":"time-of-day",
                     "type":"fixed_bytes",
                     "length":3,
-                    "data_type":"uint"
+                    "data_type":"uint",
+                    "lsb":0.0078125
                 }
             ]
         },
@@ -821,13 +831,15 @@
                     "name":"calculated_groundspeed",
                     "type":"fixed_bytes",
                     "length":2,
-                    "data_type":"int"
+                    "data_type":"int",
+                    "lsb":0.2197265401898285
                 },
                 {
                     "name":"calculated_heading",
                     "type":"fixed_bytes",
                     "length":2,
-                    "data_type":"uint"
+                    "data_type":"uint",
+                    "lsb":0.00549316406
                 }
             ]
         },
@@ -840,25 +852,30 @@
                     "name":"sigma_x",
                     "type":"fixed_bytes",
                     "length":1,
-                    "data_type":"uint"
+                    "data_type":"uint",
+                    "lsb":0.0078125
                 },
                 {
                     "name":"sigma_y",
                     "type":"fixed_bytes",
                     "length":1,
-                    "data_type":"uint"
+                    "data_type":"uint",
+                    "lsb":0.0078125
                 },
                 {
                     "name":"sigma_v",
                     "type":"fixed_bytes",
                     "length":1,
-                    "data_type":"uint"
+                    "data_type":"uint",
+                    "lsb":0.2197265401898285
+                    
                 },
                 {
                     "name":"sigma_h",
                     "type":"fixed_bytes",
                     "length":1,
-                    "data_type":"uint"
+                    "data_type":"uint",
+                    "lsb":0.087890625
                 }
             ]
         },

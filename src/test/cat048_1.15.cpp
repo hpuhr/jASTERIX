@@ -19,6 +19,8 @@
 #include "logger.h"
 #include "string_conv.h"
 
+#include <cmath>
+
 void test_cat048_callback (nlohmann::json& json_data, size_t num_frames, size_t num_records)
 {
     loginf << "cat048 test: decoded " << num_frames << " frames, " << num_records << " records: " << json_data.dump(4)
@@ -50,8 +52,8 @@ void test_cat048_callback (nlohmann::json& json_data, size_t num_frames, size_t 
 //                            "typ": 5
 //                        },
 //                        "040": {
-//                            "rho": 18924,
-//                            "theta": 16324
+//                            "rho": 73.921875,
+//                            "theta": 89.67041011543999
 //                        },
 //                        "070": {
 //                            "g": 0,
@@ -80,7 +82,7 @@ void test_cat048_callback (nlohmann::json& json_data, size_t num_frames, size_t 
 //                            }
 //                        },
 //                        "140": {
-//                            "time-of-day": 4287979
+//                            "time-of-day": 33499.8359375
 //                        },
 //                        "161": {
 //                            "track_number": 919
@@ -94,8 +96,8 @@ void test_cat048_callback (nlohmann::json& json_data, size_t num_frames, size_t 
 //                            "rad": 2
 //                        },
 //                        "200": {
-//                            "calculated_groundspeed": 2108,
-//                            "calculated_heading": 5936
+//                            "calculated_groundspeed": 463.1835467201585,
+//                            "calculated_heading": 32.60742186016
 //                        },
 //                        "220": {
 //                            "aircraft_address": 11226301
@@ -164,7 +166,6 @@ void test_cat048_callback (nlohmann::json& json_data, size_t num_frames, size_t 
 //            "length": 65
 //        }
 //    }
-//   }
 
     loginf << "cat048 test: num records" << logendl;
     assert (json_data.at("data_block").at("content").at("records").size() == 1);
@@ -196,7 +197,8 @@ void test_cat048_callback (nlohmann::json& json_data, size_t num_frames, size_t 
     //    ;  Time of Day: 0x416deb (4287979; 33499.835938 secs; 09:18:19.836 UTC)
 
     loginf << "cat048 test: 140" << logendl;
-    assert (json_data.at("data_block").at("content").at("records")[0].at("140").at("time-of-day") == 4287979);
+    double tmp_d = json_data.at("data_block").at("content").at("records")[0].at("140").at("time-of-day");
+    assert (fabs(tmp_d-33499.835938) < 10e-6);
 
     //    ;  I048/020: =0x a8
     //    ;  Target Report Descriptor: TYP='Single ModeS Roll-Call' ACT RDP-2
@@ -213,9 +215,10 @@ void test_cat048_callback (nlohmann::json& json_data, size_t num_frames, size_t 
     //    ;  Measured Position: srg=18924 (73.922 nmi); azm=16324 (89.670 deg)
 
     loginf << "cat048 test: 040" << logendl;
-    assert (json_data.at("data_block").at("content").at("records")[0].at("040").at("rho") == 18924);
-    assert (json_data.at("data_block").at("content").at("records")[0].at("040").at("theta") == 16324);
-
+    tmp_d = json_data.at("data_block").at("content").at("records")[0].at("040").at("rho");
+    assert (fabs(tmp_d - 73.922) < 10e-3);
+    tmp_d = json_data.at("data_block").at("content").at("records")[0].at("040").at("theta");
+    assert (fabs(tmp_d - 89.670) < 10e-3);
 
     //    ;  I048/070: =0x 21 38
     //    ;  Mode 3/A Code: v=0; g=0; l=1; code=00470
@@ -280,8 +283,10 @@ void test_cat048_callback (nlohmann::json& json_data, size_t num_frames, size_t 
     //    ;  Calculated Track Velocity: spd=2108 (463.184 kts); hdg=5936 (32.607 deg)
 
     loginf << "cat048 test: 200" << logendl;
-    assert (json_data.at("data_block").at("content").at("records")[0].at("200").at("calculated_groundspeed") == 2108);
-    assert (json_data.at("data_block").at("content").at("records")[0].at("200").at("calculated_heading") == 5936);
+    tmp_d = json_data.at("data_block").at("content").at("records")[0].at("200").at("calculated_groundspeed");
+    assert (fabs(tmp_d - 463.184) < 10e-3);
+    tmp_d = json_data.at("data_block").at("content").at("records")[0].at("200").at("calculated_heading");
+    assert (fabs(tmp_d - 32.607) < 10e-3);
 
     //    ;  I048/170: =0x 40
     //    ;  Track Status: CNF SRT LVL

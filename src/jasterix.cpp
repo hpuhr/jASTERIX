@@ -116,7 +116,7 @@ jASTERIX::jASTERIX(const std::string& definition_path, bool print, bool debug)
             }
             catch (json::exception& e)
             {
-                throw runtime_error ("jASTERIX parsing error in asterix category "+cat_str);
+                throw runtime_error ("jASTERIX parsing error in asterix category "+cat_str+": "+e.what());
             }
         }
     }

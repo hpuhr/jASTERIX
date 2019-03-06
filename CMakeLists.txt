@@ -25,10 +25,10 @@ set(CMAKE_AUTOMOC ON)
 
 add_library(jasterix "")
 
-set (USE_LOG4CPP false)
+set (USE_LOG4CPP true)
 message("USE_LOG4CPP: ${USE_LOG4CPP}")
 
-set (USE_BOOST false)
+set (USE_BOOST true)
 message("USE_BOOST: ${USE_BOOST}")
 
 configure_file(src/utils/global.h.in include/global.h)

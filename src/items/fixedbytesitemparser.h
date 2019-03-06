@@ -38,6 +38,8 @@ protected:
     bool reverse_bits_{false};
     bool reverse_bytes_{false};
     unsigned int negative_bit_pos_ {0};
+    bool has_lsb_{false};
+    double lsb_{1.0};
 };
 
 }
