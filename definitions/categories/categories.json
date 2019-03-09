@@ -2,7 +2,7 @@
     "020":{
         "comment":"Category 020 Multilateration Target Reports",
         "default_edition":"1.5",
-        "default_mapping":"",
+        "default_mapping":"1.0",
         "editions":{
             "1.5":{
                 "document":"SUR.ET1.ST05.2000-STD-14-02",
@@ -11,7 +11,10 @@
             }
         },
         "mappings":{
-
+            "1.0":{
+                "comment":"conversion to general format 1.0",
+                "file":"020/cat020_1.5_mapping.json"
+            }
         }
     },
     "048":{

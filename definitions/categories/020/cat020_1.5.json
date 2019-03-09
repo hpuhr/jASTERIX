@@ -457,7 +457,7 @@
             "type":"item",
             "data_fields":[
                 {
-                    "name":"geometric_height(wgs-84)",
+                    "name":"geometric_height",
                     "type":"fixed_bytes",
                     "length":2,
                     "data_type":"int",
@@ -470,7 +470,7 @@
             "type":"item",
             "data_fields":[
                 {
-                    "name":"measured_height(local_cartesian_coordinates)",
+                    "name":"measured_height",
                     "type":"fixed_bytes",
                     "length":2,
                     "data_type":"int",
@@ -686,7 +686,7 @@
             "type":"item",
             "data_fields":[
                 {
-                    "name":"aircraft_indentification1",
+                    "name":"aircraft_identification1",
                     "type":"fixed_bitfield",
                     "length":7,
                     "items":[
