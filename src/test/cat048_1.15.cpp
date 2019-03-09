@@ -176,12 +176,6 @@ void test_cat048_callback (nlohmann::json& json_data, size_t num_frames, size_t 
     loginf << "cat048 test: fspec" << logendl;
     assert (json_data.at("data_block").at("content").at("records")[0].at("fspec").size() == 3*8);
 
-//    std::vector<bool> ref ({1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,0,0,0,0,0,0,1,0});
-//    std::vector<bool> tmp = json_data["data_block"]["content"]["record"]["fspec"];
-
-//    for (size_t cnt=0; cnt < 3*8; ++cnt)
-//        loginf << "cnt " << cnt << " tmp " << tmp.at(cnt) << " ref " << ref.at(cnt);
-
     assert (json_data.at("data_block").at("content").at("records")[0].at("fspec")
             == std::vector<bool>({1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,0,0,0,0,0,0,1,0}));
 
@@ -314,13 +308,6 @@ void test_cat048_callback (nlohmann::json& json_data, size_t num_frames, size_t 
 void test_cat048 (jASTERIX::jASTERIX& jasterix)
 {
     loginf << "cat048 test: start" << logendl;
-
-    //    ; ASTERIX data block at pos 0: cat=48; len=65
-    //      0x 30 00 41 ff  f7 02 00 01  41 6d eb a8  49 ec 3f c4
-    //      0x 21 38 05 c8  20 c1 ab 4c  bd 49 94 b5  61 78 20 03
-    //      0x 8b d9 eb 2f  bf e4 00 60  80 91 9f 39  a0 04 dd 50
-    //      0x c8 48 00 30  a8 00 00 40  03 97 08 3c  17 30 40 20
-    //      0x fd
 
     // echo -n 300041fff7020001416deba849ec3fc4213805c820c1ab4cbd4994b5617820038bd9eb2fbfe400608091
     //9f39a004dd50c8480030a80000400397083c17304020fd | xxd -r -p > cat048ed1.15.bin

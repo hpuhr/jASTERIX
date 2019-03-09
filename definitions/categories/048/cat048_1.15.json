@@ -112,7 +112,7 @@
                     "type":"fixed_bitfield",
                     "length":1,
                     "optional":true,
-                    "optional_variable_name":"020.fx",
+                    "optional_variable_name":"fx",
                     "optional_variable_value":1,
                     "items":[
                         {
@@ -748,7 +748,7 @@
                     "type":"fixed_bitfield",
                     "length":1,
                     "optional":true,
-                    "optional_variable_name":"170.fx",
+                    "optional_variable_name":"fx",
                     "optional_variable_value":1,
                     "items":[
                         {

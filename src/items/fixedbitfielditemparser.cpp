@@ -82,7 +82,7 @@ size_t FixedBitFieldItemParser::parseItem (const char* data, size_t index, size_
     {
         if (debug) //  in '" << parent.dump(4) << "'"
             loginf << "parsing fixed bitfield item '" << name_ << "' skipped since variable '"
-                   << optional_variable_name_ << "' not set" << logendl;
+                   << optional_variable_name_ << "' not set in '" << target.dump(4) << "'" << logendl;
 
         return 0; // no parse
     }

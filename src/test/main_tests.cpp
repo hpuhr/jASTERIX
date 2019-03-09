@@ -36,6 +36,9 @@ using namespace jASTERIX;
 void test_cat048_callback (nlohmann::json& json_data, size_t num_frames, size_t num_records);
 void test_cat048 (jASTERIX::jASTERIX& jasterix);
 
+void test_cat020_callback (nlohmann::json& json_data, size_t num_frames, size_t num_records);
+void test_cat020 (jASTERIX::jASTERIX& jasterix);
+
 int main (int argc, char **argv)
 {
     static_assert (sizeof(size_t) >= 8, "code requires size_t with at least 8 bytes");
@@ -99,6 +102,7 @@ int main (int argc, char **argv)
 
         jASTERIX::jASTERIX asterix (definition_path, true, true);
 
+        test_cat020(asterix);
         test_cat048(asterix);
 
     }
