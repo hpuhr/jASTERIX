@@ -51,6 +51,12 @@ FixedBitsItemParser::FixedBitsItemParser (const nlohmann::json& item_definition,
     if (item_definition.find("data_type") != item_definition.end())
         data_type_ = item_definition.at("data_type");
 
+    if (item_definition.find("lsb") != item_definition.end())
+    {
+        has_lsb_ = true;
+        lsb_ = item_definition.at("lsb");
+    }
+
     negative_bit_pos_ = start_bit_+bit_length_;
 
     if (data_type_ == "uint" || data_type_ == "int")
@@ -276,7 +282,10 @@ size_t FixedBitsItemParser::parseItem (const char* data, size_t index, size_t si
                 loginf << "parsing fixed bits item '" << name_ << "' with start bit " << start_bit_
                        << " length " << bit_length_ << " value " << (size_t) tmp1 << logendl;
 
-            target.emplace(name_, tmp1);
+            if (has_lsb_)
+                target.emplace(name_, lsb_*tmp1);
+            else
+                target.emplace(name_, tmp1);
         }
         else if (data_type_ == "int")
         {
@@ -294,7 +303,10 @@ size_t FixedBitsItemParser::parseItem (const char* data, size_t index, size_t si
             else
                 data_int = tmp1;
 
-            target.emplace(name_, data_int);
+            if (has_lsb_)
+                target.emplace(name_, lsb_*data_int);
+            else
+                target.emplace(name_, data_int);
         }
         else if (data_type_ == "digits")
         {
@@ -361,7 +373,10 @@ size_t FixedBitsItemParser::parseItem (const char* data, size_t index, size_t si
                 loginf << "parsing fixed bits item '" << name_ << "' with start bit " << start_bit_
                        << " length " << bit_length_ << " value " << (size_t) tmp4;
 
-            target.emplace(name_, tmp4);
+            if (has_lsb_)
+                target.emplace(name_, lsb_*tmp4);
+            else
+                target.emplace(name_, tmp4);
         }
         else if (data_type_ == "int")
         {
@@ -379,7 +394,10 @@ size_t FixedBitsItemParser::parseItem (const char* data, size_t index, size_t si
             else
                 data_int = tmp4;
 
-            target.emplace(name_, data_int);
+            if (has_lsb_)
+                target.emplace(name_, lsb_*data_int);
+            else
+                target.emplace(name_, data_int);
         }
         else if (data_type_ == "digits")
         {
@@ -446,7 +464,10 @@ size_t FixedBitsItemParser::parseItem (const char* data, size_t index, size_t si
                 loginf << "parsing fixed bits item '" << name_ << "' with start bit " << start_bit_
                        << " length " << bit_length_ << " value " << (size_t) tmp8 << logendl;
 
-            target.emplace(name_, tmp8);
+            if (has_lsb_)
+                target.emplace(name_, lsb_*tmp8);
+            else
+                target.emplace(name_, tmp8);
         }
         else if (data_type_ == "int")
         {
@@ -464,7 +485,10 @@ size_t FixedBitsItemParser::parseItem (const char* data, size_t index, size_t si
             else
                 data_lint = tmp8;
 
-            target.emplace(name_, data_lint);
+            if (has_lsb_)
+                target.emplace(name_, lsb_*data_lint);
+            else
+                target.emplace(name_, data_lint);
         }
         else if (data_type_ == "digits")
         {

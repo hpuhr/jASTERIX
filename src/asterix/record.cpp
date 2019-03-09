@@ -117,13 +117,13 @@ size_t Record::parseItem (const char* data, size_t index, size_t size, size_t cu
 
             if (item_name == "SP")
             {
-                loginf << "WARN: record item '"+name_+"' has special purpose field, not implemented yet" << logendl;
+                //loginf << "WARN: record item '"+name_+"' has special purpose field, not implemented yet" << logendl;
                 continue;
             }
 
             if (item_name == "RE")
             {
-                loginf << "WARN: record item '"+name_+"' has reserved expansion field, not implemented yet" << logendl;
+                //loginf << "WARN: record item '"+name_+"' has reserved expansion field, not implemented yet" << logendl;
                 continue;
             }
 

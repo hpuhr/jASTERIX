@@ -38,6 +38,8 @@ protected:
     unsigned int bit_length_{0};
     std::string data_type_ {"uint"};
     unsigned int negative_bit_pos_{0};
+    bool has_lsb_{false};
+    double lsb_{1.0};
 
     unsigned char bitmask1;
     unsigned int bitmask4;
