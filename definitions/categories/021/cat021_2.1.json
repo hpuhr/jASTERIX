@@ -1,13 +1,12 @@
 {
-"name":"record",
-"type":"compound",
-"field_specification":
-{
-    "name":"fspec",
-    "type":"extendable_bits",
-    "reverse_bits": true,
-    "data_type":"bitfield"
-},
+    "name":"record",
+    "type":"record",
+    "field_specification":{
+        "name":"fspec",
+        "type":"extendable_bits",
+        "reverse_bits":true,
+        "data_type":"bitfield"
+    },
     "uap":[
         "010",
         "040",
@@ -48,7 +47,7 @@
         "148",
         "110",
         "016",
-        "FX",,
+        "FX",
         "008",
         "271",
         "132",
@@ -65,1781 +64,1666 @@
         "RE",
         "SP",
         "FX"
-    ],,
-"items":
-[
-    {
-        "name":"008",
-        "type": "optional_item",
-        "optional_bitfield_name":"fspec",
-        "optional_bitfield_index": 35,
-        "data_fields":
-        [
-            {
-                "name":"aircraft_operation_status",
-                "type":"fixed_bitfield",
-                "length": 1,
-                "items":[
-                    {
-                        "name":"ra",
-                        "type":"fixed_bits",
-                        "start_bit": 7,
-                        "bit_length": 1
-                    },
-                    {
-                        "name":"tc",
-                        "type":"fixed_bits",
-                        "start_bit": 5,
-                        "bit_length": 2
-                    },
-                    {
-                        "name":"ts",
-                        "type":"fixed_bits",
-                        "start_bit": 4,
-                        "bit_length": 1
-                    },
-                    {
-                        "name":"arv",
-                        "type":"fixed_bits",
-                        "start_bit": 3,
-                        "bit_length": 1
-                    },
-                    {
-                        "name":"cdti/a",
-                        "type":"fixed_bits",
-                        "start_bit": 2,
-                        "bit_length": 1
-                    },
-                    {
-                        "name":"not_tcas",
-                        "type":"fixed_bits",
-                        "start_bit": 1,
-                        "bit_length": 1
-                    }
-                ]
-            }
-        ]
-    },
-    {
-        "name":"010",
-        "type": "optional_item",
-        "optional_bitfield_name":"fspec",
-        "optional_bitfield_index":0,
-        "data_fields":
-        [
-            {
-                "name":"sac",
-                "type":"fixed_bytes",
-                "length":1,
-                "data_type":"uint"
-            },
-            {
-                "name":"sic",
-                "type":"fixed_bytes",
-                "length":1,
-                "data_type":"uint"
-            }
-        ]
-    },
-    {
-        "name":"015",
-        "type": "optional_item",
-        "optional_bitfield_name":"fspec",
-        "optional_bitfield_index": 3,
-        "data_fields":
-        [
-            {
-                "name":"service_identification",
-                "type":"fixed_bytes",
-                "length":1,
-                "data_type":"uint"
-            }
-        ]
-    },
-    {
-        "name":"02sd0",
-        "type": "optional_item",
-        "optional_bitfield_name":"fspec",
-        "optional_bitfield_index": 31,
-        "data_fields":
-        [
-            {
-                "name":"emitter_category",
-                "type":"fixed_bytes",
-                "length":1,
-                "data_type":"uint"
-            }
-        ]
-    },
-    {
-        "name":"016",
-        "type": "optional_item",
-        "optional_bitfield_name":"fspec",
-        "optional_bitfield_index": 33,
-        "data_fields":
-        [
-            {
-                "name":"rp",
-                "type":"fixed_bytes",
-                "length": 1,
-                "data_type":"uint"
-            }
-        ]
-    },
-    {
-        "name":"020",
-        "type": "optional_item",
-        "optional_bitfield_name":"fspec",
-        "optional_bitfield_index":1,
-        "data_fields":
-        [
-            {
-                "name":"target_report_descriptor",
-                "type":"fixed_bitfield",
-                "length":1,
-                "items":[
-                    {
-                        "name":"atp",
-                        "type":"fixed_bits",
-                        "start_bit": 5,
-                        "bit_length": 3
-                    },
-                    {
-                        "name":"arc",
-                        "type":"fixed_bits",
-                        "start_bit": 3,
-                        "bit_length":2
-                    },
-                    {
-                        "name":"rc",
-                        "type":"fixed_bits",
-                        "start_bit": 2,
-                        "bit_length":1
-                    },
-                    {
-                        "name":"rab",
-                        "type":"fixed_bits",
-                        "start_bit": 1,
-                        "bit_length": 1
-                    },
-                    {
-                        "name":"extent1_present",
-                        "type":"fixed_bits",
-                        "start_bit": 0,
-                        "bit_length": 1
-                    }
-                ]
-            },
-            {
-                "name":"target_report_descriptor_first_extend",
-                "type":"fixed_bitfield",
-                "length":1,
-                "optional":true,
-                "optional_variable_name":"020.extent1_present",
-                "optional_variable_value":1,
-                "items":[
-                    {
-                        "name":"dcr",
-                        "type":"fixed_bits",
-                        "start_bit": 7,
-                        "bit_length": 1
-                    },
-                    {
-                        "name":"gbs",
-                        "type":"fixed_bits",
-                        "start_bit": 6,
-                        "bit_length":1
-                    },
-                    {
-                        "name":"sim",
-                        "type":"fixed_bits",
-                        "start_bit": 5,
-                        "bit_length":1
-                    },
-                    {
-                        "name":"tst",
-                        "type":"fixed_bits",
-                        "start_bit": 4,
-                        "bit_length":1
-                    },
-                    {
-                        "name":"saa",
-                        "type":"fixed_bits",
-                        "start_bit": 3,
-                        "bit_length":1
-                    },
-                    {
-                        "name":"cl",
-                        "type":"fixed_bits",
-                        "start_bit": 1,
-                        "bit_length":2
-                    },
-                    {
-                        "name":"extent2_present",
-                        "type":"fixed_bits",
-                        "start_bit": 0,
-                        "bit_length":1
-                    }
-                ]
-            },
-            {
-                "name":"target_report_descriptor_second_extend",
-                "type":"fixed_bitfield",
-                "length":1,
-                "optional":true,
-                "optional_variable_name":"020.extent2_present",
-                "optional_variable_value":1,
-                "items":[
-                    {
-                        "name":"ec7",
-                        "type":"fixed_bits",
-                        "start_bit": 7,
-                        "bit_length": 1
-                    },
-                    {
-                        "name":"ec6",
-                        "type":"fixed_bits",
-                        "start_bit": 6,
-                        "bit_length":1
-                    },
-                    {
-                        "name":"ec5",
-                        "type":"fixed_bits",
-                        "start_bit": 5,
-                        "bit_length":1
-                    },
-                    {
-                        "name":"nogo",
-                        "type":"fixed_bits",
-                        "start_bit": 4,
-                        "bit_length":1
-                    },
-                    {
-                        "name":"cpr",
-                        "type":"fixed_bits",
-                        "start_bit": 3,
-                        "bit_length":1
-                    },
-                    {
-                        "name":"ldpj",
-                        "type":"fixed_bits",
-                        "start_bit": 2,
-                        "bit_length": 1
-                    },
-                    {
-                        "name":"rcf",
-                        "type":"fixed_bits",
-                        "start_bit": 1,
-                        "bit_length": 1
-                    },
-                    {
-                        "name":"extent3_present",
-                        "type":"fixed_bits",
-                        "start_bit": 0,
-                        "bit_length":1
-                    }
-                ]
-            }
-        ]
-    },
-    {
-        "name":"071",
-        "type": "optional_item",
-        "optional_bitfield_name":"fspec",
-        "optional_bitfield_index": 4,
-        "data_fields":
-        [
-            {
-                "name":"time_of_position",
-                "type":"fixed_bytes",
-                "length":3,
-                "data_type":"uint"
-            }
-        ]
-    },
-    {
-        "name":"072",
-        "type": "optional_item",
-        "optional_bitfield_name":"fspec",
-        "optional_bitfield_index": 8,
-        "data_fields":
-        [
-            {
-                "name":"time_of_velocity",
-                "type":"fixed_bytes",
-                "length": 3,
-                "data_type":"uint"
-            }
-        ]
-    },
-    {
-        "name":"073",
-        "type": "optional_item",
-        "optional_bitfield_name":"fspec",
-        "optional_bitfield_index": 11,
-        "data_fields":
-        [
-            {
-                "name":"time_of_position_reception",
-                "type":"fixed_bytes",
-                "length":3,
-                "data_type":"uint"
-            }
-        ]
-    },
-    {
-        "name":"074",
-        "type": "optional_item",
-        "optional_bitfield_name":"fspec",
-        "optional_bitfield_index": 12,
-        "data_fields":
-        [
-            {
-                "name":"time_of_position_reception_hp",
-                "type":"fixed_bitfield",
-                "length": 4,
-                "items":[
-                    {
-                        "name":"fsi",
-                        "type":"fixed_bits",
-                        "start_bit": 30,
-                        "bit_length": 2
-                    },
-                    {
-                        "name":"value",
-                        "type":"fixed_bits",
-                        "start_bit": 0,
-                        "bit_length": 30
-                    }
-                ]
-            }
-        ]
-    },
-    {
-        "name":"075",
-        "type": "optional_item",
-        "optional_bitfield_name":"fspec",
-        "optional_bitfield_index": 13,
-        "data_fields":
-        [
-            {
-                "name":"time_of_velocity_reception",
-                "type":"fixed_bytes",
-                "length":3,
-                "data_type":"uint"
-            }
-        ]
-    },
-    {
-        "name":"076",
-        "type": "optional_item",
-        "optional_bitfield_name":"fspec",
-        "optional_bitfield_index": 15,
-        "data_fields":
-        [
-            {
-                "name":"time_of_velocity_reception_hp",
-                "type":"fixed_bitfield",
-                "length": 4,
-                "items":[
-                    {
-                        "name":"fsi",
-                        "type":"fixed_bits",
-                        "start_bit": 30,
-                        "bit_length": 2
-                    },
-                    {
-                        "name":"value",
-                        "type":"fixed_bits",
-                        "start_bit": 0,
-                        "bit_length": 30
-                    }
-                ]
-            }
-        ]
-    },
-    {
-        "name":"070",
-        "type": "optional_item",
-        "optional_bitfield_name":"fspec",
-        "optional_bitfield_index": 19,
-        "data_fields":
-        [
-            {
-                "name":"mode_3a",
-                "type":"fixed_bitfield",
-                "length":2,
-                "items":[
-                    {
-                        "name":"code",
-                        "type":"fixed_bits",
-                        "data_type":"digits",
-                        "start_bit": 0,
-                        "bit_length": 12,
-                        "num_digits": 4,
-                        "digit_bit_length": 3
-                    }
-                ]
-            }
-        ]
-    },
-    {
-        "name":"077",
-        "type": "optional_item",
-        "optional_bitfield_name":"fspec",
-        "optional_bitfield_index": 28,
-        "data_fields":
-        [
-            {
-                "name":"time_of_report_transmission",
-                "type":"fixed_bytes",
-                "length":3,
-                "data_type":"uint"
-            }
-        ]
-    },
-    {
-        "name":"080",
-        "type": "optional_item",
-        "optional_bitfield_name":"fspec",
-        "optional_bitfield_index": 10,
-        "data_fields":
-        [
-            {
-                "name":"aircraft_address",
-                "type":"fixed_bytes",
-                "length":3,
-                "data_type":"uint"
-            }
-        ]
-    },
-    {
-        "name":"090",
-        "type": "optional_item",
-        "optional_bitfield_name":"fspec",
-        "optional_bitfield_index": 17,
-        "data_fields":
-        [
-            {
-                "name":"quality_indicators",
-                "type":"fixed_bitfield",
-                "length":1,
-                "items":[
-                    {
-                        "name":"nucr_or_nac_v",
-                        "type":"fixed_bits",
-                        "start_bit": 5,
-                        "bit_length": 3
-                    },
-                    {
-                        "name":"nucp_or_nic",
-                        "type":"fixed_bits",
-                        "start_bit": 1,
-                        "bit_length": 4
-                    },
-                    {
-                        "name":"extent1_present",
-                        "type":"fixed_bits",
-                        "start_bit": 0,
-                        "bit_length": 1
-                    }
-                ]
-            },
-            {
-                "name":"quality_indicators_first_extend",
-                "type":"fixed_bitfield",
-                "length":1,
-                "optional":true,
-                "optional_variable_name":"090.extent1_present",
-                "optional_variable_value": 1,
-                "items":[
-                    {
-                        "name":"nic_baro",
-                        "type":"fixed_bits",
-                        "start_bit": 7,
-                        "bit_length": 1
-                    },
-                    {
-                        "name":"sil",
-                        "type":"fixed_bits",
-                        "start_bit": 5,
-                        "bit_length": 2
-                    },
-                    {
-                        "name":"nacp",
-                        "type":"fixed_bits",
-                        "start_bit": 1,
-                        "bit_length": 4
-                    },
-                    {
-                        "name":"extent2_present",
-                        "type":"fixed_bits",
-                        "start_bit": 0,
-                        "bit_length":1
-                    }
-                ]
-            }
-        ]
-    },
-    {
-        "name":"110",
-        "type": "optional_item",
-        "optional_bitfield_name":"fspec",
-        "optional_bitfield_index": 32,
-        "data_fields":
-        [
-            {
-                "name":"110",
-                "type":"compound",
-                "field_specification":
+    ],
+    "items":[
+        {
+            "name":"008",
+            "type":"item",
+            "data_fields":[
                 {
-                    "name":"available",
-                    "type":"extendable_bits",
-                    "data_type":"bitfield"
-                },
-                "items":
-                [
-                    {
-                        "name":"tis",
-                        "type": "optional_item",
-                        "optional_bitfield_name":"available",
-                        "optional_bitfield_index": 7,
-                        "data_fields":
-                        [
-                            {
-                                "name":"trajectory_intent_status",
-                                "type":"fixed_bitfield",
-                                "length": 1,
-                                "items":[
-                                    {
-                                        "name":"nav",
-                                        "type":"fixed_bits",
-                                        "start_bit": 7,
-                                        "bit_length": 1
-                                    },
-                                    {
-                                        "name":"nvb",
-                                        "type":"fixed_bits",
-                                        "start_bit": 6,
-                                        "bit_length": 1
-                                    }
-                                ]
-                            }
-                        ]
-                    },
-                    {
-                        "name":"tid",
-                        "type": "optional_item",
-                        "optional_bitfield_name":"available",
-                        "optional_bitfield_index": 6,
-                        "data_fields":
-                        [
-                            {
-                                "name":"trajectory_intent_data",
-                                "type":"repetitive",
-                                "repetition_item" : 
-                                    {
-                                        "name" : "rep",
-                                        "type": "fixed_bytes",
-                                        "length" : 1,
-                                        "data_type" : "uint"
-                                    },
-                                "items":[
-                                    {
-                                        "name":"tid1",
-                                        "type":"fixed_bitfield",
-                                        "length": 1,
-                                        "items":[
-                                            {
-                                                "name":"tca",
-                                                "type":"fixed_bits",
-                                                "start_bit": 7,
-                                                "bit_length": 1
-                                            },
-                                            {
-                                                "name":"nc",
-                                                "type":"fixed_bits",
-                                                "start_bit": 6,
-                                                "bit_length": 1
-                                            },
-                                            {
-                                                "name":"tcp_number",
-                                                "type":"fixed_bits",
-                                                "start_bit": 0,
-                                                "bit_length": 6
-                                            }
-                                        ]
-                                    },
-                                    {
-                                        "name":"altitude",
-                                        "type":"fixed_bytes",
-                                        "length": 2,
-                                        "data_type" : "int"
-                                    },
-                                    {
-                                        "name":"latitude",
-                                        "type":"fixed_bytes",
-                                        "length": 3,
-                                        "data_type" : "int"
-                                    },
-                                    {
-                                        "name":"longitude",
-                                        "type":"fixed_bytes",
-                                        "length": 3,
-                                        "data_type" : "int"
-                                    },
-                                    {
-                                        "name":"tid2",
-                                        "type":"fixed_bitfield",
-                                        "length": 1,
-                                        "items":[
-                                            {
-                                                "name":"point_type",
-                                                "type":"fixed_bits",
-                                                "start_bit": 4,
-                                                "bit_length": 4
-                                            },
-                                            {
-                                                "name":"td",
-                                                "type":"fixed_bits",
-                                                "start_bit": 2,
-                                                "bit_length": 2
-                                            },
-                                            {
-                                                "name":"tra",
-                                                "type":"fixed_bits",
-                                                "start_bit": 1,
-                                                "bit_length": 1
-                                            }
-                                        ]
-                                    },
-                                    {
-                                        "name":"tov",
-                                        "type":"fixed_bytes",
-                                        "length": 3,
-                                        "data_type" : "uint"
-                                    },
-                                    {
-                                        "name":"ttr",
-                                        "type":"fixed_bytes",
-                                        "length": 2,
-                                        "data_type" : "uint"
-                                    }
-                                ]
-                            }
-                        ]
-                    }
-                ]
-            }
-        ]
-    },
-    {
-        "name":"130",
-        "type": "optional_item",
-        "optional_bitfield_name":"fspec",
-        "optional_bitfield_index": 5,
-        "data_fields":
-        [
-            {
-                "name":"latitude",
-                "type":"fixed_bytes",
-                "length":3,
-                "data_type":"int"
-            },
-            {
-                "name":"longitude",
-                "type":"fixed_bytes",
-                "length":3,
-                "data_type":"int"
-            }
-        ]
-    },
-    {
-        "name":"131",
-        "type": "optional_item",
-        "optional_bitfield_name":"fspec",
-        "optional_bitfield_index": 6,
-        "data_fields":
-        [
-            {
-                "name":"latitude",
-                "type":"fixed_bytes",
-                "length":4,
-                "data_type":"int"
-            },
-            {
-                "name":"longitude",
-                "type":"fixed_bytes",
-                "length": 4,
-                "data_type":"int"
-            }
-        ]
-    },
-    {
-        "name":"132",
-        "type": "optional_item",
-        "optional_bitfield_name":"fspec",
-        "optional_bitfield_index": 37,
-        "data_fields":
-        [
-            {
-                "name":"mam",
-                "type":"fixed_bytes",
-                "length": 1,
-                "data_type":"int"
-            }
-        ]
-    },
-    {
-        "name":"140",
-        "type": "optional_item",
-        "optional_bitfield_name":"fspec",
-        "optional_bitfield_index": 16,
-        "data_fields":
-        [
-            {
-                "name":"geometric_height",
-                "type":"fixed_bytes",
-                "length":2,
-                "data_type":"int"
-            }
-        ]
-    },
-    {
-        "name":"145",
-        "type": "optional_item",
-        "optional_bitfield_name":"fspec",
-        "optional_bitfield_index": 21,
-        "data_fields":
-        [
-            {
-                "name":"flight_level",
-                "type":"fixed_bytes",
-                "length": 2,
-                "data_type":"int"
-            }
-        ]
-    },
-    {
-        "name":"146",
-        "type": "optional_item",
-        "optional_bitfield_name":"fspec",
-        "optional_bitfield_index": 33,
-        "data_fields":
-        [
-            {
-                "name":"intermediate_state_selected_altitude",
-                "type":"fixed_bitfield",
-                "length": 2,
-                "items":[
-                    {
-                        "name":"sas",
-                        "type":"fixed_bits",
-                        "start_bit": 15,
-                        "bit_length": 1
-                    },
-                    {
-                        "name":"source",
-                        "type":"fixed_bits",
-                        "start_bit": 13,
-                        "bit_length": 2
-                    },
-                    {
-                        "name":"altitude",
-                        "type":"fixed_bits",
-                        "start_bit": 0,
-                        "bit_length": 13,
-                        "data_type": "int"
-                    }
-                ]
-            }
-        ]
-    },
-    {
-        "name":"148",
-        "type": "optional_item",
-        "optional_bitfield_name":"fspec",
-        "optional_bitfield_index": 34,
-        "data_fields":
-        [
-            {
-                "name":"final_state_selected_altitude",
-                "type":"fixed_bitfield",
-                "length": 2,
-                "items":[
-                    {
-                        "name":"mv",
-                        "type":"fixed_bits",
-                        "start_bit": 15,
-                        "bit_length": 1
-                    },
-                    {
-                        "name":"ah",
-                        "type":"fixed_bits",
-                        "start_bit": 14,
-                        "bit_length": 1
-                    },
-                    {
-                        "name":"am",
-                        "type":"fixed_bits",
-                        "start_bit": 13,
-                        "bit_length": 1
-                    },
-                    {
-                        "name":"altitude",
-                        "type":"fixed_bits",
-                        "start_bit": 0,
-                        "bit_length": 13,
-                        "data_type": "int"
-                    }
-                ]
-            }
-        ]
-    },
-    {
-        "name":"150",
-        "type": "optional_item",
-        "optional_bitfield_name":"fspec",
-        "optional_bitfield_index": 9,
-        "data_fields":
-        [
-            {
-                "name":"air_speed",
-                "type":"fixed_bitfield",
-                "length":2,
-                "items":[
-                    {
-                        "name":"im",
-                        "type":"fixed_bits",
-                        "start_bit": 15,
-                        "bit_length": 1
-                    },
-                    {
-                        "name":"value",
-                        "type":"fixed_bits",
-                        "start_bit": 0,
-                        "bit_length": 15
-                    }
-                ]
-            }
-        ]
-    },
-    {
-        "name":"152",
-        "type": "optional_item",
-        "optional_bitfield_name":"fspec",
-        "optional_bitfield_index": 23,
-        "data_fields":
-        [
-            {
-                "name":"magnetic_heading",
-                "type":"fixed_bytes",
-                "length": 2,
-                "data_type": "int"
-            }
-        ]
-    },
-    {
-        "name":"160",
-        "type": "optional_item",
-        "optional_bitfield_name":"fspec",
-        "optional_bitfield_index": 26,
-        "data_fields":
-        [
-            {
-                "name":"ground_vector",
-                "type":"fixed_bitfield",
-                "length": 2,
-                "items":[
-                    {
-                        "name":"re",
-                        "type":"fixed_bits",
-                        "start_bit": 15,
-                        "bit_length": 1
-                    },
-                    {
-                        "name":"value",
-                        "type":"fixed_bits",
-                        "start_bit": 0,
-                        "bit_length": 15 
-                    }
-                ]
-            },
-            {
-                "name":"track_angle",
-                "type":"fixed_bytes",
-                "length": 2,
-                "data_type": "uint"
-            }
-        ]
-    },
-    {
-        "name":"161",
-        "type": "optional_item",
-        "optional_bitfield_name":"fspec",
-        "optional_bitfield_index":2,
-        "data_fields":
-        [
-            {
-                "name":"track_number",
-                "type":"fixed_bytes",
-                "length":2,
-                "data_type":"uint"
-            }
-        ]
-    },
-    {
-        "name":"165",
-        "type": "optional_item",
-        "optional_bitfield_name":"fspec",
-        "optional_bitfield_index": 27,
-        "data_fields":
-        [
-            {
-                "name":"track_angle_rate",
-                "type":"fixed_bitfield",
-                "length": 2,
-                "items":[
-                    {
-                        "name":"tar",
-                        "type":"fixed_bits",
-                        "start_bit": 0,
-                        "bit_length": 10,
-                        "data_type": "int"
-                    }
-                ]
-            }
-        ]
-    },
-    {
-        "name":"170",
-        "type": "optional_item",
-        "optional_bitfield_name":"fspec",
-        "optional_bitfield_index": 30,
-        "data_fields":
-        [
-            {
-                "name":"aircraft_identification",
-                "type":"fixed_bitfield",
-                "length": 7,
-                "items":[
-                    {
-                        "name":"c1",
-                        "type":"fixed_bits",
-                        "start_bit": 42,
-                        "bit_length": 6
-                    },
-                    {
-                        "name":"c2",
-                        "type":"fixed_bits",
-                        "start_bit": 36,
-                        "bit_length": 6
-                    },
-                    {
-                        "name":"c3",
-                        "type":"fixed_bits",
-                        "start_bit": 30,
-                        "bit_length": 6
-                    },
-                    {
-                        "name":"c4",
-                        "type":"fixed_bits",
-                        "start_bit": 24,
-                        "bit_length": 6
-                    },
-                    {
-                        "name":"c5",
-                        "type":"fixed_bits",
-                        "start_bit": 18,
-                        "bit_length": 6
-                    },
-                    {
-                        "name":"c6",
-                        "type":"fixed_bits",
-                        "start_bit": 12,
-                        "bit_length": 6
-                    },
-                    {
-                        "name":"c7",
-                        "type":"fixed_bits",
-                        "start_bit": 6,
-                        "bit_length": 6
-                    },
-                    {
-                        "name":"c8",
-                        "type":"fixed_bits",
-                        "start_bit": 0,
-                        "bit_length": 6
-                    }
-                ]
-            }
-        ]
-    },
-    {
-        "name":"200",
-        "type": "optional_item",
-        "optional_bitfield_name":"fspec",
-        "optional_bitfield_index": 24,
-        "data_fields":
-        [
-            {
-                "name":"target_status",
-                "type":"fixed_bitfield",
-                "length": 1,
-                "items":[
-                    {
-                        "name":"ps",
-                        "type":"fixed_bits",
-                        "start_bit": 2,
-                        "bit_length": 3
-                    },
-                    {
-                        "name":"ss",
-                        "type":"fixed_bits",
-                        "start_bit": 0,
-                        "bit_length": 2 
-                    }
-                ]
-            }
-        ]
-    },
-    {
-        "name":"20asd0",
-        "type": "optional_item",
-        "optional_bitfield_name":"fspec",
-        "optional_bitfield_index": 25,
-        "data_fields":
-        [
-            {
-                "name":"geometric_vertical_rate",
-                "type":"fixed_bitfield",
-                "length": 2,
-                "items":[
-                    {
-                        "name":"re",
-                        "type":"fixed_bits",
-                        "start_bit": 15,
-                        "bit_length": 1
-                    },
-                    {
-                        "name":"value",
-                        "type":"fixed_bits",
-                        "start_bit": 0,
-                        "bit_length": 15 
-                    }
-                ]
-            }
-        ]
-    },
-    {
-        "name":"210",
-        "type": "optional_item",
-        "optional_bitfield_name":"fspec",
-        "optional_bitfield_index": 18,
-        "data_fields":
-        [
-            {
-                "name":"mops_version",
-                "type":"fixed_bitfield",
-                "length":1,
-                "items":[
-                    {
-                        "name":"vns",
-                        "type":"fixed_bits",
-                        "start_bit": 6,
-                        "bit_length": 1
-                    },
-                    {
-                        "name":"vn",
-                        "type":"fixed_bits",
-                        "start_bit": 3,
-                        "bit_length": 3
-                    },
-                    {
-                        "name":"ltt",
-                        "type":"fixed_bits",
-                        "start_bit": 0,
-                        "bit_length": 3
-                    }
-                ]
-            }
-        ]
-    },
-    {
-        "name":"220",
-        "type": "optional_item",
-        "optional_bitfield_name":"fspec",
-        "optional_bitfield_index": 32,
-        "data_fields":
-        [
-            {
-                "name":"220",
-                "type":"compound",
-                "field_specification":
+                    "name":"Aircraft Operational Status",
+                    "type":"fixed_bitfield",
+                    "length":1,
+                    "items":[
+                        {
+                            "name":"RA",
+                            "type":"fixed_bits",
+                            "start_bit":7,
+                            "bit_length":1
+                        },
+                        {
+                            "name":"TC",
+                            "type":"fixed_bits",
+                            "start_bit":5,
+                            "bit_length":2
+                        },
+                        {
+                            "name":"TS",
+                            "type":"fixed_bits",
+                            "start_bit":4,
+                            "bit_length":1
+                        },
+                        {
+                            "name":"ARV",
+                            "type":"fixed_bits",
+                            "start_bit":3,
+                            "bit_length":1
+                        },
+                        {
+                            "name":"CDTI/A",
+                            "type":"fixed_bits",
+                            "start_bit":2,
+                            "bit_length":1
+                        },
+                        {
+                            "name":"Not TCAS",
+                            "type":"fixed_bits",
+                            "start_bit":1,
+                            "bit_length":1
+                        },
+                        {
+                            "name":"SA",
+                            "type":"fixed_bits",
+                            "start_bit":0,
+                            "bit_length":1
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name":"010",
+            "type":"item",
+            "data_fields":[
                 {
-                    "name":"available",
-                    "type":"extendable_bits",
-                    "data_type":"bitfield"
+                    "name":"SAC",
+                    "type":"fixed_bytes",
+                    "length":1,
+                    "data_type":"uint"
                 },
-                "items":
-                [
-                    {
-                        "name":"ws",
-                        "type": "optional_item",
-                        "optional_bitfield_name":"available",
-                        "optional_bitfield_index": 7,
-                        "data_fields":
-                        [
-                            {
-                                "name":"wind_speed",
-                                "type":"fixed_bytes",
-                                "length":2,
-                                "data_type":"uint"
-                            }
-                        ]
+                {
+                    "name":"SUC",
+                    "type":"fixed_bytes",
+                    "length":1,
+                    "data_type":"uint"
+                }
+            ]
+        },
+        {
+            "name":"015",
+            "type":"item",
+            "data_fields":[
+                {
+                    "name":"Service Identification",
+                    "type":"fixed_bytes",
+                    "length":1,
+                    "data_type":"uint"
+                }
+            ]
+        },
+        {
+            "name":"016",
+            "type":"item",
+            "data_fields":[
+                {
+                    "name":"RP",
+                    "type":"fixed_bytes",
+                    "length":1,
+                    "data_type":"uint",
+                    "lsb":0.5
+                }
+            ]
+        },
+        {
+            "name":"020",
+            "type":"item",
+            "data_fields":[
+                {
+                    "name":"ECAT",
+                    "type":"fixed_bytes",
+                    "length":1,
+                    "data_type":"uint"
+                }
+            ]
+        },
+        {
+            "name":"040",
+            "type":"item",
+            "data_fields":[
+                {
+                    "name":"Target Report Descriptor",
+                    "type":"fixed_bitfield",
+                    "length":1,
+                    "items":[
+                        {
+                            "name":"ATP",
+                            "type":"fixed_bits",
+                            "start_bit":5,
+                            "bit_length":3
+                        },
+                        {
+                            "name":"ARC",
+                            "type":"fixed_bits",
+                            "start_bit":3,
+                            "bit_length":2
+                        },
+                        {
+                            "name":"RC",
+                            "type":"fixed_bits",
+                            "start_bit":2,
+                            "bit_length":1
+                        },
+                        {
+                            "name":"RAB",
+                            "type":"fixed_bits",
+                            "start_bit":1,
+                            "bit_length":1
+                        },
+                        {
+                            "name":"FX",
+                            "type":"fixed_bits",
+                            "start_bit":0,
+                            "bit_length":1
+                        }
+                    ]
+                },
+                {
+                    "name":"Target Report Descriptor First Extension",
+                    "type":"fixed_bitfield",
+                    "length":1,
+                    "optional":true,
+                    "optional_variable_name":"FX",
+                    "optional_variable_value":1,
+                    "items":[
+                        {
+                            "name":"DCR",
+                            "type":"fixed_bits",
+                            "start_bit":7,
+                            "bit_length":1
+                        },
+                        {
+                            "name":"GBS",
+                            "type":"fixed_bits",
+                            "start_bit":6,
+                            "bit_length":1
+                        },
+                        {
+                            "name":"SIM",
+                            "type":"fixed_bits",
+                            "start_bit":5,
+                            "bit_length":1
+                        },
+                        {
+                            "name":"TST",
+                            "type":"fixed_bits",
+                            "start_bit":4,
+                            "bit_length":1
+                        },
+                        {
+                            "name":"SAA",
+                            "type":"fixed_bits",
+                            "start_bit":3,
+                            "bit_length":1
+                        },
+                        {
+                            "name":"CL",
+                            "type":"fixed_bits",
+                            "start_bit":1,
+                            "bit_length":2
+                        },
+                        {
+                            "name":"FX2",
+                            "type":"fixed_bits",
+                            "start_bit":0,
+                            "bit_length":1
+                        }
+                    ]
+                },
+                {
+                    "name":"Target Report Descriptor Second Extension : Error Conditions",
+                    "type":"fixed_bitfield",
+                    "length":1,
+                    "optional":true,
+                    "optional_variable_name":"FX2",
+                    "optional_variable_value":1,
+                    "items":[
+                        {
+                            "name":"IPC",
+                            "type":"fixed_bits",
+                            "start_bit":5,
+                            "bit_length":1
+                        },
+                        {
+                            "name":"NOGO",
+                            "type":"fixed_bits",
+                            "start_bit":4,
+                            "bit_length":1
+                        },
+                        {
+                            "name":"CPR",
+                            "type":"fixed_bits",
+                            "start_bit":3,
+                            "bit_length":1
+                        },
+                        {
+                            "name":"LDPJ",
+                            "type":"fixed_bits",
+                            "start_bit":2,
+                            "bit_length":1
+                        },
+                        {
+                            "name":"RCF",
+                            "type":"fixed_bits",
+                            "start_bit":1,
+                            "bit_length":1
+                        },
+                        {
+                            "name":"FX3",
+                            "type":"fixed_bits",
+                            "start_bit":0,
+                            "bit_length":1
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name":"070",
+            "type":"item",
+            "data_fields":[
+                {
+                    "name":"Mode 3/A Code in Octal Representation",
+                    "type":"fixed_bitfield",
+                    "length":2,
+                    "items":[
+                        {
+                            "name":"Mode-3/A",
+                            "type":"fixed_bits",
+                            "data_type":"digits",
+                            "start_bit":0,
+                            "bit_length":12,
+                            "num_digits":4,
+                            "digit_bit_length":3
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name":"071",
+            "type":"item",
+            "data_fields":[
+                {
+                    "name":"Time of Applicability for Position",
+                    "type":"fixed_bytes",
+                    "length":3,
+                    "data_type":"uint",
+                    "lsb":0.0078125
+                }
+            ]
+        },
+        {
+            "name":"072",
+            "type":"item",
+            "data_fields":[
+                {
+                    "name":"Time of Applicability for Velocity",
+                    "type":"fixed_bytes",
+                    "length":3,
+                    "data_type":"uint",
+                    "lsb":0.0078125
+                }
+            ]
+        },
+        {
+            "name":"073",
+            "type":"item",
+            "data_fields":[
+                {
+                    "name":"Time of Message Reception for Position",
+                    "type":"fixed_bytes",
+                    "length":3,
+                    "data_type":"uint",
+                    "lsb":0.0078125
+                }
+            ]
+        },
+        {
+            "name":"074",
+            "type":"item",
+            "data_fields":[
+                {
+                    "name":"Time of Message Reception of Position-High Precision",
+                    "type":"fixed_bitfield",
+                    "length":4,
+                    "items":[
+                        {
+                            "name":"FSI",
+                            "type":"fixed_bits",
+                            "start_bit":30,
+                            "bit_length":2
+                        },
+                        {
+                            "name":"Time of Message Reception of Position - high precision",
+                            "type":"fixed_bits",
+                            "start_bit":0,
+                            "bit_length":30,
+                            "lsb":9.3132257e-10
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name":"075",
+            "type":"item",
+            "data_fields":[
+                {
+                    "name":"Time of Message Reception of Velocity",
+                    "type":"fixed_bytes",
+                    "length":3,
+                    "data_type":"uint",
+                    "lsb":0.0078125
+                }
+            ]
+        },
+        {
+            "name":"076",
+            "type":"item",
+            "data_fields":[
+                {
+                    "name":"Time of Message Reception of Velocity-High Precision",
+                    "type":"fixed_bitfield",
+                    "length":4,
+                    "items":[
+                        {
+                            "name":"FSI",
+                            "type":"fixed_bits",
+                            "start_bit":30,
+                            "bit_length":2
+                        },
+                        {
+                            "name":"Time of Message Reception of Velocity - high precision",
+                            "type":"fixed_bits",
+                            "start_bit":0,
+                            "bit_length":30,
+                            "lsb":9.3132257e-10
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name":"077",
+            "type":"item",
+            "data_fields":[
+                {
+                    "name":"Time Of ASTERIX Report Transmission",
+                    "type":"fixed_bytes",
+                    "length":3,
+                    "data_type":"uint",
+                    "lsb":0.0078125
+                }
+            ]
+        },
+        {
+            "name":"080",
+            "type":"item",
+            "data_fields":[
+                {
+                    "name":"Target Address",
+                    "type":"fixed_bytes",
+                    "length":3,
+                    "data_type":"uint"
+                }
+            ]
+        },
+        {
+            "name":"090",
+            "type":"item",
+            "data_fields":[
+                {
+                    "name":"Quality Indicators",
+                    "type":"fixed_bitfield",
+                    "length":1,
+                    "items":[
+                        {
+                            "name":"NUCr or NACv",
+                            "type":"fixed_bits",
+                            "start_bit":5,
+                            "bit_length":3
+                        },
+                        {
+                            "name":"NUCp or NIC",
+                            "type":"fixed_bits",
+                            "start_bit":1,
+                            "bit_length":4
+                        },
+                        {
+                            "name":"FX",
+                            "type":"fixed_bits",
+                            "start_bit":0,
+                            "bit_length":1
+                        }
+                    ]
+                },
+                {
+                    "name":"Quality Indicators First Extension : Navigation Accuracy Category for Position",
+                    "type":"fixed_bitfield",
+                    "length":1,
+                    "optional":true,
+                    "optional_variable_name":"FX",
+                    "optional_variable_value":1,
+                    "items":[
+                        {
+                            "name":"NICbaro",
+                            "type":"fixed_bits",
+                            "start_bit":7,
+                            "bit_length":1
+                        },
+                        {
+                            "name":"SIL",
+                            "type":"fixed_bits",
+                            "start_bit":5,
+                            "bit_length":2
+                        },
+                        {
+                            "name":"NACp",
+                            "type":"fixed_bits",
+                            "start_bit":1,
+                            "bit_length":4
+                        },
+                        {
+                            "name":"FX2",
+                            "type":"fixed_bits",
+                            "start_bit":0,
+                            "bit_length":1
+                        }
+                    ]
+                },
+                {
+                    "name":"Quality Indicators Second Extension : Position Quality Indicators",
+                    "type":"fixed_bitfield",
+                    "length":1,
+                    "optional":true,
+                    "optional_variable_name":"FX2",
+                    "optional_variable_value":1,
+                    "items":[
+                        {
+                            "name":"SIL-Supplement",
+                            "type":"fixed_bits",
+                            "start_bit":5,
+                            "bit_length":1
+                        },
+                        {
+                            "name":"SDA",
+                            "type":"fixed_bits",
+                            "start_bit":3,
+                            "bit_length":2
+                        },
+                        {
+                            "name":"GVA",
+                            "type":"fixed_bits",
+                            "start_bit":1,
+                            "bit_length":2
+                        },
+                        {
+                            "name":"FX3",
+                            "type":"fixed_bits",
+                            "start_bit":0,
+                            "bit_length":1
+                        }
+                    ]
+                },
+                {
+                    "name":"Quality Indicators Third Extension : Position Quality Indicators",
+                    "type":"fixed_bitfield",
+                    "length":1,
+                    "optional":true,
+                    "optional_variable_name":"FX3",
+                    "optional_variable_value":1,
+                    "items":[
+                        {
+                            "name":"PIC",
+                            "type":"fixed_bits",
+                            "start_bit":4,
+                            "bit_length":4
+                        },
+                        {
+                            "name":"FX4",
+                            "type":"fixed_bits",
+                            "start_bit":0,
+                            "bit_length":1
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name":"110",
+            "type":"item",
+            "data_fields":[
+                {
+                    "name":"Trajectory Intent",
+                    "type":"compound",
+                    "field_specification":{
+                        "name":"available",
+                        "type":"extendable_bits",
+                        "data_type":"bitfield"
                     },
-                    {
-                        "name":"wd",
-                        "type": "optional_item",
-                        "optional_bitfield_name":"available",
-                        "optional_bitfield_index": 6,
-                        "data_fields":
-                        [
-                            {
-                                "name":"wind_direction",
-                                "type":"fixed_bytes",
-                                "length":2,
-                                "data_type":"uint"
-                            }
-                        ]
-                    },
-                    {
-                        "name":"tmp",
-                        "type": "optional_item",
-                        "optional_bitfield_name":"available",
-                        "optional_bitfield_index": 5,
-                        "data_fields":
-                        [
-                            {
-                            "name":"220",
-                            "type":"compound",
-                            "field_specification":
-                            {
-                                "name":"available",
-                                "type":"extendable_bits",
-                                "data_type":"bitfield"
-                            },
-                            "items":
-                            [
+                    "items":[
+                        {
+                            "name":"TIS",
+                            "type":"optional_item",
+                            "optional_bitfield_name":"available",
+                            "optional_bitfield_index":7,
+                            "data_fields":[
                                 {
-                                    "name":"ws",
-                                    "type": "optional_item",
-                                    "optional_bitfield_name":"available",
-                                    "optional_bitfield_index": 7,
-                                    "data_fields":
-                                    [
+                                    "name":"Trajectory Intent Status",
+                                    "type":"fixed_bitfield",
+                                    "length":1,
+                                    "items":[
                                         {
-                                            "name":"wind_speed",
-                                            "type":"fixed_bytes",
-                                            "length":2,
-                                            "data_type":"uint"
+                                            "name":"NAV",
+                                            "type":"fixed_bits",
+                                            "start_bit":7,
+                                            "bit_length":1
+                                        },
+                                        {
+                                            "name":"NVB",
+                                            "type":"fixed_bits",
+                                            "start_bit":6,
+                                            "bit_length":1
                                         }
                                     ]
-                                },
+                                }
+                            ]
+                        },
+                        {
+                            "name":"TID",
+                            "type":"optional_item",
+                            "optional_bitfield_name":"available",
+                            "optional_bitfield_index":6,
+                            "data_fields":[
                                 {
-                                    "name":"wd",
-                                    "type": "optional_item",
-                                    "optional_bitfield_name":"available",
-                                    "optional_bitfield_index": 6,
-                                    "data_fields":
-                                    [
+                                    "name":"rep",
+                                    "type":"repetitive",
+                                    "repetition_item":{
+                                        "name":"rep",
+                                        "type":"fixed_bytes",
+                                        "length":1,
+                                        "data_type":"uint"
+                                    },
+                                    "items":[
                                         {
-                                            "name":"wind_direction",
-                                            "type":"fixed_bytes",
-                                            "length":2,
-                                            "data_type":"uint"
-                                        }
-                                    ]
-                                },
-                                {
-                                    "name":"tmp",
-                                    "type": "optional_item",
-                                    "optional_bitfield_name":"available",
-                                    "optional_bitfield_index": 5,
-                                    "data_fields":
-                                    [
-                                        {
-                                            "name":"temperatur",
-                                            "type":"fixed_bytes",
-                                            "length":2,
-                                            "data_type":"int"
-                                        }
-                                    ]
-                                },
-                                {
-                                    "name":"trb",
-                                    "type": "optional_item",
-                                    "optional_bitfield_name":"available",
-                                    "optional_bitfield_index": 4,
-                                    "data_fields":
-                                    [
-                                        {
-                                            "name":"turbulence",
-                                            "type":"fixed_bytes",
+                                            "name":"TID1",
+                                            "type":"fixed_bitfield",
                                             "length":1,
-                                            "data_type":"uint"
+                                            "items":[
+                                                {
+                                                    "name":"TCA",
+                                                    "type":"fixed_bits",
+                                                    "start_bit":7,
+                                                    "bit_length":1
+                                                },
+                                                {
+                                                    "name":"NC",
+                                                    "type":"fixed_bits",
+                                                    "start_bit":6,
+                                                    "bit_length":1
+                                                },
+                                                {
+                                                    "name":"TCP number",
+                                                    "type":"fixed_bits",
+                                                    "start_bit":0,
+                                                    "bit_length":6
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            "name":"Altitude",
+                                            "type":"fixed_bytes",
+                                            "length":2,
+                                            "data_type":"int",
+                                            "lsb":10.0
+                                        },
+                                        {
+                                            "name":"Latitude in WGS - 84",
+                                            "type":"fixed_bytes",
+                                            "length":3,
+                                            "data_type":"int",
+                                            "lsb":0.00002145767
+                                        },
+                                        {
+                                            "name":"Longitude in WGS - 84",
+                                            "type":"fixed_bytes",
+                                            "length":3,
+                                            "data_type":"int",
+                                            "lsb":0.00002145767
+                                        },
+                                        {
+                                            "name":"TID2",
+                                            "type":"fixed_bitfield",
+                                            "length":1,
+                                            "items":[
+                                                {
+                                                    "name":"Point Type",
+                                                    "type":"fixed_bits",
+                                                    "start_bit":4,
+                                                    "bit_length":4
+                                                },
+                                                {
+                                                    "name":"TD",
+                                                    "type":"fixed_bits",
+                                                    "start_bit":2,
+                                                    "bit_length":2
+                                                },
+                                                {
+                                                    "name":"TRA",
+                                                    "type":"fixed_bits",
+                                                    "start_bit":1,
+                                                    "bit_length":1
+                                                },
+                                                {
+                                                    "name":"TOA",
+                                                    "type":"fixed_bits",
+                                                    "start_bit":0,
+                                                    "bit_length":1
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            "name":"TOV",
+                                            "type":"fixed_bytes",
+                                            "length":3,
+                                            "data_type":"uint",
+                                            "lsb":1.0
+                                        },
+                                        {
+                                            "name":"TTR",
+                                            "type":"fixed_bytes",
+                                            "length":2,
+                                            "data_type":"uint",
+                                            "lsb":0.01
                                         }
                                     ]
                                 }
                             ]
                         }
-                        ]
-                    },
-                    {
-                        "name":"trb",
-                        "type": "optional_item",
-                        "optional_bitfield_name":"available",
-                        "optional_bitfield_index": 4,
-                        "data_fields":
-                        [
-                            {
-                                "name":"turbulence",
-                                "type":"fixed_bytes",
-                                "length":1,
-                                "data_type":"uint"
-                            }
-                        ]
-                    }
-                ]
-            }
-        ]
-    },
-    {
-        "name":"230",
-        "type": "optional_item",
-        "optional_bitfield_name":"fspec",
-        "optional_bitfield_index": 20,
-        "data_fields":
-        [
-            {
-                "name":"roll_angle",
-                "type":"fixed_bytes",
-                "length":2,
-                "data_type":"int"
-            }
-        ]
-    },
-    {
-        "name":"250",
-        "type": "optional_item",
-        "optional_bitfield_name":"fspec",
-        "optional_bitfield_index": 38,
-        "data_fields":
-        [
-            {
-                "name":"mode_s_mb_data",
-                "type":"repetitive",
-                "repetition_item" : 
-                    {
-                        "name" : "rep",
-                        "type": "fixed_bytes",
-                        "length" : 1,
-                        "data_type" : "uint"
-                    },
-                "items":[
-                    {
-                        "name":"mb_data",
-                        "type":"fixed_bytes",
-                        "length": 7,
-                        "data_type" : "bin"
-                    },
-                    {
-                        "name":"address",
-                        "type":"fixed_bitfield",
-                        "length":1,
-                        "items":[
-                            {
-                                "name":"bds1",
-                                "type":"fixed_bits",
-                                "start_bit": 4,
-                                "bit_length": 4
-                            },
-                            {
-                                "name":"bds2",
-                                "type":"fixed_bits",
-                                "start_bit": 0,
-                                "bit_length": 4
-                            }
-                        ]
-                    }
-                ]
-            }
-        ]
-    },
-    {
-        "name":"260",
-        "type": "optional_item",
-        "optional_bitfield_name":"fspec",
-        "optional_bitfield_index": 39,
-        "data_fields":
-        [
-            {
-                "name":"acas_rap",
-                "type":"fixed_bytes",
-                "length":7,
-                "data_type":"bin"
-            }
-        ]
-    },
-    {
-        "name":"271",
-        "type": "optional_item",
-        "optional_bitfield_name":"fspec",
-        "optional_bitfield_index": 36,
-        "data_fields":
-        [
-            {
-                "name":"surface_capabilties",
-                "type":"fixed_bitfield",
-                "length":1,
-                "items":[
-                    {
-                        "name":"poa",
-                        "type":"fixed_bits",
-                        "start_bit": 5,
-                        "bit_length": 1
-                    },
-                    {
-                        "name":"cdti/s",
-                        "type":"fixed_bits",
-                        "start_bit": 4,
-                        "bit_length": 1
-                    },
-                    {
-                        "name":"b2_low",
-                        "type":"fixed_bits",
-                        "start_bit": 3,
-                        "bit_length": 1
-                    },
-                    {
-                        "name":"ras",
-                        "type":"fixed_bits",
-                        "start_bit": 2,
-                        "bit_length": 1
-                    },
-                    {
-                        "name":"ident",
-                        "type":"fixed_bits",
-                        "start_bit": 1,
-                        "bit_length": 1
-                    },
-                    {
-                        "name":"extent_present",
-                        "type":"fixed_bits",
-                        "start_bit": 0,
-                        "bit_length":1
-                    }
-                ]
-            },
-            {
-                "name":"surface_capabilties_first_extend",
-                "type":"fixed_bitfield",
-                "length":1,
-                "optional":true,
-                "optional_variable_name":"271.extent_present",
-                "optional_variable_value":1,
-                "items":[
-                    {
-                        "name":"l+w",
-                        "type":"fixed_bits",
-                        "start_bit": 0,
-                        "bit_length": 4
-                    }
-                ]
-            }
-        ]
-    },
-    {
-        "name":"295",
-        "type": "optional_item",
-        "optional_bitfield_name":"fspec",
-        "optional_bitfield_index": 41,
-        "data_fields":
-        [
-            {
-                "name":"295",
-                "type":"compound",
-                "field_specification":
+                    ]
+                }
+            ]
+        },
+        {
+            "name":"130",
+            "type":"item",
+            "data_fields":[
                 {
-                    "name":"available",
-                    "type":"extendable_bits",
-                    "data_type":"bitfield"
+                    "name":"Latitude in WGS - 84",
+                    "type":"fixed_bytes",
+                    "length":3,
+                    "data_type":"int",
+                    "lsb":0.00002145767
                 },
-                "items":
-                [
-                    {
-                        "name":"aos",
-                        "type": "optional_item",
-                        "optional_bitfield_name":"available",
-                        "optional_bitfield_index": 31,
-                        "data_fields":
-                        [
-                            {
-                                "name":"age",
-                                "type":"fixed_bytes",
-                                "length": 1,
-                                "data_type":"int"
-                            }
-                        ]
+                {
+                    "name":"Longitude in WGS - 84",
+                    "type":"fixed_bytes",
+                    "length":3,
+                    "data_type":"int",
+                    "lsb":0.00002145767
+                }
+            ]
+        },
+        {
+            "name":"131",
+            "type":"item",
+            "data_fields":[
+                {
+                    "name":"Latitude in WGS - 84",
+                    "type":"fixed_bytes",
+                    "length":4,
+                    "data_type":"int",
+                    "lsb":1.67638063e-7
+                },
+                {
+                    "name":"Longitude in WGS - 84",
+                    "type":"fixed_bytes",
+                    "length":4,
+                    "data_type":"int",
+                    "lsb":1.67638063e-7
+                }
+            ]
+        },
+        {
+            "name":"132",
+            "type":"item",
+            "data_fields":[
+                {
+                    "name":"MAM",
+                    "type":"fixed_bytes",
+                    "length":1,
+                    "data_type":"int",
+                    "lsb":1.0
+                }
+            ]
+        },
+        {
+            "name":"140",
+            "type":"item",
+            "data_fields":[
+                {
+                    "name":"Geometric Height (GH)",
+                    "type":"fixed_bytes",
+                    "length":2,
+                    "data_type":"int",
+                    "lsb":6.25
+                }
+            ]
+        },
+        {
+            "name":"145",
+            "type":"item",
+            "data_fields":[
+                {
+                    "name":"Flight Level",
+                    "type":"fixed_bytes",
+                    "length":2,
+                    "data_type":"int",
+                    "lsb":0.25
+                }
+            ]
+        },
+        {
+            "name":"146",
+            "type":"item",
+            "data_fields":[
+                {
+                    "name":"Selected Altitude",
+                    "type":"fixed_bitfield",
+                    "length":2,
+                    "items":[
+                        {
+                            "name":"SAS",
+                            "type":"fixed_bits",
+                            "start_bit":15,
+                            "bit_length":1
+                        },
+                        {
+                            "name":"Source",
+                            "type":"fixed_bits",
+                            "start_bit":13,
+                            "bit_length":2
+                        },
+                        {
+                            "name":"Altitude",
+                            "type":"fixed_bits",
+                            "start_bit":0,
+                            "bit_length":13,
+                            "data_type":"int",
+                            "lsb":25.0
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name":"148",
+            "type":"item",
+            "data_fields":[
+                {
+                    "name":"Final State Selected Altitude",
+                    "type":"fixed_bitfield",
+                    "length":2,
+                    "items":[
+                        {
+                            "name":"MV",
+                            "type":"fixed_bits",
+                            "start_bit":15,
+                            "bit_length":1
+                        },
+                        {
+                            "name":"AH",
+                            "type":"fixed_bits",
+                            "start_bit":14,
+                            "bit_length":1
+                        },
+                        {
+                            "name":"AM",
+                            "type":"fixed_bits",
+                            "start_bit":13,
+                            "bit_length":1
+                        },
+                        {
+                            "name":"Altitude",
+                            "type":"fixed_bits",
+                            "start_bit":0,
+                            "bit_length":13,
+                            "data_type":"int",
+                            "lsb":25.0
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name":"150",
+            "type":"item",
+            "data_fields":[
+                {
+                    "name":"Air Speed",
+                    "type":"fixed_bitfield",
+                    "length":2,
+                    "items":[
+                        {
+                            "name":"IM",
+                            "type":"fixed_bits",
+                            "start_bit":15,
+                            "bit_length":1
+                        },
+                        {
+                            "name":"Air Speed_TODO",
+                            "type":"fixed_bits",
+                            "start_bit":0,
+                            "bit_length":15
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name":"151",
+            "type":"item",
+            "data_fields":[
+                {
+                    "name":"True Airspeed",
+                    "type":"fixed_bitfield",
+                    "length":2,
+                    "items":[
+                        {
+                            "name":"RE",
+                            "type":"fixed_bits",
+                            "start_bit":15,
+                            "bit_length":1
+                        },
+                        {
+                            "name":"True Air Speed",
+                            "type":"fixed_bits",
+                            "start_bit":0,
+                            "bit_length":15,
+                            "lsb":1.0
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name":"152",
+            "type":"item",
+            "data_fields":[
+                {
+                    "name":"Magnetic Heading",
+                    "type":"fixed_bytes",
+                    "length":2,
+                    "data_type":"int",
+                    "lsb":0.00549316406
+                }
+            ]
+        },
+        {
+            "name":"157",
+            "type":"item",
+            "data_fields":[
+                {
+                    "name":"Barometric Vertical Rate",
+                    "type":"fixed_bitfield",
+                    "length":2,
+                    "items":[
+                        {
+                            "name":"RE",
+                            "type":"fixed_bits",
+                            "start_bit":15,
+                            "bit_length":1
+                        },
+                        {
+                            "name":"Barometric Vertical Rate",
+                            "type":"fixed_bits",
+                            "start_bit":0,
+                            "bit_length":15,
+                            "data_type":"int",
+                            "lsb":6.25
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name":"160",
+            "type":"item",
+            "data_fields":[
+                {
+                    "name":"Ground Speed",
+                    "type":"fixed_bitfield",
+                    "length":2,
+                    "items":[
+                        {
+                            "name":"RE",
+                            "type":"fixed_bits",
+                            "start_bit":15,
+                            "bit_length":1
+                        },
+                        {
+                            "name":"Ground Speed",
+                            "type":"fixed_bits",
+                            "start_bit":0,
+                            "bit_length":15,
+                            "lsb":0.00006103515
+                        }
+                    ]
+                },
+                {
+                    "name":"Track Angle",
+                    "type":"fixed_bytes",
+                    "length":2,
+                    "data_type":"uint",
+                    "lsb":0.00549316406
+                }
+            ]
+        },
+        {
+            "name":"161",
+            "type":"item",
+            "data_fields":[
+                {
+                    "name":"Track Number",
+                    "type":"fixed_bytes",
+                    "length":2,
+                    "data_type":"uint"
+                }
+            ]
+        },
+        {
+            "name":"165",
+            "type":"item",
+            "data_fields":[
+                {
+                    "name":"Track Angle Rate",
+                    "type":"fixed_bitfield",
+                    "length":2,
+                    "items":[
+                        {
+                            "name":"TAR",
+                            "type":"fixed_bits",
+                            "start_bit":0,
+                            "bit_length":10,
+                            "data_type":"int",
+                            "lsb":0.03125
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name":"170",
+            "type":"item",
+            "data_fields":[
+                {
+                    "name":"Target Identification",
+                    "type":"fixed_bitfield",
+                    "length":6,
+                    "items":[
+                        {
+                            "name":"Target Identification",
+                            "type":"fixed_bits",
+                            "data_type":"characters",
+                            "start_bit":0,
+                            "bit_length":47,
+                            "num_characters":8,
+                            "character_bit_length":6
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name":"200",
+            "type":"item",
+            "data_fields":[
+                {
+                    "name":"Target Status",
+                    "type":"fixed_bitfield",
+                    "length":1,
+                    "items":[
+                        {
+                            "name":"ICF",
+                            "type":"fixed_bits",
+                            "start_bit":7,
+                            "bit_length":1
+                        },
+                        {
+                            "name":"LNAV",
+                            "type":"fixed_bits",
+                            "start_bit":6,
+                            "bit_length":1
+                        },
+                        {
+                            "name":"PS",
+                            "type":"fixed_bits",
+                            "start_bit":2,
+                            "bit_length":3
+                        },
+                        {
+                            "name":"SS",
+                            "type":"fixed_bits",
+                            "start_bit":0,
+                            "bit_length":2
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name":"210",
+            "type":"item",
+            "data_fields":[
+                {
+                    "name":"MOPS Version",
+                    "type":"fixed_bitfield",
+                    "length":1,
+                    "items":[
+                        {
+                            "name":"VNC",
+                            "type":"fixed_bits",
+                            "start_bit":6,
+                            "bit_length":1
+                        },
+                        {
+                            "name":"VN",
+                            "type":"fixed_bits",
+                            "start_bit":3,
+                            "bit_length":3
+                        },
+                        {
+                            "name":"LTT",
+                            "type":"fixed_bits",
+                            "start_bit":0,
+                            "bit_length":3
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name":"220",
+            "type":"item",
+            "data_fields":[
+                {
+                    "name":"Met Information",
+                    "type":"compound",
+                    "field_specification":{
+                        "name":"available",
+                        "type":"extendable_bits",
+                        "data_type":"bitfield"
                     },
-                    {
-                        "name":"trd",
-                        "type": "optional_item",
-                        "optional_bitfield_name":"available",
-                        "optional_bitfield_index": 30,
-                        "data_fields":
-                        [
-                            {
-                                "name":"age",
-                                "type":"fixed_bytes",
-                                "length": 1,
-                                "data_type":"int"
-                            }
-                        ]
+                    "items":[
+                        {
+                            "name":"WS",
+                            "type":"optional_item",
+                            "optional_bitfield_name":"available",
+                            "optional_bitfield_index":7,
+                            "data_fields":[
+                                {
+                                    "name":"Wind Speed",
+                                    "type":"fixed_bytes",
+                                    "length":2,
+                                    "data_type":"uint",
+                                    "lsb":1.0
+                                }
+                            ]
+                        },
+                        {
+                            "name":"WD",
+                            "type":"optional_item",
+                            "optional_bitfield_name":"available",
+                            "optional_bitfield_index":6,
+                            "data_fields":[
+                                {
+                                    "name":"Wind Direction",
+                                    "type":"fixed_bytes",
+                                    "length":2,
+                                    "data_type":"uint",
+                                    "lsb":1.0
+                                }
+                            ]
+                        },
+                        {
+                            "name":"TMP",
+                            "type":"optional_item",
+                            "optional_bitfield_name":"available",
+                            "optional_bitfield_index":5,
+                            "data_fields":[
+                                {
+                                    "name":"Temperature",
+                                    "type":"fixed_bytes",
+                                    "length":2,
+                                    "data_type":"uint",
+                                    "lsb":0.25
+                                }
+                            ]
+                        },
+                        {
+                            "name":"TRB",
+                            "type":"optional_item",
+                            "optional_bitfield_name":"available",
+                            "optional_bitfield_index":4,
+                            "data_fields":[
+                                {
+                                    "name":"Turbulence",
+                                    "type":"fixed_bytes",
+                                    "length":1,
+                                    "data_type":"uint"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name":"230",
+            "type":"item",
+            "data_fields":[
+                {
+                    "name":"Roll Angle",
+                    "type":"fixed_bytes",
+                    "length":2,
+                    "data_type":"int",
+                    "lsb":0.01
+                }
+            ]
+        },
+        {
+            "name":"250",
+            "type":"item",
+            "data_fields":[
+                {
+                    "name":"rep",
+                    "type":"repetitive",
+                    "repetition_item":{
+                        "name":"rep",
+                        "type":"fixed_bytes",
+                        "length":1,
+                        "data_type":"uint"
                     },
-                    {
-                        "name":"m3a",
-                        "type": "optional_item",
-                        "optional_bitfield_name":"available",
-                        "optional_bitfield_index": 29,
-                        "data_fields":
-                        [
-                            {
-                                "name":"age",
-                                "type":"fixed_bytes",
-                                "length": 1,
-                                "data_type":"int"
-                            }
-                        ]
+                    "items":[
+                        {
+                            "name":"MB DATA",
+                            "type":"fixed_bytes",
+                            "length":7,
+                            "data_type":"bin"
+                        },
+                        {
+                            "name":"MB Data Address",
+                            "type":"fixed_bitfield",
+                            "length":1,
+                            "items":[
+                                {
+                                    "name":"BDS1",
+                                    "type":"fixed_bits",
+                                    "start_bit":4,
+                                    "bit_length":4
+                                },
+                                {
+                                    "name":"BDS2",
+                                    "type":"fixed_bits",
+                                    "start_bit":0,
+                                    "bit_length":4
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name":"260",
+            "type":"item",
+            "data_fields":[
+                {
+                    "name":"ACAS Resolution Advisory Report",
+                    "type":"fixed_bytes",
+                    "length":7,
+                    "data_type":"bin"
+                }
+            ]
+        },
+        {
+            "name":"271",
+            "type":"item",
+            "data_fields":[
+                {
+                    "name":"Surface Capabilities and Characteristics",
+                    "type":"fixed_bitfield",
+                    "length":1,
+                    "items":[
+                        {
+                            "name":"POA",
+                            "type":"fixed_bits",
+                            "start_bit":5,
+                            "bit_length":1
+                        },
+                        {
+                            "name":"CDTI/S",
+                            "type":"fixed_bits",
+                            "start_bit":4,
+                            "bit_length":1
+                        },
+                        {
+                            "name":"B2 low",
+                            "type":"fixed_bits",
+                            "start_bit":3,
+                            "bit_length":1
+                        },
+                        {
+                            "name":"RAS",
+                            "type":"fixed_bits",
+                            "start_bit":2,
+                            "bit_length":1
+                        },
+                        {
+                            "name":"IDENT",
+                            "type":"fixed_bits",
+                            "start_bit":1,
+                            "bit_length":1
+                        },
+                        {
+                            "name":"FX",
+                            "type":"fixed_bits",
+                            "start_bit":0,
+                            "bit_length":1
+                        }
+                    ]
+                },
+                {
+                    "name":"Surface Capabilities and Characteristics First Extension : Length / Width of Aircraft",
+                    "type":"fixed_bitfield",
+                    "length":1,
+                    "optional":true,
+                    "optional_variable_name":"FX",
+                    "optional_variable_value":1,
+                    "items":[
+                        {
+                            "name":"L + W",
+                            "type":"fixed_bits",
+                            "start_bit":0,
+                            "bit_length":4
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name":"295",
+            "type":"item",
+            "data_fields":[
+                {
+                    "name":"Data Ages",
+                    "type":"compound",
+                    "field_specification":{
+                        "name":"available",
+                        "type":"extendable_bits",
+                        "data_type":"bitfield"
                     },
-                    {
-                        "name":"qi",
-                        "type": "optional_item",
-                        "optional_bitfield_name":"available",
-                        "optional_bitfield_index": 28,
-                        "data_fields":
-                        [
-                            {
-                                "name":"age",
-                                "type":"fixed_bytes",
-                                "length": 1,
-                                "data_type":"int"
-                            }
-                        ]
-                    },
-                    {
-                        "name":"ti",
-                        "type": "optional_item",
-                        "optional_bitfield_name":"available",
-                        "optional_bitfield_index": 27,
-                        "data_fields":
-                        [
-                            {
-                                "name":"age",
-                                "type":"fixed_bytes",
-                                "length": 1,
-                                "data_type":"int"
-                            }
-                        ]
-                    },
-                    {
-                        "name":"mam",
-                        "type": "optional_item",
-                        "optional_bitfield_name":"available",
-                        "optional_bitfield_index": 26,
-                        "data_fields":
-                        [
-                            {
-                                "name":"age",
-                                "type":"fixed_bytes",
-                                "length": 1,
-                                "data_type":"int"
-                            }
-                        ]
-                    },
-                    {
-                        "name":"gh",
-                        "type": "optional_item",
-                        "optional_bitfield_name":"available",
-                        "optional_bitfield_index": 25,
-                        "data_fields":
-                        [
-                            {
-                                "name":"age",
-                                "type":"fixed_bytes",
-                                "length": 1,
-                                "data_type":"int"
-                            }
-                        ]
-                    },
-                    {
-                        "name":"fl",
-                        "type": "optional_item",
-                        "optional_bitfield_name":"available",
-                        "optional_bitfield_index": 23,
-                        "data_fields":
-                        [
-                            {
-                                "name":"age",
-                                "type":"fixed_bytes",
-                                "length": 1,
-                                "data_type":"int"
-                            }
-                        ]
-                    },
-                    {
-                        "name":"isa",
-                        "type": "optional_item",
-                        "optional_bitfield_name":"available",
-                        "optional_bitfield_index": 22,
-                        "data_fields":
-                        [
-                            {
-                                "name":"age",
-                                "type":"fixed_bytes",
-                                "length": 1,
-                                "data_type":"int"
-                            }
-                        ]
-                    },
-                    {
-                        "name":"fsa",
-                        "type": "optional_item",
-                        "optional_bitfield_name":"available",
-                        "optional_bitfield_index": 21,
-                        "data_fields":
-                        [
-                            {
-                                "name":"age",
-                                "type":"fixed_bytes",
-                                "length": 1,
-                                "data_type":"int"
-                            }
-                        ]
-                    },
-                    {
-                        "name":"as",
-                        "type": "optional_item",
-                        "optional_bitfield_name":"available",
-                        "optional_bitfield_index": 20,
-                        "data_fields":
-                        [
-                            {
-                                "name":"age",
-                                "type":"fixed_bytes",
-                                "length": 1,
-                                "data_type":"int"
-                            }
-                        ]
-                    },
-                    {
-                        "name":"tas",
-                        "type": "optional_item",
-                        "optional_bitfield_name":"available",
-                        "optional_bitfield_index": 19,
-                        "data_fields":
-                        [
-                            {
-                                "name":"age",
-                                "type":"fixed_bytes",
-                                "length": 1,
-                                "data_type":"int"
-                            }
-                        ]
-                    },
-                    {
-                        "name":"mh",
-                        "type": "optional_item",
-                        "optional_bitfield_name":"available",
-                        "optional_bitfield_index": 18,
-                        "data_fields":
-                        [
-                            {
-                                "name":"age",
-                                "type":"fixed_bytes",
-                                "length": 1,
-                                "data_type":"int"
-                            }
-                        ]
-                    },
-                    {
-                        "name":"bvr",
-                        "type": "optional_item",
-                        "optional_bitfield_name":"available",
-                        "optional_bitfield_index": 17,
-                        "data_fields":
-                        [
-                            {
-                                "name":"age",
-                                "type":"fixed_bytes",
-                                "length": 1,
-                                "data_type":"int"
-                            }
-                        ]
-                    },
-                    {
-                        "name":"gvr",
-                        "type": "optional_item",
-                        "optional_bitfield_name":"available",
-                        "optional_bitfield_index": 15,
-                        "data_fields":
-                        [
-                            {
-                                "name":"age",
-                                "type":"fixed_bytes",
-                                "length": 1,
-                                "data_type":"int"
-                            }
-                        ]
-                    },
-                    {
-                        "name":"gv",
-                        "type": "optional_item",
-                        "optional_bitfield_name":"available",
-                        "optional_bitfield_index": 14,
-                        "data_fields":
-                        [
-                            {
-                                "name":"age",
-                                "type":"fixed_bytes",
-                                "length": 1,
-                                "data_type":"int"
-                            }
-                        ]
-                    },
-                    {
-                        "name":"tar",
-                        "type": "optional_item",
-                        "optional_bitfield_name":"available",
-                        "optional_bitfield_index": 13,
-                        "data_fields":
-                        [
-                            {
-                                "name":"age",
-                                "type":"fixed_bytes",
-                                "length": 1,
-                                "data_type":"int"
-                            }
-                        ]
-                    },
-                    {
-                        "name":"ti2",
-                        "type": "optional_item",
-                        "optional_bitfield_name":"available",
-                        "optional_bitfield_index": 12,
-                        "data_fields":
-                        [
-                            {
-                                "name":"age",
-                                "type":"fixed_bytes",
-                                "length": 1,
-                                "data_type":"int"
-                            }
-                        ]
-                    },
-                    {
-                        "name":"ts",
-                        "type": "optional_item",
-                        "optional_bitfield_name":"available",
-                        "optional_bitfield_index": 11,
-                        "data_fields":
-                        [
-                            {
-                                "name":"age",
-                                "type":"fixed_bytes",
-                                "length": 1,
-                                "data_type":"int"
-                            }
-                        ]
-                    },
-                    {
-                        "name":"met",
-                        "type": "optional_item",
-                        "optional_bitfield_name":"available",
-                        "optional_bitfield_index": 10,
-                        "data_fields":
-                        [
-                            {
-                                "name":"age",
-                                "type":"fixed_bytes",
-                                "length": 1,
-                                "data_type":"int"
-                            }
-                        ]
-                    },
-                    {
-                        "name":"roa",
-                        "type": "optional_item",
-                        "optional_bitfield_name":"available",
-                        "optional_bitfield_index": 9,
-                        "data_fields":
-                        [
-                            {
-                                "name":"age",
-                                "type":"fixed_bytes",
-                                "length": 1,
-                                "data_type":"int"
-                            }
-                        ]
-                    },
-                    {
-                        "name":"ara",
-                        "type": "optional_item",
-                        "optional_bitfield_name":"available",
-                        "optional_bitfield_index": 7,
-                        "data_fields":
-                        [
-                            {
-                                "name":"aos_age",
-                                "type":"fixed_bytes",
-                                "length": 1,
-                                "data_type":"int"
-                            }
-                        ]
-                    },
-                    {
-                        "name":"scc",
-                        "type": "optional_item",
-                        "optional_bitfield_name":"available",
-                        "optional_bitfield_index": 6,
-                        "data_fields":
-                        [
-                            {
-                                "name":"age",
-                                "type":"fixed_bytes",
-                                "length": 1,
-                                "data_type":"int"
-                            }
-                        ]
-                    }
-                ]
-            }
-        ]
-    },
-    {
-        "name":"400",
-        "type": "optional_item",
-        "optional_bitfield_name":"fspec",
-        "optional_bitfield_index": 40,
-        "data_fields":
-        [
-            {
-                "name":"rid",
-                "type":"fixed_bytes",
-                "length": 1,
-                "data_type":"uint"
-            }
-        ]
-    }
-]
+                    "items":[
+                        {
+                            "name":"Aircraft Operational Status",
+                            "type":"optional_item",
+                            "optional_bitfield_name":"available",
+                            "optional_bitfield_index":31,
+                            "data_fields":[
+                                {
+                                    "name":"Age",
+                                    "type":"fixed_bytes",
+                                    "data_type":"uint",
+                                    "length":1,
+                                    "lsb":0.1
+                                }
+                            ]
+                        },
+                        {
+                            "name":"Target Report Descriptor",
+                            "type":"optional_item",
+                            "optional_bitfield_name":"available",
+                            "optional_bitfield_index":30,
+                            "data_fields":[
+                                {
+                                    "name":"Age",
+                                    "type":"fixed_bytes",
+                                    "data_type":"uint",
+                                    "length":1,
+                                    "lsb":0.1
+                                }
+                            ]
+                        },
+                        {
+                            "name":"Mode 3/A",
+                            "type":"optional_item",
+                            "optional_bitfield_name":"available",
+                            "optional_bitfield_index":29,
+                            "data_fields":[
+                                {
+                                    "name":"Age",
+                                    "type":"fixed_bytes",
+                                    "data_type":"uint",
+                                    "length":1,
+                                    "lsb":0.1
+                                }
+                            ]
+                        },
+                        {
+                            "name":"Quality Indicators",
+                            "type":"optional_item",
+                            "optional_bitfield_name":"available",
+                            "optional_bitfield_index":28,
+                            "data_fields":[
+                                {
+                                    "name":"Age",
+                                    "type":"fixed_bytes",
+                                    "data_type":"uint",
+                                    "length":1,
+                                    "lsb":0.1
+                                }
+                            ]
+                        },
+                        {
+                            "name":"Trajectory Intent",
+                            "type":"optional_item",
+                            "optional_bitfield_name":"available",
+                            "optional_bitfield_index":27,
+                            "data_fields":[
+                                {
+                                    "name":"Age",
+                                    "type":"fixed_bytes",
+                                    "data_type":"uint",
+                                    "length":1,
+                                    "lsb":0.1
+                                }
+                            ]
+                        },
+                        {
+                            "name":"Message Amplitude",
+                            "type":"optional_item",
+                            "optional_bitfield_name":"available",
+                            "optional_bitfield_index":26,
+                            "data_fields":[
+                                {
+                                    "name":"Age",
+                                    "type":"fixed_bytes",
+                                    "data_type":"uint",
+                                    "length":1,
+                                    "lsb":0.1
+                                }
+                            ]
+                        },
+                        {
+                            "name":"Geometric Height",
+                            "type":"optional_item",
+                            "optional_bitfield_name":"available",
+                            "optional_bitfield_index":25,
+                            "data_fields":[
+                                {
+                                    "name":"Age",
+                                    "type":"fixed_bytes",
+                                    "data_type":"uint",
+                                    "length":1,
+                                    "lsb":0.1
+                                }
+                            ]
+                        },
+                        {
+                            "name":"Flight Level",
+                            "type":"optional_item",
+                            "optional_bitfield_name":"available",
+                            "optional_bitfield_index":23,
+                            "data_fields":[
+                                {
+                                    "name":"age",
+                                    "type":"fixed_bytes",
+                                    "data_type":"uint",
+                                    "length":1,
+                                    "lsb":0.1
+                                }
+                            ]
+                        },
+                        {
+                            "name":"Intermediate State Selected Altitude",
+                            "type":"optional_item",
+                            "optional_bitfield_name":"available",
+                            "optional_bitfield_index":22,
+                            "data_fields":[
+                                {
+                                    "name":"Age",
+                                    "type":"fixed_bytes",
+                                    "data_type":"uint",
+                                    "length":1,
+                                    "lsb":0.1
+                                }
+                            ]
+                        },
+                        {
+                            "name":"Final State Selected Altitude",
+                            "type":"optional_item",
+                            "optional_bitfield_name":"available",
+                            "optional_bitfield_index":21,
+                            "data_fields":[
+                                {
+                                    "name":"Age",
+                                    "type":"fixed_bytes",
+                                    "data_type":"uint",
+                                    "length":1,
+                                    "lsb":0.1
+                                }
+                            ]
+                        },
+                        {
+                            "name":"Air Speed",
+                            "type":"optional_item",
+                            "optional_bitfield_name":"available",
+                            "optional_bitfield_index":20,
+                            "data_fields":[
+                                {
+                                    "name":"Age",
+                                    "type":"fixed_bytes",
+                                    "data_type":"uint",
+                                    "length":1,
+                                    "lsb":0.1
+                                }
+                            ]
+                        },
+                        {
+                            "name":"True Air Speed",
+                            "type":"optional_item",
+                            "optional_bitfield_name":"available",
+                            "optional_bitfield_index":19,
+                            "data_fields":[
+                                {
+                                    "name":"Age",
+                                    "type":"fixed_bytes",
+                                    "data_type":"uint",
+                                    "length":1,
+                                    "lsb":0.1
+                                }
+                            ]
+                        },
+                        {
+                            "name":"Magnetic Heading",
+                            "type":"optional_item",
+                            "optional_bitfield_name":"available",
+                            "optional_bitfield_index":18,
+                            "data_fields":[
+                                {
+                                    "name":"Age",
+                                    "type":"fixed_bytes",
+                                    "data_type":"uint",
+                                    "length":1,
+                                    "lsb":0.1
+                                }
+                            ]
+                        },
+                        {
+                            "name":"Barometric Vertical Rate",
+                            "type":"optional_item",
+                            "optional_bitfield_name":"available",
+                            "optional_bitfield_index":17,
+                            "data_fields":[
+                                {
+                                    "name":"Age",
+                                    "type":"fixed_bytes",
+                                    "data_type":"uint",
+                                    "length":1,
+                                    "lsb":0.1
+                                }
+                            ]
+                        },
+                        {
+                            "name":"Geometric Vertical Rate",
+                            "type":"optional_item",
+                            "optional_bitfield_name":"available",
+                            "optional_bitfield_index":15,
+                            "data_fields":[
+                                {
+                                    "name":"Age",
+                                    "type":"fixed_bytes",
+                                    "data_type":"uint",
+                                    "length":1,
+                                    "lsb":0.1
+                                }
+                            ]
+                        },
+                        {
+                            "name":"Ground Vector",
+                            "type":"optional_item",
+                            "optional_bitfield_name":"available",
+                            "optional_bitfield_index":14,
+                            "data_fields":[
+                                {
+                                    "name":"Age",
+                                    "type":"fixed_bytes",
+                                    "data_type":"uint",
+                                    "length":1,
+                                    "lsb":0.1
+                                }
+                            ]
+                        },
+                        {
+                            "name":"Track Angle Rate",
+                            "type":"optional_item",
+                            "optional_bitfield_name":"available",
+                            "optional_bitfield_index":13,
+                            "data_fields":[
+                                {
+                                    "name":"Age",
+                                    "type":"fixed_bytes",
+                                    "data_type":"uint",
+                                    "length":1,
+                                    "lsb":0.1
+                                }
+                            ]
+                        },
+                        {
+                            "name":"Target Identification",
+                            "type":"optional_item",
+                            "optional_bitfield_name":"available",
+                            "optional_bitfield_index":12,
+                            "data_fields":[
+                                {
+                                    "name":"Age",
+                                    "type":"fixed_bytes",
+                                    "data_type":"uint",
+                                    "length":1,
+                                    "lsb":0.1
+                                }
+                            ]
+                        },
+                        {
+                            "name":"Target Status",
+                            "type":"optional_item",
+                            "optional_bitfield_name":"available",
+                            "optional_bitfield_index":11,
+                            "data_fields":[
+                                {
+                                    "name":"Age",
+                                    "type":"fixed_bytes",
+                                    "data_type":"uint",
+                                    "length":1,
+                                    "lsb":0.1
+                                }
+                            ]
+                        },
+                        {
+                            "name":"Met Information",
+                            "type":"optional_item",
+                            "optional_bitfield_name":"available",
+                            "optional_bitfield_index":10,
+                            "data_fields":[
+                                {
+                                    "name":"Age",
+                                    "type":"fixed_bytes",
+                                    "data_type":"uint",
+                                    "length":1,
+                                    "lsb":0.1
+                                }
+                            ]
+                        },
+                        {
+                            "name":"Roll Angle",
+                            "type":"optional_item",
+                            "optional_bitfield_name":"available",
+                            "optional_bitfield_index":9,
+                            "data_fields":[
+                                {
+                                    "name":"Age",
+                                    "type":"fixed_bytes",
+                                    "data_type":"uint",
+                                    "length":1,
+                                    "lsb":0.1
+                                }
+                            ]
+                        },
+                        {
+                            "name":"ACAS Resolution Advisory",
+                            "type":"optional_item",
+                            "optional_bitfield_name":"available",
+                            "optional_bitfield_index":7,
+                            "data_fields":[
+                                {
+                                    "name":"Age",
+                                    "type":"fixed_bytes",
+                                    "data_type":"uint",
+                                    "length":1,
+                                    "lsb":0.1
+                                }
+                            ]
+                        },
+                        {
+                            "name":"Surface Capabilities and Characteristics",
+                            "type":"optional_item",
+                            "optional_bitfield_name":"available",
+                            "optional_bitfield_index":6,
+                            "data_fields":[
+                                {
+                                    "name":"Age",
+                                    "type":"fixed_bytes",
+                                    "data_type":"uint",
+                                    "length":1,
+                                    "lsb":0.1
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name":"400",
+            "type":"item",
+            "data_fields":[
+                {
+                    "name":"RID",
+                    "type":"fixed_bytes",
+                    "length":1,
+                    "data_type":"uint"
+                }
+            ]
+        }
+    ]
 }
