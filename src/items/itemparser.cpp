@@ -69,4 +69,9 @@ size_t ItemParser::parseItem (const char* data, size_t index, size_t size, size_
     return parsed_bytes;
 }
 
+std::string ItemParser::number() const
+{
+    return number_;
+}
+
 }

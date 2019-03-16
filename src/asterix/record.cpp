@@ -64,19 +64,22 @@ Record::Record (const nlohmann::json& item_definition)
     if (!items.is_array())
         throw runtime_error ("record item '"+name_+"' field specification is not an array");
 
-    std::string item_name;
+    std::string item_number;
     ItemParserBase* item {nullptr};
 
     for (const json& data_item_it : items)
     {
-        item_name = data_item_it.at("name");
+        if (data_item_it.find("number") == data_item_it.end())
+            throw runtime_error ("record item '"+data_item_it.dump(4)+"' without number");
+
+        item_number = data_item_it.at("number");
         item = ItemParserBase::createItemParser(data_item_it);
         assert (item);
 
-        if (items_.count(item_name) != 0)
-            throw runtime_error ("record item '"+name_+"' item name '"+item_name+"' used multiple times");
+        if (items_.count(item_number) != 0)
+            throw runtime_error ("record item '"+name_+"' item number '"+item_number+"' used multiple times");
 
-        items_[item_name] = std::unique_ptr<ItemParserBase>{item};
+        items_[item_number] = std::unique_ptr<ItemParserBase>{item};
     }
 }
 

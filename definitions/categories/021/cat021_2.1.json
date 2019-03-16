@@ -67,7 +67,8 @@
     ],
     "items":[
         {
-            "name":"008",
+            "number":"008",
+            "name":"Aircraft Operational Status",
             "type":"item",
             "data_fields":[
                 {
@@ -122,7 +123,8 @@
             ]
         },
         {
-            "name":"010",
+            "number":"010",
+            "name":"Data Source Identification",
             "type":"item",
             "data_fields":[
                 {
@@ -140,7 +142,8 @@
             ]
         },
         {
-            "name":"015",
+            "number":"015",
+            "name":"Service Identification",
             "type":"item",
             "data_fields":[
                 {
@@ -152,7 +155,8 @@
             ]
         },
         {
-            "name":"016",
+            "number":"016",
+            "name":"Service Management",
             "type":"item",
             "data_fields":[
                 {
@@ -165,7 +169,8 @@
             ]
         },
         {
-            "name":"020",
+            "number":"020",
+            "name":"Emitter Category",
             "type":"item",
             "data_fields":[
                 {
@@ -177,7 +182,8 @@
             ]
         },
         {
-            "name":"040",
+            "number":"040",
+            "name":"Target Report Descriptor",
             "type":"item",
             "data_fields":[
                 {
@@ -318,7 +324,8 @@
             ]
         },
         {
-            "name":"070",
+            "number":"070",
+            "name":"Mode 3/A Code in Octal Representation",
             "type":"item",
             "data_fields":[
                 {
@@ -340,7 +347,8 @@
             ]
         },
         {
-            "name":"071",
+            "number":"071",
+            "name":"Time of Applicability for Position",
             "type":"item",
             "data_fields":[
                 {
@@ -353,7 +361,8 @@
             ]
         },
         {
-            "name":"072",
+            "number":"072",
+            "name":"Time of Applicability for Velocity",
             "type":"item",
             "data_fields":[
                 {
@@ -366,7 +375,8 @@
             ]
         },
         {
-            "name":"073",
+            "number":"073",
+            "name":"Time of Message Reception for Position",
             "type":"item",
             "data_fields":[
                 {
@@ -379,7 +389,8 @@
             ]
         },
         {
-            "name":"074",
+            "number":"074",
+            "name":"Time of Message Reception of Position-High Precision",
             "type":"item",
             "data_fields":[
                 {
@@ -405,7 +416,8 @@
             ]
         },
         {
-            "name":"075",
+            "number":"075",
+            "name":"Time of Message Reception for Velocity",
             "type":"item",
             "data_fields":[
                 {
@@ -418,7 +430,8 @@
             ]
         },
         {
-            "name":"076",
+            "number":"076",
+            "name":"Time of Message Reception of Velocity-High Precision",
             "type":"item",
             "data_fields":[
                 {
@@ -444,7 +457,8 @@
             ]
         },
         {
-            "name":"077",
+            "number":"077",
+            "name":"Time of ASTERIX Report Transmission",
             "type":"item",
             "data_fields":[
                 {
@@ -457,7 +471,8 @@
             ]
         },
         {
-            "name":"080",
+            "number":"080",
+            "name":"Target Address",
             "type":"item",
             "data_fields":[
                 {
@@ -469,7 +484,8 @@
             ]
         },
         {
-            "name":"090",
+            "number":"090",
+            "name":"Quality Indicators",
             "type":"item",
             "data_fields":[
                 {
@@ -590,7 +606,8 @@
             ]
         },
         {
-            "name":"110",
+            "number":"110",
+            "name":"Trajectory Intent",
             "type":"item",
             "data_fields":[
                 {
@@ -745,7 +762,8 @@
             ]
         },
         {
-            "name":"130",
+            "number":"130",
+            "name":"Position in WGS-84 Co-ordinates",
             "type":"item",
             "data_fields":[
                 {
@@ -765,7 +783,8 @@
             ]
         },
         {
-            "name":"131",
+            "number":"131",
+            "name":"High-Resolution Position in WGS-84 Co-ordinates",
             "type":"item",
             "data_fields":[
                 {
@@ -785,7 +804,8 @@
             ]
         },
         {
-            "name":"132",
+            "number":"132",
+            "name":"Message Amplitude",
             "type":"item",
             "data_fields":[
                 {
@@ -798,7 +818,8 @@
             ]
         },
         {
-            "name":"140",
+            "number":"140",
+            "name":"Geometric Height",
             "type":"item",
             "data_fields":[
                 {
@@ -811,7 +832,8 @@
             ]
         },
         {
-            "name":"145",
+            "number":"145",
+            "name":"Flight Level",
             "type":"item",
             "data_fields":[
                 {
@@ -824,7 +846,8 @@
             ]
         },
         {
-            "name":"146",
+            "number":"146",
+            "name":"Selected Altitude",
             "type":"item",
             "data_fields":[
                 {
@@ -857,7 +880,8 @@
             ]
         },
         {
-            "name":"148",
+            "number":"148",
+            "name":"Final State Selected Altitude",
             "type":"item",
             "data_fields":[
                 {
@@ -896,7 +920,8 @@
             ]
         },
         {
-            "name":"150",
+            "number":"150",
+            "name":"Air Speed",
             "type":"item",
             "data_fields":[
                 {
@@ -921,7 +946,8 @@
             ]
         },
         {
-            "name":"151",
+            "number":"151",
+            "name":"Magnetic Heading",
             "type":"item",
             "data_fields":[
                 {
@@ -947,7 +973,8 @@
             ]
         },
         {
-            "name":"152",
+            "number":"152",
+            "name":"",
             "type":"item",
             "data_fields":[
                 {
@@ -960,7 +987,8 @@
             ]
         },
         {
-            "name":"157",
+            "number":"155",
+            "name":"Barometric Vertical Rate",
             "type":"item",
             "data_fields":[
                 {
@@ -987,7 +1015,36 @@
             ]
         },
         {
-            "name":"160",
+            "number":"157",
+            "name":"Geometric Vertical Rat",
+            "type":"item",
+            "data_fields":[
+                {
+                    "name":"Geometric Vertical Rate",
+                    "type":"fixed_bitfield",
+                    "length":2,
+                    "items":[
+                        {
+                            "name":"RE",
+                            "type":"fixed_bits",
+                            "start_bit":15,
+                            "bit_length":1
+                        },
+                        {
+                            "name":"Geometric Vertical Rate",
+                            "type":"fixed_bits",
+                            "start_bit":0,
+                            "bit_length":15,
+                            "data_type":"int",
+                            "lsb":6.25
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "number":"160",
+            "name":"Airborne Ground Vector",
             "type":"item",
             "data_fields":[
                 {
@@ -1020,7 +1077,8 @@
             ]
         },
         {
-            "name":"161",
+            "number":"161",
+            "name":"Track Number",
             "type":"item",
             "data_fields":[
                 {
@@ -1032,7 +1090,8 @@
             ]
         },
         {
-            "name":"165",
+            "number":"165",
+            "name":"Track Angle Rate",
             "type":"item",
             "data_fields":[
                 {
@@ -1053,7 +1112,8 @@
             ]
         },
         {
-            "name":"170",
+            "number":"170",
+            "name":"Target Identification",
             "type":"item",
             "data_fields":[
                 {
@@ -1075,7 +1135,8 @@
             ]
         },
         {
-            "name":"200",
+            "number":"200",
+            "name":"Target Status",
             "type":"item",
             "data_fields":[
                 {
@@ -1112,7 +1173,8 @@
             ]
         },
         {
-            "name":"210",
+            "number":"210",
+            "name":"MOPS Version",
             "type":"item",
             "data_fields":[
                 {
@@ -1143,7 +1205,8 @@
             ]
         },
         {
-            "name":"220",
+            "number":"220",
+            "name":"Met Information",
             "type":"item",
             "data_fields":[
                 {
@@ -1219,7 +1282,8 @@
             ]
         },
         {
-            "name":"230",
+            "number":"230",
+            "name":"Roll Angle",
             "type":"item",
             "data_fields":[
                 {
@@ -1232,7 +1296,8 @@
             ]
         },
         {
-            "name":"250",
+            "number":"250",
+            "name":"Mode S MB Data",
             "type":"item",
             "data_fields":[
                 {
@@ -1275,7 +1340,8 @@
             ]
         },
         {
-            "name":"260",
+            "number":"260",
+            "name":"ACAS Resolution Advisory Report",
             "type":"item",
             "data_fields":[
                 {
@@ -1287,7 +1353,8 @@
             ]
         },
         {
-            "name":"271",
+            "number":"271",
+            "name":"Surface Capabilities and Characteristics",
             "type":"item",
             "data_fields":[
                 {
@@ -1352,7 +1419,8 @@
             ]
         },
         {
-            "name":"295",
+            "number":"295",
+            "name":"Data Ages",
             "type":"item",
             "data_fields":[
                 {
@@ -1714,7 +1782,8 @@
             ]
         },
         {
-            "name":"400",
+            "number":"400",
+            "name":"Receiver ID",
             "type":"item",
             "data_fields":[
                 {
