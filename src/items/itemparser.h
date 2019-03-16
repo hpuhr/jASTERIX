@@ -32,6 +32,7 @@ public:
     virtual size_t parseItem (const char* data, size_t index, size_t size, size_t current_parsed_bytes,
                               nlohmann::json& target, bool debug) override;
 protected:
+    std::string number_;
     std::vector<std::unique_ptr<ItemParserBase>> data_fields_;
 };
 

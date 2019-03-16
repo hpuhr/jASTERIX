@@ -520,7 +520,7 @@
                                     "name":"rds",
                                     "type":"repetitive",
                                     "repetition_item":{
-                                        "name":"rep",
+                                        "name":"REP",
                                         "type":"fixed_bytes",
                                         "length":1,
                                         "data_type":"uint"
@@ -930,7 +930,7 @@
                     "name":"mode_s_mb_data",
                     "type":"repetitive",
                     "repetition_item":{
-                        "name":"rep",
+                        "name":"REP",
                         "type":"fixed_bytes",
                         "length":1,
                         "data_type":"uint"

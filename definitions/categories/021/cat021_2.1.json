@@ -639,7 +639,7 @@
                                     "name":"rep",
                                     "type":"repetitive",
                                     "repetition_item":{
-                                        "name":"rep",
+                                        "name":"REP",
                                         "type":"fixed_bytes",
                                         "length":1,
                                         "data_type":"uint"
@@ -1239,7 +1239,7 @@
                     "name":"rep",
                     "type":"repetitive",
                     "repetition_item":{
-                        "name":"rep",
+                        "name":"REP",
                         "type":"fixed_bytes",
                         "length":1,
                         "data_type":"uint"

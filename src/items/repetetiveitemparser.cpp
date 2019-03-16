@@ -36,8 +36,8 @@ RepetetiveItemParser::RepetetiveItemParser (const nlohmann::json& item_definitio
     if (!repetition_item.is_object())
         throw runtime_error ("parsing repetitive item '"+name_+"' repetition item specification is not an object");
 
-    if (repetition_item.at("name") != "rep")
-        throw runtime_error ("parsing repetitive item '"+name_+"' repetition item specification has to be named 'rep'");
+    if (repetition_item.at("name") != "REP")
+        throw runtime_error ("parsing repetitive item '"+name_+"' repetition item specification has to be named 'REP'");
 
     repetition_item_.reset(ItemParserBase::createItemParser(repetition_item));
     assert (repetition_item_);
@@ -75,7 +75,7 @@ size_t RepetetiveItemParser::parseItem (const char* data, size_t index, size_t s
 
     parsed_bytes = repetition_item_->parseItem(data, index+parsed_bytes, size, parsed_bytes, target, debug);
 
-    unsigned int rep = target.at("rep");
+    unsigned int rep = target.at("REP");
 
     assert (target.find(name_) == target.end());
     json j_data = json::array();
