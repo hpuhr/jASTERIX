@@ -77,7 +77,8 @@ void Mapping::map (nlohmann::json& src, nlohmann::json& dest)
 void Mapping::mapObject (nlohmann::json& object_definition, const nlohmann::json& src, nlohmann::json& dest)
 {
     std::string def_key;
-    std::string def_value;
+    std::string def_value_str;
+    std::string src_value_str;
 
     //loginf << "mapping: mapObject";
 
@@ -95,13 +96,34 @@ void Mapping::mapObject (nlohmann::json& object_definition, const nlohmann::json
             if (src_value.is_object())
             {
                 assert (def_it.value().is_object());
-                mapObject(def_it.value(), src_value, dest);
+                mapObject(def_it.value(), src_value, dest); // iterate into sub-object
             }
             else
             {
-                def_value = def_it.value();
-                if (def_value.size()) // skip unmapped
-                    mapKey (def_value, src_value, dest);
+
+                if (def_it.value().is_object()) // contains (src value)->(dest key,dest value) entries
+                {
+                    src_value_str = toString(src_value);
+
+                    if (def_it.value().find(src_value_str) != def_it.value().end()) // skip if not defined
+                    {
+                        const json& src_val_mapped_obj = def_it.value()[src_value_str];
+                        assert (src_val_mapped_obj.is_object());
+
+                        for (auto dest_it = src_val_mapped_obj.begin(); dest_it != src_val_mapped_obj.end(); ++dest_it)
+                        {
+                            def_value_str = dest_it.key();
+                            mapKey (def_value_str, dest_it.value(), dest);
+                        }
+                    }
+                }
+                else
+                {
+                    def_value_str = def_it.value();
+
+                    if (def_value_str.size()) // skip unmapped
+                        mapKey (def_value_str, src_value, dest);
+                }
             }
         }
     }

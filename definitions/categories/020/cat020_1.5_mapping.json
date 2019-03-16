@@ -4,7 +4,14 @@
         "sic":"source.sic"
     },
     "020":{
-        "ssr":"target_report.mlat.non_mode_s",
+        "ssr":{
+            "0":{
+                "target_report.mlat.non_mode_s":true
+            },
+            "1":{
+                "target_report.mlat.non_mode_s":false
+            }
+        },
         "ms":"target_report.mlat.mode_s",
         "hf":"",
         "vdl4":"",
