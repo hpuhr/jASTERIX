@@ -96,10 +96,10 @@ size_t Record::parseItem (const char* data, size_t index, size_t size, size_t cu
 
     parsed_bytes = field_specification_->parseItem(data, index+parsed_bytes, size, parsed_bytes, target, debug);
 
-    if (target.find("fspec") == target.end())
-        throw runtime_error ("record item '"+name_+"' fspec not found");
+    if (target.find("FSPEC") == target.end())
+        throw runtime_error ("record item '"+name_+"' FSPEC not found");
 
-    std::vector<bool> fspec_bits = target.at("fspec");
+    std::vector<bool> fspec_bits = target.at("FSPEC");
 
     if (fspec_bits.size() > uap_names_.size())
         throw runtime_error ("record item '"+name_+"' has more fspec bits than define uap items");

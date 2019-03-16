@@ -2,7 +2,7 @@
     "name":"record",
     "type":"record",
     "field_specification":{
-        "name":"fspec",
+        "name":"FSPEC",
         "type":"extendable_bits",
         "reverse_bits":true,
         "data_type":"bitfield"
@@ -804,7 +804,7 @@
             "type":"item",
             "data_fields":[
                 {
-                    "name":"mode_s_mb_data",
+                    "name":"Mode S MB Data",
                     "type":"repetitive",
                     "repetition_item":{
                         "name":"REP",
@@ -911,7 +911,7 @@
             "type":"item",
             "data_fields":[
                 {
-                    "name":"contributing_receivers",
+                    "name":"Contributing Receivers",
                     "type":"repetitive",
                     "repetition_item":{
                         "name":"REP",

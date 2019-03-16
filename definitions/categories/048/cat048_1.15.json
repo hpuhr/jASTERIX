@@ -2,7 +2,7 @@
     "name":"record",
     "type":"record",
     "field_specification":{
-        "name":"fspec",
+        "name":"FSPEC",
         "type":"extendable_bits",
         "reverse_bits":true,
         "data_type":"bitfield"
