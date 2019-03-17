@@ -207,7 +207,7 @@
             "type":"item",
             "data_fields":[
                 {
-                    "name":"warning/error_conditions",
+                    "name":"Warning/Error Conditions",
                     "type":"extendable",
                     "items":[
                         {
@@ -503,7 +503,7 @@
             "type":"item",
             "data_fields":[
                 {
-                    "name":"Geometric Height (WGS-84)",
+                    "name":"Geometric Height",
                     "comment":"Range= +/- 204 800 ft",
                     "type":"fixed_bytes",
                     "length":2,
