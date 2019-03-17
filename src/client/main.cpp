@@ -47,7 +47,8 @@ JSONWriter* json_writer {nullptr};
 
 void callback (nlohmann::json& data_chunk, size_t num_frames, size_t num_records)
 {
-    //loginf << "jASTERIX: decoded " << num_frames << " frames, " << num_records << " records: " << data_chunk.dump(4);
+    loginf << "jASTERIX: decoded " << num_frames << " frames, " << num_records << " records: "
+           << data_chunk.dump(print_dump_indent);
 }
 
 void write_callback (nlohmann::json& data_chunk, size_t num_frames, size_t num_records)
@@ -92,6 +93,7 @@ int main (int argc, char **argv)
                                                       " netto is default")
         ("debug", po::bool_switch(&debug), "print debug output")
         ("print", po::bool_switch(&print), "print JSON output")
+        ("print_indent", po::value<int>(&print_dump_indent), "intendation of json print, use -1 to disable.")
         ("write_type", po::value<std::string>(&write_type), "optional write type, e.g. text,zip. needs write_filename.")
         ("write_filename", po::value<std::string>(&write_filename), "optional write filename, e.g. test.zip.")
     ;
@@ -126,6 +128,7 @@ int main (int argc, char **argv)
                   " netto is default" << logendl;
         loginf << "debug: print debug output" << logendl;
         loginf << "print: print JSON output" << logendl;
+        loginf << "print_indent: intendation of json print, use -1 to disable." << logendl;
         loginf << "write_type (value): optional write type, e.g. text,zip. needs write_filename." << logendl;
         loginf << "write_filename (value): optional write filename, e.g. test.zip." << logendl;
 
@@ -146,6 +149,9 @@ int main (int argc, char **argv)
 
     if (find(arguments.begin(), arguments.end(), "--print") != arguments.end())
         print = true;
+
+    if (find(arguments.begin(), arguments.end(), "--print_indent") != arguments.end())
+        print_dump_indent = std::atoi (*(find(arguments.begin(), arguments.end(), "--print_indent")+1));
 
     if (find(arguments.begin(), arguments.end(), "--write_type") != arguments.end())
         write_type = *(find(arguments.begin(), arguments.end(), "--write_type")+1);

@@ -15,6 +15,7 @@
  * along with SDDL.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "jasterix.h"
 #include "jsonwriter.h"
 #include "jsonfilewritetask.h"
 #include "logger.h"
@@ -135,7 +136,7 @@ void JSONWriter::convertJSON2Text ()
 
     tbb::parallel_for( size_t(0), size, [&]( size_t cnt )
     {
-        text_data_[cnt] = json_data_.at(cnt).dump(4) + "\n";
+        text_data_[cnt] = json_data_.at(cnt).dump(print_dump_indent) + "\n";
     } );
 
 //    size_t cnt = 0;

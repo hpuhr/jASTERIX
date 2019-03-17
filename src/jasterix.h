@@ -35,6 +35,8 @@
 
 namespace jASTERIX {
 
+extern int print_dump_indent;
+
 class Category;
 
 class jASTERIX
