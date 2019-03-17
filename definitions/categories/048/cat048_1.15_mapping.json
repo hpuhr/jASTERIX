@@ -1,151 +1,395 @@
 {
     "010":{
-        "sac":"source.sac",
-        "sic":"source.sic"
+        "SAC":"source.sac",
+        "SIC":"source.sic"
     },
     "020":{
-        "rab":"target_report.fixed_transponder",
-        "rdp":"target_report.chain",
-        "sim":"target_report.simulated",
-        "spi":"target.special_position_indicator",
-        "typ":"",
-        "tst":"target_report.test",
-        "me":"target.alert.military_emergency",
-        "mi":"target.type.is_military",
-        "foe/fri":"target.type.friend_foe"
+        "TYP":{
+            "0":{
+                "target_report.psr_detection":false,
+                "target_report.ssr_detection":false,
+                "target_report.mode_s_all_call":false,
+                "target_report.mode_s_roll_call":false
+            },
+            "1":{
+                "target_report.psr_detection":true,
+                "target_report.ssr_detection":false,
+                "target_report.mode_s_all_call":false,
+                "target_report.mode_s_roll_call":false
+            },
+            "2":{
+                "target_report.psr_detection":false,
+                "target_report.ssr_detection":true,
+                "target_report.mode_s_all_call":false,
+                "target_report.mode_s_roll_call":false
+            },
+            "3":{
+                "target_report.psr_detection":true,
+                "target_report.ssr_detection":true,
+                "target_report.mode_s_all_call":false,
+                "target_report.mode_s_roll_call":false
+            },
+            "4":{
+                "target_report.psr_detection":false,
+                "target_report.ssr_detection":false,
+                "target_report.mode_s_all_call":true,
+                "target_report.mode_s_roll_call":false
+            },
+            "5":{
+                "target_report.psr_detection":false,
+                "target_report.ssr_detection":false,
+                "target_report.mode_s_all_call":false,
+                "target_report.mode_s_roll_call":true
+            },
+            "6":{
+                "target_report.psr_detection":true,
+                "target_report.ssr_detection":false,
+                "target_report.mode_s_all_call":true,
+                "target_report.mode_s_roll_call":false
+            },
+            "7":{
+                "target_report.psr_detection":true,
+                "target_report.ssr_detection":false,
+                "target_report.mode_s_all_call":false,
+                "target_report.mode_s_roll_call":true
+            }
+
+        },
+        "SIM":{
+            "0":{
+                "target_report.simulated":false
+            },
+            "1":{
+                "target_report.simulated":true
+            }
+        },
+        "RDP":{
+            "0":{
+                "target_report.chain":false
+            },
+            "1":{
+                "target_report.chain":true
+            }
+        },
+        "SPI":{
+            "0":{
+                "target.special_position_indicator":false
+            },
+            "1":{
+                "target.special_position_indicator":true
+            }
+        },
+        "RAB":{
+            "0":{
+                "target_report.fixed_transponder":false
+            },
+            "1":{
+                "target_report.fixed_transponder":true
+            }
+        },
+        "TST":{
+            "0":{
+                "target_report.test":false
+            },
+            "1":{
+                "target_report.test":true
+            }
+        },
+        "ME":{
+            "0":{
+                "target.alert.military_emergency":false
+            },
+            "1":{
+                "target.alert.military_emergency":true
+            }
+        },
+        "MI":{
+            "0":{
+                "target.type.is_military":false
+            },
+            "1":{
+                "target.type.is_military":true
+            }
+        },
+        "FOE/FRI":"target.type.friend_foe"
     },
     "030":{
-        "warning/error_conditions":"target.alert.codes"
+        "Warning/Error Conditions":"target.alert.codes"
     },
 
     "040":{
-        "rho":"planar.polar.position.range",
-        "theta":"planar.polar.position.azimuth"
+        "RHO":"planar.polar.position.range",
+        "THETA":"planar.polar.position.azimuth"
     },
     "042":{
-        "x-component":"planar.cartesian.position.x",
-        "y-component":"planar.cartesian.position.y"
+        "X-Component":"planar.cartesian.position.x",
+        "Y-Component":"planar.cartesian.position.y"
     },
     "050":{
-        "g":"",
-        "l":"",
-        "a":"",
-        "b":"",
-        "c":"",
-        "d":"",
-        "v":""
+        "V":"",
+        "G":"",
+        "L":"",
+        "Mode-2 code":""
     },
     "055":{
-        "g":"",
-        "l":"",
-        "code":"",
-        "v":""
+        "V":"",
+        "G":"",
+        "L":"",
+        "Mode-1 code":""
     },
     "060":{
-        "mode_2_confidence":""
+        "QXi":""
     },
     "065":{
-        "mode_1_confidence":""
+        "QXi":""
     },
     "070":{
-        "g":"identification.mode_3a.garbled",
-        "l":"identification.mode_3a.smoothed",
-        "mode-3/a":"identification.mode_3a.code",
-        "v":"identification.mode_3a.valid"
+        "V":{
+            "0":{
+                "identification.mode_3a.valid":true
+            },
+            "1":{
+                "identification.mode_3a.valid":false
+            }
+        },
+        "G":{
+            "0":{
+                "identification.mode_3a.garbled":false
+            },
+            "1":{
+                "identification.mode_3a.garbled":true
+            }
+        },
+        "L":{
+            "0":{
+                "identification.mode_3a.smoothed":false
+            },
+            "1":{
+                "identification.mode_3a.smoothed":true
+            }
+        },
+        "Mode-3/A reply":"identification.mode_3a.code"
     },
     "080":{
-        "mode_3a_confidence":"identification.mode_3a.pulse_quality"
+        "QXi":"identification.mode_3a.pulse_quality"
     },
     "090":{
-        "flight_level":"vertical.flight_level.measured.value",
-        "g":"vertical.flight_level.measured.garbled",
-        "v":"vertical.flight_level.measured.valid"
+        "V":{
+            "0":{
+                "vertical.flight_level.measured.valid":true
+            },
+            "1":{
+                "vertical.flight_level.measured.valid":false
+            }
+        },
+        "G":{
+            "0":{
+                "vertical.flight_level.measured.garbled":false
+            },
+            "1":{
+                "vertical.flight_level.measured.garbled":true
+            }
+        },
+        "Flight Level":"vertical.flight_level.measured.value"
     },
     "100":{
-        "g":"vertical.mode_c.garbled",
-        "mode_c_code":"vertical.mode_c.code",
-        "mode_c_quality":"vertical.mode_c.pulse_quality",
-        "v":"vertical.mode_c.valid"
+        "V":{
+            "0":{
+                "vertical.mode_c.valid":true
+            },
+            "1":{
+                "vertical.mode_c.valid":false
+            }
+        },
+        "G":{
+            "0":{
+                "vertical.mode_c.garbled":false
+            },
+            "1":{
+                "vertical.mode_c.garbled":true
+            }
+        },
+        "Mode-C reply":"vertical.mode_c.code",
+        "QXi":"vertical.mode_c.pulse_quality"
     },
     "110":{
-        "3d_height":"vertical.altitude.value"
+        "3D-Height":"vertical.altitude.value"
     },
     "120":{
-        "cal":{
-            "d":"planar.polar.speed.calculated.doubtful",
-            "cal":"planar.polar.speed.calculated.value"
+        "CAL":{
+            "D":{
+                "0":{
+                    "planar.polar.speed.calculated.doubtful":false
+                },
+                "1":{
+                    "planar.polar.speed.calculated.doubtful":true
+                }
+            },
+            "CAL":"planar.polar.speed.calculated.value"
         },
-        "rds":""
+        "RDS":""
     },
     "130":{
-        "srl":{
+        "SRL":{
             "value":"target_report.radar.ssr_runlength"
         },
-        "srr":{
+        "SSR":{
             "value":"target_report.radar.ssr_num_replies"
         },
-        "sam":{
+        "SAM":{
             "value":"target_report.radar.ssr_amplitude"
         },
-        "prl":{
+        "PRL":{
             "value":"target_report.radar.psr_runlength"
         },
-        "pam":{
+        "PAM":{
             "value":"target_report.radar.psr_amplitude"
         },
-        "rdp":{
+        "RDP":{
             "value":"target_report.radar.psr_ssr_range_diff"
         },
-        "apd":{
+        "APD":{
             "value":"target_report.radar.psr_ssr_azimuth_diff"
         }
     },
     "140":{
-        "time-of-day":"time_of_day"
+        "Time-of-Day":"time_of_day"
     },
     "161":{
-        "track_number":"track.number"
+        "TRACK NUMBER":"track.number"
     },
     "170":{
-        "cnf":"track.status.tentative",
-        "rad":"track.sensor_source",
-        "dou":"track.confidence.low",
-        "mah":"target.movement.horizontal_manoeuvre",
-        "cdm":"target.movement.climb_descent",
-        "tre":"track.status.end",
-        "gho":"track.confidence.ghost",
-        "sup":"",
-        "tcc":"target.corrected_projection"
+        "CNF":{
+                "0":{
+                    "track.status.tentative":false
+                },
+                "1":{
+                    "track.status.tentative":true
+                }
+            },
+        "RAD":"track.sensor_source",
+        "DOU":{
+                "0":{
+                    "track.confidence.low":false
+                },
+                "1":{
+                    "track.confidence.low":true
+                }
+            },
+        "MAH":{
+                "0":{
+                    "target.movement.horizontal_manoeuvre":false
+                },
+                "1":{
+                    "target.movement.horizontal_manoeuvre":true
+                }
+            },
+        "CDM":"target.movement.climb_descent",
+        "TRE":{
+                "0":{
+                    "track.status.end":false
+                },
+                "1":{
+                    "track.status.end":true
+                }
+            },
+        "GHO":{
+                "0":{
+                    "track.confidence.ghost":false
+                },
+                "1":{
+                    "track.confidence.ghost":true
+                }
+            },
+        "SUP":"",
+        "TCC":{
+                "0":{
+                    "target.corrected_projection":false
+                },
+                "1":{
+                    "target.corrected_projection":true
+                }
+            }
     },
     "200":{
-        "calculated_groundspeed":"planar.speed.ground.calculated",
-        "calculated_heading":"planar.track_angle.calculated"
+        "CALCULATED GROUNDSPEED":"planar.speed.ground.calculated",
+        "CALCULATED HEADING":"planar.track_angle.calculated"
     },
     "210":{
-        "sigma_x":"planar.cartesian.position.x_stddev",
-        "sigma_y":"planar.cartesian.position.y_stddev",
-        "sigma_v":"planar.speed.ground.stddev",
-        "sigma_h":"planar.track_angle.stddev"
+        "Sigma (X)":"planar.cartesian.position.x_stddev",
+        "Sigma (Y)":"planar.cartesian.position.y_stddev",
+        "Sigma (V)":"planar.speed.ground.stddev",
+        "Sigma (H)":"planar.track_angle.stddev"
     },
     "220":{
-        "aircraft_address":"identification.target_address"
+        "Aircraft Address":"identification.target_address"
     },
     "230":{
-        "com":"",
-        "stat":"",
-        "mssc":"target.capabilities.mode_s_capable",
-        "arc":"target.capabilities.altitude_25ft_capable",
-        "aic":"target.capabilities.aircraft_id_capability",
-        "b1a":"",
-        "b1b":""
+        "COM":"",
+        "STAT":{
+            "0":{
+                "target.alert.flight_status":false,
+                "target.special_position_indicator_fs":false,
+                "target.on_ground_fs":false
+            },
+            "1":{
+                "target.alert.flight_status":false,
+                "target.special_position_indicator_fs":false,
+                "target.on_ground_fs":true
+            },
+            "2":{
+                "target.alert.flight_status":true,
+                "target.special_position_indicator_fs":false,
+                "target.on_ground_fs":false
+            },
+            "3":{
+                "target.alert.flight_status":true,
+                "target.special_position_indicator_fs":false,
+                "target.on_ground_fs":true
+            },
+            "4":{
+                "target.alert.flight_status":true,
+                "target.special_position_indicator_fs":true
+            },
+            "5":{
+                "target.alert.flight_status":false,
+                "target.special_position_indicator_fs":true
+            }
+        },
+        "MSSC":{
+            "0":{
+                "target.capabilities.mode_s_capable":false
+            },
+            "1":{
+                "target.capabilities.mode_s_capable":true
+            }
+        },
+        "ARC":{
+            "0":{
+                "target.capabilities.altitude_25ft_capable":false
+            },
+            "1":{
+                "target.capabilities.altitude_25ft_capable":true
+            }
+        },
+        "AIC":{
+            "0":{
+                "target.capabilities.aircraft_id_capability":false
+            },
+            "1":{
+                "target.capabilities.aircraft_id_capability":true
+            }
+        },
+        "B1A":"",
+        "B1B":""
     },
     "240":{
-        "aircraft_identification":"identification.target_identification"
+        "Aircraft Identification":"identification.target_identification"
     },
     "250":{
-        "mode_s_mb_data":""
+        "Mode S MB Data":""
     },
     "260":{
-        "acas_rap":""
+        "MB DATA":""
     }
 }

@@ -171,7 +171,7 @@
             "type":"item",
             "data_fields":[
                 {
-                    "name":"warning/error_conditions",
+                    "name":"Warning/Error Conditions",
                     "type":"extendable",
                     "items":[
                         {

@@ -433,7 +433,7 @@ void test_cat020 (jASTERIX::jASTERIX& jasterix)
     assert (jasterix.hasCategory("020"));
     assert (jasterix.hasEdition("020", "1.5"));
     jasterix.setEdition("020", "1.5");
-    //jasterix.setMapping("020", "");
+    jasterix.setMapping("020", "");
 
     jasterix.decodeASTERIX(target, size, test_cat020_callback);
 
