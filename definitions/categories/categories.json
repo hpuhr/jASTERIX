@@ -17,7 +17,7 @@
             }
         }
     },
-    "021":{
+    "221":{
         "comment":"Category 021 ADS-B Reports",
         "default_edition":"2.1",
         "default_mapping":"",

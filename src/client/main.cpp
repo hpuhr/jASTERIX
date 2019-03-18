@@ -28,6 +28,7 @@ namespace po = boost::program_options;
 #else
 #include <vector>
 #include <algorithm>
+#include <chrono>
 #endif
 
 #include <iostream>
@@ -47,8 +48,8 @@ JSONWriter* json_writer {nullptr};
 
 void callback (nlohmann::json& data_chunk, size_t num_frames, size_t num_records)
 {
-    loginf << "jASTERIX: decoded " << num_frames << " frames, " << num_records << " records: "
-           << data_chunk.dump(print_dump_indent);
+//    loginf << "jASTERIX: decoded " << num_frames << " frames, " << num_records << " records: "
+//           << data_chunk.dump(print_dump_indent);
 }
 
 void write_callback (nlohmann::json& data_chunk, size_t num_frames, size_t num_records)
@@ -91,6 +92,8 @@ int main (int argc, char **argv)
         ("definition_path", po::value<std::string>(&definition_path), "path to jASTERIX definition files")
         ("framing", po::value<std::string>(&framing), "input framine format, as specified in the framing definitions."
                                                       " netto is default")
+        ("frame_chunk_size", po::value<int>(&frame_chunk_size), "number of frames to process in one chunk, default 1000, use -1 to disable.")
+        ("data_write_size", po::value<int>(&data_write_size), "number of frame chunks to write in one file write, default 100, use -1 to disable.")
         ("debug", po::bool_switch(&debug), "print debug output")
         ("print", po::bool_switch(&print), "print JSON output")
         ("print_indent", po::value<int>(&print_dump_indent), "intendation of json print, use -1 to disable.")
@@ -126,6 +129,8 @@ int main (int argc, char **argv)
         loginf << "definition_path (value): path to jASTERIX definition files." << logendl;
         loginf << "framing (value): input framine format, as specified in the framing definitions."
                   " netto is default" << logendl;
+        loginf << "frame_chunk_size: number of frames to process in one chunk, default 1000, use -1 to disable." << logendl;
+        loginf << "data_write_size: number of frame chunks to write in one file write, default 100, use -1 to disable." << logendl;
         loginf << "debug: print debug output" << logendl;
         loginf << "print: print JSON output" << logendl;
         loginf << "print_indent: intendation of json print, use -1 to disable." << logendl;
@@ -144,6 +149,12 @@ int main (int argc, char **argv)
     if (find(arguments.begin(), arguments.end(), "--framing") != arguments.end())
         framing = *(find(arguments.begin(), arguments.end(), "--framing")+1);
 
+    if (find(arguments.begin(), arguments.end(), "--frame_chunk_size") != arguments.end())
+        data_write_size = std::atoi ((find(arguments.begin(), arguments.end(), "--frame_chunk_size")+1)->c_str());
+
+    if (find(arguments.begin(), arguments.end(), "--data_write_size") != arguments.end())
+        print_dump_indent = std::atoi ((find(arguments.begin(), arguments.end(), "--data_write_size")+1)->c_str());
+
     if (find(arguments.begin(), arguments.end(), "--debug") != arguments.end())
         debug = true;
 
@@ -151,7 +162,7 @@ int main (int argc, char **argv)
         print = true;
 
     if (find(arguments.begin(), arguments.end(), "--print_indent") != arguments.end())
-        print_dump_indent = std::atoi (*(find(arguments.begin(), arguments.end(), "--print_indent")+1));
+        print_dump_indent = std::atoi ((find(arguments.begin(), arguments.end(), "--print_indent")+1)->c_str());
 
     if (find(arguments.begin(), arguments.end(), "--write_type") != arguments.end())
         write_type = *(find(arguments.begin(), arguments.end(), "--write_type")+1);
@@ -177,9 +188,9 @@ int main (int argc, char **argv)
         }
 
         if (write_type == "text")
-            json_writer = new JSONWriter(JSON_TEXT, write_filename, 100);
+            json_writer = new JSONWriter(JSON_TEXT, write_filename);
         else if (write_type == "zip")
-            json_writer = new JSONWriter(JSON_ZIP_TEXT, write_filename, 100);
+            json_writer = new JSONWriter(JSON_ZIP_TEXT, write_filename);
     }
 
     // check if basic configuration works
@@ -193,6 +204,8 @@ int main (int argc, char **argv)
 
 #if USE_BOOST
         boost::posix_time::ptime start_time = boost::posix_time::microsec_clock::local_time();
+#else
+        auto start_time = chrono::steady_clock::now();
 #endif
 
         if (json_writer)
@@ -215,6 +228,19 @@ int main (int argc, char **argv)
             loginf << "jASTERIX client: decoded " << num_frames << " frames, "
                    << num_records << " records in " << time_str << ": "
                    << num_frames/seconds << " fr/s, " << num_records/seconds << " rec/s" << logendl;
+#else
+        auto end_time = chrono::steady_clock::now();
+        double full_seconds = chrono::duration_cast<chrono::milliseconds>(end_time - start_time).count()/1000.0;
+
+        unsigned int hours = full_seconds/3600;
+        unsigned int minutes = (full_seconds-hours*3600)/60;
+        double seconds = full_seconds-hours*3600-minutes*60;
+
+        string time_str = to_string(hours)+"h "+to_string(minutes)+"m "+to_string(seconds)+"s";
+
+        loginf << "jASTERIX client: decoded " << num_frames << " frames, "
+               << num_records << " records in " << time_str << ": "
+               << num_frames/full_seconds << " fr/s, " << num_records/full_seconds << " rec/s" << logendl;
 #endif
     }
     catch (exception &ex)

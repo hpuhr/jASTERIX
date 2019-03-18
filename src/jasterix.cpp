@@ -35,6 +35,8 @@ using namespace nlohmann;
 namespace jASTERIX {
 
 int print_dump_indent=4;
+int frame_chunk_size=1000;
+int data_write_size=100;
 
 using namespace Files;
 using namespace std;

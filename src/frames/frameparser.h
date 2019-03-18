@@ -34,8 +34,7 @@ public:
     // return number of parsed bytes
     size_t parseHeader (const char* data, size_t index, size_t size, nlohmann::json& target, bool debug);
 
-    size_t parseFrames (const char* data, size_t index, size_t size, nlohmann::json& target, size_t num_frames,
-                     bool debug);
+    size_t parseFrames (const char* data, size_t index, size_t size, nlohmann::json& target, bool debug);
 
     size_t decodeFrames (const char* data, nlohmann::json& target, bool debug);
 
