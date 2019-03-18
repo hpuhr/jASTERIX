@@ -43,7 +43,7 @@ class JSONFileWriteTask;
 class JSONWriter
 {
 public:
-    JSONWriter(JSON_OUTPUT_TYPE json_output_type, const std::string& json_path, size_t data_write_size);
+    JSONWriter(JSON_OUTPUT_TYPE json_output_type, const std::string& json_path);
     ~JSONWriter ();
 
     // will move the data
@@ -54,7 +54,6 @@ public:
 private:
     JSON_OUTPUT_TYPE json_output_type_;
     std::string json_path_;
-    size_t data_write_size_;
 
     bool json_file_open_ {false};
     std::ofstream json_file_;

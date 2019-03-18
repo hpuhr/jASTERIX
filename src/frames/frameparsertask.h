@@ -25,10 +25,13 @@
 
 #include <exception>
 
+namespace jASTERIX
+{
+
 class FrameParserTask : public tbb::task
 {
 public:
-    FrameParserTask (jASTERIX::jASTERIX& jasterix, jASTERIX::FrameParser& frame_parser, const nlohmann::json& header,
+    FrameParserTask (jASTERIX& jasterix, FrameParser& frame_parser, const nlohmann::json& header,
                      const char* data, size_t index, size_t size, bool debug)
         : jasterix_(jasterix), frame_parser_(frame_parser), header_(header), data_(data), index_(index), size_(size),
           debug_(debug)
@@ -42,7 +45,7 @@ public:
 
             assert (index_ < size_);
 
-            index_ += frame_parser_.parseFrames(data_, index_, size_, data_chunk, 1000, debug_);
+            index_ += frame_parser_.parseFrames(data_, index_, size_, data_chunk, debug_);
 
             assert (data_chunk != nullptr);
 
@@ -59,13 +62,15 @@ public:
     }
 
 private:
-    jASTERIX::jASTERIX& jasterix_;
-    jASTERIX::FrameParser& frame_parser_;
+    jASTERIX& jasterix_;
+    FrameParser& frame_parser_;
     const nlohmann::json& header_;
     const char* data_;
     size_t index_;
     size_t size_;
     bool debug_;
 };
+
+}
 
 #endif // FRAMEPARSERTASK_H

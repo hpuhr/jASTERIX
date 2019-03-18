@@ -76,6 +76,16 @@ std::vector<std::string> &split(const std::string &s, char delim, std::vector<st
     return elems;
 }
 
+std::string toString(const nlohmann::json& j)
+{
+    if (j.type() == nlohmann::json::value_t::string) {
+        return j.get<std::string>();
+    }
+
+    return j.dump();
+}
+
+
 //std::vector<std::string> split(const std::string &s, char delim)
 //{
 //    std::vector<std::string> elems;

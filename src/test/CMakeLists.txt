@@ -10,6 +10,8 @@ add_executable ( jasterix_tests "${CMAKE_CURRENT_LIST_DIR}/main_tests.cpp")
 
 target_sources(jasterix_tests
     PRIVATE
+        "${CMAKE_CURRENT_LIST_DIR}/cat020_1.5.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/cat021_2.1.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/cat048_1.15.cpp"
 )
 

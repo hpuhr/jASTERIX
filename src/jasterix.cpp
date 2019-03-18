@@ -34,6 +34,10 @@ using namespace nlohmann;
 
 namespace jASTERIX {
 
+int print_dump_indent=4;
+int frame_chunk_size=1000;
+int data_write_size=100;
+
 using namespace Files;
 using namespace std;
 
@@ -277,7 +281,7 @@ void jASTERIX::decodeFile (const std::string& filename, const std::string& frami
             num_records_ += frame_parser.decodeFrames(data, data_chunk, debug_);
 
             if (print_)
-                loginf << data_chunk.dump(4) << logendl;
+                loginf << data_chunk.dump(print_dump_indent) << logendl;
 
             callback(data_chunk, num_frames_, num_records_);
         }

@@ -1,24 +1,51 @@
 {
-    "048":
-    {
-    "comment": "Category 048 Transmission of Monoradar Target Reports",
-    "default_edition" : "1.15",
-    "default_mapping" : "1.0",
-    "editions":
-        {
-            "1.15":
-            {
-                "document": "SUR.ET1.ST05.2000-STD-04-01",
-                "date": "April 2007",
-                "file": "048/cat048_1.15.json"
+    "020":{
+        "comment":"Category 020 Multilateration Target Reports",
+        "default_edition":"1.5",
+        "default_mapping":"1.0",
+        "editions":{
+            "1.5":{
+                "document":"SUR.ET1.ST05.2000-STD-14-02",
+                "date":"April 2008",
+                "file":"020/cat020_1.5.json"
             }
         },
-    "mappings":
-        {
-            "1.0":
-            {
+        "mappings":{
+            "1.0":{
                 "comment":"conversion to general format 1.0",
-                "file": "048/cat048_1.15_mapping.json"
+                "file":"020/cat020_1.5_mapping.json"
+            }
+        }
+    },
+    "221":{
+        "comment":"Category 021 ADS-B Reports",
+        "default_edition":"2.1",
+        "default_mapping":"",
+        "editions":{
+            "2.1":{
+                "document":"SUR.ET1.ST05.2000-STD-12-01",
+                "date":"May 2011",
+                "file":"021/cat021_2.1.json"
+            }
+        },
+        "mappings":{
+        }
+    },
+    "048":{
+        "comment":"Category 048 Transmission of Monoradar Target Reports",
+        "default_edition":"1.15",
+        "default_mapping":"1.0",
+        "editions":{
+            "1.15":{
+                "document":"SUR.ET1.ST05.2000-STD-04-01",
+                "date":"April 2007",
+                "file":"048/cat048_1.15.json"
+            }
+        },
+        "mappings":{
+            "1.0":{
+                "comment":"conversion to general format 1.0",
+                "file":"048/cat048_1.15_mapping.json"
             }
         }
     }

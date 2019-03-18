@@ -15,6 +15,7 @@
  * along with jASTERIX.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+
 #include "asterixparser.h"
 #include "logger.h"
 #include "itemparserbase.h"

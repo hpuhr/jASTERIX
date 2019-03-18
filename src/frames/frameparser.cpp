@@ -15,6 +15,7 @@
  * along with jASTERIX.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "jasterix.h"
 #include "frameparser.h"
 #include "logger.h"
 #include "asterixparser.h"
@@ -91,8 +92,7 @@ size_t FrameParser::parseHeader (const char* data, size_t index, size_t size, js
 }
 
 
-size_t FrameParser::parseFrames (const char* data, size_t index, size_t size, nlohmann::json& target, size_t num_frames,
-                 bool debug)
+size_t FrameParser::parseFrames (const char* data, size_t index, size_t size, nlohmann::json& target, bool debug)
 {
     assert (data);
     assert (size);
@@ -105,12 +105,15 @@ size_t FrameParser::parseFrames (const char* data, size_t index, size_t size, nl
     size_t frames_cnt {0};
 
     if (debug)
-        loginf << "parsing frames index " << index << " num_frames " << num_frames;
+        loginf << "parsing frames index " << index << " num_frames " << frame_chunk_size;
 
     nlohmann::json& j_frames = target["frames"];
 
-    while (index+parsed_bytes < size && frames_cnt < num_frames)
+    while (index+parsed_bytes < size)
     {
+        if (frame_chunk_size > 0 && frames_cnt >= frame_chunk_size) // hit frame limit
+            break;
+
         current_parsed_bytes = 0;
         for (auto& j_item : frame_items_)
         {

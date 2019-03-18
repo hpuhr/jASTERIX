@@ -15,6 +15,7 @@
  * along with SDDL.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "jasterix.h"
 #include "jsonwriter.h"
 #include "jsonfilewritetask.h"
 #include "logger.h"
@@ -36,8 +37,8 @@ namespace jASTERIX
 size_t JSONTextZipFileWriteTask::entry_cnt_ = 0;
 
 
-JSONWriter::JSONWriter(JSON_OUTPUT_TYPE json_output_type, const std::string& json_path, size_t data_write_size)
-    : json_output_type_{json_output_type}, json_path_ {json_path}, data_write_size_{data_write_size}
+JSONWriter::JSONWriter(JSON_OUTPUT_TYPE json_output_type, const std::string& json_path)
+    : json_output_type_{json_output_type}, json_path_ {json_path}
 {
     switch (json_output_type_)
     {
@@ -83,7 +84,7 @@ void JSONWriter::write(nlohmann::json& data)
         break;
     }
 
-    if (json_data_.size() > data_write_size_)
+    if (data_write_size > 0 && json_data_.size() > data_write_size)
         writeData();
 }
 
@@ -135,7 +136,7 @@ void JSONWriter::convertJSON2Text ()
 
     tbb::parallel_for( size_t(0), size, [&]( size_t cnt )
     {
-        text_data_[cnt] = json_data_.at(cnt).dump(4) + "\n";
+        text_data_[cnt] = json_data_.at(cnt).dump(print_dump_indent) + "\n";
     } );
 
 //    size_t cnt = 0;

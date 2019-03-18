@@ -28,7 +28,7 @@ add_library(jasterix "")
 set (USE_LOG4CPP true)
 message("USE_LOG4CPP: ${USE_LOG4CPP}")
 
-set (USE_BOOST true)
+set (USE_BOOST false)
 message("USE_BOOST: ${USE_BOOST}")
 
 configure_file(src/utils/global.h.in include/global.h)

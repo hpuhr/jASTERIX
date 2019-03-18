@@ -35,6 +35,10 @@
 
 namespace jASTERIX {
 
+extern int print_dump_indent;
+extern int frame_chunk_size;
+extern int data_write_size;
+
 class Category;
 
 class jASTERIX

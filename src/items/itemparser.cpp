@@ -28,6 +28,11 @@ ItemParser::ItemParser (const nlohmann::json& item_definition)
 {
     assert (type_ == "item");
 
+    if (item_definition.find("number") == item_definition.end())
+        throw runtime_error ("parsing item '"+name_+"' without number");
+
+    number_ = item_definition.at("number");
+
     const json& data_fields = item_definition.at("data_fields");
 
     if (!data_fields.is_array())
@@ -55,13 +60,18 @@ size_t ItemParser::parseItem (const char* data, size_t index, size_t size, size_
 
     for (auto& df_item : data_fields_)
     {
-        parsed_bytes += df_item->parseItem(data, index+parsed_bytes, size, current_parsed_bytes, target[name_], debug);
+        parsed_bytes += df_item->parseItem(data, index+parsed_bytes, size, current_parsed_bytes, target[number_], debug);
     }
 
     if (debug)
         loginf << "parsing item '"+name_+"' done, " << parsed_bytes << " bytes parsed" << logendl;
 
     return parsed_bytes;
+}
+
+std::string ItemParser::number() const
+{
+    return number_;
 }
 
 }
