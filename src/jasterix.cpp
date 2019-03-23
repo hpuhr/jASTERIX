@@ -35,6 +35,7 @@ using namespace nlohmann;
 namespace jASTERIX {
 
 int print_dump_indent=4;
+int frame_limit=-1;
 int frame_chunk_size=1000;
 int data_write_size=100;
 
@@ -274,19 +275,27 @@ void jASTERIX::decodeFile (const std::string& filename, const std::string& frami
 
         if (data_chunks_.try_pop(data_chunk))
         {
-            if (debug_)
-                loginf << "jASTERIX processing " << num_frames_ << " frames, " << num_records_ << " records" << logendl;
-
             num_frames_ += data_chunk.at("frames").size();
             num_records_ += frame_parser.decodeFrames(data, data_chunk, debug_);
+
+            if (debug_)
+                loginf << "jASTERIX processing " << num_frames_ << " frames, " << num_records_ << " records" << logendl;
 
             if (print_)
                 loginf << data_chunk.dump(print_dump_indent) << logendl;
 
             callback(data_chunk, num_frames_, num_records_);
+
+            if (frame_limit > 0 && num_frames_ >= static_cast<unsigned>(frame_limit))
+            {
+                loginf << "jASTERIX processing hit framelimit" << logendl;
+                break;
+            }
         }
         else
         {
+            if (debug_)
+                loginf << "jASTERIX waiting" << logendl;
             std::this_thread::sleep_for(std::chrono::milliseconds(1));
         }
     }

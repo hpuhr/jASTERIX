@@ -102,29 +102,49 @@ size_t FrameParser::parseFrames (const char* data, size_t index, size_t size, nl
 
     size_t parsed_bytes {0};
     size_t current_parsed_bytes {0};
-    size_t frames_cnt {0};
+    size_t chunk_frames_cnt {0};
 
     if (debug)
-        loginf << "parsing frames index " << index << " num_frames " << frame_chunk_size;
+        loginf << "parsing frames index " << index <<  " size " << size << " num_frames " << frame_chunk_size;
 
     nlohmann::json& j_frames = target["frames"];
 
     while (index+parsed_bytes < size)
     {
-        if (frame_chunk_size > 0 && frames_cnt >= frame_chunk_size) // hit frame limit
+        // parse single frame
+        if(debug)
+            loginf << "parsing frame " << sum_frames_cnt_ << " at index " << index+parsed_bytes << logendl;
+
+        if (frame_limit > 0 && sum_frames_cnt_ >= static_cast<unsigned>(frame_limit))
+        {
+             // hit frame limit
+            if(debug)
+                loginf << "frame parser hit frame limit at " << sum_frames_cnt_ <<", setting done" << logendl;
+            done_ = true;
             break;
+        }
+
+        if (frame_chunk_size > 0 && chunk_frames_cnt >= static_cast<unsigned>(frame_chunk_size))
+        {
+            // hit frame chunk limit
+            if(debug)
+                loginf << "frame parser hit frame chunk limit at " << chunk_frames_cnt << logendl;
+            break;
+        }
 
         current_parsed_bytes = 0;
         for (auto& j_item : frame_items_)
         {
             if (debug)
-                loginf << "parsing frame at index " << index+parsed_bytes << " cnt " << frames_cnt << logendl;
+                loginf << "parsing frame item at index " << index+parsed_bytes << " cnt " << chunk_frames_cnt << logendl;
 
             parsed_bytes += j_item->parseItem(data, index+parsed_bytes, size, current_parsed_bytes,
-                                              j_frames[frames_cnt], debug);
-            j_frames[frames_cnt]["cnt"] = frames_cnt;
+                                              j_frames[chunk_frames_cnt], debug);
+            j_frames[chunk_frames_cnt]["cnt"] = chunk_frames_cnt;
         }
-        ++frames_cnt;
+
+        ++chunk_frames_cnt;
+        ++sum_frames_cnt_;
     }
 
     if (index+parsed_bytes == size)

@@ -20,6 +20,7 @@
 
 #include "jasterix.h"
 #include "frameparser.h"
+#include "logger.h"
 
 #include <tbb/tbb.h>
 
@@ -39,7 +40,7 @@ public:
 
     /*override*/ tbb::task* execute()
     {
-        while (!frame_parser_.done() || size_-index_ > 0)
+        while (!frame_parser_.done()) // || size_-index_ > 0
         {
             nlohmann::json data_chunk = header_; // copy header
 

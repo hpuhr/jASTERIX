@@ -46,6 +46,7 @@ private:
     std::vector<std::unique_ptr<ItemParserBase>> header_items_;
     std::vector<std::unique_ptr<ItemParserBase>> frame_items_;
 
+    size_t sum_frames_cnt_ {0};
     bool done_ {false};
 
     // returns number of records
