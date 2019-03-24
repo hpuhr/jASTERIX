@@ -1,0 +1,275 @@
+{
+    "008":{
+        "RA":"",
+        "TC":"",
+        "TS":"",
+        "ARV":"",
+        "CDTI/A":"",
+        "Not TCAS":"",
+        "SA":"target.capabilities.single_antenna"
+    },
+    "010":{
+        "SAC":"source.sac",
+        "SIC":"source.sic"
+    },
+    "015":{
+        "Service Identification":""
+    },
+    "016":{
+        "RP":"source.report_period"
+    },
+    "020":{
+        "ECAT":"target.capabilities.emitter_category"
+    },        
+    "040":{
+        "ATP":"identification.target_address_type",
+        "ARC":"target.capabilities.altitude_25ft_capable",
+        "RC":"planar.geodetic.position.adsb.range_check_passed",
+        "RAB":{
+            "0":{
+                "target_report.fixed_transponder":false
+            },
+            "1":{
+                "target_report.fixed_transponder":true
+            }
+        },
+        "DCR":"target_report.differential_correction",
+        "GBS":"position.on_ground",
+        "SIM":{
+            "0":{
+                "target_report.simulated":false
+            },
+            "1":{
+                "target_report.simulated":true
+            }
+        },
+        "TST":{
+            "0":{
+                "target_report.test":false
+            },
+            "1":{
+                "target_report.test":true
+            }
+        },
+        "SAA":"",
+        "CL":"target_report.adsb.confidence_level",
+        "IPC":"planar.geodetic.position.adsb.position_check_failed",
+        "NOGO":"target.adsb.nogo_set",
+        "CPR":"planar.geodetic.position.adsb.cpr_invalid",
+        "LDPJ":"planar.geodetic.position.adsb.position_jump_detected",
+        "RCF":"planar.geodetic.position.adsb.range_check_failed2"
+    },
+    "070":{
+        "Mode-3/A":"identification.mode_3a.code"
+    },
+    "071":{
+        "Time of Applicability for Position":"planar.geodetic.position.adsb.time_of_applicability"
+    },
+    "072":{
+        "Time of Applicability for Velocity":"planar.speed.ground.time_of_applicability"
+    },
+    "073":{
+        "Time of Message Reception for Position":"planar.geodetic.position.adsb.time_of_reception"
+    },
+    "74":{
+        "FSI":"",
+        "Time of Message Reception of Position - high precision":"planar.geodetic.position.adsb.time_of_reception_hr"
+    },
+    "075":{
+        "Time of Message Reception of Velocity":"planar.speed.ground.time_of_reception"
+    },
+    "76":{
+        "FSI":"",
+        "Time of Message Reception of Velocity - high precision":"planar.speed.ground.adsb.time_of_reception_hr"
+    },
+    "077":{
+        "Time Of ASTERIX Report Transmission":"time_of_day"
+    },
+    "080":{
+        "Target Address":"identification.target_address"
+    },
+    "090":{
+        "NUCr or NACv":"",
+        "NUCp or NIC":"",
+        "NICbaro":"vertical.flight_level.measured.nic",
+        "SIL":"planar.geodetic.position.adsb.sil",
+        "NACp":"planar.geodetic.position.adsb.nacp",
+        "SIL-Supplement":"planar.geodetic.position.adsb.sils",
+        "SDA":"planar.geodetic.position.adsb.design_assurance_level",
+        "GVA":"vertical.altitude.adsb.accuracy",
+        "PIC":"planar.geodetic.position.adsb.pic"
+    },
+    "110":{
+        "Trajectory Intent Status":"",
+        "TID":""
+    },
+    "130":{
+        "Latitude":"planar.geodetic.position.latitude",
+        "Longitude":"planar.geodetic.position.longitude"
+    },
+    "131":{
+        "Latitude":"planar.geodetic.position.latitude_hr",
+        "Longitude":"planar.geodetic.position.longitude_hr"
+    },
+    "132":{
+        "MAM":"target_report.adsb.amplitude"
+    },
+    "140":{
+        "Geometric Height":"vertical.altitude.value"
+    },
+    "145":{
+        "Flight Level":"vertical.flight_level.measured.value"
+    },
+    "146":{
+        "SAS":"",
+        "Source":"",
+        "Altitude":""
+    },
+    "148":{
+        "MV":"",
+        "AH":"",
+        "AM":"",
+        "Altitude":""
+    },
+    "150":{
+        "IM":"",
+        "Air Speed":""
+    },
+    "151":{
+        "RE":"planar.speed.air.true_speed_exceeded",
+        "True Air Speed":"planar.speed.air.true_speed"
+    },
+    "152":{
+        "Magnetic Heading":"planar.heading.magnetic"
+    },
+    "155":{
+        "RE":"vertical.flight_level.adsb.barometric_climbing_rate_exceeded",
+        "Barometric Vertical Rate":"vertical.flight_level.adsb.barometric_climbing_rate"
+    },
+    "157":{
+        "RE":"vertical.altitude.adsb.climbing_rate_exceeded",
+        "Geometric Vertical Rate":"vertical.altitude.adsb.climbing_rate"
+    },
+    "160":{
+        "RE":"planar.speed.ground.exceeded",
+        "Ground Speed":"planar.speed.ground.calculated",
+        "Track Angle":"planar.track_angle.calculated"
+    },
+    "161":{
+        "Track Number":"track.number"
+    },
+    "165":{
+        "TAR":"planar.turn_rate"
+    },
+    "170":{
+        "Target Identification":"identification.target_identification"
+    },
+    "200":{
+        "ICF":"",
+        "LNAV":"",
+        "PS":"target.adsb.priority_status",
+        "SS":"target.adsb.surveillance_status"
+    },
+    "210":{
+        "VNS":"target.adsb.mops.version_not_supported",
+        "VN":"target.adsb.mops.version",
+        "LTT":""
+    },
+    "220":{
+        "Wind Speed":"",
+        "Wind Direction":"",
+        "Temperature":"",
+        "Turbulence":""
+    },
+    "230":{
+        "Roll Angle":"planar.roll_angle"
+    },
+    "250":{
+        "Mode S MB Data":""
+    },
+    "260":{
+        "MB DATA":""
+    },
+    "271":{
+        "POA":"planar.geodetic.position.adsb.position_offset_applied",
+        "CDTI/S":"",
+        "B2 low":"",
+        "RAS":"",
+        "IDENT":"target.special_position_indicator",
+        "L+W":"target.dimension.length_width"
+    },
+    "295":{
+        "Aircraft Operational Status": {
+            "Age":""
+        },
+        "Target Report Descriptor": {
+            "Age":"time_stamped.ages.target_report_descriptor"
+        },
+        "Mode 3/A": {
+            "Age":"time_stamped.age_mode_3a_code"
+        },
+        "Quality Indicators": {
+            "Age":"time_stamped.ages.quality_indicators"
+        },
+        "Trajectory Intent": {
+            "Age":""
+        },
+        "Message Amplitude": {
+            "Age":"time_stamped.ages.message_amplitude"
+        },
+        "Geometric Height": {
+            "Age":"time_stamped.aircraft_derived.age_geometric_altitude"
+        },
+        "Flight Level": {
+            "Age":"time_stamped.age_flight_level"
+        },
+        "Intermediate State Selected Altitude": {
+            "Age":""
+        },
+        "Final State Selected Altitude": {
+            "Age":""
+        },
+        "Air Speed": {
+            "Age":""
+        },
+        "True Air Speed": {
+            "Age":"time_stamped.aircraft_derived.age_true_airspeed"
+        },
+        "Magnetic Heading": {
+            "Age":"time_stamped.aircraft_derived.age_magnetic_heading"
+        },
+        "Barometric Vertical Rate": {
+            "Age":"time_stamped.aircraft_derived.age_barometric_vertical_rate"
+        },
+        "Geometric Vertical Rate": {
+            "Age":"time_stamped.aircraft_derived.age_geometric_vertical_rate"
+        },
+        "Ground Vector": {
+            "Age":"time_stamped.aircraft_derived.age_track_angle"
+        },
+        "Track Angle Rate": {
+            "Age":"time_stamped.aircraft_derived.age_track_angle_rate"
+        },
+        "Target Identification": {
+            "Age":"time_stamped.ages.target_identification"
+        },
+        "Target Status": {
+            "Age":"time_stamped.ages.target_status"
+        },
+        "Met Information": {
+            "Age":""
+        },
+        "Roll Angle": {
+            "Age":"time_stamped.aircraft_derived.age_roll_angle"
+        },
+        "ACAS Resolution Advisory": {
+            "Age":""
+        },
+        "Surface Capabilities and Characteristics": {
+            "Age":"time_stamped.ages.surface_capabilties"
+        }
+    },
+    "400":{
+        "RID":""
+    }
+}
