@@ -6,7 +6,14 @@
         "ARV":"",
         "CDTI/A":"",
         "Not TCAS":"",
-        "SA":"target.capabilities.single_antenna"
+        "SA":{
+            "0":{
+                "target.capabilities.single_antenna":false
+            },
+            "1":{
+                "target.capabilities.single_antenna":true
+            }
+        }
     },
     "010":{
         "SAC":"source.sac",
@@ -20,11 +27,25 @@
     },
     "020":{
         "ECAT":"target.capabilities.emitter_category"
-    },        
+    },
     "040":{
         "ATP":"identification.target_address_type",
-        "ARC":"target.capabilities.altitude_25ft_capable",
-        "RC":"planar.geodetic.position.adsb.range_check_passed",
+        "ARC":{
+            "0":{
+                "target.capabilities.altitude_25ft_capable":true
+            },
+            "1":{
+                "target.capabilities.altitude_25ft_capable":false
+            }
+        },
+        "RC":{
+            "0":{
+                "planar.geodetic.position.adsb.range_check_passed":false
+            },
+            "1":{
+                "planar.geodetic.position.adsb.range_check_passed":true
+            }
+        },
         "RAB":{
             "0":{
                 "target_report.fixed_transponder":false
@@ -33,8 +54,22 @@
                 "target_report.fixed_transponder":true
             }
         },
-        "DCR":"target_report.differential_correction",
-        "GBS":"position.on_ground",
+        "DCR":{
+            "0":{
+                "target_report.differential_correction":false
+            },
+            "1":{
+                "target_report.differential_correction":true
+            }
+        },
+        "GBS":{
+            "0":{
+                "position.on_ground":false
+            },
+            "1":{
+                "position.on_ground":true
+            }
+        },
         "SIM":{
             "0":{
                 "target_report.simulated":false
@@ -53,11 +88,46 @@
         },
         "SAA":"",
         "CL":"target_report.adsb.confidence_level",
-        "IPC":"planar.geodetic.position.adsb.position_check_failed",
-        "NOGO":"target.adsb.nogo_set",
-        "CPR":"planar.geodetic.position.adsb.cpr_invalid",
-        "LDPJ":"planar.geodetic.position.adsb.position_jump_detected",
-        "RCF":"planar.geodetic.position.adsb.range_check_failed2"
+        "IPC":{
+            "0":{
+                "planar.geodetic.position.adsb.position_check_failed":false
+            },
+            "1":{
+                "planar.geodetic.position.adsb.position_check_failed":true
+            }
+        },
+        "NOGO":{
+            "0":{
+                "target.adsb.nogo_set":false
+            },
+            "1":{
+                "target.adsb.nogo_set":true
+            }
+        },
+        "CPR":{
+            "0":{
+                "planar.geodetic.position.adsb.cpr_invalid":false
+            },
+            "1":{
+                "planar.geodetic.position.adsb.cpr_invalid":true
+            }
+        },
+        "LDPJ":{
+            "0":{
+                "planar.geodetic.position.adsb.position_jump_detected":false
+            },
+            "1":{
+                "planar.geodetic.position.adsb.position_jump_detected":true
+            }
+        },
+        "RCF":{
+            "0":{
+                "planar.geodetic.position.adsb.range_check_failed2":false
+            },
+            "1":{
+                "planar.geodetic.position.adsb.range_check_failed2":true
+            }
+        }
     },
     "070":{
         "Mode-3/A":"identification.mode_3a.code"
@@ -91,10 +161,24 @@
     "090":{
         "NUCr or NACv":"",
         "NUCp or NIC":"",
-        "NICbaro":"vertical.flight_level.measured.nic",
+        "NICbaro":{
+            "0":{
+                "vertical.flight_level.measured.nic":false
+            },
+            "1":{
+                "vertical.flight_level.measured.nic":true
+            }
+        },
         "SIL":"planar.geodetic.position.adsb.sil",
         "NACp":"planar.geodetic.position.adsb.nacp",
-        "SIL-Supplement":"planar.geodetic.position.adsb.sils",
+        "SIL-Supplement":{
+            "0":{
+                "planar.geodetic.position.adsb.sils":false
+            },
+            "1":{
+                "planar.geodetic.position.adsb.sils":true
+            }
+        },
         "SDA":"planar.geodetic.position.adsb.design_assurance_level",
         "GVA":"vertical.altitude.adsb.accuracy",
         "PIC":"planar.geodetic.position.adsb.pic"
@@ -136,22 +220,50 @@
         "Air Speed":""
     },
     "151":{
-        "RE":"planar.speed.air.true_speed_exceeded",
+        "RE":{
+            "0":{
+                "planar.speed.air.true_speed_exceeded":false
+            },
+            "1":{
+                "planar.speed.air.true_speed_exceeded":true
+            }
+        },
         "True Air Speed":"planar.speed.air.true_speed"
     },
     "152":{
         "Magnetic Heading":"planar.heading.magnetic"
     },
     "155":{
-        "RE":"vertical.flight_level.adsb.barometric_climbing_rate_exceeded",
+        "RE":{
+            "0":{
+                "vertical.flight_level.adsb.barometric_climbing_rate_exceeded":false
+            },
+            "1":{
+                "vertical.flight_level.adsb.barometric_climbing_rate_exceeded":true
+            }
+        },
         "Barometric Vertical Rate":"vertical.flight_level.adsb.barometric_climbing_rate"
     },
     "157":{
-        "RE":"vertical.altitude.adsb.climbing_rate_exceeded",
+        "RE":{
+            "0":{
+                "vertical.altitude.adsb.climbing_rate_exceeded":false
+            },
+            "1":{
+                "vertical.altitude.adsb.climbing_rate_exceeded":true
+            }
+        },
         "Geometric Vertical Rate":"vertical.altitude.adsb.climbing_rate"
     },
     "160":{
-        "RE":"planar.speed.ground.exceeded",
+        "RE":{
+            "0":{
+                "planar.speed.ground.exceeded":false
+            },
+            "1":{
+                "planar.speed.ground.exceeded":true
+            }
+        },
         "Ground Speed":"planar.speed.ground.calculated",
         "Track Angle":"planar.track_angle.calculated"
     },
@@ -171,7 +283,14 @@
         "SS":"target.adsb.surveillance_status"
     },
     "210":{
-        "VNS":"target.adsb.mops.version_not_supported",
+        "VNS":{
+            "0":{
+                "target.adsb.mops.version_not_supported":false
+            },
+            "1":{
+                "target.adsb.mops.version_not_supported":true
+            }
+        },
         "VN":"target.adsb.mops.version",
         "LTT":""
     },
@@ -191,81 +310,95 @@
         "MB DATA":""
     },
     "271":{
-        "POA":"planar.geodetic.position.adsb.position_offset_applied",
+        "POA":{
+            "0":{
+                "planar.geodetic.position.adsb.position_offset_applied":false
+            },
+            "1":{
+                "planar.geodetic.position.adsb.position_offset_applied":true
+            }
+        },
         "CDTI/S":"",
         "B2 low":"",
         "RAS":"",
-        "IDENT":"target.special_position_indicator",
+        "IDENT":{
+            "0":{
+                "target.special_position_indicator":false
+            },
+            "1":{
+                "target.special_position_indicator":true
+            }
+        },
         "L+W":"target.dimension.length_width"
     },
     "295":{
-        "Aircraft Operational Status": {
+        "Aircraft Operational Status":{
             "Age":""
         },
-        "Target Report Descriptor": {
+        "Target Report Descriptor":{
             "Age":"time_stamped.ages.target_report_descriptor"
         },
-        "Mode 3/A": {
+        "Mode 3/A":{
             "Age":"time_stamped.age_mode_3a_code"
         },
-        "Quality Indicators": {
+        "Quality Indicators":{
             "Age":"time_stamped.ages.quality_indicators"
         },
-        "Trajectory Intent": {
+        "Trajectory Intent":{
             "Age":""
         },
-        "Message Amplitude": {
+        "Message Amplitude":{
             "Age":"time_stamped.ages.message_amplitude"
         },
-        "Geometric Height": {
+        "Geometric Height":{
             "Age":"time_stamped.aircraft_derived.age_geometric_altitude"
         },
-        "Flight Level": {
+        "Flight Level":{
             "Age":"time_stamped.age_flight_level"
         },
-        "Intermediate State Selected Altitude": {
+        "Intermediate State Selected Altitude":{
             "Age":""
         },
-        "Final State Selected Altitude": {
+        "Final State Selected Altitude":{
             "Age":""
         },
-        "Air Speed": {
+        "Air Speed":{
             "Age":""
         },
-        "True Air Speed": {
+        "True Air Speed":{
             "Age":"time_stamped.aircraft_derived.age_true_airspeed"
         },
-        "Magnetic Heading": {
+        "Magnetic Heading":{
             "Age":"time_stamped.aircraft_derived.age_magnetic_heading"
         },
-        "Barometric Vertical Rate": {
+        "Barometric Vertical Rate":{
             "Age":"time_stamped.aircraft_derived.age_barometric_vertical_rate"
         },
-        "Geometric Vertical Rate": {
+        "Geometric Vertical Rate":{
             "Age":"time_stamped.aircraft_derived.age_geometric_vertical_rate"
         },
-        "Ground Vector": {
+        "Ground Vector":{
             "Age":"time_stamped.aircraft_derived.age_track_angle"
         },
-        "Track Angle Rate": {
+        "Track Angle Rate":{
             "Age":"time_stamped.aircraft_derived.age_track_angle_rate"
         },
-        "Target Identification": {
+        "Target Identification":{
             "Age":"time_stamped.ages.target_identification"
         },
-        "Target Status": {
+        "Target Status":{
             "Age":"time_stamped.ages.target_status"
         },
-        "Met Information": {
+        "Met Information":{
             "Age":""
         },
-        "Roll Angle": {
+        "Roll Angle":{
             "Age":"time_stamped.aircraft_derived.age_roll_angle"
         },
-        "ACAS Resolution Advisory": {
+        "ACAS Resolution Advisory":{
             "Age":""
         },
-        "Surface Capabilities and Characteristics": {
+        "Surface Capabilities and Characteristics":{
             "Age":"time_stamped.ages.surface_capabilties"
         }
     },
