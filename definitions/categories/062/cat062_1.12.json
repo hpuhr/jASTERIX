@@ -385,131 +385,382 @@
     },
     {
         "number":"100",
-        "name":"",
-        "comment":"",
+        "name":"Calculated Track Position. (Cartesian)",
+        "comment":"Calculated position in Cartesian co-ordinates with a resolution of 0.5m, in two’s complement form.",
         "type": "item",
         "data_fields":
         [
             {
-                "name":"x",
+                "name":"X",
                 "comment":"",
                 "type":"fixed_bytes",
                 "length":3,
-                "data_type":"int"
+                "data_type":"int",
+                "lsb":0.5
             },
             {
-                "name":"y",
+                "name":"Y",
                 "comment":"",
                 "type":"fixed_bytes",
                 "length":3,
-                "data_type":"int"
+                "data_type":"int",
+                "lsb":0.5
             }
         ]
     },
     {
         "number":"105",
-        "name":"",
-        "comment":"",
+        "name":"Calculated Position In WGS-84 Co-ordinates",
+        "comment":"Calculated Position in WGS-84 Co-ordinates with a resolution of 180/2^25. degrees",
         "type": "item",
         "data_fields":
         [
             {
-                "name":"latitude",
-                "comment":"",
+                "name":"Latitude",
+                "comment":"In WGS.84 in two’s complement. Range -90 <= latitude <= 90 deg.",
                 "type":"fixed_bytes",
                 "length": 4,
-                "data_type":"int"
+                "data_type":"int",
+                "lsb":0.00000536441
             },
             {
-                "name":"longitude",
-                "comment":"",
+                "name":"Longitude",
+                "comment":"In WGS.84 in two’s complement. Range -180 <= longitude < 180 deg.",
                 "type":"fixed_bytes",
                 "length": 4,
-                "data_type":"int"
+                "data_type":"int",
+                "lsb":0.00000536441
             }
         ]
     },
     {
-        "number":"120",
-        "name":"",
-        "comment":"",
+        "number":"110",
+        "name":"Mode 5 Data reports & Extended Mode 1 Code",
+        "comment":"Mode 5 Data reports & Extended Mode 1 Code",
         "type": "item",
         "data_fields":
         [
             {
-                "name":"mode_2",
-                "type":"fixed_bitfield",
-                "length": 2,
-                "items":[
+                "name":"110",
+                "type":"compound",
+                "field_specification":
+                {
+                    "name":"available",
+                    "type":"extendable_bits",
+                    "data_type":"bitfield"
+                },
+                "items":
+                [
                     {
-                        "name":"a",
-                        "type":"fixed_bits",
-                        "start_bit":9,
-                        "bit_length":3
+                        "name":"SUM",
+                        "type": "optional_item",
+                        "optional_bitfield_name":"available",
+                        "optional_bitfield_index": 7,
+                        "data_fields":
+                        [
+                            {
+                                "name":"SUM",
+                                "type":"fixed_bitfield",
+                                "length":1,
+                                "items":[
+                                    {
+                                        "name":"M5",
+                                        "comment":"0 No Mode 5 interrogation\n1 Mode 5 interrogation",
+                                        "type":"fixed_bits",
+                                        "start_bit":7,
+                                        "bit_length":1
+                                    },
+                                    {
+                                        "name":"ID",
+                                        "comment":"0 No authenticated Mode 5 ID reply\n1 Authenticated Mode 5 ID reply",
+                                        "type":"fixed_bits",
+                                        "start_bit":6,
+                                        "bit_length":1
+                                    },
+                                    {
+                                        "name":"DA",
+                                        "comment":"0 No authenticated Mode 5 Data reply or Report\n 1 Authenticated Mode 5 Data reply or Report (i.e any valid Mode 5 reply type other than ID)",
+                                        "type":"fixed_bits",
+                                        "start_bit":5,
+                                        "bit_length":1
+                                    },
+                                    {
+                                        "name":"M1",
+                                        "comment":"0 Mode 1 code not present or not from Mode 5 reply\n 1 Mode 1 code from Mode 5 reply.",
+                                        "type":"fixed_bits",
+                                        "start_bit":4,
+                                        "bit_length":1
+                                    },
+                                    {
+                                        "name":"M2",
+                                        "comment":"0 Mode 2 code not present or not from Mode 5 reply\n 1 Mode 2 code from Mode 5 reply.",
+                                        "type":"fixed_bits",
+                                        "start_bit":3,
+                                        "bit_length":1
+                                    },
+                                    {
+                                        "name":"M3",
+                                        "comment":"0 Mode 3 code not present or not from Mode 5 reply\n 1 Mode 3 code from Mode 5 reply.",
+                                        "type":"fixed_bits",
+                                        "start_bit":2,
+                                        "bit_length":1
+                                    },
+                                    {
+                                        "name":"MC",
+                                        "comment":"0 Mode C altitude not present or not from Mode 5 reply\n1 Mode C altitude from Mode 5 reply",
+                                        "type":"fixed_bits",
+                                        "start_bit":1,
+                                        "bit_length":1
+                                    },
+                                    {
+                                        "name":"X",
+                                        "comment":"X-pulse from Mode 5 Data reply or Report.\n0 X-pulse set to zero or no authenticated Data reply or Report received.\n1 X-pulse set to one.",
+                                        "type":"fixed_bits",
+                                        "start_bit":1,
+                                        "bit_length":1
+                                    }
+                                ]
+                            }
+                        ]
                     },
                     {
-                        "name":"b",
-                        "type":"fixed_bits",
-                        "start_bit":6,
-                        "bit_length":3
+                        "name":"PMN",
+                        "comment":"Mode 5 PIN /National Origin/ Mission Code",
+                        "type": "optional_item",
+                        "optional_bitfield_name":"available",
+                        "optional_bitfield_index": 6,
+                        "data_fields":
+                        [
+                            {
+                                "name":"PIN",
+                                "comment":"PIN Code",
+                                "type":"fixed_bytes",
+                                "length": 2,
+                                "data_type":"int"
+                            },
+                            {
+                                "name":"NAT",
+                                "comment":"National Origin",
+                                "type":"fixed_bytes",
+                                "length": 1,
+                                "data_type":"int"
+                            },
+                            {
+                                "name":"MIS",
+                                "comment":"Mission Code",
+                                "type":"fixed_bytes",
+                                "length": 1,
+                                "data_type":"int"
+                            }
+                        ]
                     },
                     {
-                        "name":"c",
-                        "type":"fixed_bits",
-                        "start_bit":3,
-                        "bit_length":3
+                        "name":"POS",
+                        "comment":"Mode 5 Reported Position",
+                        "type": "optional_item",
+                        "optional_bitfield_name":"available",
+                        "optional_bitfield_index": 5,
+                        "data_fields":
+                        [
+                            {
+                                "name":"Latitude",
+                                "comment":"In WGS.84 in two’s complement. Range -90 <= latitude <= 90 deg.",
+                                "type":"fixed_bytes",
+                                "length": 3,
+                                "data_type":"int",
+                                "lsb":0.00002145767
+                            },
+                            {
+                                "name":"Longitude",
+                                "comment":"In WGS.84 in two’s complement. Range -180 <= longitude < 180 deg.",
+                                "type":"fixed_bytes",
+                                "length": 3,
+                                "data_type":"int",
+                                "lsb":0.00002145767
+                            }
+                        ]
                     },
                     {
-                        "name":"d",
-                        "type":"fixed_bits",
-                        "start_bit":0,
-                        "bit_length":3
+                        "name":"GA",
+                        "comment":"Mode 5 GNSS-derived Altitude",
+                        "type": "optional_item",
+                        "optional_bitfield_name":"available",
+                        "optional_bitfield_index": 4,
+                        "data_fields":
+                        [
+                            {
+                                "name":"GA",
+                                "type":"fixed_bitfield",
+                                "length":1,
+                                "items":[
+                                    {
+                                        "name":"RES",
+                                        "comment":"Resolution with which the GNSS-derived Altitude (GA) is reported.\n0 GA reported in 100 ft increments,\n1 GA reported in 25 ft increments.",
+                                        "type":"fixed_bits",
+                                        "start_bit":14,
+                                        "bit_length":1
+                                    },
+                                    {
+                                        "name":"GA",
+                                        "comment":"GNSS-derived Altitude of target, expressed as height above WGS 84 ellipsoid.",
+                                        "type":"fixed_bits",
+                                        "start_bit":0,
+                                        "bit_length":14
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "name":"EM1",
+                        "comment":"Extended Mode 1 Code in Octal Representation",
+                        "type": "optional_item",
+                        "optional_bitfield_name":"available",
+                        "optional_bitfield_index": 3,
+                        "data_fields":
+                        [
+                            {
+                                "name":"Extended Mode 1 Code",
+                                "comment":"Extended Mode 1 Code in octal representation",
+                                "type":"fixed_bytes",
+                                "length":2,
+                                "data_type":"int"
+                            }
+                        ]
+                    },
+                    {
+                        "name":"TOS",
+                        "comment":"Time Offset for POS and GA",
+                        "type": "optional_item",
+                        "optional_bitfield_name":"available",
+                        "optional_bitfield_index": 2,
+                        "data_fields":
+                        [
+                            {
+                                "name":"TOS",
+                                "comment":"Time Offset coded as a twos complement number with an LSB of 1/128 s. The time at which the Mode 5 Reported Position (Subfield #3) and Mode 5 GNSS- derived Altitude (Subfield #4) are valid is given by Time of Day (I048/140) plus Time Offset.",
+                                "type":"fixed_bytes",
+                                "length": 1,
+                                "data_type":"int",
+                                "lsb":0.0078125
+                            }
+                        ]
+                    },
+                    {
+                        "name":"XP",
+                        "comment":"X Pulse Presence",
+                        "type": "optional_item",
+                        "optional_bitfield_name":"available",
+                        "optional_bitfield_index": 1,
+                        "data_fields":
+                        [
+                            {
+                                "name":"XP",
+                                "type":"fixed_bitfield",
+                                "length":1,
+                                "items":[
+                                    {
+                                        "name":"X5",
+                                        "comment":"X-pulse from Mode 5 Data reply or Report.\n0 X-pulse set to zero or no authenticated Data reply or Report received.\n1 X-pulse set to one (present).",
+                                        "type":"fixed_bits",
+                                        "start_bit":4,
+                                        "bit_length":1
+                                    },
+                                    {
+                                        "name":"XC",
+                                        "comment":"X-pulse from Mode C reply\n0 X-pulse set to zero or no Mode C reply\n1 X-pulse set to one (present)",
+                                        "type":"fixed_bits",
+                                        "start_bit":3,
+                                        "bit_length":1
+                                    },
+                                    {
+                                        "name":"X3",
+                                        "comment":"X-pulse from Mode 3/A reply\n0 X-pulse set to zero or no Mode 3/A reply\n1 X-pulse set to one (present)",
+                                        "type":"fixed_bits",
+                                        "start_bit":2,
+                                        "bit_length":1
+                                    },
+                                    {
+                                        "name":"X2",
+                                        "comment":"X-pulse from Mode 2 reply\n0 X-pulse set to zero or no Mode 2 reply\n1 X-pulse set to one (present)",
+                                        "type":"fixed_bits",
+                                        "start_bit":1,
+                                        "bit_length":1
+                                    },
+                                    {
+                                        "name":"X1",
+                                        "comment":"X-pulse from Mode 1 reply\n0 X-pulse set to zero or no Mode 1 reply\n1 X-pulse set to one (present)",
+                                        "type":"fixed_bits",
+                                        "start_bit":0,
+                                        "bit_length":1
+                                    }
+                                ]
+                            }
+                        ]
                     }
                 ]
             }
         ]
     },
     {
-        "number":"130",
-        "name":"",
-        "comment":"",
+        "number":"120",
+        "name":"Track Mode 2 Code",
+        "comment":"Mode 2 code associated to the track",
         "type": "item",
         "data_fields":
         [
             {
-                "name":"calculated_track_geometric_altitude",
-                "comment":"",
+                "name":"Mode-2 code",
                 "type":"fixed_bytes",
                 "length": 2,
-                "data_type":"int"
+                "data_type":"uint",
+            }
+        ]
+    },
+    {
+        "number":"130",
+        "name":"Calculated Track Geometric Altitude",
+        "comment":"Vertical distance between the target and the projection of its position on the earth’s ellipsoid, as defined by WGS84, in two’s complement form.",
+        "type": "item",
+        "data_fields":
+        [
+            {
+                "name":"Altitude",
+                "comment":"Vmin = -1500 ft\nVmax = 150000 ft",
+                "type":"fixed_bytes",
+                "length": 2,
+                "data_type":"int",
+                "lsb":6.25
             }
         ]
     },  
     {
         "number":"135",
-        "name":"",
-        "comment":"",
+        "name":"Calculated Track Barometric Altitude",
+        "comment":"Calculated Barometric Altitude of the track, in two’s complement form.",
         "type": "item",
         "data_fields":
         [
             {
-                "name":"calculated_track_barometric_altitude",
+                "name":"Calculated Track Barometric Altitude",
                 "type":"fixed_bitfield",
                 "length": 2,
                 "items":[
                     {
-                        "name":"qnh",
-                        "comment":"",
+                        "name":"QNH",
+                        "comment":"0 No QNH correction applied\n1 QNH correction applied",
                         "type":"fixed_bits",
                         "start_bit": 15,
                         "bit_length": 1
                     },
                     {
-                        "name":"altitude",
-                        "comment":"",
+                        "name":"Calculated Track Barometric Altitude",
+                        "comment":"Vmin = -15 FL\nVmax = 1500 FL",
                         "type":"fixed_bits",
                         "start_bit": 0,
-                        "bit_length": 15
+                        "bit_length": 15,
+                        "data_type":"int",
+                        "lsb":25.0
                     }
                 ]
             }
@@ -517,78 +768,82 @@
     },
     {
         "number":"136",
-        "name":"",
-        "comment":"",
+        "name":"Measured Flight Level",
+        "comment":"Last valid and credible flight level used to update the track, in two’s complement form,.",
         "type": "item",
         "data_fields":
         [
             {
-                "name":"flight_level",
+                "name":"Measured Flight Level",
+                "comment":"Vmin = -15 FL\nVmax = 1500 FL",
                 "type":"fixed_bytes",
                 "length": 2,
-                "data_type":"int"
+                "data_type":"int",
+                "lsb":0.25
             }
         ]
     },
     {
         "number":"185",
-        "name":"",
-        "comment":"",
+        "name":"Calculated Track Velocity (Cartesian)",
+        "comment":"Calculated track velocity expressed in Cartesian co-ordinates, in two’s complement form.",
         "type": "item",
         "data_fields":
         [
             {
-                "name":"v_x",
-                "comment":"",
+                "name":"Vx",
+                "comment":"-8192m/s <= Vx <= 8191.75m/s",
                 "type":"fixed_bytes",
                 "length":2,
-                "data_type":"int"
+                "data_type":"int",
+                "lsb":0.25
             },
             {
-                "name":"v_y",
-                "comment":"",
+                "name":"Vy",
+                "comment":"-8192m/s <= Vx <= 8191.75m/s",
                 "type":"fixed_bytes",
                 "length":2,
-                "data_type":"int"
+                "data_type":"int",
+                "lsb":0.25
             }
         ]
     },
     {
         "number":"200",
-        "name":"",
-        "comment":"",
+        "name":"Mode of Movement",
+        "comment":"Calculated Mode of Movement of a target.",
         "type": "item",
         "data_fields":
         [
             {
-                "name":"mode_of_movement",
+                "name":"Mode of Movement",
                 "type":"fixed_bitfield",
                 "length":1,
                 "items":[
                     {
-                        "name":"trans",
-                        "comment":"",
+                        "name":"TRANS",
+                        "comment":"Transversal Acceleration :\n0 Constant Course\n1 Right Turn\n2 Left Turn\n3 Undetermined",
                         "type":"fixed_bits",
                         "start_bit": 6,
                         "bit_length": 2
                     },
                     {
-                        "name":"long",
-                        "comment":"",
+                        "name":"LONG",
+                        "comment":"Longitudinal Acceleration :\n0 Constant Groundspeed\n1 Increasing Groundspeed\n2 Decreasing Groundspeed\n3 Undetermined",
                         "type":"fixed_bits",
                         "start_bit": 4,
                         "bit_length": 2
                     },
                     {
-                        "name":"vert",
-                        "comment":"",
+                        "name":"VERT",
+                        "comment":"Vertical Rate :\n0 Level\n1 Climb\n2 Descent\n3 Undetermined",
                         "type":"fixed_bits",
                         "start_bit": 2,
                         "bit_length": 2
                     },
                     {
-                        "name":"adf",
-                        "comment":"",
+                        "name":"ADF",
+                        "comment":"Altitude Discrepancy Flag\n0 No altitude discrepancy\n1 Altitude discrepancy",
                         "type":"fixed_bits",
                         "start_bit": 1,
                         "bit_length": 1
@@ -599,93 +854,152 @@
     },
     {
         "number":"210",
-        "name":"",
-        "comment":"",
+        "name":"Calculated Acceleration (Cartesian)",
+        "comment":"Calculated Acceleration of the target expressed in Cartesian co-ordinates, in two’s complement form.",
         "type": "item",
         "data_fields":
         [
             {
-                "name":"a_x",
+                "name":"Ax",
                 "comment":"",
                 "type":"fixed_bytes",
                 "length": 1,
-                "data_type":"int"
+                "data_type":"int",
+                "lsb":0.25
             },
             {
-                "name":"a_y",
+                "name":"Ay",
                 "comment":"",
                 "type":"fixed_bytes",
                 "length": 1,
-                "data_type":"int"
+                "data_type":"int",
+                "lsb":0.25
+            }
+        ]
+    },
+    {
+        "number":"220",
+        "name":"Calculated Rate Of Climb/Descent",
+        "comment":"Calculated rate of Climb/Descent of an aircraft in two’s complement form.",
+        "type": "item",
+        "data_fields":
+        [
+            {
+                "name":"Rate of Climb/Descent",
+                "comment":"",
+                "type":"fixed_bytes",
+                "length": 2,
+                "data_type":"int",
+                "lsb":6.25
             }
         ]
     },
     {
         "number":"245",
-        "name":"",
-        "comment":"",
+        "name":"Target Identification",
+        "comment":"Target (aircraft or vehicle) identification in 8 characters.",
         "type": "item",
         "data_fields":
         [
             {
-                "name":"aircraft_identification",
+                "name":"STI",
                 "type":"fixed_bitfield",
-                "length": 7,
+                "length":1,
                 "items":[
                     {
-                        "name":"sti",
-                        "comment":"",
-                        "type":"fixed_bits",
-                        "start_bit": 54,
-                        "bit_length": 2
-                    },
-                    {
-                        "name":"c1",
-                        "type":"fixed_bits",
-                        "start_bit": 42,
-                        "bit_length": 6
-                    },
-                    {
-                        "name":"c2",
-                        "type":"fixed_bits",
-                        "start_bit": 36,
-                        "bit_length": 6
-                    },
-                    {
-                        "name":"c3",
-                        "type":"fixed_bits",
-                        "start_bit": 30,
-                        "bit_length": 6
-                    },
-                    {
-                        "name":"c4",
-                        "type":"fixed_bits",
-                        "start_bit": 24,
-                        "bit_length": 6
-                    },
-                    {
-                        "name":"c5",
-                        "type":"fixed_bits",
-                        "start_bit": 18,
-                        "bit_length": 6
-                    },
-                    {
-                        "name":"c6",
-                        "type":"fixed_bits",
-                        "start_bit": 12,
-                        "bit_length": 6
-                    },
-                    {
-                        "name":"c7",
+                        "name":"STI",
+                        "comment":"0 Callsign or registration downlinked from target\n1 Callsign not downlinked from target\n2 Registration not downlinked from target\n3 Invalid",
                         "type":"fixed_bits",
                         "start_bit": 6,
-                        "bit_length": 6
+                        "bit_length": 2
+                    }
+                ]
+            },        
+            {
+                "name":"Target Identification",
+                "comment":"",
+                "type":"fixed_bits",
+                "data_type":"characters",
+                "start_bit":0,
+                "bit_length":47,
+                "num_characters":8,
+                "character_bit_length":6
+            }
+        ]
+    },
+    {
+        "number":"270",
+        "name":"Target Size & Orientation",
+        "comment":"Target size defined as length and width of the detected target, and orientation.",
+        "type": "item",
+        "data_fields":
+        [
+            {
+                "name":"Target Size & Orientation",
+                "type":"fixed_bitfield",
+                "length":1,
+                "items":[
+                    {
+                        "name":"LENGTH",
+                        "comment":"When the length only is sent, the largest dimension is provided.",
+                        "type":"fixed_bits",
+                        "start_bit": 1,
+                        "bit_length": 7,
+                        "lsb":1.0
                     },
                     {
-                        "name":"c8",
+                        "name":"FX",
                         "type":"fixed_bits",
                         "start_bit": 0,
-                        "bit_length": 6
+                        "bit_length":1
+                    }
+                ]
+            },
+            {
+                "name":"Target Size & Orientation First Extent",
+                "type":"fixed_bitfield",
+                "length":1,
+                "optional":true,
+                "optional_variable_name": "FX",
+                "optional_variable_value": 1,
+                "items":[
+                    {
+                        "name":"ORIENTATION",
+                        "comment":"The orientation gives the direction which the target nose is pointing to, relative to the Geographical North.",
+                        "type":"fixed_bits",
+                        "start_bit":1,
+                        "bit_length":7,
+                        "lsb":2.8125
+                    },
+                    {
+                        "name":"FX2",
+                        "type":"fixed_bits",
+                        "start_bit": 0,
+                        "bit_length":1
+                    }
+                ]
+            },
+            {
+                "name":"Target Size & Orientation Second Extent",
+                "type":"fixed_bitfield",
+                "length":1,
+                "optional":true,
+                "optional_variable_name": "FX2",
+                "optional_variable_value": 1,
+                "items":[
+                    {
+                        "name":"WIDTH",
+                        "comment":"",
+                        "type":"fixed_bits",
+                        "start_bit":1,
+                        "bit_length":7,
+                        "lsb":1.0
+                    },
+                    {
+                        "name":"FX3",
+                        "type":"fixed_bits",
+                        "start_bit": 0,
+                        "bit_length":1
                     }
                 ]
             }
@@ -693,8 +1007,8 @@
     },
     {
         "number":"290",
-        "name":"",
-        "comment":"",
+        "name":"System Track Update Ages",
+        "comment":"Ages of the last plot/local track/target report update for each sensor type.",
         "type": "item",
         "data_fields":
         [
@@ -710,163 +1024,172 @@
                 "items":
                 [
                     {
-                        "name":"tsr",
+                        "name":"TRK",
                         "type": "optional_item",
                         "optional_bitfield_name":"available",
                         "optional_bitfield_index": 15,
                         "data_fields":
                         [
                             {
-                                "name":"age",
-                                "comment":"",
+                                "name":"Age",
+                                "comment":"Actual track age since occurence",
                                 "type":"fixed_bytes",
                                 "length": 1,
-                                "data_type":"int"
+                                "data_type":"int",
+                                "lsb":0.25
                             }
                         ]
                     },
                     {
-                        "name":"psr",
+                        "name":"PSR",
                         "type": "optional_item",
                         "optional_bitfield_name":"available",
                         "optional_bitfield_index": 14,
                         "data_fields":
                         [
                             {
-                                "name":"age",
-                                "comment":"",
+                                "name":"Age",
+                                "comment":"Age of the last primary detection used to update the track",
                                 "type":"fixed_bytes",
                                 "length": 1,
-                                "data_type":"int"
+                                "data_type":"int",
+                                "lsb":0.25
                             }
                         ]
                     },
                     {
-                        "name":"ssr",
+                        "name":"SSR",
                         "type": "optional_item",
                         "optional_bitfield_name":"available",
                         "optional_bitfield_index": 13,
                         "data_fields":
                         [
                             {
-                                "name":"age",
-                                "comment":"",
+                                "name":"Age",
+                                "comment":"Age of the last secondary detection used to update the track",
                                 "type":"fixed_bytes",
                                 "length": 1,
-                                "data_type":"int"
+                                "data_type":"int",
+                                "lsb":0.25
                             }
                         ]
                     },
                     {
-                        "name":"mds",
+                        "name":"MDS",
                         "type": "optional_item",
                         "optional_bitfield_name":"available",
                         "optional_bitfield_index": 12,
                         "data_fields":
                         [
                             {
-                                "name":"age",
-                                "comment":"",
+                                "name":"Age",
+                                "comment":"Age of the last Mode S detection used to update the track",
                                 "type":"fixed_bytes",
                                 "length": 1,
-                                "data_type":"int"
+                                "data_type":"int",
+                                "lsb":0.25
                             }
                         ]
                     },
                     {
-                        "name":"ads",
+                        "name":"ADS",
                         "type": "optional_item",
                         "optional_bitfield_name":"available",
                         "optional_bitfield_index": 11,
                         "data_fields":
                         [
                             {
-                                "name":"age",
-                                "comment":"",
+                                "name":"Age",
+                                "comment":"Age of the last ADS-C report used to update the track",
                                 "type":"fixed_bytes",
-                                "length": 1,
-                                "data_type":"int"
+                                "length": 2,
+                                "data_type":"int",
+                                "lsb":0.25
                             }
                         ]
                     },
                     {
-                        "name":"es",
+                        "name":"ES",
                         "type": "optional_item",
                         "optional_bitfield_name":"available",
                         "optional_bitfield_index": 10,
                         "data_fields":
                         [
                             {
-                                "name":"age",
-                                "comment":"",
+                                "name":"Age",
+                                "comment":"Age of the last 1090 Extended Squitter ADS-B report used to update the track",
                                 "type":"fixed_bytes",
                                 "length": 1,
-                                "data_type":"int"
+                                "data_type":"int",
+                                "lsb":0.25
                             }
                         ]
                     },
                     {
-                        "name":"vdl",
+                        "name":"VDL",
                         "type": "optional_item",
                         "optional_bitfield_name":"available",
                         "optional_bitfield_index": 9,
                         "data_fields":
                         [
                             {
-                                "name":"age",
-                                "comment":"",
+                                "name":"Age",
+                                "comment":"Age of the last VDL Mode 4 ADS-B report used to update the track",
                                 "type":"fixed_bytes",
                                 "length": 1,
-                                "data_type":"int"
+                                "data_type":"int",
+                                "lsb":0.25
                             }
                         ]
                     },
                     {
-                        "name":"uat",
+                        "name":"UAT",
                         "type": "optional_item",
                         "optional_bitfield_name":"available",
                         "optional_bitfield_index": 7,
                         "data_fields":
                         [
                             {
-                                "name":"age",
-                                "comment":"",
+                                "name":"Age",
+                                "comment":"Age of the last UAT ADS-B report used to update the track",
                                 "type":"fixed_bytes",
                                 "length": 1,
-                                "data_type":"int"
+                                "data_type":"int",
+                                "lsb":0.25
                             }
                         ]
                     },
                     {
-                        "name":"lop",
+                        "name":"LOP",
                         "type": "optional_item",
                         "optional_bitfield_name":"available",
                         "optional_bitfield_index": 6,
                         "data_fields":
                         [
                             {
-                                "name":"age",
-                                "comment":"",
+                                "name":"Age",
+                                "comment":"Age of the last magnetic loop detection",
                                 "type":"fixed_bytes",
                                 "length": 1,
-                                "data_type":"int"
+                                "data_type":"int",
+                                "lsb":0.25
                             }
                         ]
-                    }
-                    ,
+                    },
                     {
-                        "name":"mlt",
+                        "name":"MLT",
                         "type": "optional_item",
                         "optional_bitfield_name":"available",
                         "optional_bitfield_index": 5,
                         "data_fields":
                         [
                             {
-                                "name":"age",
-                                "comment":"",
+                                "name":"Age",
+                                "comment":"Age of the last MLT detection",
                                 "type":"fixed_bytes",
                                 "length": 1,
-                                "data_type":"int"
+                                "data_type":"int",
+                                "lsb":0.25
                             }
                         ]
                     }
@@ -876,8 +1199,8 @@
     },
     {
         "number":"295",
-        "name":"",
-        "comment":"",
+        "name":"Track Data Ages",
+        "comment":"Ages of the data provided.",
         "type": "item",
         "data_fields":
         [
@@ -893,223 +1216,236 @@
                 "items":
                 [
                     {
-                        "name":"mfl",
+                        "name":"MFL",
                         "type": "optional_item",
                         "optional_bitfield_name":"available",
                         "optional_bitfield_index": 39,
                         "data_fields":
                         [
                             {
-                                "name":"age",
-                                "comment":"",
+                                "name":"Age",
+                                "comment":"Age of the last valid and credible Mode C code or barometric altitude from ADS-B used to update the track (I062/136)",
                                 "type":"fixed_bytes",
                                 "length": 1,
-                                "data_type":"int"
+                                "data_type":"int",
+                                "lsb":0.25
                             }
                         ]
                     },
                     {
-                        "name":"md1",
+                        "name":"MD1",
                         "type": "optional_item",
                         "optional_bitfield_name":"available",
                         "optional_bitfield_index": 38,
                         "data_fields":
                         [
                             {
-                                "name":"age",
-                                "comment":"",
+                                "name":"Age",
+                                "comment":"Age of the last valid and credible Mode 1 code used to update the track (I062/110)",
                                 "type":"fixed_bytes",
                                 "length": 1,
-                                "data_type":"int"
+                                "data_type":"int",
+                                "lsb":0.25
                             }
                         ]
                     },
                     {
-                        "name":"md2",
+                        "name":"MD2",
                         "type": "optional_item",
                         "optional_bitfield_name":"available",
                         "optional_bitfield_index": 37,
                         "data_fields":
                         [
                             {
-                                "name":"age",
-                                "comment":"",
+                                "name":"Age",
+                                "comment":"Age of the last valid and credible Mode 2 code used to update the track (I062/120)",
                                 "type":"fixed_bytes",
                                 "length": 1,
-                                "data_type":"int"
+                                "data_type":"int",
+                                "lsb":0.25
                             }
                         ]
                     },
                     {
-                        "name":"mda",
+                        "name":"MDA",
                         "type": "optional_item",
                         "optional_bitfield_name":"available",
                         "optional_bitfield_index": 36,
                         "data_fields":
                         [
                             {
-                                "name":"age",
-                                "comment":"",
+                                "name":"Age",
+                                "comment":"Age of the last valid and credible Mode 3/A code used to update the track (I062/060)",
                                 "type":"fixed_bytes",
                                 "length": 1,
-                                "data_type":"int"
+                                "data_type":"int",
+                                "lsb":0.25
                             }
                         ]
                     },
                     {
-                        "name":"md4",
+                        "name":"MD4",
                         "type": "optional_item",
                         "optional_bitfield_name":"available",
                         "optional_bitfield_index": 35,
                         "data_fields":
                         [
                             {
-                                "name":"age",
-                                "comment":"",
+                                "name":"Age",
+                                "comment":"Age of the last valid and credible Mode 4 code used to update the track",
                                 "type":"fixed_bytes",
                                 "length": 1,
-                                "data_type":"int"
+                                "data_type":"int",
+                                "lsb":0.25
                             }
                         ]
                     },
                     {
-                        "name":"md5",
+                        "name":"MD5",
                         "type": "optional_item",
                         "optional_bitfield_name":"available",
                         "optional_bitfield_index": 34,
                         "data_fields":
                         [
                             {
-                                "name":"age",
-                                "comment":"",
+                                "name":"Age",
+                                "comment":"Age of the last valid and credible Mode 5 code used to update the track (I062/110)",
                                 "type":"fixed_bytes",
                                 "length": 1,
-                                "data_type":"int"
+                                "data_type":"int",
+                                "lsb":0.25
                             }
                         ]
                     },
                     {
-                        "name":"mhg",
+                        "name":"MHG",
                         "type": "optional_item",
                         "optional_bitfield_name":"available",
                         "optional_bitfield_index": 33,
                         "data_fields":
                         [
                             {
-                                "name":"age",
-                                "comment":"",
+                                "name":"Age",
+                                "comment":"Age of the DAP \"Magnetic Heading\" in item 062/380 (Subfield #3)",
                                 "type":"fixed_bytes",
                                 "length": 1,
-                                "data_type":"int"
+                                "data_type":"int",
+                                "lsb":0.25
                             }
                         ]
                     },
                     {
-                        "name":"ias",
+                        "name":"IAS",
                         "type": "optional_item",
                         "optional_bitfield_name":"available",
                         "optional_bitfield_index": 31,
                         "data_fields":
                         [
                             {
-                                "name":"age",
-                                "comment":"",
+                                "name":"Age",
+                                "comment":"Age of the DAP \"Indicated Airspeed/ Mach Number\" in item 062/380 (Subfield #4)",
                                 "type":"fixed_bytes",
                                 "length": 1,
-                                "data_type":"int"
+                                "data_type":"int",
+                                "lsb":0.25
                             }
                         ]
                     },
                     {
-                        "name":"tas",
+                        "name":"TAS",
                         "type": "optional_item",
                         "optional_bitfield_name":"available",
                         "optional_bitfield_index": 30,
                         "data_fields":
                         [
                             {
-                                "name":"age",
-                                "comment":"",
+                                "name":"Age",
+                                "comment":"Age of the DAP \"True Airspeed\" in item 062/380 (Subfield #5)",
                                 "type":"fixed_bytes",
                                 "length": 1,
-                                "data_type":"int"
+                                "data_type":"int",
+                                "lsb":0.25
                             }
                         ]
                     },
                     {
-                        "name":"sal",
+                        "name":"SAL",
                         "type": "optional_item",
                         "optional_bitfield_name":"available",
                         "optional_bitfield_index": 29,
                         "data_fields":
                         [
                             {
-                                "name":"age",
-                                "comment":"",
+                                "name":"Age",
+                                "comment":"Age of the DAP \"Selected Altitude\" in item 062/380 (Subfield #6)",
                                 "type":"fixed_bytes",
                                 "length": 1,
-                                "data_type":"int"
+                                "data_type":"int",
+                                "lsb":0.25
                             }
                         ]
                     },
                     {
-                        "name":"fss",
+                        "name":"FSS",
                         "type": "optional_item",
                         "optional_bitfield_name":"available",
                         "optional_bitfield_index": 28,
                         "data_fields":
                         [
                             {
-                                "name":"age",
-                                "comment":"",
+                                "name":"Age",
+                                "comment":"Age of the DAP \"Final State Selected Altitude\" in item 062/380 (Subfield #7)",
                                 "type":"fixed_bytes",
                                 "length": 1,
-                                "data_type":"int"
+                                "data_type":"int",
+                                "lsb":0.25
                             }
                         ]
                     },
                     {
-                        "name":"tid",
+                        "name":"TID",
                         "type": "optional_item",
                         "optional_bitfield_name":"available",
                         "optional_bitfield_index": 27,
                         "data_fields":
                         [
                             {
-                                "name":"age",
-                                "comment":"",
+                                "name":"Age",
+                                "comment":"Age of the DAP \"Trajectory Intent\" in item 062/380 (Subfield #8)",
                                 "type":"fixed_bytes",
                                 "length": 1,
-                                "data_type":"int"
+                                "data_type":"int",
+                                "lsb":0.25
                             }
                         ]
                     },
                     {
-                        "name":"com",
+                        "name":"COM",
                         "type": "optional_item",
                         "optional_bitfield_name":"available",
                         "optional_bitfield_index": 26,
                         "data_fields":
                         [
                             {
-                                "name":"age",
-                                "comment":"",
+                                "name":"Age",
+                                "comment":"Age of the DAP \"Communication/ACAS Capability and Flight Status\" in item 062/380 (Subfield #10)",
                                 "type":"fixed_bytes",
                                 "length": 1,
-                                "data_type":"int"
+                                "data_type":"int",
+                                "lsb":0.25
                             }
                         ]
                     },
                     {
-                        "name":"sab",
+                        "name":"SAB",
                         "type": "optional_item",
                         "optional_bitfield_name":"available",
                         "optional_bitfield_index": 25,
                         "data_fields":
                         [
                             {
-                                "name":"age",
-                                "comment":"",
+                                "name":"Age",
+                                "comment":"Age of the DAP \"Status Reported by ADS-B\" in item 062/380 (Subfield #11)",
                                 "type":"fixed_bytes",
                                 "length": 1,
                                 "data_type":"int"
@@ -1117,79 +1453,83 @@
                         ]
                     },
                     {
-                        "name":"acs",
+                        "name":"ACS",
                         "type": "optional_item",
                         "optional_bitfield_name":"available",
                         "optional_bitfield_index": 23,
                         "data_fields":
                         [
                             {
-                                "name":"age",
-                                "comment":"",
+                                "name":"Age",
+                                "comment":"Age of the DAP \"ACAS Resolution Advisory Report\" in item 062/380 (Subfield #12)",
                                 "type":"fixed_bytes",
                                 "length": 1,
-                                "data_type":"int"
+                                "data_type":"int",
+                                "lsb":0.25
                             }
                         ]
                     },
                     {
-                        "name":"bvr",
+                        "name":"BVR",
                         "type": "optional_item",
                         "optional_bitfield_name":"available",
                         "optional_bitfield_index": 22,
                         "data_fields":
                         [
                             {
-                                "name":"age",
-                                "comment":"",
+                                "name":"Age",
+                                "comment":"Age of the DAP \"Barometric Vertical Rate\" in item 062/380 (Subfield #13)",
                                 "type":"fixed_bytes",
                                 "length": 1,
-                                "data_type":"int"
+                                "data_type":"int",
+                                "lsb":0.25
                             }
                         ]
                     },
                     {
-                        "name":"gvr",
+                        "name":"GVR",
                         "type": "optional_item",
                         "optional_bitfield_name":"available",
                         "optional_bitfield_index": 21,
                         "data_fields":
                         [
                             {
-                                "name":"age",
-                                "comment":"",
+                                "name":"Age",
+                                "comment":"Age of the DAP \"Geometrical Vertical Rate\" in item 062/380 (Subfield #14)",
                                 "type":"fixed_bytes",
                                 "length": 1,
-                                "data_type":"int"
+                                "data_type":"int",
+                                "lsb":0.25
                             }
                         ]
                     },
                     {
-                        "name":"ran",
+                        "name":"RAN",
                         "type": "optional_item",
                         "optional_bitfield_name":"available",
                         "optional_bitfield_index": 20,
                         "data_fields":
                         [
                             {
-                                "name":"age",
-                                "comment":"",
+                                "name":"Age",
+                                "comment":"Age of the DAP \"Roll Angle\" in item 062/380 (Subfield #15)",
                                 "type":"fixed_bytes",
                                 "length": 1,
-                                "data_type":"int"
+                                "data_type":"int",
+                                "lsb":0.25
                             }
                         ]
                     },
                     {
-                        "name":"tar",
+                        "name":"TAR",
                         "type": "optional_item",
                         "optional_bitfield_name":"available",
                         "optional_bitfield_index": 19,
                         "data_fields":
                         [
                             {
-                                "name":"age",
-                                "comment":"",
+                                "name":"Age",
+                                "comment":"Age of the DAP \"Track Angle Rate\" in item 062/380 (Subfield #16)",
                                 "type":"fixed_bytes",
                                 "length": 1,
                                 "data_type":"int"
@@ -1197,194 +1537,437 @@
                         ]
                     },
                     {
-                        "name":"tan",
+                        "name":"TAN",
                         "type": "optional_item",
                         "optional_bitfield_name":"available",
                         "optional_bitfield_index": 18,
                         "data_fields":
                         [
                             {
-                                "name":"age",
-                                "comment":"",
+                                "name":"Age",
+                                "comment":"Age of the DAP \"Track Angle\" in item 062/380 (Subfield #17)",
                                 "type":"fixed_bytes",
                                 "length": 1,
-                                "data_type":"int"
+                                "data_type":"int",
+                                "lsb":0.25
                             }
                         ]
                     },
                     {
-                        "name":"gsp",
+                        "name":"GSP",
                         "type": "optional_item",
                         "optional_bitfield_name":"available",
                         "optional_bitfield_index": 17,
                         "data_fields":
                         [
                             {
-                                "name":"age",
-                                "comment":"",
+                                "name":"Age",
+                                "comment":"Age of the DAP \"Ground Speed\" in item 062/380 (Subfield #18)",
                                 "type":"fixed_bytes",
                                 "length": 1,
-                                "data_type":"int"
+                                "data_type":"int",
+                                "lsb":0.25
                             }
                         ]
                     },
                     {
-                        "name":"vun",
+                        "name":"VUN",
                         "type": "optional_item",
                         "optional_bitfield_name":"available",
                         "optional_bitfield_index": 15,
                         "data_fields":
                         [
                             {
-                                "name":"age",
-                                "comment":"",
+                                "name":"Age",
+                                "comment":"Age of the DAP \"Velocity Uncertainty\" in item 062/380 (Subfield #19)",
                                 "type":"fixed_bytes",
                                 "length": 1,
-                                "data_type":"int"
+                                "data_type":"int",
+                                "lsb":0.25
                             }
                         ]
                     },
                     {
-                        "name":"met",
+                        "name":"MET",
                         "type": "optional_item",
                         "optional_bitfield_name":"available",
                         "optional_bitfield_index": 14,
                         "data_fields":
                         [
                             {
-                                "name":"age",
-                                "comment":"",
+                                "name":"Age",
+                                "comment":"Age of the DAP \"Meteorological Data\" in item 062/380 (Subfield #20)",
                                 "type":"fixed_bytes",
                                 "length": 1,
-                                "data_type":"int"
+                                "data_type":"int",
+                                "lsb":0.25
                             }
                         ]
                     },
                     {
-                        "name":"emc",
+                        "name":"EMC",
                         "type": "optional_item",
                         "optional_bitfield_name":"available",
                         "optional_bitfield_index": 13,
                         "data_fields":
                         [
                             {
-                                "name":"age",
-                                "comment":"",
+                                "name":"Age",
+                                "comment":"Age of the DAP \"Emitter Category\" in item 062/380 (Subfield #21)",
                                 "type":"fixed_bytes",
                                 "length": 1,
-                                "data_type":"int"
+                                "data_type":"int",
+                                "lsb":0.25
                             }
                         ]
                     },
                     {
-                        "name":"pos",
+                        "name":"POS",
                         "type": "optional_item",
                         "optional_bitfield_name":"available",
                         "optional_bitfield_index": 12,
                         "data_fields":
                         [
                             {
-                                "name":"age",
-                                "comment":"",
+                                "name":"Age",
+                                "comment":"Age of the DAP \"Position\" in item 062/380 (Subfield #23)",
                                 "type":"fixed_bytes",
                                 "length": 1,
-                                "data_type":"int"
+                                "data_type":"int",
+                                "lsb":0.25
                             }
                         ]
                     },
                     {
-                        "name":"gal",
+                        "name":"GAL",
                         "type": "optional_item",
                         "optional_bitfield_name":"available",
                         "optional_bitfield_index": 11,
                         "data_fields":
                         [
                             {
-                                "name":"age",
-                                "comment":"",
+                                "name":"Age",
+                                "comment":"Age of the DAP \"Geometric Altitude\" in item 062/380 (Subfield #24)",
                                 "type":"fixed_bytes",
                                 "length": 1,
-                                "data_type":"int"
+                                "data_type":"int",
+                                "lsb":0.25
                             }
                         ]
                     },
                     {
-                        "name":"pun",
+                        "name":"PUN",
                         "type": "optional_item",
                         "optional_bitfield_name":"available",
                         "optional_bitfield_index": 10,
                         "data_fields":
                         [
                             {
-                                "name":"age",
-                                "comment":"",
+                                "name":"Age",
+                                "comment":"Age of the DAP \"Position Uncertainty\" in item 062/380 (Subfield #25)",
                                 "type":"fixed_bytes",
                                 "length": 1,
-                                "data_type":"int"
+                                "data_type":"int",
+                                "lsb":0.25
                             }
                         ]
                     },
                     {
-                        "name":"mb",
+                        "name":"MB",
                         "type": "optional_item",
                         "optional_bitfield_name":"available",
                         "optional_bitfield_index": 9,
                         "data_fields":
                         [
                             {
-                                "name":"age",
-                                "comment":"",
+                                "name":"Age",
+                                "comment":"Age of the DAP \"Mode S MB Data\" in item 062/380 (Subfield #22)",
                                 "type":"fixed_bytes",
                                 "length": 1,
-                                "data_type":"int"
+                                "data_type":"int",
+                                "lsb":0.25
                             }
                         ]
                     },
                     {
-                        "name":"iar",
+                        "name":"IAR",
                         "type": "optional_item",
                         "optional_bitfield_name":"available",
                         "optional_bitfield_index": 7,
                         "data_fields":
                         [
                             {
-                                "name":"age",
-                                "comment":"",
+                                "name":"Age",
+                                "comment":"Age of the DAP \"Indicated Airspeed\" in item 062/380 (Subfield #26)",
                                 "type":"fixed_bytes",
                                 "length": 1,
-                                "data_type":"int"
+                                "data_type":"int",
+                                "lsb":0.25
                             }
                         ]
                     },
                     {
-                        "name":"mac",
+                        "name":"MAC",
                         "type": "optional_item",
                         "optional_bitfield_name":"available",
                         "optional_bitfield_index": 6,
                         "data_fields":
                         [
                             {
-                                "name":"age",
-                                "comment":"",
+                                "name":"Age",
+                                "comment":"Age of the DAP \"Mach Number\" in item 062/380 (Subfield #27)",
                                 "type":"fixed_bytes",
                                 "length": 1,
-                                "data_type":"int"
+                                "data_type":"int",
+                                "lsb":0.25
                             }
                         ]
                     },
                     {
-                        "name":"bps",
+                        "name":"BPS",
                         "type": "optional_item",
                         "optional_bitfield_name":"available",
                         "optional_bitfield_index": 5,
                         "data_fields":
                         [
                             {
-                                "name":"age",
-                                "comment":"",
+                                "name":"Age",
+                                "comment":"Age of the DAP \"Barometric Pressure Setting\" in item 062/380 (Subfield #28)",
                                 "type":"fixed_bytes",
                                 "length": 1,
-                                "data_type":"int"
+                                "data_type":"int",
+                                "lsb":0.25
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "number":"300",
+        "name":"Vehicle Fleet Identification",
+        "comment":"Vehicle fleet identification number.",
+        "type":"item",
+        "data_fields":[
+            {
+                "name":"VFI",
+                "comment":"0 Unknown\n1 ATC equipment maintenance\n2 Airport maintenance\n3 Fire\n4 Bird scarer\n5 Snow plough\n6 Runway sweeper\n7 Emergency\n8 Police\n9 Bus\n10 Tug (push/tow)\n11 Grass cutter\n12 Fuel\n13 Baggage\n14 Catering\n15 Aircraft maintenance\n16 Flyco (follow me)",
+                "type":"fixed_bytes",
+                "length":1,
+                "data_type":"uint"
+            }
+        ]
+    },
+    {
+        "number":"340",
+        "name":"Measured Information",
+        "comment":"All measured data related to the last report used to update the track. These data are not used for ADS-B.",
+        "type": "item",
+        "data_fields":
+        [
+            {
+                "name":"340",
+                "type":"compound",
+                "field_specification":
+                {
+                    "name":"available",
+                    "type":"extendable_bits",
+                    "data_type":"bitfield"
+                },
+                "items":
+                [
+                    {
+                        "name":"SID",
+                        "type": "optional_item",
+                        "optional_bitfield_name":"available",
+                        "optional_bitfield_index": 7,
+                        "data_fields":
+                        [
+                            {
+                                "name":"SAC",
+                                "comment":"System Area Code",
+                                "type":"fixed_bytes",
+                                "length":1,
+                                "data_type":"uint"
+                            },
+                            {
+                                "name":"SIC",
+                                "comment":"System Identification Code",
+                                "type":"fixed_bytes",
+                                "length":1,
+                                "data_type":"uint"
+                            }                            
+                        ]
+                    },
+                    {
+                        "name":"POS",
+                        "type": "optional_item",
+                        "optional_bitfield_name":"available",
+                        "optional_bitfield_index": 6,
+                        "data_fields":
+                        [
+                            {
+                                "name":"RHO",
+                                "comment":"Max. range = 256 NM",
+                                "type":"fixed_bytes",
+                                "length":2,
+                                "data_type":"uint",
+                                "lsb":0.00390625
+                            },
+                            {
+                                "name":"THETA",
+                                "comment":"",
+                                "type":"fixed_bytes",
+                                "length":2,
+                                "data_type":"uint",
+                                "lsb":0.00549316406
+                            }
+                        ]
+                    },
+                    {
+                        "name":"HEI",
+                        "type": "optional_item",
+                        "optional_bitfield_name":"available",
+                        "optional_bitfield_index": 5,
+                        "data_fields":
+                        [
+                            {
+                                "name":"HEIGHT",
+                                "comment":"Measured 3-D Height",
+                                "type":"fixed_bytes",
+                                "length": 2,
+                                "data_type":"int",
+                                "lsb":25.0
+                            }
+                        ]
+                    },
+                    {
+                        "name":"MDC",
+                        "type": "optional_item",
+                        "optional_bitfield_name":"available",
+                        "optional_bitfield_index": 4,
+                        "data_fields":
+                        [
+                            {
+                                "name":"MDC",
+                                "type":"fixed_bitfield",
+                                "length":2,
+                                "items":[                        
+                                    {
+                                        "name":"V",
+                                        "comment":"0 Code validated\n1 Code not validated",
+                                        "type":"fixed_bits",
+                                        "start_bit":15,
+                                        "bit_length":1
+                                    },
+                                    {
+                                        "name":"G",
+                                        "comment":"0 Default\n1 Garbled code",
+                                        "type":"fixed_bits",
+                                        "start_bit":14,
+                                        "bit_length":1
+                                    },
+                                    {
+                                        "name":"Last Measured Mode C Code",
+                                        "comment":"Last Measured Mode C Code, in two's complement form\nVmin = -12 FL\nVmax = 1270 FL",
+                                        "type":"fixed_bits",
+                                        "start_bit":0,
+                                        "bit_length":14,
+                                        "lsb":0.25
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "name":"MDA",
+                        "type": "optional_item",
+                        "optional_bitfield_name":"available",
+                        "optional_bitfield_index": 3,
+                        "data_fields":
+                        [
+                            {
+                                "name":"MDA",
+                                "type":"fixed_bitfield",
+                                "length":2,
+                                "items":[                                 
+                                    {
+                                        "name":"V",
+                                        "comment":"0 Code validated\n1 Code not validated",
+                                        "type":"fixed_bits",
+                                        "start_bit":15,
+                                        "bit_length":1
+                                    },
+                                    {
+                                        "name":"G",
+                                        "comment":"0 Default\n1 Garbled code",
+                                        "type":"fixed_bits",
+                                        "start_bit":14,
+                                        "bit_length":1
+                                    },
+                                    {
+                                        "name":"L",
+                                        "comment":"0 Mode-3/A code derived from the reply of the transponder\n1 Mode-3/A code not extracted during the last scan",
+                                        "type":"fixed_bits",
+                                        "start_bit":13,
+                                        "bit_length":1
+                                    },
+                                    {
+                                        "name":"Mode-3/A reply",
+                                        "comment":"",
+                                        "type":"fixed_bits",
+                                        "data_type":"digits",
+                                        "start_bit":0,
+                                        "bit_length":12,
+                                        "num_digits":4,
+                                        "digit_bit_length":3
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "name":"TYP",
+                        "type": "optional_item",
+                        "optional_bitfield_name":"available",
+                        "optional_bitfield_index": 2,
+                        "data_fields":
+                        [
+                            {
+                                "name":"TYP",
+                                "type":"fixed_bitfield",
+                                "length":1,
+                                "items":[
+                                    {
+                                        "name":"TYP",
+                                        "comment":"000 No detection\n001 Single PSR detection\n010 Single SSR detection\n011 SSR + PSR detection\n100 Single ModeS All-Call\n101 Single ModeS Roll-Call\n110 ModeS All-Call + PSR\n111 ModeS Roll-Call +PSR",
+                                        "type":"fixed_bits",
+                                        "start_bit":5,
+                                        "bit_length":3
+                                    },
+                                    {
+                                        "name":"SIM",
+                                        "comment":"0  Actual target report\n1 Simulated target report",
+                                        "type":"fixed_bits",
+                                        "start_bit":4,
+                                        "bit_length":1
+                                    },
+                                    {
+                                        "name":"RAB",
+                                        "comment":"0 Report from aircraft transponder\n1 Report from field monitor(fixed transponder)",
+                                        "type":"fixed_bits",
+                                        "start_bit":3,
+                                        "bit_length":1
+                                    },
+                                    {
+                                        "name":"TST",
+                                        "comment":"0 Real target report\n 1 Test target report",
+                                        "type":"fixed_bits",
+                                        "start_bit":2,
+                                        "bit_length":1
+                                    }
+                                ]
                             }
                         ]
                     }
@@ -1394,8 +1977,8 @@
     },
     {
         "number":"380",
-        "name":"",
-        "comment":"",
+        "name":"Aircraft Derived Data",
+        "comment":"Data derived directly by the aircraft.",
         "type": "item",
         "data_fields":
         [
@@ -1411,15 +1994,15 @@
                 "items":
                 [
                     {
-                        "name":"adr",
+                        "name":"ADR",
                         "type": "optional_item",
                         "optional_bitfield_name":"available",
                         "optional_bitfield_index": 31,
                         "data_fields":
                         [
                             {
-                                "name":"target_address",
-                                "comment":"",
+                                "name":"Target Address",
+                                "comment":"24 bits Target Address",
                                 "type":"fixed_bytes",
                                 "length": 3,
                                 "data_type":"uint"
@@ -1427,107 +2010,70 @@
                         ]
                     },
                     {
-                        "name":"id",
+                        "name":"ID",
                         "type": "optional_item",
                         "optional_bitfield_name":"available",
                         "optional_bitfield_index": 30,
                         "data_fields":
                         [
                             {
-                                "name":"target_identification",
+                                "name":"ID",
                                 "type":"fixed_bitfield",
-                                "length": 6,
+                                "length":6,
                                 "items":[
                                     {
-                                        "name":"c1",
+                                        "name":"Target Identification",
+                                        "comment":"Characters 1-8 (coded on 6 bits each) defining a target identification when flight plan is available or the registration marking when no flight plan is available.",
                                         "type":"fixed_bits",
-                                        "start_bit": 42,
-                                        "bit_length": 6
-                                    },
-                                    {
-                                        "name":"c2",
-                                        "type":"fixed_bits",
-                                        "start_bit": 36,
-                                        "bit_length": 6
-                                    },
-                                    {
-                                        "name":"c3",
-                                        "type":"fixed_bits",
-                                        "start_bit": 30,
-                                        "bit_length": 6
-                                    },
-                                    {
-                                        "name":"c4",
-                                        "type":"fixed_bits",
-                                        "start_bit": 24,
-                                        "bit_length": 6
-                                    },
-                                    {
-                                        "name":"c5",
-                                        "type":"fixed_bits",
-                                        "start_bit": 18,
-                                        "bit_length": 6
-                                    },
-                                    {
-                                        "name":"c6",
-                                        "type":"fixed_bits",
-                                        "start_bit": 12,
-                                        "bit_length": 6
-                                    },
-                                    {
-                                        "name":"c7",
-                                        "type":"fixed_bits",
-                                        "start_bit": 6,
-                                        "bit_length": 6
-                                    },
-                                    {
-                                        "name":"c8",
-                                        "type":"fixed_bits",
-                                        "start_bit": 0,
-                                        "bit_length": 6
+                                        "data_type":"characters",
+                                        "start_bit":0,
+                                        "bit_length":48,
+                                        "num_characters":8,
+                                        "character_bit_length":6
                                     }
                                 ]
                             }
                         ]
                     },
                     {
-                        "name":"mhg",
+                        "name":"MHG",
                         "type": "optional_item",
                         "optional_bitfield_name":"available",
                         "optional_bitfield_index": 29,
                         "data_fields":
                         [
                             {
-                                "name":"magnetic_heading",
+                                "name":"Magnetic Heading",
                                 "comment":"",
                                 "type":"fixed_bytes",
                                 "length": 2,
-                                "data_type":"uint"
+                                "data_type":"uint",
+                                "lsb":0.00549316406
                             }                            
                         ]
                     },
                     {
-                        "name":"ais",
+                        "name":"AIS",
                         "type": "optional_item",
                         "optional_bitfield_name":"available",
                         "optional_bitfield_index": 28,
                         "data_fields":
                         [
                             {
-                                "name":"air_speed",
+                                "name":"Indicated Airspeed / Mach No",
                                 "type":"fixed_bitfield",
                                 "length":2,
                                 "items":[
                                     {
-                                        "name":"im",
-                                        "comment":"",
+                                        "name":"IM",
+                                        "comment":"0 Air Speed = IAS, LSB (Bit-1) = 2^-14 NM/s\n1 Air Speed = Mach, LSB (Bit-1) = 0.001",
                                         "type":"fixed_bits",
                                         "start_bit": 15,
                                         "bit_length": 1
                                     },
                                     {
-                                        "name":"value",
-                                        "comment":"",
+                                        "name":"Air Speed",
+                                        "comment":"Air Speed (IAS or Mach)",
                                         "type":"fixed_bits",
                                         "start_bit": 0,
                                         "bit_length": 15
@@ -1537,124 +2083,129 @@
                         ]
                     },
                     {
-                        "name":"tas",
+                        "name":"TAS",
                         "type": "optional_item",
                         "optional_bitfield_name":"available",
                         "optional_bitfield_index": 27,
                         "data_fields":
                         [
                             {
-                                "name":"true_air_speed",
-                                "comment":"",
+                                "name":"True Airspeed",
+                                "comment":"0 <= True Air Speed <= 2046 knots",
                                 "type":"fixed_bytes",
                                 "length": 2,
-                                "data_type":"uint"
+                                "data_type":"uint",
+                                "lsb":1.0
                             }
                         ]
                     },
                     {
-                        "name":"sal",
+                        "name":"SAL",
                         "type": "optional_item",
                         "optional_bitfield_name":"available",
                         "optional_bitfield_index": 26,
                         "data_fields":
                         [
                             {
-                                "name":"selected_altitude",
+                                "name":"Selected Altitude",
+                                "comment":"The short-term vertical intent as described by either the FMS selected altitude, the Altitude Control Panel Selected Altitude (FCU/MCP), or the current aircraft altitude according to the aircraft's mode of flight.",
                                 "type":"fixed_bitfield",
                                 "length": 2,
                                 "items":[
                                     {
-                                        "name":"sas",
-                                        "comment":"",
+                                        "name":"SAS",
+                                        "comment":"0 No source information provided\n1 Source Information provided",
                                         "type":"fixed_bits",
                                         "start_bit": 15,
                                         "bit_length": 1
                                     },
                                     {
-                                        "name":"source",
-                                        "comment":"",
+                                        "name":"Source",
+                                        "comment":"0 Unknown\n01 Aircraft Altitude\n2 FCU/MCP Selected Altitude\n3 FMS Selected Altitude",
                                         "type":"fixed_bits",
                                         "start_bit": 13,
                                         "bit_length": 2
                                     },
                                     {
-                                        "name":"value",
-                                        "comment":"",
+                                        "name":"Altitude",
+                                        "comment":"Altitude in two’s complement form\n-1300ft <= Altitude <= 100000ft",
                                         "type":"fixed_bits",
                                         "start_bit": 0,
-                                        "bit_length": 13
+                                        "bit_length": 13,
+                                        "lsb":25.0
                                     }
                                 ]
                             }
                         ]
                     },
                     {
-                        "name":"fss",
+                        "name":"FSS",
                         "type": "optional_item",
                         "optional_bitfield_name":"available",
                         "optional_bitfield_index": 25,
                         "data_fields":
                         [
                             {
-                                "name":"final_selected_altitude",
+                                "name":"Final State Selected Altitude",
+                                "comment":"The vertical intent value that corresponds with the ATC cleared altitude, as derived from the Altitude Control Panel (FCU/MCP).",
                                 "type":"fixed_bitfield",
                                 "length": 2,
                                 "items":[
                                     {
-                                        "name":"mv",
-                                        "comment":"",
+                                        "name":"MV",
+                                        "comment":"Manage Vertical Mode\n0 Not active\n1 Active",
                                         "type":"fixed_bits",
                                         "start_bit": 15,
                                         "bit_length": 1
                                     },
                                     {
-                                        "name":"ah",
-                                        "comment":"",
+                                        "name":"AH",
+                                        "comment":"Altitude Hold\n0 Not active\n1 Active",
                                         "type":"fixed_bits",
                                         "start_bit": 14,
                                         "bit_length": 1
                                     },
                                     {
-                                        "name":"am",
-                                        "comment":"",
+                                        "name":"AM",
+                                        "comment":"Approach Mode\n0 Not active\n1 Active",
                                         "type":"fixed_bits",
                                         "start_bit": 13,
                                         "bit_length": 1
                                     },
                                     {
-                                        "name":"altitude",
-                                        "comment":"",
+                                        "name":"Altitude",
+                                        "comment":"Altitude in two’s complement form\n-1300ft <= Altitude <= 100000ft",
                                         "type":"fixed_bits",
                                         "start_bit": 0,
-                                        "bit_length": 13
+                                        "bit_length": 13,
+                                        "lsb":25.0
                                     }
                                 ]
                             }
                         ]
                     },
                     {
-                        "name":"tis",
+                        "name":"TIS",
                         "type": "optional_item",
                         "optional_bitfield_name":"available",
                         "optional_bitfield_index": 23,
                         "data_fields":
                         [
                             {
-                                "name":"trajectory_intent_status",
+                                "name":"Trajectory Intent Status",
                                 "type":"fixed_bitfield",
                                 "length": 1,
                                 "items":[
                                     {
-                                        "name":"nav",
-                                        "comment":"",
+                                        "name":"NAV",
+                                        "comment":"0 Trajectory Intent Data is available for this aircraft\n1 Trajectory Intent Data is not available for this aircraft",
                                         "type":"fixed_bits",
                                         "start_bit": 7,
                                         "bit_length": 1
                                     },
                                     {
-                                        "name":"nvb",
-                                        "comment":"",
+                                        "name":"NVB",
+                                        "comment":"0 Trajectory Intent Data is valid\n1 Trajectory Intent Data is not valid",
                                         "type":"fixed_bits",
                                         "start_bit": 6,
                                         "bit_length": 1
@@ -1664,14 +2215,14 @@
                         ]
                     },
                     {
-                        "name":"tid",
+                        "name":"TID",
                         "type": "optional_item",
                         "optional_bitfield_name":"available",
                         "optional_bitfield_index": 22,
                         "data_fields":
                         [
                             {
-                                "name":"trajectory_intent_data",
+                                "name":"Trajectory Intent Data",
                                 "type":"repetitive",
                                 "repetition_item" : 
                                     {
@@ -1682,27 +2233,27 @@
                                     },
                                 "items":[
                                     {
-                                        "name":"tid1",
+                                        "name":"TID1",
                                         "type":"fixed_bitfield",
                                         "length": 1,
                                         "items":[
                                             {
-                                                "name":"tca",
-                                                "comment":"",
+                                                "name":"TCA",
+                                                "comment":"0 TCP number available\n1 TCP number not available",
                                                 "type":"fixed_bits",
                                                 "start_bit": 7,
                                                 "bit_length": 1
                                             },
                                             {
-                                                "name":"nc",
-                                                "comment":"",
+                                                "name":"NC",
+                                                "comment":"0 TCP compliance\n1 TCP non-compliance",
                                                 "type":"fixed_bits",
                                                 "start_bit": 6,
                                                 "bit_length": 1
                                             },
                                             {
-                                                "name":"tcp_number",
-                                                "comment":"",
+                                                "name":"TCP number",
+                                                "comment":"Trajectory Change Point number",
                                                 "type":"fixed_bits",
                                                 "start_bit": 0,
                                                 "bit_length": 6
@@ -1710,178 +2261,192 @@
                                         ]
                                     },
                                     {
-                                        "name":"altitude",
-                                        "comment":"",
+                                        "name":"Altitude",
+                                        "comment":"-1500 ft <= altitude <= 150000 ft",
                                         "type":"fixed_bytes",
                                         "length": 2,
-                                        "data_type" : "int"
+                                        "data_type" : "int",
+                                        "lsb":10.0
                                     },
                                     {
-                                        "name":"latitude",
-                                        "comment":"",
+                                        "name":"Latitude",
+                                        "comment":"In WGS.84 in two's complement.\n-90 <= latitude <= 90 deg.",
                                         "type":"fixed_bytes",
                                         "length": 3,
-                                        "data_type" : "int"
+                                        "data_type" : "int",
+                                        "lsb":0.00002145767
                                     },
                                     {
-                                        "name":"longitude",
-                                        "comment":"",
+                                        "name":"Longitude",
+                                        "comment":"In WGS.84 in two's complement.\n-180 <= latitude < 180",
                                         "type":"fixed_bytes",
                                         "length": 3,
-                                        "data_type" : "int"
+                                        "data_type" : "int",
+                                        "lsb":0.00002145767
                                     },
                                     {
-                                        "name":"tid2",
+                                        "name":"TID2",
                                         "type":"fixed_bitfield",
                                         "length": 1,
                                         "items":[
                                             {
-                                                "name":"point_type",
-                                                "comment":"",
+                                                "name":"Point Type",
+                                                "comment":"0 Unknown\n1 Fly by waypoint (LT)\n2 Fly over waypoint (LT)\n3 Hold = 4 Procedure hold (LT)\n5 Procedure turn (LT)\n6 RF leg (LT)\n7 Top of climb (VT)\n8 Top of descent (VT)\n9 Start of level (VT)\n10 Cross-over altitude (VT)\n11 Transition altitude (VT)",
                                                 "type":"fixed_bits",
                                                 "start_bit": 4,
                                                 "bit_length": 4
                                             },
                                             {
-                                                "name":"td",
-                                                "comment":"",
+                                                "name":"TD",
+                                                "comment":"0 N/A\n 1 Turn right\n2 Turn left\n3 No turn",
                                                 "type":"fixed_bits",
                                                 "start_bit": 2,
                                                 "bit_length": 2
                                             },
                                             {
-                                                "name":"tra",
-                                                "comment":"",
+                                                "name":"TRA",
+                                                "comment":"Turn Radius Availability\n0 TTR not available\n1 TTR available",
                                                 "type":"fixed_bits",
                                                 "start_bit": 1,
+                                                "bit_length": 1
+                                            },
+                                            {
+                                                "name":"TOA",
+                                                "comment":"0 TOV avilable\n1 TOV not available",
+                                                "type":"fixed_bits",
+                                                "start_bit": 0,
                                                 "bit_length": 1
                                             }
                                         ]
                                     },
                                     {
-                                        "name":"tov",
+                                        "name":"TOV",
+                                        "comment":"Time Over Point",
                                         "type":"fixed_bytes",
                                         "length": 3,
-                                        "data_type" : "uint"
+                                        "data_type" : "uint",
+                                        "lsb":1.0
                                     },
                                     {
-                                        "name":"ttr",
+                                        "name":"TTR",
+                                        "comment":"TCP Turn radius\n0 <= TTR <= 655.35 Nm",
                                         "type":"fixed_bytes",
                                         "length": 2,
-                                        "data_type" : "uint"
+                                        "data_type" : "uint",
+                                        "lsb":0.01
                                     }
                                 ]
                             }
                         ]
                     },
                     {
-                        "name":"com",
+                        "name":"COM",
                         "type": "optional_item",
                         "optional_bitfield_name":"available",
                         "optional_bitfield_index": 21,
                         "data_fields":
                         [
                             {
-                                "name":"com_acas_flight_status",
+                                "name":"Communications/ACAS Capability and Flight Status reported by Mode-S",
                                 "type":"fixed_bitfield",
                                 "length": 2,
                                 "items":[
                                     {
-                                        "name":"com",
-                                        "comment":"",
+                                        "name":"COM",
+                                        "comment":"Communications capability of the transponder\n0 No communications capability (surveillance only)\n1 Comm. A and Comm. B capability\n2 Comm. A, Comm. B and Uplink ELM\n3 Comm. A, Comm. B, Uplink ELM and Downlink ELM\n4 Level 5 Transponder capability\n5 to 7 Not assigned",
                                         "type":"fixed_bits",
                                         "start_bit":13,
                                         "bit_length":3
                                     },
                                     {
-                                        "name":"stat",
-                                        "comment":"",
+                                        "name":"STAT",
+                                        "comment":"Flight Status\n0 No alert, no SPI, aircraft airborne\n1 No alert, no SPI, aircraft on ground\n2 Alert, no SPI, aircraft airborne\n3 Alert, no SPI, aircraft on ground\n4 Alert, SPI, aircraft airborne or on ground\n5 No alert, SPI, aircraft airborne or on ground",
                                         "type":"fixed_bits",
                                         "start_bit":10,
                                         "bit_length":3
                                     },
                                     {
-                                        "name":"mssc",
-                                        "comment":"",
+                                        "name":"SSC",
+                                        "comment":"Specific Service Capability\n0 No\n1 Yes",
                                         "type":"fixed_bits",
                                         "start_bit":7,
                                         "bit_length":1
                                     },
                                     {
-                                        "name":"arc",
-                                        "comment":"",
+                                        "name":"ARC",
+                                        "comment":"Altitude reporting capability\n0 100 ft resolution\n1 25 ft resolution",
                                         "type":"fixed_bits",
                                         "start_bit":6,
                                         "bit_length":1
                                     },
                                     {
-                                        "name":"aic",
-                                        "comment":"",
+                                        "name":"AIC",
+                                        "comment":"Aircraft identification capability\n0 No\n1 Yes",
                                         "type":"fixed_bits",
                                         "start_bit":5,
                                         "bit_length":1
                                     },
                                     {
-                                        "name":"b1a",
-                                        "comment":"",
+                                        "name":"B1A",
+                                        "comment":"BDS 1,0 bit 16",
                                         "type":"fixed_bits",
-                                        "start_bit": 4,
+                                        "start_bit":4,
                                         "bit_length":1
                                     },
                                     {
-                                        "name":"b1b",
-                                        "comment":"",
+                                        "name":"B1B",
+                                        "comment":"BDS 1,0 bits 37/40",
                                         "type":"fixed_bits",
-                                        "start_bit": 0,
-                                        "bit_length": 4
-                                    }
+                                        "start_bit":0,
+                                        "bit_length":4
+                                    }                                    
                                 ]
                             }
                         ]
                     },
                     {
-                        "name":"sab",
+                        "name":"SAB",
                         "type": "optional_item",
                         "optional_bitfield_name":"available",
                         "optional_bitfield_index": 20,
                         "data_fields":
                         [
                             {
-                                "name":"status_report_adsb",
+                                "name":"Status reported by ADS-B",
                                 "type":"fixed_bitfield",
                                 "length": 2,
                                 "items":[
                                     {
-                                        "name":"ac",
-                                        "comment":"",
+                                        "name":"AC",
+                                        "comment":"0 unknown\n1 ACAS not operational\n2 ACAS operational\n3 invalid",
                                         "type":"fixed_bits",
                                         "start_bit": 14,
                                         "bit_length": 2
                                     },
                                     {
-                                        "name":"mn",
-                                        "comment":"",
+                                        "name":"MN",
+                                        "comment":"0 unknown\n1 Multiple navigational aids not operating\n2 Multiple navigational aids operating\n3 invalid",
                                         "type":"fixed_bits",
                                         "start_bit": 12,
                                         "bit_length": 2
                                     },
                                     {
-                                        "name":"dc",
-                                        "comment":"",
+                                        "name":"DC",
+                                        "comment":"0 unknown\n1 Differential correction\n2 No differential correction\n3 invalid",
                                         "type":"fixed_bits",
                                         "start_bit": 10,
                                         "bit_length": 2
                                     },
                                     {
-                                        "name":"gbs",
-                                        "comment":"",
+                                        "name":"GBS",
+                                        "comment":"0 Transponder Ground Bit not set or unknown\n1 Transponder Ground Bit set",
                                         "type":"fixed_bits",
                                         "start_bit": 9,
                                         "bit_length": 1
                                     },
                                     {
-                                        "name":"stat",
-                                        "comment":"",
+                                        "name":"STAT",
+                                        "comment":"Flight Status\n0 No emergency\n1 General emergency\n2 Lifeguard / medical\n3 Minimum fuel\n4 No communications\n5 Unlawful interference\n6 \"Downed\" Aircraft\n7 Unknown",
                                         "type":"fixed_bits",
                                         "start_bit": 0,
                                         "bit_length": 3
@@ -1891,15 +2456,16 @@
                         ]
                     },
                     {
-                        "name":"acs",
+                        "name":"ACS",
+                        "comment":"Currently active Resolution Advisory (RA), if any, generated by the ACAS associated with the transponder transmitting the report and threat identity data.",
                         "type": "optional_item",
                         "optional_bitfield_name":"available",
                         "optional_bitfield_index": 19,
                         "data_fields":
                         [
                             {
-                                "name":"acas_rap",
-                                "comment":"",
+                                "name":"MB Data",
+                                "comment":"56-bit message conveying Mode S Comm B message data of BDS Register 3,0",
                                 "type":"fixed_bytes",
                                 "length":7,
                                 "data_type":"bin"
@@ -1907,125 +2473,131 @@
                         ]
                     },
                     {
-                        "name":"bvr",
+                        "name":"BVR",
                         "type": "optional_item",
                         "optional_bitfield_name":"available",
                         "optional_bitfield_index": 18,
                         "data_fields":
                         [
                             {
-                                "name":"barometric_vertical_rate",
+                                "name":"Barometric Vertical Rate",
                                 "comment":"",
                                 "type":"fixed_bytes",
                                 "length": 2,
-                                "data_type": "int"
+                                "data_type": "int",
+                                "lsb":6.25
                             }
                         ]
                     },
                     {
-                        "name":"gvr",
+                        "name":"GVR",
                         "type": "optional_item",
                         "optional_bitfield_name":"available",
                         "optional_bitfield_index": 17,
                         "data_fields":
                         [
                             {
-                                "name":"geometric_vertical_rate",
+                                "name":"Geometric Vertical Rate",
                                 "comment":"",
                                 "type":"fixed_bytes",
                                 "length": 2,
-                                "data_type": "int"
+                                "data_type": "int",
+                                "lsb":6.25
                             }
                         ]
                     },
                     {
-                        "name":"ran",
+                        "name":"RAN",
                         "type": "optional_item",
                         "optional_bitfield_name":"available",
                         "optional_bitfield_index": 15,
                         "data_fields":
                         [
                             {
-                                "name":"roll_angle",
-                                "comment":"",
+                                "name":"Roll Angle",
+                                "comment":"Roll Angle in two’s complement form, -180 <= Roll Angle <= 180",
                                 "type":"fixed_bytes",
                                 "length":2,
-                                "data_type":"int"
+                                "data_type":"int",
+                                "lsb":0.01
                             }
                         ]
                     },
                     {
-                        "name":"tar",
+                        "name":"TAR",
                         "type": "optional_item",
                         "optional_bitfield_name":"available",
                         "optional_bitfield_index": 14,
                         "data_fields":
                         [
                             {
-                                "name":"track_angle_rate",
+                                "name":"Track Angle Rate",
                                 "type":"fixed_bitfield",
                                 "length": 2,
                                 "items":[
                                     {
-                                        "name":"ti",
-                                        "comment":"",
+                                        "name":"TI",
+                                        "comment":"Turn Indicator\n0 Not available\n1 Left\n2 Right\n3 Straight",
                                         "type":"fixed_bits",
                                         "start_bit": 14,
                                         "bit_length": 2
                                     },
                                     {
-                                        "name":"rate_of_turn",
-                                        "comment":"",
+                                        "name":"Rate of Turn",
+                                        "comment":"Rate of Turn in two’s complement form\n-15 °/s <= Rate of Turn <= 15 °/s",
                                         "type":"fixed_bits",
                                         "start_bit": 1,
                                         "bit_length": 7,
-                                        "data_type": "int"
+                                        "data_type": "int",
+                                        "lsb":0.25
                                     }
                                 ]
                             }
                         ]
                     },
                     {
-                        "name":"tan",
+                        "name":"TAN",
                         "type": "optional_item",
                         "optional_bitfield_name":"available",
                         "optional_bitfield_index": 13,
                         "data_fields":
                         [
                             {
-                                "name":"track_angle",
+                                "name":"Track Angle",
                                 "comment":"",
                                 "type":"fixed_bytes",
                                 "length": 2,
-                                "data_type":"uint"
+                                "data_type":"uint",
+                                "lsb":0.00549316406
                             }
                         ]
                     },
                     {
-                        "name":"gsp",
+                        "name":"GSP",
                         "type": "optional_item",
                         "optional_bitfield_name":"available",
                         "optional_bitfield_index": 12,
                         "data_fields":
                         [
                             {
-                                "name":"ground_speed",
-                                "comment":"",
+                                "name":"Ground Speed",
+                                "comment":"Ground Speed in two's complement form referenced to WGS84\n-2 NM/s <= Ground Speed < 2 NM/s",
                                 "type":"fixed_bytes",
                                 "length": 2,
-                                "data_type":"int"
+                                "data_type":"int",
+                                "lsb":0.00006103515
                             }
                         ]
                     },
                     {
-                        "name":"vun",
+                        "name":"VUN",
                         "type": "optional_item",
                         "optional_bitfield_name":"available",
                         "optional_bitfield_index": 11,
                         "data_fields":
                         [
                             {
-                                "name":"velocity_uncertainty_category",
+                                "name":"Velocity Uncertainty Category",
                                 "comment":"",
                                 "type":"fixed_bytes",
                                 "length": 1,
@@ -2034,7 +2606,7 @@
                         ]
                     },
                     {
-                        "name":"met",
+                        "name":"MET",
                         "type": "optional_item",
                         "optional_bitfield_name":"available",
                         "optional_bitfield_index": 10,
@@ -2120,7 +2692,7 @@
                         ]
                     },
                     {
-                        "name":"emc",
+                        "name":"EMC",
                         "type": "optional_item",
                         "optional_bitfield_name":"available",
                         "optional_bitfield_index": 9,
@@ -2136,7 +2708,7 @@
                         ]
                     },
                     {
-                        "name":"pos",
+                        "name":"POS",
                         "type": "optional_item",
                         "optional_bitfield_name":"available",
                         "optional_bitfield_index": 7,
@@ -2159,7 +2731,7 @@
                         ]
                     },
                     {
-                        "name":"gal",
+                        "name":"GAL",
                         "type": "optional_item",
                         "optional_bitfield_name":"available",
                         "optional_bitfield_index": 6,
@@ -2175,7 +2747,7 @@
                         ]
                     },
                     {
-                        "name":"pun",
+                        "name":"PUN",
                         "type": "optional_item",
                         "optional_bitfield_name":"available",
                         "optional_bitfield_index": 5,
@@ -2191,7 +2763,7 @@
                         ]
                     },
                     {
-                        "name":"mb",
+                        "name":"MB",
                         "type": "optional_item",
                         "optional_bitfield_name":"available",
                         "optional_bitfield_index": 4,
@@ -2241,7 +2813,7 @@
                         ]
                     },
                     {
-                        "name":"iar",
+                        "name":"IAR",
                         "type": "optional_item",
                         "optional_bitfield_name":"available",
                         "optional_bitfield_index": 3,
@@ -2257,7 +2829,7 @@
                         ]
                     },
                     {
-                        "name":"mac",
+                        "name":"MAX",
                         "type": "optional_item",
                         "optional_bitfield_name":"available",
                         "optional_bitfield_index": 2,
@@ -2273,7 +2845,7 @@
                         ]
                     },
                     {
-                        "name":"bps",
+                        "name":"BPS",
                         "type": "optional_item",
                         "optional_bitfield_name":"available",
                         "optional_bitfield_index": 1,
@@ -2285,609 +2857,6 @@
                                 "type":"fixed_bytes",
                                 "length": 2,
                                 "data_type":"uint"
-                            }
-                        ]
-                    }
-                ]
-            }
-        ]
-    },
-    {
-        "number":"220",
-        "name":"",
-        "comment":"",
-        "type": "item",
-        "data_fields":
-        [
-            {
-                "name":"calculated_rate_of_climb/descent",
-                "comment":"",
-                "type":"fixed_bytes",
-                "length": 2,
-                "data_type":"int"
-            }
-        ]
-    },
-    {
-        "number":"270",
-        "name":"",
-        "comment":"",
-        "type": "item",
-        "data_fields":
-        [
-            {
-                "name":"target_size_orientation",
-                "type":"fixed_bitfield",
-                "length":1,
-                "items":[
-                    {
-                        "name":"length",
-                        "comment":"",
-                        "type":"fixed_bits",
-                        "start_bit": 1,
-                        "bit_length": 7
-                    },
-                    {
-                        "name":"extent_present",
-                        "type":"fixed_bits",
-                        "start_bit": 0,
-                        "bit_length":1
-                    }
-                ]
-            },
-            {
-                "name":"target_size_orientation_first_extend",
-                "type":"fixed_bitfield",
-                "length":1,
-                "optional":true,
-                "optional_variable_name":"270.extent_present",
-                "optional_variable_value":1,
-                "items":[
-                    {
-                        "name":"orientation",
-                        "comment":"",
-                        "type":"fixed_bits",
-                        "start_bit": 1,
-                        "bit_length": 7
-                    },
-                    {
-                        "name":"extent2_present",
-                        "type":"fixed_bits",
-                        "start_bit": 0,
-                        "bit_length":1
-                    }
-                ]
-            },
-            {
-                "name":"target_size_orientation_second_extend",
-                "type":"fixed_bitfield",
-                "length": 1,
-                "optional": true,
-                "optional_variable_name":"270.extent2_present",
-                "optional_variable_value":1,
-                "items":[
-                    {
-                        "name":"width",
-                        "comment":"",
-                        "type":"fixed_bits",
-                        "start_bit": 1,
-                        "bit_length": 7
-                    }
-                ]
-            }
-        ]
-    },
-    {
-        "number":"300",
-        "name":"",
-        "comment":"",
-        "type": "item",
-        "data_fields":
-        [
-            {
-                "name":"300",
-                "type":"compound",
-                "field_specification":
-                {
-                    "name":"available",
-                    "type":"extendable_bits",
-                    "data_type":"bitfield"
-                },
-                "items":
-                [
-                    {
-                        "name":"sum",
-                        "type": "optional_item",
-                        "optional_bitfield_name":"available",
-                        "optional_bitfield_index": 7,
-                        "data_fields":
-                        [
-                            {
-                                "name":"mode5_summary",
-                                "type":"fixed_bitfield",
-                                "length": 1,
-                                "items":[
-                                    {
-                                        "name":"m5",
-                                        "comment":"",
-                                        "type":"fixed_bits",
-                                        "start_bit": 7,
-                                        "bit_length": 1
-                                    },
-                                    {
-                                        "name":"id",
-                                        "comment":"",
-                                        "type":"fixed_bits",
-                                        "start_bit": 6,
-                                        "bit_length": 1
-                                    },
-                                    {
-                                        "name":"da",
-                                        "comment":"",
-                                        "type":"fixed_bits",
-                                        "start_bit": 5,
-                                        "bit_length":1
-                                    },
-                                    {
-                                        "name":"m1",
-                                        "comment":"",
-                                        "type":"fixed_bits",
-                                        "start_bit": 4,
-                                        "bit_length": 1
-                                    },
-                                    {
-                                        "name":"m2",
-                                        "comment":"",
-                                        "type":"fixed_bits",
-                                        "start_bit": 3,
-                                        "bit_length": 1
-                                    },
-                                    {
-                                        "name":"m3",
-                                        "comment":"",
-                                        "type":"fixed_bits",
-                                        "start_bit": 2,
-                                        "bit_length": 1
-                                    },
-                                    {
-                                        "name":"mc",
-                                        "comment":"",
-                                        "type":"fixed_bits",
-                                        "start_bit": 1,
-                                        "bit_length": 1
-                                    },
-                                    {
-                                        "name":"x",
-                                        "comment":"",
-                                        "type":"fixed_bits",
-                                        "start_bit": 0,
-                                        "bit_length":1
-                                    }
-                                ]
-                            }
-                        ]
-                    },
-                    {
-                        "name":"pmn",
-                        "type": "optional_item",
-                        "optional_bitfield_name":"available",
-                        "optional_bitfield_index": 6,
-                        "data_fields":
-                        [
-                            {
-                                "name":"mode5_pin/national_origin/mission_code",
-                                "type":"fixed_bitfield",
-                                "length": 4,
-                                "items":[
-                                    {
-                                        "name":"pin",
-                                        "comment":"",
-                                        "type":"fixed_bits",
-                                        "start_bit": 16,
-                                        "bit_length": 14
-                                    },
-                                    {
-                                        "name":"nat",
-                                        "comment":"",
-                                        "type":"fixed_bits",
-                                        "start_bit": 9,
-                                        "bit_length": 5
-                                    },
-                                    {
-                                        "name":"mis",
-                                        "comment":"",
-                                        "type":"fixed_bits",
-                                        "start_bit": 0,
-                                        "bit_length": 6
-                                    }
-                                ]
-                            }
-                        ]
-                    },
-                    {
-                        "name":"pos",
-                        "type": "optional_item",
-                        "optional_bitfield_name":"available",
-                        "optional_bitfield_index": 5,
-                        "data_fields":
-                        [
-                            {
-                                "name":"latitude",
-                                "comment":"",
-                                "type":"fixed_bytes",
-                                "length": 3,
-                                "data_type": "int"
-                            },
-                            {
-                                "name":"longitude",
-                                "comment":"",
-                                "type":"fixed_bytes",
-                                "length": 3,
-                                "data_type": "int"
-                            }
-                        ]
-                    },
-                    {
-                        "name":"ga",
-                        "type": "optional_item",
-                        "optional_bitfield_name":"available",
-                        "optional_bitfield_index": 4,
-                        "data_fields":
-                        [
-                            {
-                                "name":"mode5_gnss-derived_altitude",
-                                "type":"fixed_bitfield",
-                                "length": 2,
-                                "items":[
-                                    {
-                                        "name":"res",
-                                        "comment":"",
-                                        "type":"fixed_bits",
-                                        "start_bit": 14,
-                                        "bit_length": 1
-                                    },
-                                    {
-                                        "name":"ga",
-                                        "comment":"",
-                                        "type":"fixed_bits",
-                                        "start_bit": 0,
-                                        "bit_length": 14,
-                                        "data_type": "int"
-                                    }
-                                ]
-                            }
-                        ]
-                    },
-                    {
-                        "name":"em1",
-                        "type": "optional_item",
-                        "optional_bitfield_name":"available",
-                        "optional_bitfield_index": 3,
-                        "data_fields":
-                        [
-                            {
-                                "name":"mode_1",
-                                "type":"fixed_bitfield",
-                                "length": 2,
-                                "items":[
-                                    {
-                                        "name":"a",
-                                        "type":"fixed_bits",
-                                        "start_bit": 9,
-                                        "bit_length": 3
-                                    },
-                                    {
-                                        "name":"b",
-                                        "type":"fixed_bits",
-                                        "start_bit": 6,
-                                        "bit_length": 3
-                                    },
-                                    {
-                                        "name":"c",
-                                        "type":"fixed_bits",
-                                        "start_bit": 3,
-                                        "bit_length": 3
-                                    },
-                                    {
-                                        "name":"d",
-                                        "type":"fixed_bits",
-                                        "start_bit": 0,
-                                        "bit_length": 3
-                                    }
-                                ]
-                            }
-                        ]
-                    },
-                    {
-                        "name":"tos",
-                        "type": "optional_item",
-                        "optional_bitfield_name":"available",
-                        "optional_bitfield_index": 2,
-                        "data_fields":
-                        [
-                            {
-                                "name":"time_offset_for_pos_and_ga",
-                                "comment":"",
-                                "type":"fixed_bytes",
-                                "length": 1,
-                                "data_type": "uint"
-                            }
-                        ]
-                    },
-                    {
-                        "name":"xp",
-                        "type": "optional_item",
-                        "optional_bitfield_name":"available",
-                        "optional_bitfield_index": 1,
-                        "data_fields":
-                        [
-                            {
-                                "name":"x_pulse_presence",
-                                "type":"fixed_bitfield",
-                                "length": 1,
-                                "items":[
-                                    {
-                                        "name":"x5",
-                                        "comment":"",
-                                        "type":"fixed_bits",
-                                        "start_bit": 4,
-                                        "bit_length": 1
-                                    },
-                                    {
-                                        "name":"xc",
-                                        "comment":"",
-                                        "type":"fixed_bits",
-                                        "start_bit": 3,
-                                        "bit_length": 1
-                                    },
-                                    {
-                                        "name":"x3",
-                                        "comment":"",
-                                        "type":"fixed_bits",
-                                        "start_bit": 2,
-                                        "bit_length": 1
-                                    },
-                                    {
-                                        "name":"x2",
-                                        "comment":"",
-                                        "type":"fixed_bits",
-                                        "start_bit": 1,
-                                        "bit_length": 1
-                                    },
-                                    {
-                                        "name":"x1",
-                                        "comment":"",
-                                        "type":"fixed_bits",
-                                        "start_bit": 0,
-                                        "bit_length": 1
-                                    }
-                                ]
-                            }
-                        ]
-                    }
-                ]
-            }
-        ]
-    },
-    {
-        "number":"340",
-        "name":"",
-        "comment":"",
-        "type": "item",
-        "data_fields":
-        [
-            {
-                "name":"340",
-                "type":"compound",
-                "field_specification":
-                {
-                    "name":"available",
-                    "type":"extendable_bits",
-                    "data_type":"bitfield"
-                },
-                "items":
-                [
-                    {
-                        "name":"sid",
-                        "type": "optional_item",
-                        "optional_bitfield_name":"available",
-                        "optional_bitfield_index": 7,
-                        "data_fields":
-                        [
-                            {
-                                "name":"sac",
-                                "comment":"",
-                                "type":"fixed_bytes",
-                                "length":1,
-                                "data_type":"uint"
-                            },
-                            {
-                                "name":"sic",
-                                "comment":"",
-                                "type":"fixed_bytes",
-                                "length":1,
-                                "data_type":"uint"
-                            }
-                        ]
-                    },
-                    {
-                        "name":"pos",
-                        "type": "optional_item",
-                        "optional_bitfield_name":"available",
-                        "optional_bitfield_index": 6,
-                        "data_fields":
-                        [
-                            {
-                                "name":"rho",
-                                "comment":"",
-                                "type":"fixed_bytes",
-                                "length": 2,
-                                "data_type":"uint"
-                            },
-                            {
-                                "name":"theta",
-                                "comment":"",
-                                "type":"fixed_bytes",
-                                "length": 2,
-                                "data_type":"uint"
-                            }
-                        ]
-                    },
-                    {
-                        "name":"hei",
-                        "type": "optional_item",
-                        "optional_bitfield_name":"available",
-                        "optional_bitfield_index": 5,
-                        "data_fields":
-                        [
-                            {
-                                "name":"height",
-                                "comment":"",
-                                "type":"fixed_bytes",
-                                "length": 2,
-                                "data_type":"uint"
-                            }
-                        ]
-                    },
-                    {
-                        "name":"mdc",
-                        "type": "optional_item",
-                        "optional_bitfield_name":"available",
-                        "optional_bitfield_index": 4,
-                        "data_fields":
-                        [
-                            {
-                                "name":"last_measured_mode_c",
-                                "type":"fixed_bitfield",
-                                "length":2,
-                                "items":[
-                                    {
-                                        "name":"v",
-                                        "comment":"",
-                                        "type":"fixed_bits",
-                                        "start_bit": 15,
-                                        "bit_length": 1
-                                    },
-                                    {
-                                        "name":"g",
-                                        "comment":"",
-                                        "type":"fixed_bits",
-                                        "start_bit": 14,
-                                        "bit_length":1
-                                    },
-                                    {
-                                        "name":"flight_level",
-                                        "comment":"",
-                                        "type":"fixed_bits",
-                                        "start_bit": 0,
-                                        "bit_length":14
-                                    }
-                    ]
-            }
-                        ]
-                    },
-                    {
-                        "name":"mda",
-                        "type": "optional_item",
-                        "optional_bitfield_name":"available",
-                        "optional_bitfield_index": 3,
-                        "data_fields":
-                        [
-                            {
-                                "name":"mode_3a",
-                                "type":"fixed_bitfield",
-                                "length":2,
-                                "items":[
-                                    {
-                                        "name":"v",
-                                        "comment":"",
-                                        "type":"fixed_bits",
-                                        "start_bit": 15,
-                                        "bit_length": 1
-                                    },
-                                    {
-                                        "name":"g",
-                                        "comment":"",
-                                        "type":"fixed_bits",
-                                        "start_bit": 14,
-                                        "bit_length":1
-                                    },
-                                    {
-                                        "name":"l",
-                                        "comment":"",
-                                        "type":"fixed_bits",
-                                        "start_bit": 13,
-                                        "bit_length":1
-                                    },                    
-                                    {
-                                        "name":"a",
-                                        "type":"fixed_bits",
-                                        "start_bit": 9,
-                                        "bit_length":3
-                                    },
-                                    {
-                                        "name":"b",
-                                        "type":"fixed_bits",
-                                        "start_bit": 6,
-                                        "bit_length":3
-                                    },
-                                    {
-                                        "name":"c",
-                                        "type":"fixed_bits",
-                                        "start_bit": 3,
-                                        "bit_length":3
-                                    },
-                                    {
-                                        "name":"d",
-                                        "type":"fixed_bits",
-                                        "start_bit": 0,
-                                        "bit_length":3
-                                    }
-                                ]
-                            }
-                        ]
-                    },
-                    {
-                        "name":"typ",
-                        "type": "optional_item",
-                        "optional_bitfield_name":"available",
-                        "optional_bitfield_index": 2,
-                        "data_fields":
-                        [
-                            {
-                                "name":"report_type",
-                                "type":"fixed_bitfield",
-                                "length": 1,
-                                "items":[
-                                    {
-                                        "name":"typ",
-                                        "comment":"",
-                                        "type":"fixed_bits",
-                                        "start_bit": 5,
-                                        "bit_length": 3
-                                    },
-                                    {
-                                        "name":"sim",
-                                        "comment":"",
-                                        "type":"fixed_bits",
-                                        "start_bit": 4,
-                                        "bit_length": 1
-                                    },
-                                    {
-                                        "name":"rab",
-                                        "comment":"",
-                                        "type":"fixed_bits",
-                                        "start_bit": 3,
-                                        "bit_length": 1
-                                    },                    
-                                    {
-                                        "name":"tst",
-                                        "comment":"",
-                                        "type":"fixed_bits",
-                                        "start_bit": 2,
-                                        "bit_length": 1
-                                    }
-                                ]
                             }
                         ]
                     }
