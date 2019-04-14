@@ -109,9 +109,9 @@ int main (int argc, char **argv)
 
         jASTERIX::jASTERIX asterix (definition_path, true, true);
 
-        //test_cat020(asterix);
-        //test_cat021(asterix);
-        //test_cat048(asterix);
+        test_cat020(asterix);
+        test_cat021(asterix);
+        test_cat048(asterix);
         test_cat062(asterix);
 
     }
