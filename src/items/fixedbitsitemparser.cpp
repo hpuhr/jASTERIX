@@ -192,8 +192,12 @@ FixedBitsItemParser::FixedBitsItemParser (const nlohmann::json& item_definition,
             throw runtime_error ("fixed byte bitfield item '"+name_+"' wrong length "+to_string(byte_length*8)
                                  +" for digits bitsize "+to_string(start_bit_+num_digits_*digit_bit_length_));
 
-        if (character_bit_length_ != 6)
-            throw invalid_argument ("fixed byte bitfield item '"+name_+"' wrong character bit length "
+        if (data_type_ == "icao_characters" && character_bit_length_ != 6)
+            throw invalid_argument ("fixed byte bitfield item '"+name_+"' wrong icao character bit length "
+                                    +to_string(character_bit_length_));
+
+        if (data_type_ == "ascii_characters" && character_bit_length_ != 8)
+            throw invalid_argument ("fixed byte bitfield item '"+name_+"' wrong ascii character bit length "
                                     +to_string(character_bit_length_));
 
         if (byte_length_ == 1)

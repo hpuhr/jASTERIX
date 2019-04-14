@@ -1,8 +1,8 @@
 {
     "name":"record",
-    "type":"compound",
+    "type":"record",
     "field_specification":{
-        "name":"fspec",
+        "name":"FSPEC",
         "type":"extendable_bits",
         "reverse_bits":true,
         "data_type":"bitfield"
@@ -574,7 +574,7 @@
                                 {
                                     "name":"GA",
                                     "type":"fixed_bitfield",
-                                    "length":1,
+                                    "length":2,
                                     "items":[
                                         {
                                             "name":"RES",
@@ -887,14 +887,21 @@
                     ]
                 },
                 {
-                    "name":"Target Identification",
-                    "comment":"",
-                    "type":"fixed_bits",
-                    "data_type":"icao_characters",
-                    "start_bit":0,
-                    "bit_length":47,
-                    "num_characters":8,
-                    "character_bit_length":6
+                    "name":"TI",
+                    "type":"fixed_bitfield",
+                    "length":6,
+                    "items":[
+                        {
+                            "name":"Target Identification",
+                            "comment":"",
+                            "type":"fixed_bits",
+                            "data_type":"icao_characters",
+                            "start_bit":0,
+                            "bit_length":48,
+                            "num_characters":8,
+                            "character_bit_length":6
+                        }
+                    ]
                 }
             ]
         },
@@ -987,7 +994,9 @@
                     "field_specification":{
                         "name":"available",
                         "type":"extendable_bits",
-                        "data_type":"bitfield"
+                        "data_type":"bitfield",
+                        "reverse_bits":true,
+                        "reverse_order":true                        
                     },
                     "items":[
                         {
@@ -1001,7 +1010,7 @@
                                     "comment":"Actual track age since occurence",
                                     "type":"fixed_bytes",
                                     "length":1,
-                                    "data_type":"int",
+                                    "data_type":"uint",
                                     "lsb":0.25
                                 }
                             ]
@@ -1017,7 +1026,7 @@
                                     "comment":"Age of the last primary detection used to update the track",
                                     "type":"fixed_bytes",
                                     "length":1,
-                                    "data_type":"int",
+                                    "data_type":"uint",
                                     "lsb":0.25
                                 }
                             ]
@@ -1033,7 +1042,7 @@
                                     "comment":"Age of the last secondary detection used to update the track",
                                     "type":"fixed_bytes",
                                     "length":1,
-                                    "data_type":"int",
+                                    "data_type":"uint",
                                     "lsb":0.25
                                 }
                             ]
@@ -1049,7 +1058,7 @@
                                     "comment":"Age of the last Mode S detection used to update the track",
                                     "type":"fixed_bytes",
                                     "length":1,
-                                    "data_type":"int",
+                                    "data_type":"uint",
                                     "lsb":0.25
                                 }
                             ]
@@ -1065,7 +1074,7 @@
                                     "comment":"Age of the last ADS-C report used to update the track",
                                     "type":"fixed_bytes",
                                     "length":2,
-                                    "data_type":"int",
+                                    "data_type":"uint",
                                     "lsb":0.25
                                 }
                             ]
@@ -1081,7 +1090,7 @@
                                     "comment":"Age of the last 1090 Extended Squitter ADS-B report used to update the track",
                                     "type":"fixed_bytes",
                                     "length":1,
-                                    "data_type":"int",
+                                    "data_type":"uint",
                                     "lsb":0.25
                                 }
                             ]
@@ -1097,7 +1106,7 @@
                                     "comment":"Age of the last VDL Mode 4 ADS-B report used to update the track",
                                     "type":"fixed_bytes",
                                     "length":1,
-                                    "data_type":"int",
+                                    "data_type":"uint",
                                     "lsb":0.25
                                 }
                             ]
@@ -1113,7 +1122,7 @@
                                     "comment":"Age of the last UAT ADS-B report used to update the track",
                                     "type":"fixed_bytes",
                                     "length":1,
-                                    "data_type":"int",
+                                    "data_type":"uint",
                                     "lsb":0.25
                                 }
                             ]
@@ -1129,7 +1138,7 @@
                                     "comment":"Age of the last magnetic loop detection",
                                     "type":"fixed_bytes",
                                     "length":1,
-                                    "data_type":"int",
+                                    "data_type":"uint",
                                     "lsb":0.25
                                 }
                             ]
@@ -1145,7 +1154,7 @@
                                     "comment":"Age of the last MLT detection",
                                     "type":"fixed_bytes",
                                     "length":1,
-                                    "data_type":"int",
+                                    "data_type":"uint",
                                     "lsb":0.25
                                 }
                             ]
@@ -1166,7 +1175,9 @@
                     "field_specification":{
                         "name":"available",
                         "type":"extendable_bits",
-                        "data_type":"bitfield"
+                        "data_type":"bitfield",
+                        "reverse_bits":true,
+                        "reverse_order":true
                     },
                     "items":[
                         {
@@ -1180,7 +1191,7 @@
                                     "comment":"Age of the last valid and credible Mode C code or barometric altitude from ADS-B used to update the track (I062/136)",
                                     "type":"fixed_bytes",
                                     "length":1,
-                                    "data_type":"int",
+                                    "data_type":"uint",
                                     "lsb":0.25
                                 }
                             ]
@@ -1196,7 +1207,7 @@
                                     "comment":"Age of the last valid and credible Mode 1 code used to update the track (I062/110)",
                                     "type":"fixed_bytes",
                                     "length":1,
-                                    "data_type":"int",
+                                    "data_type":"uint",
                                     "lsb":0.25
                                 }
                             ]
@@ -1212,7 +1223,7 @@
                                     "comment":"Age of the last valid and credible Mode 2 code used to update the track (I062/120)",
                                     "type":"fixed_bytes",
                                     "length":1,
-                                    "data_type":"int",
+                                    "data_type":"uint",
                                     "lsb":0.25
                                 }
                             ]
@@ -1228,7 +1239,7 @@
                                     "comment":"Age of the last valid and credible Mode 3/A code used to update the track (I062/060)",
                                     "type":"fixed_bytes",
                                     "length":1,
-                                    "data_type":"int",
+                                    "data_type":"uint",
                                     "lsb":0.25
                                 }
                             ]
@@ -1244,7 +1255,7 @@
                                     "comment":"Age of the last valid and credible Mode 4 code used to update the track",
                                     "type":"fixed_bytes",
                                     "length":1,
-                                    "data_type":"int",
+                                    "data_type":"uint",
                                     "lsb":0.25
                                 }
                             ]
@@ -1260,7 +1271,7 @@
                                     "comment":"Age of the last valid and credible Mode 5 code used to update the track (I062/110)",
                                     "type":"fixed_bytes",
                                     "length":1,
-                                    "data_type":"int",
+                                    "data_type":"uint",
                                     "lsb":0.25
                                 }
                             ]
@@ -1276,7 +1287,7 @@
                                     "comment":"Age of the DAP \"Magnetic Heading\" in item 062/380 (Subfield #3)",
                                     "type":"fixed_bytes",
                                     "length":1,
-                                    "data_type":"int",
+                                    "data_type":"uint",
                                     "lsb":0.25
                                 }
                             ]
@@ -1292,7 +1303,7 @@
                                     "comment":"Age of the DAP \"Indicated Airspeed/ Mach Number\" in item 062/380 (Subfield #4)",
                                     "type":"fixed_bytes",
                                     "length":1,
-                                    "data_type":"int",
+                                    "data_type":"uint",
                                     "lsb":0.25
                                 }
                             ]
@@ -1308,7 +1319,7 @@
                                     "comment":"Age of the DAP \"True Airspeed\" in item 062/380 (Subfield #5)",
                                     "type":"fixed_bytes",
                                     "length":1,
-                                    "data_type":"int",
+                                    "data_type":"uint",
                                     "lsb":0.25
                                 }
                             ]
@@ -1324,7 +1335,7 @@
                                     "comment":"Age of the DAP \"Selected Altitude\" in item 062/380 (Subfield #6)",
                                     "type":"fixed_bytes",
                                     "length":1,
-                                    "data_type":"int",
+                                    "data_type":"uint",
                                     "lsb":0.25
                                 }
                             ]
@@ -1340,7 +1351,7 @@
                                     "comment":"Age of the DAP \"Final State Selected Altitude\" in item 062/380 (Subfield #7)",
                                     "type":"fixed_bytes",
                                     "length":1,
-                                    "data_type":"int",
+                                    "data_type":"uint",
                                     "lsb":0.25
                                 }
                             ]
@@ -1356,7 +1367,7 @@
                                     "comment":"Age of the DAP \"Trajectory Intent\" in item 062/380 (Subfield #8)",
                                     "type":"fixed_bytes",
                                     "length":1,
-                                    "data_type":"int",
+                                    "data_type":"uint",
                                     "lsb":0.25
                                 }
                             ]
@@ -1372,7 +1383,7 @@
                                     "comment":"Age of the DAP \"Communication/ACAS Capability and Flight Status\" in item 062/380 (Subfield #10)",
                                     "type":"fixed_bytes",
                                     "length":1,
-                                    "data_type":"int",
+                                    "data_type":"uint",
                                     "lsb":0.25
                                 }
                             ]
@@ -1388,7 +1399,7 @@
                                     "comment":"Age of the DAP \"Status Reported by ADS-B\" in item 062/380 (Subfield #11)",
                                     "type":"fixed_bytes",
                                     "length":1,
-                                    "data_type":"int"
+                                    "data_type":"uint"
                                 }
                             ]
                         },
@@ -1403,7 +1414,7 @@
                                     "comment":"Age of the DAP \"ACAS Resolution Advisory Report\" in item 062/380 (Subfield #12)",
                                     "type":"fixed_bytes",
                                     "length":1,
-                                    "data_type":"int",
+                                    "data_type":"uint",
                                     "lsb":0.25
                                 }
                             ]
@@ -1419,7 +1430,7 @@
                                     "comment":"Age of the DAP \"Barometric Vertical Rate\" in item 062/380 (Subfield #13)",
                                     "type":"fixed_bytes",
                                     "length":1,
-                                    "data_type":"int",
+                                    "data_type":"uint",
                                     "lsb":0.25
                                 }
                             ]
@@ -1435,7 +1446,7 @@
                                     "comment":"Age of the DAP \"Geometrical Vertical Rate\" in item 062/380 (Subfield #14)",
                                     "type":"fixed_bytes",
                                     "length":1,
-                                    "data_type":"int",
+                                    "data_type":"uint",
                                     "lsb":0.25
                                 }
                             ]
@@ -1451,7 +1462,7 @@
                                     "comment":"Age of the DAP \"Roll Angle\" in item 062/380 (Subfield #15)",
                                     "type":"fixed_bytes",
                                     "length":1,
-                                    "data_type":"int",
+                                    "data_type":"uint",
                                     "lsb":0.25
                                 }
                             ]
@@ -1467,7 +1478,7 @@
                                     "comment":"Age of the DAP \"Track Angle Rate\" in item 062/380 (Subfield #16)",
                                     "type":"fixed_bytes",
                                     "length":1,
-                                    "data_type":"int"
+                                    "data_type":"uint"
                                 }
                             ]
                         },
@@ -1482,7 +1493,7 @@
                                     "comment":"Age of the DAP \"Track Angle\" in item 062/380 (Subfield #17)",
                                     "type":"fixed_bytes",
                                     "length":1,
-                                    "data_type":"int",
+                                    "data_type":"uint",
                                     "lsb":0.25
                                 }
                             ]
@@ -1498,7 +1509,7 @@
                                     "comment":"Age of the DAP \"Ground Speed\" in item 062/380 (Subfield #18)",
                                     "type":"fixed_bytes",
                                     "length":1,
-                                    "data_type":"int",
+                                    "data_type":"uint",
                                     "lsb":0.25
                                 }
                             ]
@@ -1514,7 +1525,7 @@
                                     "comment":"Age of the DAP \"Velocity Uncertainty\" in item 062/380 (Subfield #19)",
                                     "type":"fixed_bytes",
                                     "length":1,
-                                    "data_type":"int",
+                                    "data_type":"uint",
                                     "lsb":0.25
                                 }
                             ]
@@ -1530,7 +1541,7 @@
                                     "comment":"Age of the DAP \"Meteorological Data\" in item 062/380 (Subfield #20)",
                                     "type":"fixed_bytes",
                                     "length":1,
-                                    "data_type":"int",
+                                    "data_type":"uint",
                                     "lsb":0.25
                                 }
                             ]
@@ -1546,7 +1557,7 @@
                                     "comment":"Age of the DAP \"Emitter Category\" in item 062/380 (Subfield #21)",
                                     "type":"fixed_bytes",
                                     "length":1,
-                                    "data_type":"int",
+                                    "data_type":"uint",
                                     "lsb":0.25
                                 }
                             ]
@@ -1562,7 +1573,7 @@
                                     "comment":"Age of the DAP \"Position\" in item 062/380 (Subfield #23)",
                                     "type":"fixed_bytes",
                                     "length":1,
-                                    "data_type":"int",
+                                    "data_type":"uint",
                                     "lsb":0.25
                                 }
                             ]
@@ -1578,7 +1589,7 @@
                                     "comment":"Age of the DAP \"Geometric Altitude\" in item 062/380 (Subfield #24)",
                                     "type":"fixed_bytes",
                                     "length":1,
-                                    "data_type":"int",
+                                    "data_type":"uint",
                                     "lsb":0.25
                                 }
                             ]
@@ -1594,7 +1605,7 @@
                                     "comment":"Age of the DAP \"Position Uncertainty\" in item 062/380 (Subfield #25)",
                                     "type":"fixed_bytes",
                                     "length":1,
-                                    "data_type":"int",
+                                    "data_type":"uint",
                                     "lsb":0.25
                                 }
                             ]
@@ -1610,7 +1621,7 @@
                                     "comment":"Age of the DAP \"Mode S MB Data\" in item 062/380 (Subfield #22)",
                                     "type":"fixed_bytes",
                                     "length":1,
-                                    "data_type":"int",
+                                    "data_type":"uint",
                                     "lsb":0.25
                                 }
                             ]
@@ -1626,7 +1637,7 @@
                                     "comment":"Age of the DAP \"Indicated Airspeed\" in item 062/380 (Subfield #26)",
                                     "type":"fixed_bytes",
                                     "length":1,
-                                    "data_type":"int",
+                                    "data_type":"uint",
                                     "lsb":0.25
                                 }
                             ]
@@ -1642,7 +1653,7 @@
                                     "comment":"Age of the DAP \"Mach Number\" in item 062/380 (Subfield #27)",
                                     "type":"fixed_bytes",
                                     "length":1,
-                                    "data_type":"int",
+                                    "data_type":"uint",
                                     "lsb":0.25
                                 }
                             ]
@@ -1658,7 +1669,7 @@
                                     "comment":"Age of the DAP \"Barometric Pressure Setting\" in item 062/380 (Subfield #28)",
                                     "type":"fixed_bytes",
                                     "length":1,
-                                    "data_type":"int",
+                                    "data_type":"uint",
                                     "lsb":0.25
                                 }
                             ]
@@ -1694,7 +1705,9 @@
                     "field_specification":{
                         "name":"available",
                         "type":"extendable_bits",
-                        "data_type":"bitfield"
+                        "data_type":"bitfield",
+                        "reverse_bits":true,
+                        "reverse_order":true
                     },
                     "items":[
                         {
@@ -1901,7 +1914,9 @@
                     "field_specification":{
                         "name":"available",
                         "type":"extendable_bits",
-                        "data_type":"bitfield"
+                        "data_type":"bitfield",
+                        "reverse_bits":true,
+                        "reverse_order":true
                     },
                     "items":[
                         {
@@ -2127,7 +2142,7 @@
                                     "name":"Trajectory Intent Data",
                                     "type":"repetitive",
                                     "repetition_item":{
-                                        "name":"rep",
+                                        "name":"REP",
                                         "type":"fixed_bytes",
                                         "length":1,
                                         "data_type":"uint"
@@ -2760,7 +2775,9 @@
                     "field_specification":{
                         "name":"available",
                         "type":"extendable_bits",
-                        "data_type":"bitfield"
+                        "data_type":"bitfield",
+                        "reverse_bits":true,
+                        "reverse_order":true                        
                     },
                     "items":[
                         {
@@ -3300,7 +3317,9 @@
                     "field_specification":{
                         "name":"available",
                         "type":"extendable_bits",
-                        "data_type":"bitfield"
+                        "data_type":"bitfield",
+                        "reverse_bits":true,
+                        "reverse_order":true
                     },
                     "items":[
                         {

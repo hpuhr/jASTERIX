@@ -15,6 +15,7 @@
  * along with ATSDB.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <algorithm>
 
 #include "extendablebitsitemparser.h"
 
@@ -37,6 +38,8 @@ ExtendableBitsItemParser::ExtendableBitsItemParser (const nlohmann::json& item_d
     reverse_bits_ = (item_definition.find("reverse_bits") != item_definition.end()
             && item_definition.at("reverse_bits") == true);
 
+    reverse_order_ = (item_definition.find("reverse_order") != item_definition.end()
+            && item_definition.at("reverse_order") == true);
 }
 
 size_t ExtendableBitsItemParser::parseItem (const char* data, size_t index, size_t size, size_t current_parsed_bytes,
@@ -98,6 +101,9 @@ size_t ExtendableBitsItemParser::parseItem (const char* data, size_t index, size
             }
             ++parsed_bytes;
         }
+
+        if (reverse_order_)
+            std::reverse(bitfield.begin(), bitfield.end());
 
         target.emplace(name_, bitfield);
 

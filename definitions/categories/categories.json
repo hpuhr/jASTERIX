@@ -53,5 +53,19 @@
                 "file":"048/cat048_1.15_mapping.json"
             }
         }
+    },
+    "062":{
+        "comment":"Category 062 SURVEILLANCE DATA EXCHANGE SDPS Track Messages",
+        "default_edition":"1.12",
+        "default_mapping":"",
+        "editions":{
+            "1.12":{
+                "document":"SUR.ET1.ST05.2000-STD-09-01",
+                "date":"September 2010",
+                "file":"062/cat062_1.12.json"
+            }
+        },
+        "mappings":{
+        }
     }
 }

@@ -43,6 +43,8 @@ void test_cat020 (jASTERIX::jASTERIX& jasterix);
 void test_cat021_callback (nlohmann::json& json_data, size_t num_frames, size_t num_records);
 void test_cat021 (jASTERIX::jASTERIX& jasterix);
 
+void test_cat062_callback (nlohmann::json& json_data, size_t num_frames, size_t num_records);
+void test_cat062 (jASTERIX::jASTERIX& jasterix);
 
 int main (int argc, char **argv)
 {
@@ -107,9 +109,10 @@ int main (int argc, char **argv)
 
         jASTERIX::jASTERIX asterix (definition_path, true, true);
 
-        test_cat020(asterix);
-        test_cat021(asterix);
-        test_cat048(asterix);
+        //test_cat020(asterix);
+        //test_cat021(asterix);
+        //test_cat048(asterix);
+        test_cat062(asterix);
 
     }
     catch (exception &ex)

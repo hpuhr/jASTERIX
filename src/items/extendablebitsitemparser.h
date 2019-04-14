@@ -38,6 +38,7 @@ public:
 protected:
     std::string data_type_;
     bool reverse_bits_{false};
+    bool reverse_order_{false};
 };
 
 }
