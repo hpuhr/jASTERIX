@@ -1,4 +1,18 @@
 {
+    "001":{
+        "comment":"Category 001 Transmission of Monoradar Data Target Reports",
+        "default_edition":"1.1",
+        "default_mapping":"",
+        "editions":{
+            "1.1":{
+                "document":"SUR.ET1.ST05.2000-STD-02a-01",
+                "date":"August 2002",
+                "file":"001/cat001_1.1.json"
+            }
+        },
+        "mappings":{
+        }
+    },
     "020":{
         "comment":"Category 020 Multilateration Target Reports",
         "default_edition":"1.5",
@@ -57,7 +71,7 @@
     "062":{
         "comment":"Category 062 SURVEILLANCE DATA EXCHANGE SDPS Track Messages",
         "default_edition":"1.12",
-        "default_mapping":"",
+        "default_mapping":"1.0",
         "editions":{
             "1.12":{
                 "document":"SUR.ET1.ST05.2000-STD-09-01",
@@ -66,6 +80,10 @@
             }
         },
         "mappings":{
+            "1.0":{
+                    "comment":"conversion to general format 1.0",
+                    "file":"062/cat062_1.12_mapping.json"
+                }
         }
     }
 }
