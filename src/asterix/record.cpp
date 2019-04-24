@@ -15,8 +15,8 @@
  * along with ATSDB.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 #include "record.h"
+#include "string_conv.h"
 
 using namespace std;
 using namespace nlohmann;
@@ -54,6 +54,50 @@ Record::Record (const nlohmann::json& item_definition)
 
     for (const auto& uap_item : uap)
         uap_names_.push_back(uap_item);
+
+    // conditional uaps
+
+    if (item_definition.find("conditional_uaps") != item_definition.end())
+    {
+        has_conditional_uap_ = true;
+        const json& conditional_uaps = item_definition.at("conditional_uaps");
+
+        if (!conditional_uaps.is_object())
+            throw runtime_error ("record item '"+name_+"' conditional uaps is not an object");
+
+        if (conditional_uaps.find("key") == conditional_uaps.end())
+            throw runtime_error ("record item '"+name_+"' conditional uap without key");
+
+        conditional_uaps_key_ = conditional_uaps.at("key");
+
+        conditional_uaps_sub_keys_ = split(conditional_uaps_key_, '.');
+
+        if (conditional_uaps.find("values") == conditional_uaps.end())
+            throw runtime_error ("record item '"+name_+"' conditional uap without values");
+
+        const json& conditional_uaps_values = conditional_uaps.at("values");
+
+        if (!conditional_uaps_values.is_object())
+            throw runtime_error ("record item '"+name_+"' conditional uap values is not an object");
+
+        for (auto uap_conditional_value = conditional_uaps_values.begin();
+             uap_conditional_value != conditional_uaps_values.end();
+             ++uap_conditional_value)
+        {
+            std::string value_key = uap_conditional_value.key();
+
+            if (conditional_uap_names_.count(value_key) != 0)
+                throw std::runtime_error ("record item '"+name_+"' conditional uap values has multiple uaps with"
+                                                                " same key");
+
+            if (!uap_conditional_value.value().is_array())
+                throw std::runtime_error ("record item '"+name_+"' conditional uap values has non-array values");
+
+            std::vector<std::string> value_uap = uap_conditional_value.value();
+
+            conditional_uap_names_[value_key] = value_uap;
+        }
+    }
 
     // items
 
@@ -102,19 +146,23 @@ size_t Record::parseItem (const char* data, size_t index, size_t size, size_t cu
 
     std::vector<bool> fspec_bits = target.at("FSPEC");
 
-    if (fspec_bits.size() > uap_names_.size())
+    if (!has_conditional_uap_ && fspec_bits.size() > uap_names_.size())
         throw runtime_error ("record item '"+name_+"' has more fspec bits than define uap items");
 
     if (debug)
         loginf << "parsing record item '"+name_+"' data items" << logendl;
 
-    std::string item_name;
+    size_t uap_cnt{0};
+    size_t num_fspec_bits = fspec_bits.size();
 
-    for (size_t cnt=0; cnt < fspec_bits.size(); ++cnt)
+    for (const auto& item_name : uap_names_) // parse static uap items
     {
-        if (fspec_bits.at(cnt))
+        if (uap_cnt >= num_fspec_bits)
+            break;
+
+        if (fspec_bits.at(uap_cnt))
         {
-            item_name = uap_names_.at(cnt);
+            uap_cnt++;
 
             if (item_name == "FX") // extension into next byte
                 continue;
@@ -144,9 +192,82 @@ size_t Record::parseItem (const char* data, size_t index, size_t size, size_t cu
             parsed_bytes += items_.at(item_name)->parseItem(
                         data, index+parsed_bytes, size, parsed_bytes, target, debug);
         }
+        else
+            uap_cnt++;
+    }
+
+    if (has_conditional_uap_)
+    {
+        for (const auto& conditional_uap_value : conditional_uap_names_)
+        {
+            if (compareKey(target, conditional_uap_value.first))
+            {
+                if (debug)
+                    loginf << "record item '" << name_ << "' with conditinal " << conditional_uaps_key_ << " value " <<
+                           conditional_uap_value.first << " found" << logendl;
+
+                for (const auto& item_name : conditional_uap_value.second) // parse dynamic uap items
+                {
+                    if (uap_cnt >= num_fspec_bits)
+                        break;
+
+                    if (fspec_bits.at(uap_cnt))
+                    {
+                        uap_cnt++;
+
+                        if (item_name == "FX") // extension into next byte
+                            continue;
+
+                        if (item_name == "-") // bit not used
+                            continue;
+
+                        if (item_name == "SP") // special purpose field
+                        {
+                            //loginf << "WARN: record item '"+name_+"' has special purpose field, not implemented yet" << logendl;
+                            continue;
+                        }
+
+                        if (item_name == "RE") // reserved expansion field
+                        {
+                            //loginf << "WARN: record item '"+name_+"' has reserved expansion field, not implemented yet" << logendl;
+                            continue;
+                        }
+
+                        if (debug)
+                            loginf << "parsing record item '" << name_ << "' data item '" << item_name << "' index "
+                                   << index+parsed_bytes << logendl;
+
+                        if (items_.count(item_name) != 1)
+                            throw runtime_error ("record item '"+name_+"' references undefined item '"+item_name+"'");
+
+                        parsed_bytes += items_.at(item_name)->parseItem(
+                                    data, index+parsed_bytes, size, parsed_bytes, target, debug);
+                    }
+                    else
+                        uap_cnt++;
+                }
+            }
+        }
     }
 
     return parsed_bytes;
+}
+
+bool Record::compareKey (const nlohmann::json& container, const std::string& value)
+{
+    //loginf << "mapping key '" << key_definition << "' src value '" << src_value << "'";
+
+    const nlohmann::json* val_ptr = &container;
+
+    for (const std::string& sub_key : conditional_uaps_sub_keys_)
+    {
+        //loginf << "UGA '" << sub_key << "' json '" << val_ptr->dump(4) << "'"<< logendl;
+        val_ptr = &(*val_ptr)[sub_key];
+    }
+
+    return (toString(*val_ptr) == value);
+
+    //loginf << "mapping key '" << key_definition << "' dest '" << dest.dump(4) << "'";
 }
 
 }

@@ -54,25 +54,38 @@ void test_cat001_callback (nlohmann::json& json_data, size_t num_frames, size_t 
 //                            "TYP": 0
 //                        },
 //                        "040": {
-//                            "RHO": 364.96875,
-//                            "THETA": 16.0125732349
-//                        },
-//                        "042": {
-//                            "X-Component": 23.75,
-//                            "Y-Component": -250.109375
+//                            "RHO": 127.4375,
+//                            "THETA": 256.61865222695997
 //                        },
 //                        "070": {
 //                            "G": 0,
 //                            "L": 0,
-//                            "Mode-3/A reply": 0,
+//                            "Mode-3/A reply": 5543,
 //                            "V": 0
 //                        },
-//                        "161": {
-//                            "TRACK/PLOT NUMBER": 16312
+//                        "090": {
+//                            "G": 0,
+//                            "Mode-C HEIGHT": 38000.0,
+//                            "V": 0
 //                        },
-//                        "200": {
-//                            "CALCULATED GROUNDSPEED": -0.9932860310999999,
-//                            "CALCULATED HEADING": 257.34374988288
+//                        "130": {
+//                            "Radar Plot Characteristics": [
+//                                {
+//                                    "Value": 96,
+//                                    "extend": 1
+//                                },
+//                                {
+//                                    "Value": 60,
+//                                    "extend": 1
+//                                },
+//                                {
+//                                    "Value": 96,
+//                                    "extend": 0
+//                                }
+//                            ]
+//                        },
+//                        "141": {
+//                            "Truncated Time of Day": 221.4296875
 //                        },
 //                        "FSPEC": [
 //                            true,
@@ -90,10 +103,6 @@ void test_cat001_callback (nlohmann::json& json_data, size_t num_frames, size_t 
 //            "length": 20
 //        }
 //    }
-
-
-
-
 
     loginf << "cat001 test: num records" << logendl;
     assert (json_data.at("data_block").at("content").at("records").size() == 1);
@@ -130,120 +139,44 @@ void test_cat001_callback (nlohmann::json& json_data, size_t num_frames, size_t 
     //    ;  I001/040: =0x 3f b8 b6 7c
     //    ;  Measured Position: rng=16312 (127.438 nmi); azm=46716 (256.619 deg)
     loginf << "cat001 test: 040" << logendl;
-    tmp_d = json_data.at("data_block").at("content").at("records")[0].at("040").at("RHO");
-    assert (fabs(tmp_d - 73.922) < 10e-3);
+    double tmp_d = json_data.at("data_block").at("content").at("records")[0].at("040").at("RHO");
+    assert (fabs(tmp_d - 127.4375) < 10e-3);
     tmp_d = json_data.at("data_block").at("content").at("records")[0].at("040").at("THETA");
-    assert (fabs(tmp_d - 89.670) < 10e-3);
+    assert (fabs(tmp_d - 256.61865222695997) < 10e-3);
 
     //    ;  I001/070: =0x 0b 63
     //    ;  Mode 3/A Code: v=0; g=0; l=0; code=05543
-    //    ;  I001/090: =0x 05 f0
-    //    ;  Mode C Code: v=0; g=0; code=1520 (380.00 FL)
-    //    ;  I001/130: =0x c1 79 c0
-    //    ;  Radar Plot Characteristics: 0x c1 79 c0
-    //    ;  I001/141: =0x 6e b7
-    //    ;  Truncated Time of Day: 0x6eb7
-    //     [--:--:--.---] - --:--:--.--- -- 0x0001 A1 P:SSR ----- AR  256.619  127.438                       A:05543 --- C: 380    -- ;
-
-
-    //    ;  I001/140: =0x 41 6d eb
-    //    ;  Time of Day: 0x416deb (4287979; 33499.835938 secs; 09:18:19.836 UTC)
-
-    loginf << "cat001 test: 140" << logendl;
-    double tmp_d = json_data.at("data_block").at("content").at("records")[0].at("140").at("Time-of-Day");
-    assert (fabs(tmp_d-33499.835938) < 10e-6);
-
-
-
-    //    ;  I001/070: =0x 21 38
-    //    ;  Mode 3/A Code: v=0; g=0; l=1; code=00470
-
     loginf << "cat001 test: 070" << logendl;
     assert (json_data.at("data_block").at("content").at("records")[0].at("070").at("V") == 0);
     assert (json_data.at("data_block").at("content").at("records")[0].at("070").at("G") == 0);
-    assert (json_data.at("data_block").at("content").at("records")[0].at("070").at("L") == 1);
-    assert (json_data.at("data_block").at("content").at("records")[0].at("070").at("Mode-3/A reply") == 470);
+    assert (json_data.at("data_block").at("content").at("records")[0].at("070").at("L") == 0);
+    assert (json_data.at("data_block").at("content").at("records")[0].at("070").at("Mode-3/A reply") == 5543);
 
-    //    ;  I001/090: =0x 05 c8
-    //    ;  Flight Level: v=0; g=0; code=1480 (370.00 FL)
-
+    //    ;  I001/090: =0x 05 f0
+    //    ;  Mode C Code: v=0; g=0; code=1520 (380.00 FL)
     loginf << "cat001 test: 090" << logendl;
     assert (json_data.at("data_block").at("content").at("records")[0].at("090").at("V") == 0);
     assert (json_data.at("data_block").at("content").at("records")[0].at("090").at("G") == 0);
-    assert (json_data.at("data_block").at("content").at("records")[0].at("090").at("Flight Level") == 370.0);
+    assert (json_data.at("data_block").at("content").at("records")[0].at("090").at("Mode-C HEIGHT") == 38000.0);
 
-    //    ;  I001/130: 0x 20 c1
-    //    ;  Radar Plot Characteristics:
-    //    ;   Amplitude of (M)SSR reply: -63 dBm
-
+    //    ;  I001/130: =0x c1 79 c0
+    //    ;  Radar Plot Characteristics: 0x c1 79 c0
+    // 193 -> 96, 121 -> 60, 192 -> 96
     loginf << "cat001 test: 130" << logendl;
-    assert (json_data.at("data_block").at("content").at("records")[0].at("130").at("available")
-            == std::vector<bool>({0,0,0,0,0,1,0,0}));
-    assert (json_data.at("data_block").at("content").at("records")[0].at("130").at("SAM").at("value") == -63);
+    assert (json_data.at("data_block").at("content").at("records")[0].at("130").at("Radar Plot Characteristics").size() == 3);
+    assert (json_data.at("data_block").at("content").at("records")[0].at("130").at("Radar Plot Characteristics")[0].at("Value") == 96);
+    assert (json_data.at("data_block").at("content").at("records")[0].at("130").at("Radar Plot Characteristics")[1].at("Value") == 60);
+    assert (json_data.at("data_block").at("content").at("records")[0].at("130").at("Radar Plot Characteristics")[2].at("Value") == 96);
 
-    //    ;  I001/220: =0x ab 4c bd
-    //    ;  Aircraft Address: 0xab4cbd (11226301)
 
-    loginf << "cat001 test: 220" << logendl;
-    assert (json_data.at("data_block").at("content").at("records")[0].at("220").at("AIRCRAFT ADDRESS") == 11226301);
+    //    ;  I001/141: =0x 6e b7
+    //    ;  Truncated Time of Day: 0x6eb7
+    loginf << "cat001 test: 141" << logendl;
+    tmp_d = json_data.at("data_block").at("content").at("records")[0].at("141").at("Truncated Time of Day");
+    assert (fabs(tmp_d-221.4296875) < 10e-6);
 
-    //    ;  I001/240: =0x 49 94 b5 61  78 20
-    //    ;  Aircraft Identification: "RYR5XW  "
+    //     [--:--:--.---] - --:--:--.--- -- 0x0001 A1 P:SSR ----- AR  256.619  127.438                       A:05543 --- C: 380    -- ;
 
-    loginf << "cat001 test: 240" << logendl;
-    assert (json_data.at("data_block").at("content").at("records")[0].at("240").at("Aircraft Identification") == "RYR5XW  ");
-
-    //    ;  I001/250: =0x 03 8b d9 eb  2f bf e4 00  60 80 91 9f  39 a0 04 dd
-    //    ;            +0x 50 c8 48 00  30 a8 00 00  40
-    //    ;  Mode S MB Data:
-    //    ;   BDS 6,0 data=0x 8b d9 eb 2f bf e4 00
-    //    ;   BDS 5,0 data=0x 80 91 9f 39 a0 04 dd
-    //    ;   BDS 4,0 data=0x c8 48 00 30 a8 00 00
-    //    ;           mcp_fcu_selected_altitude=37008[ft]
-
-    loginf << "cat001 test: 250" << logendl;
-    assert (json_data.at("data_block").at("content").at("records")[0].at("250").at("Mode S MB Data").size() == 3);
-    assert (json_data.at("data_block").at("content").at("records")[0].at("250").at("Mode S MB Data")[0].at("BDS1") == 6);
-    assert (json_data.at("data_block").at("content").at("records")[0].at("250").at("Mode S MB Data")[0].at("BDS2") == 0);
-    assert (json_data.at("data_block").at("content").at("records")[0].at("250").at("Mode S MB Data")[0].at("MB Data")
-            == "8bd9eb2fbfe400");
-
-    //    ;  I001/161: =0x 03 97
-    //    ;  Track Number: num=919
-
-    loginf << "cat001 test: 161" << logendl;
-    assert (json_data.at("data_block").at("content").at("records")[0].at("161").at("TRACK NUMBER") == 919);
-
-    //    ;  I001/200: =0x 08 3c 17 30
-    //    ;  Calculated Track Velocity: spd=2108 (463.184 kts); hdg=5936 (32.607 deg)
-
-    loginf << "cat001 test: 200" << logendl;
-    tmp_d = json_data.at("data_block").at("content").at("records")[0].at("200").at("CALCULATED GROUNDSPEED");
-    assert (fabs(tmp_d - 463.184) < 10e-3);
-    tmp_d = json_data.at("data_block").at("content").at("records")[0].at("200").at("CALCULATED HEADING");
-    assert (fabs(tmp_d - 32.607) < 10e-3);
-
-    //    ;  I001/170: =0x 40
-    //    ;  Track Status: CNF SRT LVL
-
-    loginf << "cat001 test: 170" << logendl;
-    assert (json_data.at("data_block").at("content").at("records")[0].at("170").at("CNF") == 0);
-    assert (json_data.at("data_block").at("content").at("records")[0].at("170").at("RAD") == 2);
-    assert (json_data.at("data_block").at("content").at("records")[0].at("170").at("DOU") == 0);
-    assert (json_data.at("data_block").at("content").at("records")[0].at("170").at("MAH") == 0);
-    assert (json_data.at("data_block").at("content").at("records")[0].at("170").at("CDM") == 0);
-
-    //    ;  I001/230: =0x 20 fd
-    //    ;  Communications Capability: CC=1; FS=0 (airborne); MSSC; ARC=25ft; AIC; B1A=1; B1B=13
-
-    loginf << "cat001 test: 230" << logendl;
-    assert (json_data.at("data_block").at("content").at("records")[0].at("230").at("COM") == 1);
-    assert (json_data.at("data_block").at("content").at("records")[0].at("230").at("STAT") == 0);
-    assert (json_data.at("data_block").at("content").at("records")[0].at("230").at("MSSC") == 1);
-    assert (json_data.at("data_block").at("content").at("records")[0].at("230").at("ARC") == 1);
-    assert (json_data.at("data_block").at("content").at("records")[0].at("230").at("AIC") == 1);
-    assert (json_data.at("data_block").at("content").at("records")[0].at("230").at("B1A") == 1);
-    assert (json_data.at("data_block").at("content").at("records")[0].at("230").at("B1B") == 13);
 }
 
 void test_cat001 (jASTERIX::jASTERIX& jasterix)

@@ -38,7 +38,14 @@ public:
 protected:
     std::unique_ptr<ItemParserBase> field_specification_;
     std::vector<std::string> uap_names_;
+
+    bool has_conditional_uap_{false};
+    std::string conditional_uaps_key_;
+    std::vector<std::string> conditional_uaps_sub_keys_;
+    std::map<std::string, std::vector<std::string>> conditional_uap_names_;
     std::map<std::string, std::unique_ptr<ItemParserBase>> items_;
+
+    bool compareKey (const nlohmann::json& container, const std::string& value);
 };
 
 }
