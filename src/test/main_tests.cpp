@@ -37,6 +37,9 @@ using namespace jASTERIX;
 void test_cat001_callback (nlohmann::json& json_data, size_t num_frames, size_t num_records);
 void test_cat001 (jASTERIX::jASTERIX& jasterix);
 
+void test_cat002_callback (nlohmann::json& json_data, size_t num_frames, size_t num_records);
+void test_cat002 (jASTERIX::jASTERIX& jasterix);
+
 void test_cat048_callback (nlohmann::json& json_data, size_t num_frames, size_t num_records);
 void test_cat048 (jASTERIX::jASTERIX& jasterix);
 
@@ -113,6 +116,7 @@ int main (int argc, char **argv)
         jASTERIX::jASTERIX asterix (definition_path, true, true);
 
         test_cat001(asterix);
+        test_cat002(asterix);
         test_cat020(asterix);
         test_cat021(asterix);
         test_cat048(asterix);

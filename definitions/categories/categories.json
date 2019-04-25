@@ -13,6 +13,20 @@
         "mappings":{
         }
     },
+    "002":{
+        "comment":"Category 002 Transmission of Monoradar Service Messages",
+        "default_edition":"1.0",
+        "default_mapping":"",
+        "editions":{
+            "1.0":{
+                "document":"SUR.ET1.ST05.2000-STD-02b-01",
+                "date":"November 1997",
+                "file":"002/cat002_1.0.json"
+            }
+        },
+        "mappings":{
+        }
+    },
     "020":{
         "comment":"Category 020 Multilateration Target Reports",
         "default_edition":"1.5",
