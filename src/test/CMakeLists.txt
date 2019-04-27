@@ -12,6 +12,7 @@ target_sources(jasterix_tests
     PRIVATE
         "${CMAKE_CURRENT_LIST_DIR}/cat001_1.1.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/cat002_1.0.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/cat019_1.3.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/cat020_1.5.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/cat021_2.1.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/cat048_1.15.cpp"

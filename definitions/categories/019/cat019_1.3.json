@@ -200,7 +200,7 @@
             "type":"item",
             "data_fields":[
                 {
-                    "name":"remote_sensor_detailed_status_rep",
+                    "name":"Remote Sensor Detailed Status",
                     "type":"repetitive",
                     "repetition_item":{
                         "name":"REP",
