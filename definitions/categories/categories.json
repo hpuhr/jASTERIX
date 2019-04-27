@@ -44,7 +44,7 @@
     "020":{
         "comment":"Category 020 Multilateration Target Reports",
         "default_edition":"1.5",
-        "default_mapping":"1.0",
+        "default_mapping":"",
         "editions":{
             "1.5":{
                 "document":"SUR.ET1.ST05.2000-STD-14-02",
@@ -62,7 +62,7 @@
     "021":{
         "comment":"Category 021 ADS-B Reports",
         "default_edition":"2.1",
-        "default_mapping":"1.0",
+        "default_mapping":"",
         "editions":{
             "2.1":{
                 "document":"SUR.ET1.ST05.2000-STD-12-01",
@@ -92,10 +92,24 @@
         "mappings":{
         }
     },
+    "034":{
+        "comment":"Category 034 Transmission of Monoradar Service Messages",
+        "default_edition":"1.26",
+        "default_mapping":"",
+        "editions":{
+            "1.26":{
+                "document":"SUR.ET1.ST05.2000-STD-02b-01",
+                "date":"November 2000",
+                "file":"034/cat034_1.26.json"
+            }
+        },
+        "mappings":{
+        }
+    },
     "048":{
         "comment":"Category 048 Transmission of Monoradar Target Reports",
         "default_edition":"1.15",
-        "default_mapping":"1.0",
+        "default_mapping":"",
         "editions":{
             "1.15":{
                 "document":"SUR.ET1.ST05.2000-STD-04-01",
@@ -113,7 +127,7 @@
     "062":{
         "comment":"Category 062 SURVEILLANCE DATA EXCHANGE SDPS Track Messages",
         "default_edition":"1.12",
-        "default_mapping":"1.0",
+        "default_mapping":"",
         "editions":{
             "1.12":{
                 "document":"SUR.ET1.ST05.2000-STD-09-01",
