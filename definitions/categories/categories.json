@@ -141,5 +141,19 @@
                     "file":"062/cat062_1.12_mapping.json"
                 }
         }
+    },
+    "063":{
+        "comment":"Category 063 Sensor Status Messages",
+        "default_edition":"1.0",
+        "default_mapping":"",
+        "editions":{
+            "1.0":{
+                "document":"SUR.ET1.ST05.2000-STD-10-01",
+                "date":"March 2004",
+                "file":"063/cat063_1.0.json"
+            }
+        },
+        "mappings":{
+        }
     }
 }
