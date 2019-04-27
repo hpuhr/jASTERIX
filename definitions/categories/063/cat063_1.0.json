@@ -233,7 +233,7 @@
                     "comment":"System Area Code",
                     "type":"fixed_bytes",
                     "length":2,
-                    "data_type":"uint",
+                    "data_type":"int",
                     "lsb":1.0
                 }
             ]
