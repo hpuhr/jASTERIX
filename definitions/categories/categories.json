@@ -78,6 +78,20 @@
             }
         }
     },
+    "023":{
+        "comment":"Category 023 CNS/ATM Ground Station and Service Status Reports",
+        "default_edition":"1.2",
+        "default_mapping":"",
+        "editions":{
+            "1.2":{
+                "document":"SUR.ET1.ST05.2000-STD-16-01",
+                "date":"March 2009",
+                "file":"023/cat023_1.2.json"
+            }
+        },
+        "mappings":{
+        }
+    },
     "048":{
         "comment":"Category 048 Transmission of Monoradar Target Reports",
         "default_edition":"1.15",
