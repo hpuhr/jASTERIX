@@ -27,6 +27,20 @@
         "mappings":{
         }
     },
+    "019":{
+        "comment":"Category 019 Multilateration System Status Messages",
+        "default_edition":"1.3",
+        "default_mapping":"",
+        "editions":{
+            "1.3":{
+                "document":"SUR.ET1.ST05.2000-STD-18-02",
+                "date":"December 2010",
+                "file":"019/cat019_1.3.json"
+            }
+        },
+        "mappings":{
+        }
+    },
     "020":{
         "comment":"Category 020 Multilateration Target Reports",
         "default_edition":"1.5",
