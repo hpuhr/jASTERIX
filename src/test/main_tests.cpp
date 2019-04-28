@@ -61,6 +61,9 @@ void test_cat062 (jASTERIX::jASTERIX& jasterix);
 void test_cat063_callback (nlohmann::json& json_data, size_t num_frames, size_t num_records);
 void test_cat063 (jASTERIX::jASTERIX& jasterix);
 
+void test_cat065_callback (nlohmann::json& json_data, size_t num_frames, size_t num_records);
+void test_cat065 (jASTERIX::jASTERIX& jasterix);
+
 int main (int argc, char **argv)
 {
     static_assert (sizeof(size_t) >= 8, "code requires size_t with at least 8 bytes");
@@ -133,6 +136,7 @@ int main (int argc, char **argv)
         test_cat048(asterix);
         test_cat062(asterix);
         test_cat063(asterix);
+        test_cat065(asterix);
 
     }
     catch (exception &ex)

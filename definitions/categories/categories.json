@@ -155,5 +155,19 @@
         },
         "mappings":{
         }
+    },
+    "065":{
+        "comment":"Category 065 SDPS Service Status Messages",
+        "default_edition":"1.3",
+        "default_mapping":"",
+        "editions":{
+            "1.3":{
+                "document":"SUR.ET1.ST05.2000-STD-15-01",
+                "date":"April 2007",
+                "file":"065/cat065_1.3.json"
+            }
+        },
+        "mappings":{
+        }
     }
 }

@@ -20,6 +20,7 @@ target_sources(jasterix_tests
         "${CMAKE_CURRENT_LIST_DIR}/cat048_1.15.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/cat062_1.12.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/cat063_1.0.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/cat065_1.3.cpp"
 )
 
 target_link_libraries ( jasterix_tests jasterix)
