@@ -151,7 +151,6 @@ size_t ASTERIXParser::decodeDataBlock (const char* data, size_t index, size_t le
             //std::string record_content_name = asterix_category_definition.at("name");
 
             data_block_content["records"] = json::array();
-            size_t cnt = 0;
 
             // create records until end of content
             while (parsed_bytes_record < record_length)
@@ -161,15 +160,13 @@ size_t ASTERIXParser::decodeDataBlock (const char* data, size_t index, size_t le
                 parsed_bytes_record += records_.at(cat)->parseItem(
                             data, record_index+parsed_bytes_record, record_length-parsed_bytes_record,
                             parsed_bytes+parsed_bytes_record,
-                            data_block_content.at("records")[cnt], debug);
+                            data_block_content.at("records")[num_records], debug);
 
                 if (debug)
                     loginf << "asterix parser decoding record with cat " << cat << " index " << record_index
-                             << ": " << data_block_content.at("records")[cnt].dump(4) << "'" << logendl;
-                ++cnt;
+                             << ": " << data_block_content.at("records")[num_records].dump(4) << "'" << logendl;
+                ++num_records;
             }
-
-            ++num_records;
         }
         else if (debug)
             loginf << "asterix parser decoding record with cat " << cat << " index " << record_index

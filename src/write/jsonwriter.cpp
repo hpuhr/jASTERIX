@@ -85,7 +85,7 @@ void JSONWriter::write(nlohmann::json& data)
         break;
     }
 
-    if (data_write_size > 0 && json_data_.size() > data_write_size)
+    if (data_write_size > 0 && json_data_.size() > static_cast<size_t>(data_write_size))
         writeData();
 }
 
