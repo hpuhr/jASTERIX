@@ -153,10 +153,10 @@ size_t ASTERIXParser::decodeDataBlock (const char* data, size_t index, size_t le
             data_block_content["records"] = json::array();
             size_t cnt = 0;
 
-            // TODO
+            // create records until end of content
             while (parsed_bytes_record < record_length)
             {
-                loginf << "asterix parser decoding record " << cnt << " parsed bytes " << parsed_bytes_record << " length " << record_length;
+                //loginf << "asterix parser decoding record " << cnt << " parsed bytes " << parsed_bytes_record << " length " << record_length;
 
                 parsed_bytes_record += records_.at(cat)->parseItem(
                             data, record_index+parsed_bytes_record, record_length-parsed_bytes_record,

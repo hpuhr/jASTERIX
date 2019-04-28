@@ -680,7 +680,9 @@
                     "field_specification":{
                         "name":"available",
                         "type":"extendable_bits",
-                        "data_type":"bitfield"
+                        "data_type":"bitfield",
+                        "reverse_bits":true,
+                        "reverse_order":true
                     },
                     "items":[
                         {
@@ -1349,7 +1351,9 @@
                     "field_specification":{
                         "name":"available",
                         "type":"extendable_bits",
-                        "data_type":"bitfield"
+                        "data_type":"bitfield",
+                        "reverse_bits":true,
+                        "reverse_order":true
                     },
                     "items":[
                         {
@@ -1583,7 +1587,9 @@
                     "field_specification":{
                         "name":"available",
                         "type":"extendable_bits",
-                        "data_type":"bitfield"
+                        "data_type":"bitfield",
+                        "reverse_bits":true,
+                        "reverse_order":true
                     },
                     "items":[
                         {
