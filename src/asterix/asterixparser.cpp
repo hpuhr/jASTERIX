@@ -144,6 +144,8 @@ size_t ASTERIXParser::decodeDataBlock (const char* data, size_t index, size_t le
                 loginf << "asterix parser decoding record with cat " << cat << " index " << record_index
                      << " length " << record_length << logendl;
 
+            size_t parsed_bytes_record {0};
+
             //const json& asterix_category_definition = asterix_category_definitions_.at(cat);
 
             //std::string record_content_name = asterix_category_definition.at("name");
@@ -152,13 +154,21 @@ size_t ASTERIXParser::decodeDataBlock (const char* data, size_t index, size_t le
             size_t cnt = 0;
 
             // TODO
-            parsed_bytes = records_.at(cat)->parseItem(
-                        data, record_index, record_length, parsed_bytes,
-                        data_block_content.at("records")[cnt], debug);
+            while (parsed_bytes_record < record_length)
+            {
+                loginf << "asterix parser decoding record " << cnt << " parsed bytes " << parsed_bytes_record << " length " << record_length;
 
-            if (debug)
-                loginf << "asterix parser decoding record with cat " << cat << " index " << record_index
-                         << ": " << data_block_content.at("records")[cnt].dump(4) << "'" << logendl;
+                parsed_bytes_record += records_.at(cat)->parseItem(
+                            data, record_index+parsed_bytes_record, record_length-parsed_bytes_record,
+                            parsed_bytes+parsed_bytes_record,
+                            data_block_content.at("records")[cnt], debug);
+
+                if (debug)
+                    loginf << "asterix parser decoding record with cat " << cat << " index " << record_index
+                             << ": " << data_block_content.at("records")[cnt].dump(4) << "'" << logendl;
+                ++cnt;
+            }
+
             ++num_records;
         }
         else if (debug)

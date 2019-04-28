@@ -147,13 +147,16 @@ size_t Record::parseItem (const char* data, size_t index, size_t size, size_t cu
     std::vector<bool> fspec_bits = target.at("FSPEC");
 
     if (!has_conditional_uap_ && fspec_bits.size() > uap_names_.size())
-        throw runtime_error ("record item '"+name_+"' has more fspec bits than define uap items");
+        throw runtime_error ("record item '"+name_+"' has more fspec bits than defined uap items");
 
     if (debug)
         loginf << "parsing record item '"+name_+"' data items" << logendl;
 
     size_t uap_cnt{0};
     size_t num_fspec_bits = fspec_bits.size();
+
+    bool special_purpose_field_present {false};
+    bool reserved_expansion_field_present {false};
 
     for (const auto& item_name : uap_names_) // parse static uap items
     {
@@ -173,12 +176,14 @@ size_t Record::parseItem (const char* data, size_t index, size_t size, size_t cu
             if (item_name == "SP") // special purpose field
             {
                 //loginf << "WARN: record item '"+name_+"' has special purpose field, not implemented yet" << logendl;
+                special_purpose_field_present = true;
                 continue;
             }
 
             if (item_name == "RE") // reserved expansion field
             {
                 //loginf << "WARN: record item '"+name_+"' has reserved expansion field, not implemented yet" << logendl;
+                reserved_expansion_field_present = true;
                 continue;
             }
 
@@ -224,12 +229,14 @@ size_t Record::parseItem (const char* data, size_t index, size_t size, size_t cu
                         if (item_name == "SP") // special purpose field
                         {
                             //loginf << "WARN: record item '"+name_+"' has special purpose field, not implemented yet" << logendl;
+                            special_purpose_field_present = true;
                             continue;
                         }
 
                         if (item_name == "RE") // reserved expansion field
                         {
                             //loginf << "WARN: record item '"+name_+"' has reserved expansion field, not implemented yet" << logendl;
+                            reserved_expansion_field_present = true;
                             continue;
                         }
 
@@ -248,6 +255,22 @@ size_t Record::parseItem (const char* data, size_t index, size_t size, size_t cu
                 }
             }
         }
+    }
+
+    if (special_purpose_field_present)
+    {
+        size_t re_bytes = data[index+parsed_bytes];
+
+        loginf << "record '"+name_+"' has special purpose field, skipping " << re_bytes << " bytes " << logendl;
+        parsed_bytes += re_bytes;
+    }
+
+    if (reserved_expansion_field_present)
+    {
+        size_t re_bytes = data[index+parsed_bytes];
+
+        loginf << "record '"+name_+"' has reserved expansion field, skipping " << re_bytes << " bytes " << logendl;
+        parsed_bytes += re_bytes;
     }
 
     return parsed_bytes;
