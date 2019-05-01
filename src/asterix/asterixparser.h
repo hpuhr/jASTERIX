@@ -34,7 +34,11 @@ public:
                   const std::map<unsigned int, std::shared_ptr<Edition>>& asterix_category_definitions,
                   const std::map<unsigned int, std::shared_ptr<Mapping>>& mappings, bool debug);
 
-    size_t decodeDataBlock (const char* data, size_t index, size_t length, nlohmann::json& target, bool debug);
+    size_t findDataBlocks (const char* data, size_t index, size_t length, nlohmann::json& target, bool debug);
+    size_t decodeDataBlocks (const char* data, nlohmann::json& data_blocks, bool debug);
+    size_t decodeDataBlock (const char* data, nlohmann::json& data_block, bool debug);
+//    size_t decodeDataBlock (const char* data, unsigned int cat, size_t index, size_t size, nlohmann::json& target,
+//                            bool debug);
 
 private:
     std::string data_block_name_;

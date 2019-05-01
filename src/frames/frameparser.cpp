@@ -200,15 +200,13 @@ size_t FrameParser::decodeFrame (const char* data, json& json_frame, bool debug)
     if (debug && json_frame.find("content") == json_frame.end())
         throw runtime_error("frame parser scoped frames does not contain correct content");
 
-    json& frame_content = json_frame.at("content");
-
-    size_t index {frame_content.at("index")};
-    size_t length {frame_content.at("length")};
+    json& frame_content = json_frame.at("content"); // todo what if multiple data blocks?
 
     if (debug)
-        loginf << "frame parser decoding frame at index " << index << " length " << length << logendl;
+        loginf << "frame parser decoding frame at index " << frame_content.at("index")
+               << " length " << frame_content.at("length") << logendl;
 
-    return asterix_parser_.decodeDataBlock(data, index, length, frame_content, debug);
+    return asterix_parser_.decodeDataBlock(data, frame_content, debug);
 }
 
 }

@@ -47,12 +47,6 @@ using namespace jASTERIX;
 
 JSONWriter* json_writer {nullptr};
 
-void callback (nlohmann::json& data_chunk, size_t num_frames, size_t num_records)
-{
-//    loginf << "jASTERIX: decoded " << num_frames << " frames, " << num_records << " records: "
-//           << data_chunk.dump(print_dump_indent);
-}
-
 void write_callback (nlohmann::json& data_chunk, size_t num_frames, size_t num_records)
 {
     loginf << "jASTERIX: write_callback " << num_frames << " frames, " << num_records;
@@ -216,10 +210,20 @@ int main (int argc, char **argv)
         auto start_time = chrono::steady_clock::now();
 #endif
 
-        if (json_writer)
-            asterix.decodeFile (filename, framing, write_callback);
+        if (framing == "netto" || framing == "")
+        {
+            if (json_writer)
+                asterix.decodeFile (filename, write_callback);
+            else
+                asterix.decodeFile (filename);
+        }
         else
-            asterix.decodeFile (filename, framing, callback);
+        {
+            if (json_writer)
+                asterix.decodeFile (filename, framing, write_callback);
+            else
+                asterix.decodeFile (filename, framing);
+        }
 
         size_t num_frames = asterix.numFrames();
         size_t num_records = asterix.numRecords();

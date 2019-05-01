@@ -38,6 +38,7 @@ namespace jASTERIX {
 int print_dump_indent=4;
 int frame_limit=-1;
 int frame_chunk_size=1000;
+int record_chunk_size=1000;
 int data_write_size=100;
 
 using namespace Files;
@@ -285,7 +286,8 @@ void jASTERIX::decodeFile (const std::string& filename, const std::string& frami
             if (print_)
                 loginf << data_chunk.dump(print_dump_indent) << logendl;
 
-            callback(data_chunk, num_frames_, num_records_);
+            if (callback)
+                callback(data_chunk, num_frames_, num_records_);
 
             if (frame_limit > 0 && num_frames_ >= static_cast<unsigned>(frame_limit))
             {
@@ -302,6 +304,118 @@ void jASTERIX::decodeFile (const std::string& filename, const std::string& frami
     }
 }
 
+void jASTERIX::decodeFile (const std::string& filename, std::function<void(nlohmann::json&, size_t, size_t)> callback)
+{
+    // check and open file
+    if (!fileExists(filename))
+        throw invalid_argument ("jASTERIX called with non-existing file '"+filename+"'");
+
+    size_t file_size = fileSize (filename);
+
+    if (!file_size)
+        throw invalid_argument ("jASTERIX called with empty file '"+filename+"'");
+
+    if (debug_)
+        loginf << "jASTERIX: file " << filename << " size " << file_size << logendl;
+
+#if USE_BOOST
+    file_.open(filename, file_size);
+
+    if(!file_.is_open())
+        throw runtime_error ("jASTERIX unable to map file '"+filename+"'");
+
+    const char* data = file_.data();
+#else
+    ifstream file (filename, ios::in | ios::binary);
+    file_buffer_ = new char[file_size];
+    file.read (file_buffer_, file_size);
+    if (!file)
+    {
+        // An error occurred!
+        throw runtime_error ("jASTERIX unable to read file '"+filename+"'");
+    }
+    file.close();
+
+    char* data = file_buffer_;
+#endif
+
+    // create ASTERIX parser
+    ASTERIXParser asterix_parser (data_block_definition_, current_category_editions_,
+                                  current_category_mappings_, debug_);
+
+    nlohmann::json jdata;
+
+    loginf << "jasterix: finding data blocks" << logendl;
+
+    size_t num_data_blocks = asterix_parser.findDataBlocks(data, 0, file_size, jdata, debug_);
+
+    loginf << "jasterix: found " << num_data_blocks << " data blocks" << logendl;
+
+    if (jdata.find ("data_blocks") == jdata.end())
+        throw runtime_error("jasterix data blocks not found");
+
+    if (!jdata.at("data_blocks").is_array())
+        throw runtime_error("jasterix data blocks is not an array");
+
+    loginf << "jasterix: decoding data blocks" << logendl;
+
+    size_t num_data_records = asterix_parser.decodeDataBlocks(data, jdata.at("data_blocks"), debug_);
+
+    num_records_ += num_data_records;
+
+    loginf << "jasterix: decoded " << num_data_records << " records in " << num_data_blocks << " data blocks"
+           << logendl;
+
+    loginf << "UGA4 '" << jdata.dump(4) << "'" << logendl;
+
+    if (callback)
+        callback(jdata.at("data_blocks"), 0, num_data_records);
+
+//    size_t index;
+
+    // parsing header
+//    index = frame_parser.parseHeader(data, 0, file_size, json_header, debug_);
+
+//    FrameParserTask* task = new (tbb::task::allocate_root()) FrameParserTask (
+//                *this, frame_parser, json_header, data, index, file_size, debug_);
+//    tbb::task::enqueue(*task);
+
+//    nlohmann::json data_chunk;
+
+//    while (1)
+//    {
+//        if (frame_parser.done() && data_chunks_.empty())
+//            break;
+
+//        if (data_chunks_.try_pop(data_chunk))
+//        {
+//            num_frames_ += data_chunk.at("frames").size();
+//            num_records_ += frame_parser.decodeFrames(data, data_chunk, debug_);
+
+//            if (debug_)
+//                loginf << "jASTERIX processing " << num_frames_ << " frames, " << num_records_ << " records" << logendl;
+
+//            if (print_)
+//                loginf << data_chunk.dump(print_dump_indent) << logendl;
+
+//            if (callback)
+//                callback(data_chunk, num_frames_, num_records_);
+
+//            if (frame_limit > 0 && num_frames_ >= static_cast<unsigned>(frame_limit))
+//            {
+//                loginf << "jASTERIX processing hit framelimit" << logendl;
+//                break;
+//            }
+//        }
+//        else
+//        {
+//            if (debug_)
+//                loginf << "jASTERIX waiting" << logendl;
+//            std::this_thread::sleep_for(std::chrono::milliseconds(1));
+//        }
+//    }
+}
+
 void jASTERIX::decodeASTERIX (const char* data, size_t size,
              std::function<void(nlohmann::json&, size_t, size_t)> callback)
 {
@@ -311,9 +425,11 @@ void jASTERIX::decodeASTERIX (const char* data, size_t size,
 
     nlohmann::json data_chunk;
 
-    asterix_parser.decodeDataBlock(data, 0, size, data_chunk, debug_);
+    // TODO 0, size,
+    asterix_parser.decodeDataBlock(data,  data_chunk, debug_);
 
-    callback(data_chunk, 0, 0);
+    if (callback)
+        callback(data_chunk, 0, 0);
 }
 
 

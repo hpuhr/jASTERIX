@@ -23,6 +23,8 @@
 #include <iostream>
 #include <iomanip>
 
+#include <tbb/tbb.h>
+
 using namespace std;
 using namespace nlohmann;
 
@@ -68,33 +70,54 @@ ASTERIXParser::ASTERIXParser(const nlohmann::json& data_block_definition,
     {
         if (debug)
             loginf << "asterix parser constructing cat '" << setfill('0') << setw(3) << ast_cat_def_it.first << "'"
-                       << logendl;
+                   << logendl;
 
         records_.insert(
                     std::pair<unsigned int, std::shared_ptr<Record>>
                     (ast_cat_def_it.first, std::shared_ptr<Record>{ast_cat_def_it.second->record()}));
 
-//        if (ast_cat_def_it.second->hasCurrentMapping())
-//        {
-//            mappings_.insert(
-//                        std::pair<unsigned int, std::shared_ptr<Mapping>>
-//                        (ast_cat_def_it.first, std::shared_ptr<Mapping>{ast_cat_def_it.second->record()}));
-//        }
+        //        if (ast_cat_def_it.second->hasCurrentMapping())
+        //        {
+        //            mappings_.insert(
+        //                        std::pair<unsigned int, std::shared_ptr<Mapping>>
+        //                        (ast_cat_def_it.first, std::shared_ptr<Mapping>{ast_cat_def_it.second->record()}));
+        //        }
     }
 }
 
-size_t ASTERIXParser::decodeDataBlock (const char* data, size_t index, size_t length, nlohmann::json& target,
-                                       bool debug)
+size_t ASTERIXParser::findDataBlocks (const char* data, size_t index, size_t length, nlohmann::json& target, bool debug)
 {
     size_t parsed_bytes {0};
-    size_t num_records {0};
+    size_t parsed_data_block_bytes {0};
+    size_t parsed_bytes_sum {0};
+    size_t num_blocks {0};
 
-    for (auto& r_item : data_block_items_)
+
+    loginf << "UGA target '" << target.dump(4) << "' parsed " << parsed_bytes_sum << " size " << length << logendl;
+
+    while (parsed_bytes_sum < length && parsed_bytes < 1000)
     {
-        parsed_bytes += r_item->parseItem(data, index+parsed_bytes, length, parsed_bytes,
-                                          target[data_block_name_], debug);
-        //++record_cnt;
-    }
+        parsed_data_block_bytes = 0;
+
+        for (auto& r_item : data_block_items_)
+        {
+            loginf << "UGA1 index " << index+parsed_bytes_sum << " pb " << parsed_data_block_bytes << logendl;
+            parsed_bytes = r_item->parseItem(data, index+parsed_bytes_sum, length, parsed_data_block_bytes,
+                                              target[data_block_name_][num_blocks], debug);
+            parsed_data_block_bytes += parsed_bytes;
+            parsed_bytes_sum += parsed_bytes;
+            //++record_cnt;
+        }
+
+        //parsed_bytes += target[data_block_name_][num_blocks]
+
+        loginf << "UGA2 target block '" << target[data_block_name_][num_blocks].dump(4) << "'" << logendl;
+
+        ++num_blocks;
+     }
+
+
+    loginf << "UGA3 target '" << target.dump(4) << "' parsed " << parsed_bytes_sum << " size " << length << logendl;
 
     //    {
     //        "cnt": 0,
@@ -113,82 +136,127 @@ size_t ASTERIXParser::decodeDataBlock (const char* data, size_t index, size_t le
     //        "frame_length": 56,
     //        "frame_relative_time_ms": 2117
     //    }
-        // check record information
-        json& record = target.at(data_block_name_);
 
-        if (debug && record.find ("category") == record.end())
-            throw runtime_error("asterix parser record does not contain category information");
+    return num_blocks;
+}
 
-        unsigned int cat = record.at("category");
+size_t ASTERIXParser::decodeDataBlocks (const char* data, nlohmann::json& data_blocks, bool debug)
+{
+    size_t num_records_sum {0};
 
-        if (debug && record.find ("content") == record.end())
-            throw runtime_error("asterix parser record does not contain content information");
+    if (!data_blocks.is_array())
+        throw runtime_error("asterix parser data blocks is not an array");
 
-        json& data_block_content = record.at("content");
+    size_t num_data_blocks = data_blocks.size();
 
-        if (debug && data_block_content.find ("index") == data_block_content.end())
-            throw runtime_error("asterix parser record content does not contain index information");
+    std::vector<size_t> num_records;
+    num_records.resize(num_data_blocks, 0);
 
-        size_t record_index = data_block_content.at("index");
+    tbb::parallel_for( size_t(0), num_data_blocks, [&]( size_t cnt )
+    {
+        num_records.at(cnt) = decodeDataBlock (data, data_blocks[cnt], debug);
+    });
 
-        if (debug && data_block_content.find ("length") == data_block_content.end())
-            throw runtime_error("asterix parser record content does not contain length information");
+    for (auto num_record_it : num_records)
+        num_records_sum += num_record_it;
 
-        size_t record_length = data_block_content.at("length");
+    return num_records_sum;
+}
 
-        // try to decode
-        if (records_.count(cat) != 0)
+size_t ASTERIXParser::decodeDataBlock (const char* data, nlohmann::json& data_block, bool debug)
+{
+    size_t parsed_bytes {0}; // TODO unsure if used
+    size_t num_records {0};
+
+    // check record information
+    //json& record = target.at(data_block_name_);
+
+    //        {
+    //            "category": 1,
+    //            "content": {
+    //                "index": 3265,
+    //                "length": 52
+    //            },
+    //            "length": 55
+    //        }
+
+    if (debug && data_block.find ("category") == data_block.end())
+        throw runtime_error("asterix parser data block does not contain category information");
+
+    unsigned int cat = data_block.at("category");
+
+    if (debug && data_block.find ("content") == data_block.end())
+        throw runtime_error("asterix parser data block does not contain content information");
+
+    json& data_block_content = data_block.at("content");
+
+    if (debug && data_block_content.find ("index") == data_block_content.end())
+        throw runtime_error("asterix parser record content does not contain index information");
+
+    size_t record_index = data_block_content.at("index");
+
+    if (debug && data_block_content.find ("length") == data_block_content.end())
+        throw runtime_error("asterix parser record content does not contain length information");
+
+    size_t record_length = data_block_content.at("length");
+
+    // try to decode
+    if (records_.count(cat) != 0)
+    {
+        // decode
+        if (debug)
+            loginf << "asterix parser decoding record with cat " << cat << " index " << record_index
+                   << " length " << record_length << logendl;
+
+        size_t parsed_bytes_record {0};
+
+        data_block_content["records"] = json::array();
+
+        // create records until end of content
+        while (parsed_bytes_record < record_length)
         {
-            // decode
+            //loginf << "asterix parser decoding record " << cnt << " parsed bytes " << parsed_bytes_record << " length " << record_length;
+
+            parsed_bytes_record += records_.at(cat)->parseItem(
+                        data, record_index+parsed_bytes_record, record_length-parsed_bytes_record,
+                        parsed_bytes+parsed_bytes_record,
+                        data_block_content.at("records")[num_records], debug);
+
             if (debug)
                 loginf << "asterix parser decoding record with cat " << cat << " index " << record_index
-                     << " length " << record_length << logendl;
-
-            size_t parsed_bytes_record {0};
-
-            //const json& asterix_category_definition = asterix_category_definitions_.at(cat);
-
-            //std::string record_content_name = asterix_category_definition.at("name");
-
-            data_block_content["records"] = json::array();
-
-            // create records until end of content
-            while (parsed_bytes_record < record_length)
-            {
-                //loginf << "asterix parser decoding record " << cnt << " parsed bytes " << parsed_bytes_record << " length " << record_length;
-
-                parsed_bytes_record += records_.at(cat)->parseItem(
-                            data, record_index+parsed_bytes_record, record_length-parsed_bytes_record,
-                            parsed_bytes+parsed_bytes_record,
-                            data_block_content.at("records")[num_records], debug);
-
-                if (debug)
-                    loginf << "asterix parser decoding record with cat " << cat << " index " << record_index
-                             << ": " << data_block_content.at("records")[num_records].dump(4) << "'" << logendl;
-                ++num_records;
-            }
+                       << ": " << data_block_content.at("records")[num_records].dump(4) << "'" << logendl;
+            ++num_records;
         }
-        else if (debug)
-            loginf << "asterix parser decoding record with cat " << cat << " index " << record_index
-                 << " length " << record_length << " skipped since cat definition is missing " << logendl;
+    }
+    else if (debug)
+        loginf << "asterix parser decoding record with cat " << cat << " index " << record_index
+               << " length " << record_length << " skipped since cat definition is missing " << logendl;
 
-        if (num_records && mappings_.count(cat))
-        {
-            if (debug)
-                loginf << "asterix parser decoding mapping cat " << cat << ", num records " << num_records << logendl;
+    if (num_records && mappings_.count(cat))
+    {
+        if (debug)
+            loginf << "asterix parser decoding mapping cat " << cat << ", num records " << num_records << logendl;
 
-            std::shared_ptr<Mapping> current_mapping = mappings_.at(cat);
-            json& mapping_src = data_block_content.at("records");
-            json mapping_dest = json::array();
+        std::shared_ptr<Mapping> current_mapping = mappings_.at(cat);
+        json& mapping_src = data_block_content.at("records");
+        json mapping_dest = json::array();
 
-            for (size_t cnt=0; cnt < num_records; ++cnt)
-                current_mapping->map(mapping_src[cnt], mapping_dest[cnt]);
+        for (size_t cnt=0; cnt < num_records; ++cnt)
+            current_mapping->map(mapping_src[cnt], mapping_dest[cnt]);
 
-            data_block_content["records"] = std::move(mapping_dest);
+        data_block_content["records"] = std::move(mapping_dest);
 
-        }
+    }
 
-        return num_records;
+    //loginf << "UGA " << num_records << logendl;
+
+    return num_records;
 }
+
+//size_t ASTERIXParser::decodeDataBlock (const char* data, unsigned int cat, size_t index, size_t size,
+//                                       nlohmann::json& target, bool debug)
+//{
+
+//}
 
 }
