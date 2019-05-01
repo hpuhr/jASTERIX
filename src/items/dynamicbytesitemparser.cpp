@@ -44,8 +44,8 @@ size_t DynamicBytesItemParser::parseItem (const char* data, size_t index, size_t
     if (debug)
         loginf << "parsing dynamic bytes item '" << name_ << "'" << logendl;
 
-    loginf << "UGA dynamic bytes item '"+name_+"' index " << index << " size " << size << " current pb "
-           << current_parsed_bytes << logendl;
+//    loginf << "UGA dynamic bytes item '"+name_+"' index " << index << " size " << size << " current pb "
+//           << current_parsed_bytes << logendl;
 
     if (debug && target.find(length_variable_name_) == target.end())
         throw runtime_error ("dynamic bytes item '"+name_+"' parsing without given length");
@@ -58,7 +58,7 @@ size_t DynamicBytesItemParser::parseItem (const char* data, size_t index, size_t
         length -= current_parsed_bytes;
     }
 
-    //if (debug)
+    if (debug)
         loginf << "parsing dynamic bytes item '"+name_+"' index " << index << " length " << length << logendl;
 
     assert (target.find(name_) == target.end());

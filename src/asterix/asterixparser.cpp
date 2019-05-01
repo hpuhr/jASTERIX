@@ -19,6 +19,7 @@
 #include "logger.h"
 #include "itemparserbase.h"
 #include "record.h"
+#include "jasterix.h"
 
 #include <iostream>
 #include <iomanip>
@@ -85,39 +86,46 @@ ASTERIXParser::ASTERIXParser(const nlohmann::json& data_block_definition,
     }
 }
 
-size_t ASTERIXParser::findDataBlocks (const char* data, size_t index, size_t length, nlohmann::json& target, bool debug)
+std::tuple<size_t, size_t, bool> ASTERIXParser::findDataBlocks (const char* data, size_t index, size_t length,
+                                                         nlohmann::json& target, bool debug)
 {
     size_t parsed_bytes {0};
     size_t parsed_data_block_bytes {0};
     size_t parsed_bytes_sum {0};
     size_t num_blocks {0};
 
+    //loginf << "UGA target '" << target.dump(4) << "' parsed " << parsed_bytes_sum << " size " << length << logendl;
 
-    loginf << "UGA target '" << target.dump(4) << "' parsed " << parsed_bytes_sum << " size " << length << logendl;
+    bool record_limit_hit {false};
+    size_t current_index {index};
 
-    while (parsed_bytes_sum < length && parsed_bytes < 1000)
+    while (current_index < length)
     {
+        if (record_chunk_size > 0 && num_blocks >= static_cast<size_t> (record_chunk_size))
+        {
+            record_limit_hit = true;
+            break;
+        }
+
         parsed_data_block_bytes = 0;
 
         for (auto& r_item : data_block_items_)
         {
-            loginf << "UGA1 index " << index+parsed_bytes_sum << " pb " << parsed_data_block_bytes << logendl;
-            parsed_bytes = r_item->parseItem(data, index+parsed_bytes_sum, length, parsed_data_block_bytes,
+            //loginf << "UGA1 index " << current_index << " pb " << parsed_data_block_bytes << logendl;
+            parsed_bytes = r_item->parseItem(data, current_index, length, parsed_data_block_bytes,
                                               target[data_block_name_][num_blocks], debug);
             parsed_data_block_bytes += parsed_bytes;
             parsed_bytes_sum += parsed_bytes;
-            //++record_cnt;
+            current_index += parsed_bytes;
         }
 
-        //parsed_bytes += target[data_block_name_][num_blocks]
-
-        loginf << "UGA2 target block '" << target[data_block_name_][num_blocks].dump(4) << "'" << logendl;
+        //loginf << "UGA2 target block '" << target[data_block_name_][num_blocks].dump(4) << "'" << logendl;
 
         ++num_blocks;
      }
 
 
-    loginf << "UGA3 target '" << target.dump(4) << "' parsed " << parsed_bytes_sum << " size " << length << logendl;
+    //loginf << "UGA3 target '" << target.dump(4) << "' parsed " << parsed_bytes_sum << " size " << length << logendl;
 
     //    {
     //        "cnt": 0,
@@ -137,7 +145,7 @@ size_t ASTERIXParser::findDataBlocks (const char* data, size_t index, size_t len
     //        "frame_relative_time_ms": 2117
     //    }
 
-    return num_blocks;
+    return std::make_tuple (parsed_bytes_sum, num_blocks, !record_limit_hit);
 }
 
 size_t ASTERIXParser::decodeDataBlocks (const char* data, nlohmann::json& data_blocks, bool debug)

@@ -20,6 +20,7 @@
 #include "files.h"
 #include "logger.h"
 #include "asterixparser.h"
+#include "datablockfindertask.h"
 #include "frameparser.h"
 #include "frameparsertask.h"
 #include "category.h"
@@ -343,77 +344,92 @@ void jASTERIX::decodeFile (const std::string& filename, std::function<void(nlohm
     ASTERIXParser asterix_parser (data_block_definition_, current_category_editions_,
                                   current_category_mappings_, debug_);
 
-    nlohmann::json jdata;
-
     loginf << "jasterix: finding data blocks" << logendl;
 
-    size_t num_data_blocks = asterix_parser.findDataBlocks(data, 0, file_size, jdata, debug_);
+//    size_t index {0};
+//    size_t parsed_bytes {0};
+//    size_t num_data_blocks {0};
 
-    loginf << "jasterix: found " << num_data_blocks << " data blocks" << logendl;
+//    size_t num_data_records;
 
-    if (jdata.find ("data_blocks") == jdata.end())
-        throw runtime_error("jasterix data blocks not found");
-
-    if (!jdata.at("data_blocks").is_array())
-        throw runtime_error("jasterix data blocks is not an array");
-
-    loginf << "jasterix: decoding data blocks" << logendl;
-
-    size_t num_data_records = asterix_parser.decodeDataBlocks(data, jdata.at("data_blocks"), debug_);
-
-    num_records_ += num_data_records;
-
-    loginf << "jasterix: decoded " << num_data_records << " records in " << num_data_blocks << " data blocks"
-           << logendl;
-
-    loginf << "UGA4 '" << jdata.dump(4) << "'" << logendl;
-
-    if (callback)
-        callback(jdata.at("data_blocks"), 0, num_data_records);
-
-//    size_t index;
-
-    // parsing header
-//    index = frame_parser.parseHeader(data, 0, file_size, json_header, debug_);
-
-//    FrameParserTask* task = new (tbb::task::allocate_root()) FrameParserTask (
-//                *this, frame_parser, json_header, data, index, file_size, debug_);
-//    tbb::task::enqueue(*task);
-
-//    nlohmann::json data_chunk;
-
-//    while (1)
+//    while (!done)
 //    {
-//        if (frame_parser.done() && data_chunks_.empty())
-//            break;
+//        nlohmann::json jdata;
 
-//        if (data_chunks_.try_pop(data_chunk))
-//        {
-//            num_frames_ += data_chunk.at("frames").size();
-//            num_records_ += frame_parser.decodeFrames(data, data_chunk, debug_);
+//        std::tuple<size_t, size_t, bool> ret = asterix_parser.findDataBlocks(data, index+parsed_bytes, file_size,
+//                                                                             jdata, debug_);
 
-//            if (debug_)
-//                loginf << "jASTERIX processing " << num_frames_ << " frames, " << num_records_ << " records" << logendl;
+//        parsed_bytes += std::get<0>(ret);
+//        num_data_blocks += std::get<1>(ret);
+//        done = std::get<2>(ret);
 
-//            if (print_)
-//                loginf << data_chunk.dump(print_dump_indent) << logendl;
+//        loginf << "jasterix: parsed " << parsed_bytes << " bytes, found " << num_data_blocks << " data blocks, done "
+//               << done << logendl;
 
-//            if (callback)
-//                callback(data_chunk, num_frames_, num_records_);
+//        if (jdata.find ("data_blocks") == jdata.end())
+//            throw runtime_error("jasterix data blocks not found");
 
-//            if (frame_limit > 0 && num_frames_ >= static_cast<unsigned>(frame_limit))
-//            {
-//                loginf << "jASTERIX processing hit framelimit" << logendl;
-//                break;
-//            }
-//        }
-//        else
-//        {
-//            if (debug_)
-//                loginf << "jASTERIX waiting" << logendl;
-//            std::this_thread::sleep_for(std::chrono::milliseconds(1));
-//        }
+//        if (!jdata.at("data_blocks").is_array())
+//            throw runtime_error("jasterix data blocks is not an array");
+
+//        loginf << "jasterix: decoding data blocks" << logendl;
+
+//        num_data_records = asterix_parser.decodeDataBlocks(data, jdata.at("data_blocks"), debug_);
+
+//        num_records_ += num_data_records;
+
+//        loginf << "jasterix: decoded " << num_records_ << " records in " << num_data_blocks << " data blocks"
+//               << logendl;
+
+//        //loginf << "UGA4 '" << jdata.dump(4) << "'" << logendl;
+
+//        if (callback)
+//            callback(jdata.at("data_blocks"), 0, num_data_records);
 //    }
+
+    size_t index {0};
+
+    DataBlockFinderTask* task = new (tbb::task::allocate_root()) DataBlockFinderTask (
+                *this, asterix_parser, data, index, file_size, debug_);
+    tbb::task::enqueue(*task);
+
+    nlohmann::json data_block_chunk;
+
+    size_t num_data_records {0};
+
+    while (1)
+    {
+        if (data_block_processing_done_ && data_block_chunks_.empty())
+            break;
+
+        //loginf << "jasterix: task done " << data_block_processing_done_ << " empty " << data_block_chunks_.empty() << logendl;
+
+        if (data_block_chunks_.try_pop(data_block_chunk))
+        {
+            //loginf << "jasterix: decoding data block" << logendl;
+
+            if (data_block_chunk.find ("data_blocks") == data_block_chunk.end())
+                throw runtime_error("jasterix data blocks not found");
+
+            if (!data_block_chunk.at("data_blocks").is_array())
+                throw runtime_error("jasterix data blocks is not an array");
+
+            num_data_records = asterix_parser.decodeDataBlocks(data, data_block_chunk.at("data_blocks"), debug_);
+
+            num_records_ += num_data_records;
+
+            if (callback)
+                callback(data_block_chunk, 0, num_data_records);
+
+            //loginf << "jasterix: decoding data block done, num_records " << num_records_ << logendl;
+        }
+        else
+        {
+            if (debug_)
+                loginf << "jASTERIX waiting" << logendl;
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        }
+    }
 }
 
 void jASTERIX::decodeASTERIX (const char* data, size_t size,
@@ -441,6 +457,23 @@ size_t jASTERIX::numFrames() const
 size_t jASTERIX::numRecords() const
 {
     return num_records_;
+}
+
+void jASTERIX::addDataBlockChunk (nlohmann::json& data_block_chunk, bool done)
+{
+    if (debug_)
+    {
+        loginf << "jASTERIX adding data block chunk, done " << done << logendl;
+
+        if (data_block_chunk.find("data_blocks") == data_block_chunk.end())
+            throw std::runtime_error ("jASTERIX scoped data block information contains no data blocks");
+
+        if (!data_block_chunk.at("data_blocks").is_array())
+            throw std::runtime_error ("jASTERIX scoped scoped data block information is not array");
+    }
+
+    data_block_chunks_.push(std::move(data_block_chunk));
+    data_block_processing_done_ = done;
 }
 
 void jASTERIX::addDataChunk (nlohmann::json& data_chunk)

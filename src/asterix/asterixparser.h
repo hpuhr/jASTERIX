@@ -23,6 +23,8 @@
 #include "edition.h"
 #include "mapping.h"
 
+#include <tuple>
+
 namespace jASTERIX {
 
 class ItemParserBase;
@@ -34,7 +36,10 @@ public:
                   const std::map<unsigned int, std::shared_ptr<Edition>>& asterix_category_definitions,
                   const std::map<unsigned int, std::shared_ptr<Mapping>>& mappings, bool debug);
 
-    size_t findDataBlocks (const char* data, size_t index, size_t length, nlohmann::json& target, bool debug);
+    std::tuple<size_t, size_t, bool> findDataBlocks (const char* data, size_t index, size_t length,
+                                                     nlohmann::json& target,bool debug);
+    // parsed bytes, num data blocks, done flag
+
     size_t decodeDataBlocks (const char* data, nlohmann::json& data_blocks, bool debug);
     size_t decodeDataBlock (const char* data, nlohmann::json& data_block, bool debug);
 //    size_t decodeDataBlock (const char* data, unsigned int cat, size_t index, size_t size, nlohmann::json& target,

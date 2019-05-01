@@ -69,6 +69,7 @@ public:
     size_t numFrames() const;
     size_t numRecords() const;
 
+    void addDataBlockChunk (nlohmann::json& data_block_chunk, bool done);
     void addDataChunk (nlohmann::json& data_chunk);
 
 private:
@@ -87,6 +88,9 @@ private:
 #else
     char* file_buffer_{nullptr};
 #endif
+
+    tbb::concurrent_queue<nlohmann::json> data_block_chunks_;
+    bool data_block_processing_done_ {false};
 
     tbb::concurrent_queue<nlohmann::json> data_chunks_;
 
