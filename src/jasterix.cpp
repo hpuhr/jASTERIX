@@ -344,8 +344,8 @@ void jASTERIX::decodeFile (const std::string& filename, std::function<void(nlohm
     ASTERIXParser asterix_parser (data_block_definition_, current_category_editions_,
                                   current_category_mappings_, debug_);
 
-    loginf << "jasterix: finding data blocks" << logendl;
-
+    if (debug_)
+        loginf << "jasterix: finding data blocks" << logendl;
 
     size_t index {0};
 
@@ -362,7 +362,8 @@ void jASTERIX::decodeFile (const std::string& filename, std::function<void(nlohm
         if (data_block_processing_done_ && data_block_chunks_.empty())
             break;
 
-        //loginf << "jasterix: task done " << data_block_processing_done_ << " empty " << data_block_chunks_.empty() << logendl;
+        //loginf << "jasterix: task done " << data_block_processing_done_ << " empty " << data_block_chunks_.empty()
+        // << logendl;
 
         if (data_block_chunks_.try_pop(data_block_chunk))
         {
@@ -401,8 +402,29 @@ void jASTERIX::decodeASTERIX (const char* data, size_t size,
 
     nlohmann::json data_chunk;
 
-    // TODO 0, size,
-    asterix_parser.decodeDataBlock(data,  data_chunk, debug_);
+    // TODO 0, size
+    size_t index = 0;
+
+    //loginf << "UGA find db" << logendl;
+
+    std::tuple<size_t, size_t, bool> ret = asterix_parser.findDataBlocks(data, index, size, data_chunk, debug_);
+
+    bool done = std::get<2>(ret);
+
+    //loginf << "UGA find done " << done << logendl;
+
+    assert (done);
+
+    //loginf << "UGA decoding '" << data_chunk.dump(4) << "'" << logendl;
+
+    if (data_chunk.find ("data_blocks") == data_chunk.end())
+        throw runtime_error("jasterix data blocks not found");
+
+    if (!data_chunk.at("data_blocks").is_array())
+        throw runtime_error("jasterix data blocks is not an array");
+
+    for (json& data_block : data_chunk.at("data_blocks"))
+         asterix_parser.decodeDataBlock(data, data_block, debug_);
 
     if (callback)
         callback(data_chunk, 0, 0);
