@@ -35,25 +35,28 @@ FrameParser::FrameParser(const json& framing_definition, ASTERIXParser& asterix_
     if (framing_definition.find("name") == framing_definition.end())
         throw runtime_error ("frame parser construction without JSON name definition");
 
-    if (framing_definition.find("header_items") == framing_definition.end())
-        throw runtime_error ("frame parser construction without header items");
-
-    if (!framing_definition.at("header_items").is_array())
-        throw runtime_error ("frame parser construction with header items non-array");
 
     std::string item_name;
     ItemParserBase* item {nullptr};
 
-    for (const json& data_item_it : framing_definition.at("header_items"))
+    if (framing_definition.find("file_header_items") != framing_definition.end())
     {
-        item_name = data_item_it.at("name");
+        if (!framing_definition.at("file_header_items").is_array())
+            throw runtime_error ("frame parser construction with header items non-array");
 
-        if (debug)
-            loginf << "frame parser constructing header item '" << item_name << "'" << logendl;
+        for (const json& data_item_it : framing_definition.at("file_header_items"))
+        {
+            item_name = data_item_it.at("name");
 
-        item = ItemParserBase::createItemParser(data_item_it);
-        assert (item);
-        header_items_.push_back(std::unique_ptr<ItemParserBase>{item});
+            if (debug)
+                loginf << "frame parser constructing file header item '" << item_name << "'" << logendl;
+
+            item = ItemParserBase::createItemParser(data_item_it);
+            assert (item);
+            file_header_items_.push_back(std::unique_ptr<ItemParserBase>{item});
+        }
+
+        has_file_header_items_ = true;
     }
 
     if (framing_definition.find("frame_items") == framing_definition.end())
@@ -84,7 +87,7 @@ size_t FrameParser::parseHeader (const char* data, size_t index, size_t size, js
 
     size_t parsed_bytes {0};
 
-    for (auto& j_item : header_items_)
+    for (auto& j_item : file_header_items_)
     {
         parsed_bytes += j_item->parseItem(data, index+parsed_bytes, size, parsed_bytes, target, debug);
     }
@@ -99,10 +102,13 @@ std::tuple<size_t, size_t, bool> FrameParser::findFrames (const char* data, size
     assert (data);
     assert (size);
     assert (index < size);
-    assert (target != nullptr);
 
+    if (has_file_header_items_)
+        assert (target != nullptr);
+
+    size_t parsed_bytes_sum {0};
+    size_t parsed_bytes_frame {0};
     size_t parsed_bytes {0};
-    size_t current_parsed_bytes {0};
     size_t chunk_frames_cnt {0};
 
     if (debug)
@@ -113,11 +119,11 @@ std::tuple<size_t, size_t, bool> FrameParser::findFrames (const char* data, size
     bool hit_frame_limit {false};
     bool hit_frame_chunk_limit {false};
 
-    while (index+parsed_bytes < size)
+    while (index+parsed_bytes_sum < size)
     {
         // parse single frame
         if(debug)
-            loginf << "finding frame " << sum_frames_cnt_ << " at index " << index+parsed_bytes << " size " << size
+            loginf << "finding frame " << sum_frames_cnt_ << " at index " << index+parsed_bytes_sum << " size " << size
                    << logendl;
 
         if (frame_limit > 0 && sum_frames_cnt_ >= static_cast<unsigned>(frame_limit))
@@ -140,16 +146,18 @@ std::tuple<size_t, size_t, bool> FrameParser::findFrames (const char* data, size
             break;
         }
 
-        current_parsed_bytes = 0;
+        parsed_bytes_frame = 0;
         for (auto& j_item : frame_items_)
         {
             if (debug)
-                loginf << "found frame item at index " << index+parsed_bytes << " cnt " << chunk_frames_cnt << logendl;
+                loginf << "found frame item at index " << index+parsed_bytes_sum << " frame pb " << parsed_bytes_frame
+                       << " cnt " << chunk_frames_cnt << logendl;
 
-            parsed_bytes += j_item->parseItem(data, index+parsed_bytes, size, current_parsed_bytes,
+            parsed_bytes = j_item->parseItem(data, index+parsed_bytes_sum, size-parsed_bytes_sum, parsed_bytes_frame,
                                               j_frames[chunk_frames_cnt], debug);
             j_frames[chunk_frames_cnt]["cnt"] = chunk_frames_cnt;
-
+            parsed_bytes_frame += parsed_bytes;
+            parsed_bytes_sum += parsed_bytes;
         }
 //        loginf << "UGA FP FOUND '" << j_frames[chunk_frames_cnt].dump(4) << "'" << logendl;
 
@@ -157,7 +165,7 @@ std::tuple<size_t, size_t, bool> FrameParser::findFrames (const char* data, size
         ++sum_frames_cnt_;
     }
 
-    return std::make_tuple (parsed_bytes, chunk_frames_cnt, !(hit_frame_limit || hit_frame_chunk_limit));
+    return std::make_tuple (parsed_bytes_sum, chunk_frames_cnt, !(hit_frame_limit || hit_frame_chunk_limit));
 }
 
 size_t FrameParser::decodeFrames (const char* data, json& target, bool debug)
@@ -196,6 +204,11 @@ size_t FrameParser::decodeFrames (const char* data, json& target, bool debug)
         loginf << "frames decoded, num frames " << num_records_sum << logendl;
 
     return num_records_sum;
+}
+
+bool FrameParser::hasFileHeaderItems() const
+{
+    return has_file_header_items_;
 }
 
 size_t FrameParser::decodeFrame (const char* data, json& json_frame, bool debug)

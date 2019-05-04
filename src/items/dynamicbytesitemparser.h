@@ -35,6 +35,10 @@ public:
 protected:
     std::string length_variable_name_;
     bool substract_previous_{false};
+
+    bool has_additative_factor_{false};
+    int additative_factor_;
+
 };
 
 }

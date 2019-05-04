@@ -50,7 +50,12 @@ public:
 
         while (!done) // || size_-index_ > 0
         {
-            nlohmann::json data_chunk = header_; // copy header
+            nlohmann::json data_chunk;
+
+            if (frame_parser_.hasFileHeaderItems())
+                data_chunk = header_; // copy header
+
+            //loginf << "FPT UGA index " << index_ << " size " << size_ << logendl;
 
             assert (index_ < size_);
 
@@ -59,7 +64,8 @@ public:
             index_ += std::get<0>(ret); // parsed bytes
             done = std::get<2>(ret); // done flag
 
-//            loginf << "FPT UGA index " << index_ << " done " << done << logendl;
+//            loginf << "FPT UGA index " << index_ << " done " << done << " chunk '" << data_chunk.dump(4) << "'"
+//                   << logendl;
 
             assert (data_chunk != nullptr);
 

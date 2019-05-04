@@ -36,13 +36,20 @@ DynamicBytesItemParser::DynamicBytesItemParser (const nlohmann::json& item_defin
 
     substract_previous_ = item_definition.find("substract_previous") != item_definition.end()
             && item_definition.at("substract_previous") == true;
+
+    if (item_definition.find("additative_factor") != item_definition.end())
+    {
+        has_additative_factor_ = true;
+        additative_factor_ = item_definition.at("additative_factor");
+    }
 }
 
 size_t DynamicBytesItemParser::parseItem (const char* data, size_t index, size_t size, size_t current_parsed_bytes,
                               nlohmann::json& target, bool debug)
 {
     if (debug)
-        loginf << "parsing dynamic bytes item '" << name_ << "'" << logendl;
+        loginf << "parsing dynamic bytes item '" << name_ << "' substract " << substract_previous_
+               << " additative " << has_additative_factor_ << logendl;
 
     if (debug && target.find(length_variable_name_) == target.end())
         throw runtime_error ("dynamic bytes item '"+name_+"' parsing without given length");
@@ -55,7 +62,22 @@ size_t DynamicBytesItemParser::parseItem (const char* data, size_t index, size_t
     if (substract_previous_)
     {
         assert (length >= current_parsed_bytes);
+
+        if (debug)
+            loginf << "parsing dynamic bytes item '" << name_ << "' substracting previous " << current_parsed_bytes
+                   << logendl;
+
         length -= current_parsed_bytes;
+    }
+
+    if (has_additative_factor_)
+    {
+        if (debug)
+            loginf << "parsing dynamic bytes item '" << name_ << "' substracting addtative " << additative_factor_
+                   << logendl;
+
+
+        length += additative_factor_;
     }
 
     if (debug)
@@ -63,11 +85,10 @@ size_t DynamicBytesItemParser::parseItem (const char* data, size_t index, size_t
 
     assert (target.find(name_) == target.end());
 
-    //target[name_] = { {"index", index}, {"length", length} };
-
     target.emplace(name_, json::object({ {"index", index}, {"length", length} }));
-//    target[name_]["index"] = index;
-//    target[name_]["length"] = length;
+
+    if (debug)
+        loginf << "parsed dynamic bytes item '"+name_+"' index " << index << " length " << length << logendl;
 
     return length;
 }

@@ -41,10 +41,13 @@ public:
 
     size_t decodeFrames (const char* data, nlohmann::json& target, bool debug);
 
+    bool hasFileHeaderItems() const;
+
 private:
     ASTERIXParser& asterix_parser_;
 
-    std::vector<std::unique_ptr<ItemParserBase>> header_items_;
+    bool has_file_header_items_ {false};
+    std::vector<std::unique_ptr<ItemParserBase>> file_header_items_;
     std::vector<std::unique_ptr<ItemParserBase>> frame_items_;
 
     size_t sum_frames_cnt_ {0};

@@ -260,10 +260,15 @@ void jASTERIX::decodeFile (const std::string& filename, const std::string& frami
 
     nlohmann::json json_header;
 
-    size_t index;
+    size_t index {0};
 
     // parsing header
-    index = frame_parser.parseHeader(data, 0, file_size, json_header, debug_);
+
+    if (frame_parser.hasFileHeaderItems())
+        index = frame_parser.parseHeader(data, 0, file_size, json_header, debug_);
+
+    if (debug_)
+        loginf << "jasterix: creating frame parser task" << logendl;
 
     FrameParserTask* task = new (tbb::task::allocate_root()) FrameParserTask (
                 *this, frame_parser, json_header, data, index, file_size, debug_);
