@@ -35,11 +35,11 @@ public:
     // return number of parsed bytes
     size_t parseHeader (const char* data, size_t index, size_t size, nlohmann::json& target, bool debug);
 
-    size_t parseFrames (const char* data, size_t index, size_t size, nlohmann::json& target, bool debug);
+    std::tuple<size_t, size_t, bool> findFrames (const char* data, size_t index, size_t size, nlohmann::json& target,
+                                                  bool debug);
+    // parsed bytes, num frames, done flag
 
     size_t decodeFrames (const char* data, nlohmann::json& target, bool debug);
-
-    bool done() const;
 
 private:
     ASTERIXParser& asterix_parser_;
@@ -48,7 +48,6 @@ private:
     std::vector<std::unique_ptr<ItemParserBase>> frame_items_;
 
     size_t sum_frames_cnt_ {0};
-    bool done_ {false};
 
     // returns number of records
     size_t decodeFrame (const char* data, nlohmann::json& json_frame, bool debug);

@@ -33,12 +33,16 @@ public:
         {
             nlohmann::json jdata;
 
-            std::tuple<size_t, size_t, bool> ret = asterix_parser_.findDataBlocks(data_, index_+parsed_bytes, size_,
-                                                                                 jdata, debug_);
+            std::tuple<size_t, size_t, bool> ret = asterix_parser_.findDataBlocks(data_, index_+parsed_bytes,
+                                                                                  size_-parsed_bytes,
+                                                                                  jdata, debug_);
 
             parsed_bytes += std::get<0>(ret);
             num_data_blocks += std::get<1>(ret);
             done = std::get<2>(ret);
+
+//            loginf << "DataBlockFinderTask: ex pb " << parsed_bytes << " num db " << num_data_blocks << " done "
+//                   << done << logendl;
 
             jasterix_.addDataBlockChunk(jdata, done);
         }

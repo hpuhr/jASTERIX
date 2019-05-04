@@ -70,7 +70,7 @@ public:
     size_t numRecords() const;
 
     void addDataBlockChunk (nlohmann::json& data_block_chunk, bool done);
-    void addDataChunk (nlohmann::json& data_chunk);
+    void addDataChunk (nlohmann::json& data_chunk, bool done);
 
 private:
     std::string definition_path_;
@@ -93,6 +93,7 @@ private:
     bool data_block_processing_done_ {false};
 
     tbb::concurrent_queue<nlohmann::json> data_chunks_;
+    bool data_processing_done_ {false};
 
     size_t num_frames_{0};
     size_t num_records_{0};

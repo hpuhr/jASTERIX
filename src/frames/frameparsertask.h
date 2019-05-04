@@ -23,6 +23,8 @@
 #include "frameparser.h"
 #include "logger.h"
 
+#include <tuple>
+
 #include <tbb/tbb.h>
 
 #include <exception>
@@ -41,13 +43,23 @@ public:
 
     /*override*/ tbb::task* execute()
     {
-        while (!frame_parser_.done()) // || size_-index_ > 0
+        //size_t num_parsed_bytes {0};
+        //size_t num_parsed_chunks {0};
+
+        bool done {false};
+
+        while (!done) // || size_-index_ > 0
         {
             nlohmann::json data_chunk = header_; // copy header
 
             assert (index_ < size_);
 
-            index_ += frame_parser_.parseFrames(data_, index_, size_, data_chunk, debug_);
+            std::tuple<size_t, size_t, bool> ret = frame_parser_.findFrames(data_, index_, size_, data_chunk, debug_);
+
+            index_ += std::get<0>(ret); // parsed bytes
+            done = std::get<2>(ret); // done flag
+
+//            loginf << "FPT UGA index " << index_ << " done " << done << logendl;
 
             assert (data_chunk != nullptr);
 
@@ -57,7 +69,7 @@ public:
             if (!data_chunk.at("frames").is_array())
                 throw std::runtime_error ("jASTERIX scoped frames information is not array");
 
-            jasterix_.addDataChunk(data_chunk);
+            jasterix_.addDataChunk(data_chunk, done);
         }
 
         return nullptr; // or a pointer to a new task to be executed immediately

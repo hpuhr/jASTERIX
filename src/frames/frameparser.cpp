@@ -93,35 +93,40 @@ size_t FrameParser::parseHeader (const char* data, size_t index, size_t size, js
 }
 
 
-size_t FrameParser::parseFrames (const char* data, size_t index, size_t size, nlohmann::json& target, bool debug)
+std::tuple<size_t, size_t, bool> FrameParser::findFrames (const char* data, size_t index, size_t size,
+                                                           nlohmann::json& target, bool debug)
 {
     assert (data);
     assert (size);
     assert (index < size);
     assert (target != nullptr);
-    assert (!done_);
 
     size_t parsed_bytes {0};
     size_t current_parsed_bytes {0};
     size_t chunk_frames_cnt {0};
 
     if (debug)
-        loginf << "parsing frames index " << index <<  " size " << size << " num_frames " << frame_chunk_size;
+        loginf << "finding frames index " << index <<  " size " << size << " num_frames " << frame_chunk_size;
 
     nlohmann::json& j_frames = target["frames"];
+
+    bool hit_frame_limit {false};
+    bool hit_frame_chunk_limit {false};
 
     while (index+parsed_bytes < size)
     {
         // parse single frame
         if(debug)
-            loginf << "parsing frame " << sum_frames_cnt_ << " at index " << index+parsed_bytes << logendl;
+            loginf << "finding frame " << sum_frames_cnt_ << " at index " << index+parsed_bytes << " size " << size
+                   << logendl;
 
         if (frame_limit > 0 && sum_frames_cnt_ >= static_cast<unsigned>(frame_limit))
         {
              // hit frame limit
             if(debug)
                 loginf << "frame parser hit frame limit at " << sum_frames_cnt_ <<", setting done" << logendl;
-            done_ = true;
+
+            hit_frame_limit = true;
             break;
         }
 
@@ -130,6 +135,8 @@ size_t FrameParser::parseFrames (const char* data, size_t index, size_t size, nl
             // hit frame chunk limit
             if(debug)
                 loginf << "frame parser hit frame chunk limit at " << chunk_frames_cnt << logendl;
+
+            hit_frame_chunk_limit = true;
             break;
         }
 
@@ -137,27 +144,28 @@ size_t FrameParser::parseFrames (const char* data, size_t index, size_t size, nl
         for (auto& j_item : frame_items_)
         {
             if (debug)
-                loginf << "parsing frame item at index " << index+parsed_bytes << " cnt " << chunk_frames_cnt << logendl;
+                loginf << "found frame item at index " << index+parsed_bytes << " cnt " << chunk_frames_cnt << logendl;
 
             parsed_bytes += j_item->parseItem(data, index+parsed_bytes, size, current_parsed_bytes,
                                               j_frames[chunk_frames_cnt], debug);
             j_frames[chunk_frames_cnt]["cnt"] = chunk_frames_cnt;
+
         }
+//        loginf << "UGA FP FOUND '" << j_frames[chunk_frames_cnt].dump(4) << "'" << logendl;
 
         ++chunk_frames_cnt;
         ++sum_frames_cnt_;
     }
 
-    if (index+parsed_bytes == size)
-        done_ = true;
-
-    return parsed_bytes;
+    return std::make_tuple (parsed_bytes, chunk_frames_cnt, !(hit_frame_limit || hit_frame_chunk_limit));
 }
 
 size_t FrameParser::decodeFrames (const char* data, json& target, bool debug)
 {
     assert (data);
     assert (target != nullptr);
+
+//    loginf << "FrameParser: decodeFrames" << logendl;
 
     size_t num_records_sum {0};
     nlohmann::json& j_frames = target.at("frames");
@@ -190,23 +198,51 @@ size_t FrameParser::decodeFrames (const char* data, json& target, bool debug)
     return num_records_sum;
 }
 
-bool FrameParser::done() const
-{
-    return done_;
-}
-
 size_t FrameParser::decodeFrame (const char* data, json& json_frame, bool debug)
 {
     if (debug && json_frame.find("content") == json_frame.end())
         throw runtime_error("frame parser scoped frames does not contain correct content");
 
+    //    {
+    //        "cnt": 0,
+    //        "content": {
+    //            "index": 134,
+    //            "length": 56
+    //        },
+    //        "frame_length": 56,
+    //        "frame_relative_time_ms": 1158152192
+    //    }
+
+//    loginf << "UGA FP decode '" << json_frame.dump(4) << "'" << logendl;
+
     json& frame_content = json_frame.at("content"); // todo what if multiple data blocks?
 
-    if (debug)
-        loginf << "frame parser decoding frame at index " << frame_content.at("index")
-               << " length " << frame_content.at("length") << logendl;
+    size_t index = frame_content.at("index");
+    size_t size = frame_content.at("length");
 
-    return asterix_parser_.decodeDataBlock(data, frame_content, debug);
+    std::tuple<size_t, size_t, bool> ret = asterix_parser_.findDataBlocks(data, index, size, frame_content, debug);
+
+    //parsed_bytes += std::get<0>(ret);
+    //size_t num_data_blocks = std::get<1>(ret);
+
+    assert (std::get<2>(ret)); // done flag
+
+    if (frame_content.find("data_blocks") == frame_content.end())
+        throw runtime_error("frame parser scoped frames do not contain data blocks");
+
+    if (!frame_content.at("data_blocks").is_array())
+        throw runtime_error("frame parser scoped frames data blocks are non-array");
+
+    size_t parsed_bytes {0};
+
+    for (json& data_block : frame_content.at("data_blocks"))
+    {
+        parsed_bytes += asterix_parser_.decodeDataBlock(data, data_block, debug);
+    }
+
+    //loginf << "FP UGA '" << json_frame.dump(4) << "'" << logendl;
+
+    return parsed_bytes;
 }
 
 }

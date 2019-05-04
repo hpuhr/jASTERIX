@@ -94,13 +94,15 @@ std::tuple<size_t, size_t, bool> ASTERIXParser::findDataBlocks (const char* data
     size_t parsed_bytes_sum {0};
     size_t num_blocks {0};
 
-    //loginf << "UGA target '" << target.dump(4) << "' parsed " << parsed_bytes_sum << " size " << length << logendl;
+//    loginf << "UGA AP index " << index << " length " << length << logendl;
 
     bool record_limit_hit {false};
     size_t current_index {index};
 
-    while (current_index < length)
+    while (parsed_bytes_sum < length)
     {
+//        loginf << "UGA AP1 parsed sum " << parsed_bytes_sum << " length " << length << " block " << num_blocks << logendl;
+
         if (record_chunk_size > 0 && num_blocks >= static_cast<size_t> (record_chunk_size))
         {
             record_limit_hit = true;
@@ -111,15 +113,20 @@ std::tuple<size_t, size_t, bool> ASTERIXParser::findDataBlocks (const char* data
 
         for (auto& r_item : data_block_items_)
         {
-            //loginf << "UGA1 index " << current_index << " pb " << parsed_data_block_bytes << logendl;
             parsed_bytes = r_item->parseItem(data, current_index, length, parsed_data_block_bytes,
                                               target[data_block_name_][num_blocks], debug);
+//            loginf << "UGA FP2 parsed " << parsed_bytes << " target '" << target[data_block_name_][num_blocks]
+//                      << "'" << logendl;
+
             parsed_data_block_bytes += parsed_bytes;
             parsed_bytes_sum += parsed_bytes;
             current_index += parsed_bytes;
         }
 
         //loginf << "UGA2 target block '" << target[data_block_name_][num_blocks].dump(4) << "'" << logendl;
+
+//        loginf << "UGA AP3 parsed " << parsed_bytes_sum << " length " << length << " block " << num_blocks
+//               << " target '" << target[data_block_name_][num_blocks] << "'" << logendl;
 
         ++num_blocks;
      }
