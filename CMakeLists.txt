@@ -92,12 +92,18 @@ target_link_libraries ( jasterix
     )
 
 message("Installing using prefix: ${CMAKE_INSTALL_PREFIX}")
-install(DIRECTORY "specifications" DESTINATION jasterix)
+#install(DIRECTORY "specifications" DESTINATION jasterix)
 
+set_target_properties(jasterix PROPERTIES PUBLIC_HEADER
+    "src/jasterix.h;src/asterix/category.h;src/asterix/edition.h;src/asterix/mapping.h")
+
+#install (TARGETS jasterix DESTINATION lib)
 install (TARGETS jasterix DESTINATION lib
     PUBLIC_HEADER DESTINATION include/jasterix)
 
 install (TARGETS jasterix_client DESTINATION bin)
+
+install(FILES src/jasterix.h DESTINATION include)
 
 # build a CPack driven installer package
 include (InstallRequiredSystemLibraries)
