@@ -49,10 +49,12 @@ Edition::Edition(const std::string& number, const nlohmann::json& definition, co
 
     file_ = definition.at("file");
 
-    if (!fileExists(definition_path+"/categories/"+file_))
-        throw invalid_argument ("edition "+number_+" file '"+definition_path+"/categories/"+file_+"' not found");
+    edition_definition_path_ = definition_path+"/categories/"+file_;
 
-    definition_ = json::parse(ifstream(definition_path+"/categories/"+file_));
+    if (!fileExists(edition_definition_path_))
+        throw invalid_argument ("edition "+number_+" file '"+edition_definition_path_+"' not found");
+
+    definition_ = json::parse(ifstream(edition_definition_path_));
 
     record_.reset(new Record(definition_));
 }
@@ -75,6 +77,11 @@ std::string Edition::file() const
 std::shared_ptr<Record> Edition::record() const
 {
     return record_;
+}
+
+std::string Edition::definitionPath() const
+{
+    return edition_definition_path_;
 }
 
 std::string Edition::number() const

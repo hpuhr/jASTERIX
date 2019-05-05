@@ -47,6 +47,11 @@ using namespace jASTERIX;
 
 JSONWriter* json_writer {nullptr};
 
+void print_callback (nlohmann::json& data_chunk, size_t num_frames, size_t num_records)
+{
+    loginf << data_chunk.dump(4);
+}
+
 void write_callback (nlohmann::json& data_chunk, size_t num_frames, size_t num_records)
 {
     loginf << "jASTERIX: write_callback " << num_frames << " frames, " << num_records;
@@ -214,6 +219,8 @@ int main (int argc, char **argv)
         {
             if (json_writer)
                 asterix.decodeFile (filename, write_callback);
+            else if (print)
+                asterix.decodeFile (filename, print_callback);
             else
                 asterix.decodeFile (filename);
         }
@@ -221,6 +228,8 @@ int main (int argc, char **argv)
         {
             if (json_writer)
                 asterix.decodeFile (filename, framing, write_callback);
+            else if (print)
+                asterix.decodeFile (filename, framing, print_callback);
             else
                 asterix.decodeFile (filename, framing);
         }

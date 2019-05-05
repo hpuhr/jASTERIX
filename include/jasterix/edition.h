@@ -41,6 +41,7 @@ public:
     std::string file() const;
 
     std::shared_ptr<Record> record() const;
+    std::string definitionPath() const;
 
 protected:
     std::string number_;
@@ -48,6 +49,7 @@ protected:
     std::string date_;
     std::string file_;
 
+    std::string edition_definition_path_;
     nlohmann::json definition_; // from file
     std::shared_ptr<Record> record_;
 };

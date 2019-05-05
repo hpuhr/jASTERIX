@@ -38,11 +38,14 @@ public:
 
     void map (nlohmann::json& src, nlohmann::json& dest);
 
+    std::string definitionPath() const;
+
 protected:
     std::string name_;
     std::string comment_;
     std::string file_;
 
+    std::string mapping_definition_path_;
     nlohmann::json definition_; // from file
 
     void mapObject (nlohmann::json& object_definition, const nlohmann::json& src, nlohmann::json& dest);

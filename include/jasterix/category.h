@@ -51,6 +51,9 @@ public:
     bool hasCurrentMapping();
     std::shared_ptr<Mapping> getCurrentMapping();
 
+    const std::map<std::string, std::shared_ptr<Edition>>& editions() const;
+    const std::map<std::string, std::shared_ptr<Mapping>>& mappings() const;
+
 protected:
     std::string number_;
     std::string comment_;

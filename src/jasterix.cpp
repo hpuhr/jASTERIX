@@ -45,33 +45,45 @@ int data_write_size=100;
 using namespace Files;
 using namespace std;
 
+const std::string FRAMING_SUBDIR = "/framings";
+const std::string DATABLOCK_FILENAME = "/data_block_definition.json";
+const std::string CATEGORY_SUBDIR = "/categories";
+const std::string CATEGORIES_FILENAME = "/categories.json";
+
 jASTERIX::jASTERIX(const std::string& definition_path, bool print, bool debug)
     : definition_path_(definition_path), print_(print), debug_(debug)
 {
-
     // check framing definitions
     if (!directoryExists(definition_path_))
         throw invalid_argument ("jASTERIX called with non-existing definition path '"+definition_path_+"'");
 
-    if (!directoryExists(definition_path_+"/framings"))
-        throw invalid_argument ("jASTERIX called with incorrect definition path '"+definition_path_
-                                     +"', framings are missing");
+    framing_path_ = definition_path_+FRAMING_SUBDIR;
 
-    if (!fileExists(definition_path_+"/data_block_definition.json"))
+    if (!directoryExists(framing_path_))
+        throw invalid_argument ("jASTERIX called with missing framing path '"+framing_path_+"'");
+
+    framings_ = Files::getFilesInDirectory(framing_path_);
+    framings_.insert(framings_.begin(), ""); // add no framing
+
+    data_block_definition_path_ = definition_path_+DATABLOCK_FILENAME;
+
+    if (!fileExists(data_block_definition_path_))
         throw invalid_argument ("jASTERIX called without asterix data block definition");
 
-    // check asterix definitions
+    // check asterix category definitions
 
-    if (!directoryExists(definition_path_+"/categories"))
-        throw invalid_argument ("jASTERIX called with incorrect definition path '"+definition_path_
-                                     +"', categories are missing");
+    if (!directoryExists(definition_path_+CATEGORY_SUBDIR))
+        throw invalid_argument ("jASTERIX called with missing categories definition folder '"
+                                +definition_path_+CATEGORY_SUBDIR+"'");
 
-    if (!fileExists(definition_path_+"/categories/categories.json"))
-        throw invalid_argument ("jASTERIX called without asterix categories list definition");
+    categories_definition_path_ = definition_path_+CATEGORY_SUBDIR+CATEGORIES_FILENAME;
+    if (!fileExists(categories_definition_path_))
+        throw invalid_argument ("jASTERIX called without missing asterix categories definition path '"
+                                +categories_definition_path_+"'");
 
     try // asterix record definition
     {
-        data_block_definition_ = json::parse(ifstream(definition_path_+"/data_block_definition.json"));
+        data_block_definition_ = json::parse(ifstream(definition_path_+DATABLOCK_FILENAME));
     }
     catch (json::exception& e)
     {
@@ -80,7 +92,7 @@ jASTERIX::jASTERIX(const std::string& definition_path, bool print, bool debug)
 
     try // asterix categories list definition
     {
-        categories_definition_ = json::parse(ifstream(definition_path_+"/categories/categories.json"));
+        categories_definition_ = json::parse(ifstream(categories_definition_path_));
     }
     catch (json::exception& e)
     {
@@ -478,6 +490,16 @@ void jASTERIX::addDataChunk (nlohmann::json& data_chunk, bool done)
 
     data_chunks_.push(std::move(data_chunk));
     data_processing_done_ = done;
+}
+
+std::string jASTERIX::dataBlockDefinitionPath() const
+{
+    return data_block_definition_path_;
+}
+
+std::string jASTERIX::categoriesDefinitionPath() const
+{
+    return categories_definition_path_;
 }
 
 }

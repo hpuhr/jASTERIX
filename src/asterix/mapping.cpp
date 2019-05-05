@@ -46,10 +46,12 @@ Mapping::Mapping(const std::string& name, const nlohmann::json& definition, cons
 
     file_ = definition.at("file");
 
-    if (!fileExists(definition_path+"/categories/"+file_))
-        throw invalid_argument ("mapping "+name_+" file '"+definition_path+"/categories/"+file_+"' not found");
+    mapping_definition_path_ = definition_path+"/categories/"+file_;
 
-    definition_ = json::parse(ifstream(definition_path+"/categories/"+file_));
+    if (!fileExists(mapping_definition_path_))
+        throw invalid_argument ("mapping "+name_+" file '"+mapping_definition_path_+"' not found");
+
+    definition_ = json::parse(ifstream(mapping_definition_path_));
 
 }
 
@@ -73,6 +75,11 @@ void Mapping::map (nlohmann::json& src, nlohmann::json& dest)
     assert (src.is_object());
     //loginf << "mapping: map";
     mapObject(definition_, src, dest);
+}
+
+std::string Mapping::definitionPath() const
+{
+    return mapping_definition_path_;
 }
 
 void Mapping::mapObject (nlohmann::json& object_definition, const nlohmann::json& src, nlohmann::json& dest)

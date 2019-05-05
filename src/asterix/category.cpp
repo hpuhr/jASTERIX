@@ -152,4 +152,14 @@ std::shared_ptr<Mapping> Category::getCurrentMapping()
     return mappings_.at(default_mapping_);
 }
 
+const std::map<std::string, std::shared_ptr<Edition>>& Category::editions() const
+{
+    return editions_;
+}
+
+const std::map<std::string, std::shared_ptr<Mapping>>& Category::mappings() const
+{
+    return mappings_;
+}
+
 }

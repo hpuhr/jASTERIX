@@ -72,13 +72,26 @@ public:
     void addDataBlockChunk (nlohmann::json& data_block_chunk, bool done);
     void addDataChunk (nlohmann::json& data_chunk, bool done);
 
+    const std::vector<std::string>& framings() { return framings_; }
+    const std::map<std::string, Category>& categories() { return category_definitions_; }
+
+    std::string dataBlockDefinitionPath() const;
+    std::string categoriesDefinitionPath() const;
+
 private:
     std::string definition_path_;
     bool print_ {false};
     bool debug_ {false};
 
+    std::string framing_path_;
+    std::vector<std::string> framings_;
+
+    std::string data_block_definition_path_;
     nlohmann::json data_block_definition_;
+
+    std::string categories_definition_path_;
     nlohmann::json categories_definition_;
+
     std::map<std::string, Category> category_definitions_;
     std::map<unsigned int, std::shared_ptr<Edition>> current_category_editions_; // cat -> edition
     std::map<unsigned int, std::shared_ptr<Mapping>> current_category_mappings_; // cat -> edition
