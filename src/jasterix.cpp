@@ -492,14 +492,19 @@ void jASTERIX::addDataChunk (nlohmann::json& data_chunk, bool done)
     data_processing_done_ = done;
 }
 
-std::string jASTERIX::dataBlockDefinitionPath() const
+const std::string& jASTERIX::dataBlockDefinitionPath() const
 {
     return data_block_definition_path_;
 }
 
-std::string jASTERIX::categoriesDefinitionPath() const
+const std::string& jASTERIX::categoriesDefinitionPath() const
 {
     return categories_definition_path_;
+}
+
+const std::string& jASTERIX::framingsFolderPath() const
+{
+    return framing_path_;
 }
 
 }

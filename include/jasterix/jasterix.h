@@ -75,8 +75,9 @@ public:
     const std::vector<std::string>& framings() { return framings_; }
     const std::map<std::string, Category>& categories() { return category_definitions_; }
 
-    std::string dataBlockDefinitionPath() const;
-    std::string categoriesDefinitionPath() const;
+    const std::string& dataBlockDefinitionPath() const;
+    const std::string& categoriesDefinitionPath() const;
+    const std::string& framingsFolderPath() const;
 
 private:
     std::string definition_path_;
