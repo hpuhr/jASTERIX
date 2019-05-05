@@ -20,7 +20,7 @@
 
 #include <string>
 #include <map>
-#include "global.h"
+#include <jasterix/global.h>
 
 #if USE_BOOST
 #include <boost/iostreams/device/mapped_file.hpp>
@@ -29,9 +29,9 @@
 #include "tbb/concurrent_queue.h"
 
 #include "json.hpp"
-#include "frameparser.h"
-#include "edition.h"
-#include "mapping.h"
+#include <jasterix/frameparser.h>
+#include <jasterix/edition.h>
+#include <jasterix/mapping.h>
 
 namespace jASTERIX {
 

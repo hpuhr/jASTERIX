@@ -21,7 +21,7 @@
 
 #include <iostream>
 
-#include "global.h"
+#include "jasterix/global.h"
 
 #if USE_LOG4CPP
 #include "log4cpp/Category.hh"

@@ -17,6 +17,7 @@
 
 
 #include "skipbytesitemparser.h"
+#include "logger.h"
 
 using namespace std;
 using namespace nlohmann;

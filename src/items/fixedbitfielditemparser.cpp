@@ -18,6 +18,7 @@
 
 #include "fixedbitfielditemparser.h"
 #include "fixedbitsitemparser.h"
+#include "logger.h"
 
 using namespace std;
 using namespace nlohmann;

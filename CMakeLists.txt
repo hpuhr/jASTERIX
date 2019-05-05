@@ -31,7 +31,7 @@ message("USE_LOG4CPP: ${USE_LOG4CPP}")
 set (USE_BOOST true)
 message("USE_BOOST: ${USE_BOOST}")
 
-configure_file(src/utils/global.h.in include/global.h)
+configure_file(include/jasterix/global.h.in include/jasterix/global.h)
 
 IF (USE_BOOST)
 find_package ( Boost REQUIRED COMPONENTS system program_options filesystem iostreams)
@@ -40,6 +40,7 @@ message("  Boost_LIBRARY_DIR: ${Boost_LIBRARY_DIR}")
 
 include_directories (
     ${Boost_INCLUDE_DIRS}
+    ${ATSDB_PATH}/include/
     )
 
 link_directories(
@@ -75,9 +76,8 @@ message("  LibArchive_LIBRARIES: ${LibArchive_LIBRARIES}")
 
 message("Install path: ${CMAKE_INSTALL_PREFIX}")
 
+include(include/jasterix/CMakeLists.txt)
 include(src/CMakeLists.txt)
-
-configure_file(src/utils/global.h.in include/global.h)
 
 include_directories (
     ${CMAKE_SOURCE_DIR}
@@ -95,7 +95,7 @@ message("Installing using prefix: ${CMAKE_INSTALL_PREFIX}")
 #install(DIRECTORY "specifications" DESTINATION jasterix)
 
 set_target_properties(jasterix PROPERTIES PUBLIC_HEADER
-    "src/jasterix.h;src/asterix/category.h;src/asterix/edition.h;src/asterix/mapping.h")
+    "include/jasterix/jasterix.h;include/jasterix/category.h;include/jasterix/edition.h;include/jasterix/mapping.h;include/jasterix/frameparser.h;include/jasterix/record.h;include/jasterix/itemparserbase.h;build/include/jasterix/global.h")
 
 #install (TARGETS jasterix DESTINATION lib)
 install (TARGETS jasterix DESTINATION lib
@@ -103,7 +103,7 @@ install (TARGETS jasterix DESTINATION lib
 
 install (TARGETS jasterix_client DESTINATION bin)
 
-install(FILES src/jasterix.h DESTINATION include)
+#install(FILES src/jasterix.h DESTINATION include)
 
 # build a CPack driven installer package
 include (InstallRequiredSystemLibraries)

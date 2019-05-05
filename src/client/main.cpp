@@ -19,7 +19,7 @@
 #include "jasterix.h"
 #include "logger.h"
 #include "jsonwriter.h"
-#include "global.h"
+#include "jasterix/global.h"
 
 #if USE_BOOST
 #include <boost/program_options.hpp>

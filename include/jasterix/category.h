@@ -20,8 +20,8 @@
 #define CATEGORY_H
 
 #include "json.hpp"
-#include "edition.h"
-#include "mapping.h"
+#include <jasterix/edition.h>
+#include <jasterix/mapping.h>
 
 #include <string>
 

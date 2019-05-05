@@ -18,6 +18,7 @@
 
 #include "fixedbitsitemparser.h"
 #include "string_conv.h"
+#include "logger.h"
 
 #include <algorithm>
 

@@ -23,7 +23,7 @@
 #include <sstream>
 
 #include "json.hpp"
-#include "logger.h"
+//#include "logger.h"
 
 #include <string>
 #include <cassert>

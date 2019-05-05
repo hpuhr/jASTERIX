@@ -18,6 +18,7 @@
 #include <algorithm>
 
 #include "extendablebitsitemparser.h"
+#include "logger.h"
 
 using namespace std;
 using namespace nlohmann;

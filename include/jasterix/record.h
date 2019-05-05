@@ -19,7 +19,7 @@
 #ifndef RECORD_H
 #define RECORD_H
 
-#include "itemparserbase.h"
+#include <jasterix/itemparserbase.h>
 
 #include <vector>
 #include <memory>

@@ -17,6 +17,7 @@
 
 
 #include "dynamicbytesitemparser.h"
+#include "logger.h"
 
 using namespace std;
 using namespace nlohmann;

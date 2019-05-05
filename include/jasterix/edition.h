@@ -20,7 +20,7 @@
 #define EDITION_H
 
 #include "json.hpp"
-#include "record.h"
+#include <jasterix/record.h>
 
 #include <string>
 

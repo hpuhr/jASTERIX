@@ -17,7 +17,7 @@
 
 
 #include "files.h"
-#include "global.h"
+#include "jasterix/global.h"
 
 #include <cassert>
 #include <stdexcept>
