@@ -62,8 +62,19 @@ jASTERIX::jASTERIX(const std::string& definition_path, bool print, bool debug)
     if (!directoryExists(framing_path_))
         throw invalid_argument ("jASTERIX called with missing framing path '"+framing_path_+"'");
 
-    framings_ = Files::getFilesInDirectory(framing_path_);
-    framings_.insert(framings_.begin(), ""); // add no framing
+    framings_.push_back(""); // add no framing
+    std::string file_ending = ".json";
+    for (std::string framing_file : Files::getFilesInDirectory(framing_path_))
+    {
+        size_t pos = framing_file.find(file_ending);
+
+        if (pos != std::string::npos) // if ends with json
+        {
+            // If found then erase it from string
+            framing_file.erase(pos, file_ending.length());
+            framings_.push_back(framing_file);
+        }
+    }
 
     data_block_definition_path_ = definition_path_+DATABLOCK_FILENAME;
 
@@ -266,6 +277,8 @@ void jASTERIX::decodeFile (const std::string& filename, const std::string& frami
         loginf << "jASTERIX: file " << filename << " size " << file_size << logendl;
 
 #if USE_BOOST
+    assert (!file_.is_open());
+
     file_.open(filename, file_size);
 
     if(!file_.is_open())
@@ -358,6 +371,10 @@ void jASTERIX::decodeFile (const std::string& filename, const std::string& frami
             std::this_thread::sleep_for(std::chrono::milliseconds(1));
         }
     }
+
+#if USE_BOOST
+    file_.close();
+#endif
 }
 
 void jASTERIX::decodeFile (const std::string& filename, std::function<void(nlohmann::json&, size_t, size_t)> callback)
@@ -375,6 +392,7 @@ void jASTERIX::decodeFile (const std::string& filename, std::function<void(nlohm
         loginf << "jASTERIX: file " << filename << " size " << file_size << logendl;
 
 #if USE_BOOST
+    assert (!file_.is_open());
     file_.open(filename, file_size);
 
     if(!file_.is_open())
@@ -446,6 +464,10 @@ void jASTERIX::decodeFile (const std::string& filename, std::function<void(nlohm
             std::this_thread::sleep_for(std::chrono::milliseconds(1));
         }
     }
+
+#if USE_BOOST
+    file_.close();
+#endif
 }
 
 void jASTERIX::decodeASTERIX (const char* data, size_t size,
