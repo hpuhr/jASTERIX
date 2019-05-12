@@ -42,6 +42,10 @@ Category::Category(const std::string& number, const nlohmann::json& definition, 
 
     default_edition_ = definition.at("default_edition");
 
+    // decode flag
+    if (definition.find("decode") != definition.end())
+        decode_ = definition.at("decode");
+
     //    "editions":
 
     if (definition.find("editions") == definition.end())
@@ -166,6 +170,16 @@ const std::map<std::string, std::shared_ptr<Edition>>& Category::editions() cons
 const std::map<std::string, std::shared_ptr<Mapping>>& Category::mappings() const
 {
     return mappings_;
+}
+
+bool Category::decode() const
+{
+    return decode_;
+}
+
+void Category::decode (bool value)
+{
+    decode_ = value;
 }
 
 }

@@ -1,6 +1,7 @@
 {
     "001":{
         "comment":"Category 001 Transmission of Monoradar Data Target Reports",
+        "decode":true,
         "default_edition":"1.1",
         "default_mapping":"",
         "editions":{
@@ -15,6 +16,7 @@
     },
     "002":{
         "comment":"Category 002 Transmission of Monoradar Service Messages",
+        "decode":true,
         "default_edition":"1.0",
         "default_mapping":"",
         "editions":{
@@ -29,6 +31,7 @@
     },
     "019":{
         "comment":"Category 019 Multilateration System Status Messages",
+        "decode":true,
         "default_edition":"1.3",
         "default_mapping":"",
         "editions":{
@@ -43,6 +46,7 @@
     },
     "020":{
         "comment":"Category 020 Multilateration Target Reports",
+        "decode":true,
         "default_edition":"1.5",
         "default_mapping":"",
         "editions":{
@@ -61,6 +65,7 @@
     },
     "021":{
         "comment":"Category 021 ADS-B Reports",
+        "decode":true,
         "default_edition":"2.1",
         "default_mapping":"",
         "editions":{
@@ -80,6 +85,7 @@
     },
     "023":{
         "comment":"Category 023 CNS/ATM Ground Station and Service Status Reports",
+        "decode":true,
         "default_edition":"1.2",
         "default_mapping":"",
         "editions":{
@@ -94,6 +100,7 @@
     },
     "034":{
         "comment":"Category 034 Transmission of Monoradar Service Messages",
+        "decode":true,
         "default_edition":"1.26",
         "default_mapping":"",
         "editions":{
@@ -108,6 +115,7 @@
     },
     "048":{
         "comment":"Category 048 Transmission of Monoradar Target Reports",
+        "decode":true,
         "default_edition":"1.15",
         "default_mapping":"",
         "editions":{
@@ -126,6 +134,7 @@
     },
     "062":{
         "comment":"Category 062 SURVEILLANCE DATA EXCHANGE SDPS Track Messages",
+        "decode":true,
         "default_edition":"1.12",
         "default_mapping":"",
         "editions":{
@@ -144,6 +153,7 @@
     },
     "063":{
         "comment":"Category 063 Sensor Status Messages",
+        "decode":true,
         "default_edition":"1.0",
         "default_mapping":"",
         "editions":{
@@ -158,6 +168,7 @@
     },
     "065":{
         "comment":"Category 065 SDPS Service Status Messages",
+        "decode":true,
         "default_edition":"1.3",
         "default_mapping":"",
         "editions":{

@@ -120,7 +120,6 @@ jASTERIX::jASTERIX(const std::string& definition_path, bool print, bool debug)
             if (debug)
                 loginf << "jASTERIX found asterix category " << cat_str << logendl;
 
-
             try
             {
                 category_definitions_.emplace(std::piecewise_construct,
@@ -128,17 +127,14 @@ jASTERIX::jASTERIX(const std::string& definition_path, bool print, bool debug)
                                   std::forward_as_tuple(cat_str, cat_def_it.value(), definition_path_));
 
                 assert (category_definitions_.count(cat_str) == 1);
-
-                current_category_editions_[cat] = category_definitions_.at(cat_str).getCurrentEdition();
-
-                if (category_definitions_.at(cat_str).hasCurrentMapping())
-                    current_category_mappings_[cat] = category_definitions_.at(cat_str).getCurrentMapping();
             }
             catch (json::exception& e)
             {
                 throw runtime_error ("jASTERIX parsing error in asterix category "+cat_str+": "+e.what());
             }
         }
+
+        updateCurrentEditionsAndMappings();
     }
     catch (json::exception& e)
     {
@@ -161,9 +157,47 @@ jASTERIX::~jASTERIX()
 #endif
 }
 
+void jASTERIX::updateCurrentEditionsAndMappings ()
+{
+    current_category_editions_.clear();
+
+    int cat;
+
+    for (auto& cat_it : category_definitions_)
+    {
+        if (!cat_it.second.decode()) // skip if should not be decoded
+            continue;
+
+        cat = stoi(cat_it.first);
+
+        current_category_editions_[cat] = cat_it.second.getCurrentEdition();
+
+        if (cat_it.second.hasCurrentMapping())
+            current_category_mappings_[cat] = cat_it.second.getCurrentMapping();
+    }
+}
+
 bool jASTERIX::hasCategory(const std::string& cat_str)
 {
     return category_definitions_.count(cat_str) == 1;
+}
+
+bool jASTERIX::decodeCategory(const std::string& cat_str)
+{
+    assert (hasCategory(cat_str));
+    return category_definitions_.at(cat_str).decode();
+}
+
+void jASTERIX::setDecodeCategry (const std::string& cat_str, bool decode)
+{
+    assert (hasCategory(cat_str));
+    category_definitions_.at(cat_str).decode(decode);
+}
+
+void jASTERIX::decodeNoCategories()
+{
+    for (auto& cat_it : category_definitions_)
+        cat_it.second.decode(false);
 }
 
 bool jASTERIX::hasEdition (const std::string& cat_str, const std::string& edition_str)

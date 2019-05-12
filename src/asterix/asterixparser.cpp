@@ -218,6 +218,8 @@ size_t ASTERIXParser::decodeDataBlock (const char* data, nlohmann::json& data_bl
     // try to decode
     if (records_.count(cat) != 0)
     {
+
+
         // decode
         if (debug)
             loginf << "asterix parser decoding record with cat " << cat << " index " << record_index

@@ -55,11 +55,15 @@ public:
     const std::map<std::string, std::shared_ptr<Edition>>& editions() const;
     const std::map<std::string, std::shared_ptr<Mapping>>& mappings() const;
 
+    bool decode() const;
+    void decode (bool value);
+
 protected:
     std::string number_;
     std::string comment_;
     std::string default_edition_;
     std::string default_mapping_;
+    bool decode_{true};
 
     std::map<std::string, std::shared_ptr<Edition>> editions_;
     std::map<std::string, std::shared_ptr<Mapping>> mappings_;

@@ -50,6 +50,9 @@ public:
     virtual ~jASTERIX();
 
     bool hasCategory(const std::string& cat_str);
+    bool decodeCategory(const std::string& cat_str);
+    void setDecodeCategry (const std::string& cat_str, bool decode);
+    void decodeNoCategories();
 
     bool hasEdition (const std::string& cat_str, const std::string& edition_str);
     void setEdition (const std::string& cat_str, const std::string& edition_str);
@@ -111,6 +114,8 @@ private:
 
     size_t num_frames_{0};
     size_t num_records_{0};
+
+    void updateCurrentEditionsAndMappings ();
 };
 }
 
