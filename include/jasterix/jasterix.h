@@ -19,7 +19,7 @@
 #define JASTERIX_H
 
 #include <string>
-#include <map>
+#include <unordered_map>
 #include <jasterix/global.h>
 
 #if USE_BOOST
@@ -30,6 +30,7 @@
 
 #include "json.hpp"
 #include <jasterix/frameparser.h>
+#include <jasterix/category.h>
 #include <jasterix/edition.h>
 #include <jasterix/mapping.h>
 
@@ -41,7 +42,7 @@ extern int frame_chunk_size;
 extern int record_chunk_size;
 extern int data_write_size;
 
-class Category;
+//class Category;
 
 class jASTERIX
 {
@@ -76,7 +77,7 @@ public:
     void addDataChunk (nlohmann::json& data_chunk, bool done);
 
     const std::vector<std::string>& framings() { return framings_; }
-    const std::map<std::string, Category>& categories() { return category_definitions_; }
+    const std::unordered_map<std::string, Category>& categories() { return category_definitions_; }
 
     const std::string& dataBlockDefinitionPath() const;
     const std::string& categoriesDefinitionPath() const;
@@ -96,9 +97,9 @@ private:
     std::string categories_definition_path_;
     nlohmann::json categories_definition_;
 
-    std::map<std::string, Category> category_definitions_;
-    std::map<unsigned int, std::shared_ptr<Edition>> current_category_editions_; // cat -> edition
-    std::map<unsigned int, std::shared_ptr<Mapping>> current_category_mappings_; // cat -> edition
+    std::unordered_map<std::string, Category> category_definitions_;
+    std::unordered_map<unsigned int, std::shared_ptr<Edition>> current_category_editions_; // cat -> edition
+    std::unordered_map<unsigned int, std::shared_ptr<Mapping>> current_category_mappings_; // cat -> edition
 
 #if USE_BOOST
     boost::iostreams::mapped_file_source file_;
