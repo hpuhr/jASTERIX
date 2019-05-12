@@ -32,8 +32,8 @@ using namespace nlohmann;
 namespace jASTERIX {
 
 ASTERIXParser::ASTERIXParser(const nlohmann::json& data_block_definition,
-                             const std::unordered_map<unsigned int, std::shared_ptr<Edition>>& asterix_category_definitions,
-                             const std::unordered_map<unsigned int, std::shared_ptr<Mapping>>& mappings,
+                             const std::map<unsigned int, std::shared_ptr<Edition>>& asterix_category_definitions,
+                             const std::map<unsigned int, std::shared_ptr<Mapping>>& mappings,
                              bool debug)
     : mappings_(mappings)
 {

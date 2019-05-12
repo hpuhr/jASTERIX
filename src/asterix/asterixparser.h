@@ -33,8 +33,8 @@ class ASTERIXParser
 {
 public:
     ASTERIXParser(const nlohmann::json& data_block_definition,
-                  const std::unordered_map<unsigned int, std::shared_ptr<Edition>>& asterix_category_definitions,
-                  const std::unordered_map<unsigned int, std::shared_ptr<Mapping>>& mappings, bool debug);
+                  const std::map<unsigned int, std::shared_ptr<Edition>>& asterix_category_definitions,
+                  const std::map<unsigned int, std::shared_ptr<Mapping>>& mappings, bool debug);
 
     std::tuple<size_t, size_t, bool> findDataBlocks (const char* data, size_t index, size_t length,
                                                      nlohmann::json& target,bool debug);
@@ -48,8 +48,8 @@ public:
 private:
     std::string data_block_name_;
     std::vector<std::unique_ptr<ItemParserBase>> data_block_items_;
-    std::unordered_map<unsigned int, std::shared_ptr<Record>> records_;
-    std::unordered_map<unsigned int, std::shared_ptr<Mapping>> mappings_;
+    std::map<unsigned int, std::shared_ptr<Record>> records_;
+    std::map<unsigned int, std::shared_ptr<Mapping>> mappings_;
 };
 
 }
