@@ -188,16 +188,20 @@ bool jASTERIX::decodeCategory(const std::string& cat_str)
     return category_definitions_.at(cat_str).decode();
 }
 
-void jASTERIX::setDecodeCategry (const std::string& cat_str, bool decode)
+void jASTERIX::setDecodeCategory (const std::string& cat_str, bool decode)
 {
     assert (hasCategory(cat_str));
     category_definitions_.at(cat_str).decode(decode);
+
+    updateCurrentEditionsAndMappings();
 }
 
 void jASTERIX::decodeNoCategories()
 {
     for (auto& cat_it : category_definitions_)
         cat_it.second.decode(false);
+
+    updateCurrentEditionsAndMappings();
 }
 
 bool jASTERIX::hasEdition (const std::string& cat_str, const std::string& edition_str)

@@ -52,7 +52,7 @@ public:
 
     bool hasCategory(const std::string& cat_str);
     bool decodeCategory(const std::string& cat_str);
-    void setDecodeCategry (const std::string& cat_str, bool decode);
+    void setDecodeCategory (const std::string& cat_str, bool decode);
     void decodeNoCategories();
 
     bool hasEdition (const std::string& cat_str, const std::string& edition_str);
