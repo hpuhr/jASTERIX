@@ -62,13 +62,13 @@ public:
     void setMapping (const std::string& cat_str, const std::string& mapping_str);
 
     void decodeFile (const std::string& filename, const std::string& framing_str,
-                     std::function<void(nlohmann::json&, size_t, size_t)> callback=nullptr);
+                     std::function<void(nlohmann::json&, size_t, size_t)> data_callback=nullptr);
     // callback gets moved chunk, accumulated number of frames, number of records
     void decodeFile (const std::string& filename,
-                     std::function<void(nlohmann::json&, size_t, size_t)> callback=nullptr);
+                     std::function<void(nlohmann::json&, size_t, size_t)> data_callback=nullptr);
 
     void decodeASTERIX (const char* data, size_t size,
-                 std::function<void(nlohmann::json&, size_t, size_t)> callback=nullptr);
+                 std::function<void(nlohmann::json&, size_t, size_t)> data_callback=nullptr);
 
     size_t numFrames() const;
     size_t numRecords() const;

@@ -177,7 +177,12 @@ void jASTERIX::updateCurrentEditionsAndMappings ()
     for (auto& cat_it : category_definitions_)
     {
         if (!cat_it.second.decode()) // skip if should not be decoded
+        {
+            //loginf << "jASTERIX: updateCurrentEditionsAndMappings: not decoding cat " << cat_it.first;
             continue;
+        }
+
+        //loginf << "jASTERIX: updateCurrentEditionsAndMappings: decoding cat " << cat_it.first;
 
         cat = stoi(cat_it.first);
 
@@ -231,7 +236,8 @@ void jASTERIX::setEdition (const std::string& cat_str, const std::string& editio
     cat = stoi(cat_str);
     assert (cat > 0);
 
-    current_category_editions_[cat] = category_definitions_.at(cat_str).edition(edition_str);
+    if (category_definitions_.at(cat_str).decode())
+        current_category_editions_[cat] = category_definitions_.at(cat_str).edition(edition_str);
 }
 
 bool jASTERIX::hasMapping (const std::string& cat_str, const std::string& mapping_str)
@@ -262,7 +268,7 @@ void jASTERIX::setMapping (const std::string& cat_str, const std::string& mappin
 
 
 void jASTERIX::decodeFile (const std::string& filename, const std::string& framing,
-                           std::function<void(nlohmann::json&, size_t, size_t)> callback)
+                           std::function<void(nlohmann::json&, size_t, size_t)> data_callback)
 {
     // check and open file
     if (!fileExists(filename))
@@ -355,8 +361,8 @@ void jASTERIX::decodeFile (const std::string& filename, const std::string& frami
             if (print_)
                 loginf << data_chunk.dump(print_dump_indent) << logendl;
 
-            if (callback)
-                callback(data_chunk, num_frames_, num_records_);
+            if (data_callback)
+                data_callback(data_chunk, num_frames_, num_records_);
 
             if (frame_limit > 0 && num_frames_ >= static_cast<unsigned>(frame_limit))
             {
@@ -377,7 +383,8 @@ void jASTERIX::decodeFile (const std::string& filename, const std::string& frami
 #endif
 }
 
-void jASTERIX::decodeFile (const std::string& filename, std::function<void(nlohmann::json&, size_t, size_t)> callback)
+void jASTERIX::decodeFile (const std::string& filename,
+                           std::function<void(nlohmann::json&, size_t, size_t)> data_callback)
 {
     // check and open file
     if (!fileExists(filename))
@@ -452,8 +459,8 @@ void jASTERIX::decodeFile (const std::string& filename, std::function<void(nlohm
 
             num_records_ += num_data_records;
 
-            if (callback)
-                callback(data_block_chunk, 0, num_data_records);
+            if (data_callback)
+                data_callback(data_block_chunk, 0, num_data_records);
 
             //loginf << "jasterix: decoding data block done, num_records " << num_records_ << logendl;
         }
@@ -490,7 +497,8 @@ void jASTERIX::decodeASTERIX (const char* data, size_t size,
 
     //loginf << "UGA find done " << done << logendl;
 
-    assert (done);
+    if (!done)
+        throw std::runtime_error("jASTERIX decodeASTERIX function called with too much data");
 
     //loginf << "UGA decoding '" << data_chunk.dump(4) << "'" << logendl;
 

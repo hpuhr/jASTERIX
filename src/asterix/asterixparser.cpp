@@ -65,7 +65,7 @@ ASTERIXParser::ASTERIXParser(const nlohmann::json& data_block_definition,
         data_block_items_.push_back(std::unique_ptr<ItemParserBase>{item});
     }
 
-    // asterix recird definitions
+    // asterix record definitions
 
     for (auto& ast_cat_def_it : asterix_category_definitions)
     {
@@ -218,8 +218,6 @@ size_t ASTERIXParser::decodeDataBlock (const char* data, nlohmann::json& data_bl
     // try to decode
     if (records_.count(cat) != 0)
     {
-
-
         // decode
         if (debug)
             loginf << "asterix parser decoding record with cat " << cat << " index " << record_index
