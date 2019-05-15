@@ -92,6 +92,8 @@ Category::Category(const std::string& number, const nlohmann::json& definition, 
 
     if (default_mapping_.size() && mappings_.count(default_mapping_) != 1)
         throw invalid_argument ("category '"+number_+"' default mapping '"+default_mapping_+"' not defined");
+
+    current_edition_ = default_edition_;
 }
 
 bool Category::hasEdition (const std::string& edition_str) const
@@ -126,10 +128,16 @@ std::string Category::defaultEdition() const
     return default_edition_;
 }
 
+void Category::setCurrentEdition (const std::string& edition_str)
+{
+    assert (hasEdition(edition_str));
+    current_edition_ = edition_str;
+}
+
 std::shared_ptr<Edition> Category::getCurrentEdition()
 {
-    assert (editions_.count(default_edition_) == 1);
-    return editions_.at(default_edition_);
+    assert (hasEdition(current_edition_));
+    return editions_.at(current_edition_);
 }
 
 bool Category::hasMapping (const std::string& mapping_str)

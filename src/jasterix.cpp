@@ -231,13 +231,7 @@ bool jASTERIX::hasEdition (const std::string& cat_str, const std::string& editio
 void jASTERIX::setEdition (const std::string& cat_str, const std::string& edition_str)
 {
     assert (hasEdition(cat_str, edition_str));
-
-    int cat = -1;
-    cat = stoi(cat_str);
-    assert (cat > 0);
-
-    if (category_definitions_.at(cat_str).decode())
-        current_category_editions_[cat] = category_definitions_.at(cat_str).edition(edition_str);
+    category_definitions_.at(cat_str).setCurrentEdition(edition_str);
 }
 
 bool jASTERIX::hasMapping (const std::string& cat_str, const std::string& mapping_str)
@@ -471,6 +465,8 @@ void jASTERIX::decodeFile (const std::string& filename,
             std::this_thread::sleep_for(std::chrono::milliseconds(1));
         }
     }
+
+    //loginf << "jASTERIX decode file done" << logendl;
 
 #if USE_BOOST
     file_.close();

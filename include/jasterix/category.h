@@ -42,6 +42,7 @@ public:
     std::string editionPath (const std::string& edition_str) const;
 
     std::string defaultEdition() const;
+    void setCurrentEdition (const std::string& edition_str);
     std::shared_ptr<Edition> getCurrentEdition();
 
     bool hasMapping (const std::string& mapping_str);
@@ -62,6 +63,7 @@ protected:
     std::string number_;
     std::string comment_;
     std::string default_edition_;
+    std::string current_edition_;
     std::string default_mapping_;
     bool decode_{true};
 
