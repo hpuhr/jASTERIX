@@ -339,6 +339,9 @@ void jASTERIX::decodeFile (const std::string& filename, const std::string& frami
 
     nlohmann::json data_chunk;
 
+    size_t num_callback_frames;
+    size_t num_callback_records;
+
     while (1)
     {
         if (data_processing_done_ && data_chunks_.empty())
@@ -346,8 +349,11 @@ void jASTERIX::decodeFile (const std::string& filename, const std::string& frami
 
         if (data_chunks_.try_pop(data_chunk))
         {
-            num_frames_ += data_chunk.at("frames").size();
-            num_records_ += frame_parser.decodeFrames(data, data_chunk, debug_);
+            num_callback_frames = data_chunk.at("frames").size();
+            num_frames_ += num_callback_frames;
+
+            num_callback_records = frame_parser.decodeFrames(data, data_chunk, debug_);
+            num_records_ += num_callback_records;
 
             if (debug_)
                 loginf << "jASTERIX processing " << num_frames_ << " frames, " << num_records_ << " records" << logendl;
@@ -356,7 +362,7 @@ void jASTERIX::decodeFile (const std::string& filename, const std::string& frami
                 loginf << data_chunk.dump(print_dump_indent) << logendl;
 
             if (data_callback)
-                data_callback(data_chunk, num_frames_, num_records_);
+                data_callback(data_chunk, num_callback_frames, num_callback_records);
 
             if (frame_limit > 0 && num_frames_ >= static_cast<unsigned>(frame_limit))
             {
