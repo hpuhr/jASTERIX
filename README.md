@@ -1,17 +1,17 @@
 # jASTERIX
 
-jASTERIX is a C++ Library for EUROCONTROL's [ASTERIX](https://www.eurocontrol.int/services/asterix) to JSON conversion. It is part of the ATSDB project, but released as a separate library to allow easy usage in other projects.
+jASTERIX is a C++ Library for EUROCONTROL's [ASTERIX](https://www.eurocontrol.int/services/asterix) to [JSON](https://www.json.org/) conversion. It is part of the [ATSDB project](https://github.com/hpuhr/ATSDB/), but released as a separate library to allow easy usage in other projects.
 
 ## Features
 
 The library allows decoding of binary ASTERIX data into JSON. The ASTERIX definitions are configuration only, so additional or customized categories or editions can be added without having to recompile. Also, using the Intel TBB library allows for reasonable performance using multi-threading.
 
-Support of multiple framings
+Currently support framings:
 - None: Raw, netto, unframed ASTERIX data blocks
 - IOSS: IOSS Final Format
 - RFF: Comsoft RFF format
 
-Support of ASTERIX categories
+Currently supported ASTERIX categories & editions:
 - 001
   - Edition 1.1
 - 002
@@ -35,11 +35,10 @@ Support of ASTERIX categories
 - 065
   - Edition 1.1
 
-[ATSDB project](https://github.com/hpuhr/ATSDB/)
 
 ## Features
 
-Many ASTERIX decoder libraries exist today, but none of them was suitable/available for the ATSDB project. For this reason, the author decided to implement one, with a strong focus on flexibility first and performance seconds.
+Many ASTERIX decoder libraries exist today, but none of them was suitable/available for the ATSDB project. For this reason, the author decided to implement one, with a strong focus on flexibility first and performance second.
 
 ## Contents
 - Folder "cmake_modules": Contains cmake find scripts
@@ -307,6 +306,10 @@ Decoded JSON can also be written to a text or ZIP file using the appropriate arg
 ## Author
 Helmut Puhr
 Contact: atsdb@gmx.at
+
+## Questions & Request
+
+For additional information or request for additional categories / editions please contact the author, who is open tu fulfil reasonable demands.
 
 ## Licenses
 The source code is released under [GNU GPLv3](https://www.gnu.org/licenses/gpl-3.0.en.html)
