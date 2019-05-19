@@ -1,24 +1,25 @@
 /*
- * This file is part of jASTERIX.
+ * This file is part of ATSDB.
  *
- * jASTERIX is free software: you can redistribute it and/or modify
+ * ATSDB is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * jASTERIX is distributed in the hope that it will be useful,
+ * ATSDB is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
 
  * You should have received a copy of the GNU General Public License
- * along with jASTERIX.  If not, see <http://www.gnu.org/licenses/>.
+ * along with ATSDB.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 
 #include "jasterix.h"
 #include "logger.h"
 #include "jsonwriter.h"
-#include "global.h"
+#include "jasterix/global.h"
 
 #if USE_BOOST
 #include <boost/program_options.hpp>
@@ -46,10 +47,9 @@ using namespace jASTERIX;
 
 JSONWriter* json_writer {nullptr};
 
-void callback (nlohmann::json& data_chunk, size_t num_frames, size_t num_records)
+void print_callback (nlohmann::json& data_chunk, size_t num_frames, size_t num_records)
 {
-//    loginf << "jASTERIX: decoded " << num_frames << " frames, " << num_records << " records: "
-//           << data_chunk.dump(print_dump_indent);
+    loginf << data_chunk.dump(4);
 }
 
 void write_callback (nlohmann::json& data_chunk, size_t num_frames, size_t num_records)
@@ -215,10 +215,24 @@ int main (int argc, char **argv)
         auto start_time = chrono::steady_clock::now();
 #endif
 
-        if (json_writer)
-            asterix.decodeFile (filename, framing, write_callback);
+        if (framing == "netto" || framing == "")
+        {
+            if (json_writer)
+                asterix.decodeFile (filename, write_callback);
+            else if (print)
+                asterix.decodeFile (filename, print_callback);
+            else
+                asterix.decodeFile (filename);
+        }
         else
-            asterix.decodeFile (filename, framing, callback);
+        {
+            if (json_writer)
+                asterix.decodeFile (filename, framing, write_callback);
+            else if (print)
+                asterix.decodeFile (filename, framing, print_callback);
+            else
+                asterix.decodeFile (filename, framing);
+        }
 
         size_t num_frames = asterix.numFrames();
         size_t num_records = asterix.numRecords();

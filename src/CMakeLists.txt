@@ -5,7 +5,7 @@ include_directories (
 
 target_sources(jasterix
     PUBLIC
-        "${CMAKE_CURRENT_LIST_DIR}/jasterix.h"
+#        "${CMAKE_CURRENT_LIST_DIR}/jasterix.h"
     PRIVATE
         "${CMAKE_CURRENT_LIST_DIR}/jasterix.cpp"
 )

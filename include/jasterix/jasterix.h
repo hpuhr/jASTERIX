@@ -1,18 +1,18 @@
 /*
- * This file is part of jASTERIX.
+ * This file is part of ATSDB.
  *
- * jASTERIX is free software: you can redistribute it and/or modify
+ * ATSDB is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * jASTERIX is distributed in the hope that it will be useful,
+ * ATSDB is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
 
  * You should have received a copy of the GNU General Public License
- * along with jASTERIX.  If not, see <http://www.gnu.org/licenses/>.
+ * along with ATSDB.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #ifndef JASTERIX_H
@@ -20,7 +20,7 @@
 
 #include <string>
 #include <map>
-#include "global.h"
+#include <jasterix/global.h>
 
 #if USE_BOOST
 #include <boost/iostreams/device/mapped_file.hpp>
@@ -29,18 +29,20 @@
 #include "tbb/concurrent_queue.h"
 
 #include "json.hpp"
-#include "frameparser.h"
-#include "edition.h"
-#include "mapping.h"
+#include <jasterix/frameparser.h>
+#include <jasterix/category.h>
+#include <jasterix/edition.h>
+#include <jasterix/mapping.h>
 
 namespace jASTERIX {
 
 extern int print_dump_indent;
 extern int frame_limit;
 extern int frame_chunk_size;
+extern int record_chunk_size;
 extern int data_write_size;
 
-class Category;
+//class Category;
 
 class jASTERIX
 {
@@ -49,6 +51,9 @@ public:
     virtual ~jASTERIX();
 
     bool hasCategory(const std::string& cat_str);
+    bool decodeCategory(const std::string& cat_str);
+    void setDecodeCategory (const std::string& cat_str, bool decode);
+    void decodeNoCategories();
 
     bool hasEdition (const std::string& cat_str, const std::string& edition_str);
     void setEdition (const std::string& cat_str, const std::string& edition_str);
@@ -57,24 +62,41 @@ public:
     void setMapping (const std::string& cat_str, const std::string& mapping_str);
 
     void decodeFile (const std::string& filename, const std::string& framing_str,
-                     std::function<void(nlohmann::json&, size_t, size_t)> callback);
+                     std::function<void(nlohmann::json&, size_t, size_t)> data_callback=nullptr);
     // callback gets moved chunk, accumulated number of frames, number of records
+    void decodeFile (const std::string& filename,
+                     std::function<void(nlohmann::json&, size_t, size_t)> data_callback=nullptr);
 
     void decodeASTERIX (const char* data, size_t size,
-                 std::function<void(nlohmann::json&, size_t, size_t)> callback);
+                 std::function<void(nlohmann::json&, size_t, size_t)> data_callback=nullptr);
 
     size_t numFrames() const;
     size_t numRecords() const;
 
-    void addDataChunk (nlohmann::json& data_chunk);
+    void addDataBlockChunk (nlohmann::json& data_block_chunk, bool done);
+    void addDataChunk (nlohmann::json& data_chunk, bool done);
+
+    const std::vector<std::string>& framings() { return framings_; }
+    const std::map<std::string, Category>& categories() { return category_definitions_; }
+
+    const std::string& dataBlockDefinitionPath() const;
+    const std::string& categoriesDefinitionPath() const;
+    const std::string& framingsFolderPath() const;
 
 private:
     std::string definition_path_;
     bool print_ {false};
     bool debug_ {false};
 
+    std::string framing_path_;
+    std::vector<std::string> framings_;
+
+    std::string data_block_definition_path_;
     nlohmann::json data_block_definition_;
+
+    std::string categories_definition_path_;
     nlohmann::json categories_definition_;
+
     std::map<std::string, Category> category_definitions_;
     std::map<unsigned int, std::shared_ptr<Edition>> current_category_editions_; // cat -> edition
     std::map<unsigned int, std::shared_ptr<Mapping>> current_category_mappings_; // cat -> edition
@@ -85,10 +107,16 @@ private:
     char* file_buffer_{nullptr};
 #endif
 
+    tbb::concurrent_queue<nlohmann::json> data_block_chunks_;
+    bool data_block_processing_done_ {false};
+
     tbb::concurrent_queue<nlohmann::json> data_chunks_;
+    bool data_processing_done_ {false};
 
     size_t num_frames_{0};
     size_t num_records_{0};
+
+    void updateCurrentEditionsAndMappings ();
 };
 }
 

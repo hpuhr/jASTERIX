@@ -1,18 +1,18 @@
 /*
- * This file is part of jASTERIX.
+ * This file is part of ATSDB.
  *
- * jASTERIX is free software: you can redistribute it and/or modify
+ * ATSDB is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * jASTERIX is distributed in the hope that it will be useful,
+ * ATSDB is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
 
  * You should have received a copy of the GNU General Public License
- * along with jASTERIX.  If not, see <http://www.gnu.org/licenses/>.
+ * along with ATSDB.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 
@@ -20,8 +20,8 @@
 #define CATEGORY_H
 
 #include "json.hpp"
-#include "edition.h"
-#include "mapping.h"
+#include <jasterix/edition.h>
+#include <jasterix/mapping.h>
 
 #include <string>
 
@@ -37,10 +37,12 @@ public:
     std::string number() const;
     std::string comment() const;
 
-    bool hasEdition (const std::string& edition_str);
+    bool hasEdition (const std::string& edition_str) const;
     std::shared_ptr<Edition> edition (const std::string& edition_str);
+    std::string editionPath (const std::string& edition_str) const;
 
     std::string defaultEdition() const;
+    void setCurrentEdition (const std::string& edition_str);
     std::shared_ptr<Edition> getCurrentEdition();
 
     bool hasMapping (const std::string& mapping_str);
@@ -51,11 +53,19 @@ public:
     bool hasCurrentMapping();
     std::shared_ptr<Mapping> getCurrentMapping();
 
+    const std::map<std::string, std::shared_ptr<Edition>>& editions() const;
+    const std::map<std::string, std::shared_ptr<Mapping>>& mappings() const;
+
+    bool decode() const;
+    void decode (bool value);
+
 protected:
     std::string number_;
     std::string comment_;
     std::string default_edition_;
+    std::string current_edition_;
     std::string default_mapping_;
+    bool decode_{true};
 
     std::map<std::string, std::shared_ptr<Edition>> editions_;
     std::map<std::string, std::shared_ptr<Mapping>> mappings_;

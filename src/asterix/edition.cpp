@@ -1,20 +1,19 @@
 /*
- * This file is part of jASTERIX.
+ * This file is part of ATSDB.
  *
- * jASTERIX is free software: you can redistribute it and/or modify
+ * ATSDB is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * jASTERIX is distributed in the hope that it will be useful,
+ * ATSDB is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
 
  * You should have received a copy of the GNU General Public License
- * along with jASTERIX.  If not, see <http://www.gnu.org/licenses/>.
+ * along with ATSDB.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 
 #include "edition.h"
 #include "files.h"
@@ -50,10 +49,12 @@ Edition::Edition(const std::string& number, const nlohmann::json& definition, co
 
     file_ = definition.at("file");
 
-    if (!fileExists(definition_path+"/categories/"+file_))
-        throw invalid_argument ("edition "+number_+" file '"+definition_path+"/categories/"+file_+"' not found");
+    edition_definition_path_ = definition_path+"/categories/"+file_;
 
-    definition_ = json::parse(ifstream(definition_path+"/categories/"+file_));
+    if (!fileExists(edition_definition_path_))
+        throw invalid_argument ("edition "+number_+" file '"+edition_definition_path_+"' not found");
+
+    definition_ = json::parse(ifstream(edition_definition_path_));
 
     record_.reset(new Record(definition_));
 }
@@ -76,6 +77,11 @@ std::string Edition::file() const
 std::shared_ptr<Record> Edition::record() const
 {
     return record_;
+}
+
+std::string Edition::definitionPath() const
+{
+    return edition_definition_path_;
 }
 
 std::string Edition::number() const

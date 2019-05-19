@@ -1,21 +1,24 @@
 /*
- * This file is part of jASTERIX.
+ * This file is part of ATSDB.
  *
- * jASTERIX is free software: you can redistribute it and/or modify
+ * ATSDB is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * jASTERIX is distributed in the hope that it will be useful,
+ * ATSDB is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
 
  * You should have received a copy of the GNU General Public License
- * along with jASTERIX.  If not, see <http://www.gnu.org/licenses/>.
+ * along with ATSDB.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <algorithm>
+
 #include "extendablebitsitemparser.h"
+#include "logger.h"
 
 using namespace std;
 using namespace nlohmann;
@@ -36,6 +39,8 @@ ExtendableBitsItemParser::ExtendableBitsItemParser (const nlohmann::json& item_d
     reverse_bits_ = (item_definition.find("reverse_bits") != item_definition.end()
             && item_definition.at("reverse_bits") == true);
 
+    reverse_order_ = (item_definition.find("reverse_order") != item_definition.end()
+            && item_definition.at("reverse_order") == true);
 }
 
 size_t ExtendableBitsItemParser::parseItem (const char* data, size_t index, size_t size, size_t current_parsed_bytes,
@@ -97,6 +102,9 @@ size_t ExtendableBitsItemParser::parseItem (const char* data, size_t index, size
             }
             ++parsed_bytes;
         }
+
+        if (reverse_order_)
+            std::reverse(bitfield.begin(), bitfield.end());
 
         target.emplace(name_, bitfield);
 

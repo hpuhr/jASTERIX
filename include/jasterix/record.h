@@ -1,24 +1,25 @@
 /*
- * This file is part of jASTERIX.
+ * This file is part of ATSDB.
  *
- * jASTERIX is free software: you can redistribute it and/or modify
+ * ATSDB is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * jASTERIX is distributed in the hope that it will be useful,
+ * ATSDB is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
 
  * You should have received a copy of the GNU General Public License
- * along with jASTERIX.  If not, see <http://www.gnu.org/licenses/>.
+ * along with ATSDB.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 
 #ifndef RECORD_H
 #define RECORD_H
 
-#include "itemparserbase.h"
+#include <jasterix/itemparserbase.h>
 
 #include <vector>
 #include <memory>
@@ -37,7 +38,14 @@ public:
 protected:
     std::unique_ptr<ItemParserBase> field_specification_;
     std::vector<std::string> uap_names_;
+
+    bool has_conditional_uap_{false};
+    std::string conditional_uaps_key_;
+    std::vector<std::string> conditional_uaps_sub_keys_;
+    std::map<std::string, std::vector<std::string>> conditional_uap_names_;
     std::map<std::string, std::unique_ptr<ItemParserBase>> items_;
+
+    bool compareKey (const nlohmann::json& container, const std::string& value);
 };
 
 }

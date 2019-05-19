@@ -1,18 +1,18 @@
 /*
- * This file is part of jASTERIX.
+ * This file is part of ATSDB.
  *
- * jASTERIX is free software: you can redistribute it and/or modify
+ * ATSDB is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * jASTERIX is distributed in the hope that it will be useful,
+ * ATSDB is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
 
  * You should have received a copy of the GNU General Public License
- * along with jASTERIX.  If not, see <http://www.gnu.org/licenses/>.
+ * along with ATSDB.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 
@@ -20,7 +20,7 @@
 #define EDITION_H
 
 #include "json.hpp"
-#include "record.h"
+#include <jasterix/record.h>
 
 #include <string>
 
@@ -41,6 +41,7 @@ public:
     std::string file() const;
 
     std::shared_ptr<Record> record() const;
+    std::string definitionPath() const;
 
 protected:
     std::string number_;
@@ -48,6 +49,7 @@ protected:
     std::string date_;
     std::string file_;
 
+    std::string edition_definition_path_;
     nlohmann::json definition_; // from file
     std::shared_ptr<Record> record_;
 };

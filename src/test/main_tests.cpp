@@ -1,19 +1,20 @@
 /*
- * This file is part of jASTERIX.
+ * This file is part of ATSDB.
  *
- * jASTERIX is free software: you can redistribute it and/or modify
+ * ATSDB is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * jASTERIX is distributed in the hope that it will be useful,
+ * ATSDB is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
 
  * You should have received a copy of the GNU General Public License
- * along with jASTERIX.  If not, see <http://www.gnu.org/licenses/>.
+ * along with ATSDB.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 
 #include "jasterix.h"
 #include "logger.h"
@@ -33,15 +34,35 @@ namespace po = boost::program_options;
 using namespace std;
 using namespace jASTERIX;
 
-void test_cat048_callback (nlohmann::json& json_data, size_t num_frames, size_t num_records);
-void test_cat048 (jASTERIX::jASTERIX& jasterix);
+void test_cat001_callback (nlohmann::json& json_data, size_t num_frames, size_t num_records);
+void test_cat001 (jASTERIX::jASTERIX& jasterix);
+
+void test_cat002_callback (nlohmann::json& json_data, size_t num_frames, size_t num_records);
+void test_cat002 (jASTERIX::jASTERIX& jasterix);
+
+void test_cat019_callback (nlohmann::json& json_data, size_t num_frames, size_t num_records);
+void test_cat019 (jASTERIX::jASTERIX& jasterix);
 
 void test_cat020_callback (nlohmann::json& json_data, size_t num_frames, size_t num_records);
 void test_cat020 (jASTERIX::jASTERIX& jasterix);
 
+void test_cat034_callback (nlohmann::json& json_data, size_t num_frames, size_t num_records);
+void test_cat034 (jASTERIX::jASTERIX& jasterix);
+
+void test_cat048_callback (nlohmann::json& json_data, size_t num_frames, size_t num_records);
+void test_cat048 (jASTERIX::jASTERIX& jasterix);
+
 void test_cat021_callback (nlohmann::json& json_data, size_t num_frames, size_t num_records);
 void test_cat021 (jASTERIX::jASTERIX& jasterix);
 
+void test_cat062_callback (nlohmann::json& json_data, size_t num_frames, size_t num_records);
+void test_cat062 (jASTERIX::jASTERIX& jasterix);
+
+void test_cat063_callback (nlohmann::json& json_data, size_t num_frames, size_t num_records);
+void test_cat063 (jASTERIX::jASTERIX& jasterix);
+
+void test_cat065_callback (nlohmann::json& json_data, size_t num_frames, size_t num_records);
+void test_cat065 (jASTERIX::jASTERIX& jasterix);
 
 int main (int argc, char **argv)
 {
@@ -106,9 +127,16 @@ int main (int argc, char **argv)
 
         jASTERIX::jASTERIX asterix (definition_path, true, true);
 
-        //test_cat020(asterix);
-        //test_cat021(asterix);
+        test_cat001(asterix);
+        test_cat002(asterix);
+        test_cat019(asterix);
+        test_cat020(asterix);
+        test_cat021(asterix);
+        test_cat034(asterix);
         test_cat048(asterix);
+        test_cat062(asterix);
+        test_cat063(asterix);
+        test_cat065(asterix);
 
     }
     catch (exception &ex)

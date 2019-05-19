@@ -1,20 +1,19 @@
 /*
- * This file is part of jASTERIX.
+ * This file is part of ATSDB.
  *
- * jASTERIX is free software: you can redistribute it and/or modify
+ * ATSDB is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * jASTERIX is distributed in the hope that it will be useful,
+ * ATSDB is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
 
  * You should have received a copy of the GNU General Public License
- * along with jASTERIX.  If not, see <http://www.gnu.org/licenses/>.
+ * along with ATSDB.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 
 #include "category.h"
 #include "edition.h"
@@ -42,6 +41,10 @@ Category::Category(const std::string& number, const nlohmann::json& definition, 
         throw runtime_error ("category '"+number_+"' has no default edition");
 
     default_edition_ = definition.at("default_edition");
+
+    // decode flag
+    if (definition.find("decode") != definition.end())
+        decode_ = definition.at("decode");
 
     //    "editions":
 
@@ -89,9 +92,11 @@ Category::Category(const std::string& number, const nlohmann::json& definition, 
 
     if (default_mapping_.size() && mappings_.count(default_mapping_) != 1)
         throw invalid_argument ("category '"+number_+"' default mapping '"+default_mapping_+"' not defined");
+
+    current_edition_ = default_edition_;
 }
 
-bool Category::hasEdition (const std::string& edition_str)
+bool Category::hasEdition (const std::string& edition_str) const
 {
     return editions_.count(edition_str) == 1;
 }
@@ -100,6 +105,12 @@ std::shared_ptr<Edition> Category::edition (const std::string& edition_str)
 {
     assert (hasEdition(edition_str));
     return editions_.at(edition_str);
+}
+
+std::string Category::editionPath (const std::string& edition_str) const
+{
+    assert (hasEdition(edition_str));
+    return editions_.at(edition_str)->definitionPath();
 }
 
 std::string Category::number() const
@@ -117,10 +128,16 @@ std::string Category::defaultEdition() const
     return default_edition_;
 }
 
+void Category::setCurrentEdition (const std::string& edition_str)
+{
+    assert (hasEdition(edition_str));
+    current_edition_ = edition_str;
+}
+
 std::shared_ptr<Edition> Category::getCurrentEdition()
 {
-    assert (editions_.count(default_edition_) == 1);
-    return editions_.at(default_edition_);
+    assert (hasEdition(current_edition_));
+    return editions_.at(current_edition_);
 }
 
 bool Category::hasMapping (const std::string& mapping_str)
@@ -151,6 +168,26 @@ std::shared_ptr<Mapping> Category::getCurrentMapping()
 {
     assert (hasCurrentMapping());
     return mappings_.at(default_mapping_);
+}
+
+const std::map<std::string, std::shared_ptr<Edition>>& Category::editions() const
+{
+    return editions_;
+}
+
+const std::map<std::string, std::shared_ptr<Mapping>>& Category::mappings() const
+{
+    return mappings_;
+}
+
+bool Category::decode() const
+{
+    return decode_;
+}
+
+void Category::decode (bool value)
+{
+    decode_ = value;
 }
 
 }

@@ -1,24 +1,26 @@
 /*
- * This file is part of jASTERIX.
+ * This file is part of ATSDB.
  *
- * jASTERIX is free software: you can redistribute it and/or modify
+ * ATSDB is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * jASTERIX is distributed in the hope that it will be useful,
+ * ATSDB is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
 
  * You should have received a copy of the GNU General Public License
- * along with jASTERIX.  If not, see <http://www.gnu.org/licenses/>.
+ * along with ATSDB.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 
 #include "jasterix.h"
 #include "files.h"
 #include "logger.h"
 #include "asterixparser.h"
+#include "datablockfindertask.h"
 #include "frameparser.h"
 #include "frameparsertask.h"
 #include "category.h"
@@ -37,38 +39,62 @@ namespace jASTERIX {
 int print_dump_indent=4;
 int frame_limit=-1;
 int frame_chunk_size=1000;
+int record_chunk_size=1000;
 int data_write_size=100;
 
 using namespace Files;
 using namespace std;
 
+const std::string FRAMING_SUBDIR = "/framings";
+const std::string DATABLOCK_FILENAME = "/data_block_definition.json";
+const std::string CATEGORY_SUBDIR = "/categories";
+const std::string CATEGORIES_FILENAME = "/categories.json";
+
 jASTERIX::jASTERIX(const std::string& definition_path, bool print, bool debug)
     : definition_path_(definition_path), print_(print), debug_(debug)
 {
-
     // check framing definitions
     if (!directoryExists(definition_path_))
         throw invalid_argument ("jASTERIX called with non-existing definition path '"+definition_path_+"'");
 
-    if (!directoryExists(definition_path_+"/framings"))
-        throw invalid_argument ("jASTERIX called with incorrect definition path '"+definition_path_
-                                     +"', framings are missing");
+    framing_path_ = definition_path_+FRAMING_SUBDIR;
 
-    if (!fileExists(definition_path_+"/data_block_definition.json"))
+    if (!directoryExists(framing_path_))
+        throw invalid_argument ("jASTERIX called with missing framing path '"+framing_path_+"'");
+
+    framings_.push_back(""); // add no framing
+    std::string file_ending = ".json";
+    for (std::string framing_file : Files::getFilesInDirectory(framing_path_))
+    {
+        size_t pos = framing_file.find(file_ending);
+
+        if (pos != std::string::npos) // if ends with json
+        {
+            // If found then erase it from string
+            framing_file.erase(pos, file_ending.length());
+            framings_.push_back(framing_file);
+        }
+    }
+
+    data_block_definition_path_ = definition_path_+DATABLOCK_FILENAME;
+
+    if (!fileExists(data_block_definition_path_))
         throw invalid_argument ("jASTERIX called without asterix data block definition");
 
-    // check asterix definitions
+    // check asterix category definitions
 
-    if (!directoryExists(definition_path_+"/categories"))
-        throw invalid_argument ("jASTERIX called with incorrect definition path '"+definition_path_
-                                     +"', categories are missing");
+    if (!directoryExists(definition_path_+CATEGORY_SUBDIR))
+        throw invalid_argument ("jASTERIX called with missing categories definition folder '"
+                                +definition_path_+CATEGORY_SUBDIR+"'");
 
-    if (!fileExists(definition_path_+"/categories/categories.json"))
-        throw invalid_argument ("jASTERIX called without asterix categories list definition");
+    categories_definition_path_ = definition_path_+CATEGORY_SUBDIR+CATEGORIES_FILENAME;
+    if (!fileExists(categories_definition_path_))
+        throw invalid_argument ("jASTERIX called without missing asterix categories definition path '"
+                                +categories_definition_path_+"'");
 
     try // asterix record definition
     {
-        data_block_definition_ = json::parse(ifstream(definition_path_+"/data_block_definition.json"));
+        data_block_definition_ = json::parse(ifstream(definition_path_+DATABLOCK_FILENAME));
     }
     catch (json::exception& e)
     {
@@ -77,7 +103,7 @@ jASTERIX::jASTERIX(const std::string& definition_path, bool print, bool debug)
 
     try // asterix categories list definition
     {
-        categories_definition_ = json::parse(ifstream(definition_path_+"/categories/categories.json"));
+        categories_definition_ = json::parse(ifstream(categories_definition_path_));
     }
     catch (json::exception& e)
     {
@@ -105,7 +131,6 @@ jASTERIX::jASTERIX(const std::string& definition_path, bool print, bool debug)
             if (debug)
                 loginf << "jASTERIX found asterix category " << cat_str << logendl;
 
-
             try
             {
                 category_definitions_.emplace(std::piecewise_construct,
@@ -113,17 +138,14 @@ jASTERIX::jASTERIX(const std::string& definition_path, bool print, bool debug)
                                   std::forward_as_tuple(cat_str, cat_def_it.value(), definition_path_));
 
                 assert (category_definitions_.count(cat_str) == 1);
-
-                current_category_editions_[cat] = category_definitions_.at(cat_str).getCurrentEdition();
-
-                if (category_definitions_.at(cat_str).hasCurrentMapping())
-                    current_category_mappings_[cat] = category_definitions_.at(cat_str).getCurrentMapping();
             }
             catch (json::exception& e)
             {
                 throw runtime_error ("jASTERIX parsing error in asterix category "+cat_str+": "+e.what());
             }
         }
+
+        updateCurrentEditionsAndMappings();
     }
     catch (json::exception& e)
     {
@@ -146,9 +168,56 @@ jASTERIX::~jASTERIX()
 #endif
 }
 
+void jASTERIX::updateCurrentEditionsAndMappings ()
+{
+    current_category_editions_.clear();
+
+    int cat;
+
+    for (auto& cat_it : category_definitions_)
+    {
+        if (!cat_it.second.decode()) // skip if should not be decoded
+        {
+            //loginf << "jASTERIX: updateCurrentEditionsAndMappings: not decoding cat " << cat_it.first;
+            continue;
+        }
+
+        //loginf << "jASTERIX: updateCurrentEditionsAndMappings: decoding cat " << cat_it.first;
+
+        cat = stoi(cat_it.first);
+
+        current_category_editions_[cat] = cat_it.second.getCurrentEdition();
+
+        if (cat_it.second.hasCurrentMapping())
+            current_category_mappings_[cat] = cat_it.second.getCurrentMapping();
+    }
+}
+
 bool jASTERIX::hasCategory(const std::string& cat_str)
 {
     return category_definitions_.count(cat_str) == 1;
+}
+
+bool jASTERIX::decodeCategory(const std::string& cat_str)
+{
+    assert (hasCategory(cat_str));
+    return category_definitions_.at(cat_str).decode();
+}
+
+void jASTERIX::setDecodeCategory (const std::string& cat_str, bool decode)
+{
+    assert (hasCategory(cat_str));
+    category_definitions_.at(cat_str).decode(decode);
+
+    updateCurrentEditionsAndMappings();
+}
+
+void jASTERIX::decodeNoCategories()
+{
+    for (auto& cat_it : category_definitions_)
+        cat_it.second.decode(false);
+
+    updateCurrentEditionsAndMappings();
 }
 
 bool jASTERIX::hasEdition (const std::string& cat_str, const std::string& edition_str)
@@ -162,12 +231,7 @@ bool jASTERIX::hasEdition (const std::string& cat_str, const std::string& editio
 void jASTERIX::setEdition (const std::string& cat_str, const std::string& edition_str)
 {
     assert (hasEdition(cat_str, edition_str));
-
-    int cat = -1;
-    cat = stoi(cat_str);
-    assert (cat > 0);
-
-    current_category_editions_[cat] = category_definitions_.at(cat_str).edition(edition_str);
+    category_definitions_.at(cat_str).setCurrentEdition(edition_str);
 }
 
 bool jASTERIX::hasMapping (const std::string& cat_str, const std::string& mapping_str)
@@ -198,7 +262,7 @@ void jASTERIX::setMapping (const std::string& cat_str, const std::string& mappin
 
 
 void jASTERIX::decodeFile (const std::string& filename, const std::string& framing,
-                           std::function<void(nlohmann::json&, size_t, size_t)> callback)
+                           std::function<void(nlohmann::json&, size_t, size_t)> data_callback)
 {
     // check and open file
     if (!fileExists(filename))
@@ -213,6 +277,8 @@ void jASTERIX::decodeFile (const std::string& filename, const std::string& frami
         loginf << "jASTERIX: file " << filename << " size " << file_size << logendl;
 
 #if USE_BOOST
+    assert (!file_.is_open());
+
     file_.open(filename, file_size);
 
     if(!file_.is_open())
@@ -257,10 +323,15 @@ void jASTERIX::decodeFile (const std::string& filename, const std::string& frami
 
     nlohmann::json json_header;
 
-    size_t index;
+    size_t index {0};
 
     // parsing header
-    index = frame_parser.parseHeader(data, 0, file_size, json_header, debug_);
+
+    if (frame_parser.hasFileHeaderItems())
+        index = frame_parser.parseHeader(data, 0, file_size, json_header, debug_);
+
+    if (debug_)
+        loginf << "jasterix: creating frame parser task" << logendl;
 
     FrameParserTask* task = new (tbb::task::allocate_root()) FrameParserTask (
                 *this, frame_parser, json_header, data, index, file_size, debug_);
@@ -268,15 +339,21 @@ void jASTERIX::decodeFile (const std::string& filename, const std::string& frami
 
     nlohmann::json data_chunk;
 
+    size_t num_callback_frames;
+    size_t num_callback_records;
+
     while (1)
     {
-        if (frame_parser.done() && data_chunks_.empty())
+        if (data_processing_done_ && data_chunks_.empty())
             break;
 
         if (data_chunks_.try_pop(data_chunk))
         {
-            num_frames_ += data_chunk.at("frames").size();
-            num_records_ += frame_parser.decodeFrames(data, data_chunk, debug_);
+            num_callback_frames = data_chunk.at("frames").size();
+            num_frames_ += num_callback_frames;
+
+            num_callback_records = frame_parser.decodeFrames(data, data_chunk, debug_);
+            num_records_ += num_callback_records;
 
             if (debug_)
                 loginf << "jASTERIX processing " << num_frames_ << " frames, " << num_records_ << " records" << logendl;
@@ -284,7 +361,8 @@ void jASTERIX::decodeFile (const std::string& filename, const std::string& frami
             if (print_)
                 loginf << data_chunk.dump(print_dump_indent) << logendl;
 
-            callback(data_chunk, num_frames_, num_records_);
+            if (data_callback)
+                data_callback(data_chunk, num_callback_frames, num_callback_records);
 
             if (frame_limit > 0 && num_frames_ >= static_cast<unsigned>(frame_limit))
             {
@@ -299,6 +377,106 @@ void jASTERIX::decodeFile (const std::string& filename, const std::string& frami
             std::this_thread::sleep_for(std::chrono::milliseconds(1));
         }
     }
+
+#if USE_BOOST
+    file_.close();
+#endif
+}
+
+void jASTERIX::decodeFile (const std::string& filename,
+                           std::function<void(nlohmann::json&, size_t, size_t)> data_callback)
+{
+    // check and open file
+    if (!fileExists(filename))
+        throw invalid_argument ("jASTERIX called with non-existing file '"+filename+"'");
+
+    size_t file_size = fileSize (filename);
+
+    if (!file_size)
+        throw invalid_argument ("jASTERIX called with empty file '"+filename+"'");
+
+    if (debug_)
+        loginf << "jASTERIX: file " << filename << " size " << file_size << logendl;
+
+#if USE_BOOST
+    assert (!file_.is_open());
+    file_.open(filename, file_size);
+
+    if(!file_.is_open())
+        throw runtime_error ("jASTERIX unable to map file '"+filename+"'");
+
+    const char* data = file_.data();
+#else
+    ifstream file (filename, ios::in | ios::binary);
+    file_buffer_ = new char[file_size];
+    file.read (file_buffer_, file_size);
+    if (!file)
+    {
+        // An error occurred!
+        throw runtime_error ("jASTERIX unable to read file '"+filename+"'");
+    }
+    file.close();
+
+    char* data = file_buffer_;
+#endif
+
+    // create ASTERIX parser
+    ASTERIXParser asterix_parser (data_block_definition_, current_category_editions_,
+                                  current_category_mappings_, debug_);
+
+    if (debug_)
+        loginf << "jasterix: finding data blocks" << logendl;
+
+    size_t index {0};
+
+    DataBlockFinderTask* task = new (tbb::task::allocate_root()) DataBlockFinderTask (
+                *this, asterix_parser, data, index, file_size, debug_);
+    tbb::task::enqueue(*task);
+
+    nlohmann::json data_block_chunk;
+
+    size_t num_data_records {0};
+
+    while (1)
+    {
+        if (data_block_processing_done_ && data_block_chunks_.empty())
+            break;
+
+        //loginf << "jasterix: task done " << data_block_processing_done_ << " empty " << data_block_chunks_.empty()
+        // << logendl;
+
+        if (data_block_chunks_.try_pop(data_block_chunk))
+        {
+            //loginf << "jasterix: decoding data block" << logendl;
+
+            if (data_block_chunk.find ("data_blocks") == data_block_chunk.end())
+                throw runtime_error("jasterix data blocks not found");
+
+            if (!data_block_chunk.at("data_blocks").is_array())
+                throw runtime_error("jasterix data blocks is not an array");
+
+            num_data_records = asterix_parser.decodeDataBlocks(data, data_block_chunk.at("data_blocks"), debug_);
+
+            num_records_ += num_data_records;
+
+            if (data_callback)
+                data_callback(data_block_chunk, 0, num_data_records);
+
+            //loginf << "jasterix: decoding data block done, num_records " << num_records_ << logendl;
+        }
+        else
+        {
+            if (debug_)
+                loginf << "jASTERIX waiting" << logendl;
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        }
+    }
+
+    //loginf << "jASTERIX decode file done" << logendl;
+
+#if USE_BOOST
+    file_.close();
+#endif
 }
 
 void jASTERIX::decodeASTERIX (const char* data, size_t size,
@@ -310,9 +488,33 @@ void jASTERIX::decodeASTERIX (const char* data, size_t size,
 
     nlohmann::json data_chunk;
 
-    asterix_parser.decodeDataBlock(data, 0, size, data_chunk, debug_);
+    // TODO 0, size
+    size_t index = 0;
 
-    callback(data_chunk, 0, 0);
+    //loginf << "UGA find db" << logendl;
+
+    std::tuple<size_t, size_t, bool> ret = asterix_parser.findDataBlocks(data, index, size, data_chunk, debug_);
+
+    bool done = std::get<2>(ret);
+
+    //loginf << "UGA find done " << done << logendl;
+
+    if (!done)
+        throw std::runtime_error("jASTERIX decodeASTERIX function called with too much data");
+
+    //loginf << "UGA decoding '" << data_chunk.dump(4) << "'" << logendl;
+
+    if (data_chunk.find ("data_blocks") == data_chunk.end())
+        throw runtime_error("jasterix data blocks not found");
+
+    if (!data_chunk.at("data_blocks").is_array())
+        throw runtime_error("jasterix data blocks is not an array");
+
+    for (json& data_block : data_chunk.at("data_blocks"))
+         asterix_parser.decodeDataBlock(data, data_block, debug_);
+
+    if (callback)
+        callback(data_chunk, 0, 0);
 }
 
 
@@ -326,11 +528,28 @@ size_t jASTERIX::numRecords() const
     return num_records_;
 }
 
-void jASTERIX::addDataChunk (nlohmann::json& data_chunk)
+void jASTERIX::addDataBlockChunk (nlohmann::json& data_block_chunk, bool done)
 {
     if (debug_)
     {
-        loginf << "jASTERIX adding data chunk" << logendl;
+        loginf << "jASTERIX adding data block chunk, done " << done << logendl;
+
+        if (data_block_chunk.find("data_blocks") == data_block_chunk.end())
+            throw std::runtime_error ("jASTERIX scoped data block information contains no data blocks");
+
+        if (!data_block_chunk.at("data_blocks").is_array())
+            throw std::runtime_error ("jASTERIX scoped scoped data block information is not array");
+    }
+
+    data_block_chunks_.push(std::move(data_block_chunk));
+    data_block_processing_done_ = done;
+}
+
+void jASTERIX::addDataChunk (nlohmann::json& data_chunk, bool done)
+{
+    if (debug_)
+    {
+        loginf << "jASTERIX adding data chunk, done " << done << logendl;
 
         if (data_chunk.find("frames") == data_chunk.end())
             throw std::runtime_error ("jASTERIX scoped frames information contains no frames");
@@ -340,6 +559,22 @@ void jASTERIX::addDataChunk (nlohmann::json& data_chunk)
     }
 
     data_chunks_.push(std::move(data_chunk));
+    data_processing_done_ = done;
+}
+
+const std::string& jASTERIX::dataBlockDefinitionPath() const
+{
+    return data_block_definition_path_;
+}
+
+const std::string& jASTERIX::categoriesDefinitionPath() const
+{
+    return categories_definition_path_;
+}
+
+const std::string& jASTERIX::framingsFolderPath() const
+{
+    return framing_path_;
 }
 
 }

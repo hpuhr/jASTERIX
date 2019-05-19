@@ -1,5 +1,5 @@
 {
-    "name":"record",
+    "name":"cat021_2.1_record",
     "type":"record",
     "field_specification":{
         "name":"FSPEC",
@@ -680,7 +680,9 @@
                     "field_specification":{
                         "name":"available",
                         "type":"extendable_bits",
-                        "data_type":"bitfield"
+                        "data_type":"bitfield",
+                        "reverse_bits":true,
+                        "reverse_order":true
                     },
                     "items":[
                         {
@@ -1248,7 +1250,7 @@
                             "name":"Target Identification",
                             "comment":"",
                             "type":"fixed_bits",
-                            "data_type":"characters",
+                            "data_type":"icao_characters",
                             "start_bit":0,
                             "bit_length":47,
                             "num_characters":8,
@@ -1349,7 +1351,9 @@
                     "field_specification":{
                         "name":"available",
                         "type":"extendable_bits",
-                        "data_type":"bitfield"
+                        "data_type":"bitfield",
+                        "reverse_bits":true,
+                        "reverse_order":true
                     },
                     "items":[
                         {
@@ -1583,7 +1587,9 @@
                     "field_specification":{
                         "name":"available",
                         "type":"extendable_bits",
-                        "data_type":"bitfield"
+                        "data_type":"bitfield",
+                        "reverse_bits":true,
+                        "reverse_order":true
                     },
                     "items":[
                         {

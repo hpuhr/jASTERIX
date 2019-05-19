@@ -1,22 +1,24 @@
 /*
- * This file is part of jASTERIX.
+ * This file is part of ATSDB.
  *
- * jASTERIX is free software: you can redistribute it and/or modify
+ * ATSDB is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * jASTERIX is distributed in the hope that it will be useful,
+ * ATSDB is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
 
  * You should have received a copy of the GNU General Public License
- * along with jASTERIX.  If not, see <http://www.gnu.org/licenses/>.
+ * along with ATSDB.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 
 #include "fixedbitsitemparser.h"
 #include "string_conv.h"
+#include "logger.h"
 
 #include <algorithm>
 
@@ -173,7 +175,7 @@ FixedBitsItemParser::FixedBitsItemParser (const nlohmann::json& item_definition,
         else
             throw runtime_error ("fixed byte bitfield item '"+name_+"' with length"+to_string(byte_length_));
     }
-    else if (data_type_ == "characters")
+    else if (data_type_ == "icao_characters" || data_type_ == "ascii_characters")
     {
         if (item_definition.find("num_characters") == item_definition.end())
             throw runtime_error ("fixed byte bitfield item '"+name_
@@ -191,8 +193,12 @@ FixedBitsItemParser::FixedBitsItemParser (const nlohmann::json& item_definition,
             throw runtime_error ("fixed byte bitfield item '"+name_+"' wrong length "+to_string(byte_length*8)
                                  +" for digits bitsize "+to_string(start_bit_+num_digits_*digit_bit_length_));
 
-        if (character_bit_length_ != 6)
-            throw invalid_argument ("fixed byte bitfield item '"+name_+"' wrong character bit length "
+        if (data_type_ == "icao_characters" && character_bit_length_ != 6)
+            throw invalid_argument ("fixed byte bitfield item '"+name_+"' wrong icao character bit length "
+                                    +to_string(character_bit_length_));
+
+        if (data_type_ == "ascii_characters" && character_bit_length_ != 8)
+            throw invalid_argument ("fixed byte bitfield item '"+name_+"' wrong ascii character bit length "
                                     +to_string(character_bit_length_));
 
         if (byte_length_ == 1)
@@ -328,7 +334,7 @@ size_t FixedBitsItemParser::parseItem (const char* data, size_t index, size_t si
             }
             target.emplace(name_, digits_tmp);
         }
-        else if (data_type_ == "characters")
+        else if (data_type_ == "icao_characters" || data_type_ == "ascii_characters")
         {
             string characters_tmp;
             char char_tmp1;
@@ -337,10 +343,14 @@ size_t FixedBitsItemParser::parseItem (const char* data, size_t index, size_t si
             {
                 char_tmp1 = tmp1 & chars_bitmasks1[cnt];
                 char_tmp1 >>= cnt*character_bit_length_;
-                characters_tmp += getIcaoChar(char_tmp1);
+
+                if (data_type_ == "icao_characters")
+                    characters_tmp += getIcaoChar(char_tmp1);
+                else
+                    characters_tmp += char_tmp1;
 
                 if (debug)
-                    loginf << "parsing fixed bits item '" << name_ << "' type characters cnt " << cnt
+                    loginf << "parsing fixed bits item '" << name_ << "' type " << data_type_ << " cnt " << cnt
                            << " characters tmp '" << characters_tmp << "' value " << (size_t) char_tmp1
                            << " bitmask " << chars_bitmasks1[cnt] << logendl;
 
@@ -419,7 +429,7 @@ size_t FixedBitsItemParser::parseItem (const char* data, size_t index, size_t si
             }
             target.emplace(name_, digits_tmp);
         }
-        else if (data_type_ == "characters")
+        else if (data_type_ == "icao_characters" || data_type_ == "ascii_characters")
         {
             string characters_tmp;
             size_t char_tmp4;
@@ -428,7 +438,11 @@ size_t FixedBitsItemParser::parseItem (const char* data, size_t index, size_t si
             {
                 char_tmp4 = tmp4 & chars_bitmasks4[cnt];
                 char_tmp4 >>= cnt*character_bit_length_;
-                characters_tmp += getIcaoChar(char_tmp4);
+
+                if (data_type_ == "icao_characters")
+                    characters_tmp += getIcaoChar(char_tmp4);
+                else
+                    characters_tmp += static_cast<unsigned char>(char_tmp4);
 
                 if (debug)
                     loginf << "parsing fixed bits item '" << name_ << "' type characters cnt " << cnt
@@ -506,7 +520,7 @@ size_t FixedBitsItemParser::parseItem (const char* data, size_t index, size_t si
             }
             target.emplace(name_, digits_tmp);
         }
-        else if (data_type_ == "characters")
+        else if (data_type_ == "icao_characters" || data_type_ == "ascii_characters")
         {
             string characters_tmp;
             size_t char_tmp8;
@@ -515,7 +529,11 @@ size_t FixedBitsItemParser::parseItem (const char* data, size_t index, size_t si
             {
                 char_tmp8 = tmp8 & chars_bitmasks8[cnt];
                 char_tmp8 >>= cnt*character_bit_length_;
-                characters_tmp += getIcaoChar(char_tmp8);
+
+                if (data_type_ == "icao_characters")
+                    characters_tmp += getIcaoChar(char_tmp8);
+                else
+                    characters_tmp += static_cast<unsigned char>(char_tmp8);
 
                 if (debug)
                     loginf << "parsing fixed bits item '" << name_ << "' type characters cnt " << cnt

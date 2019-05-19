@@ -1,19 +1,20 @@
 /*
- * This file is part of jASTERIX.
+ * This file is part of ATSDB.
  *
- * jASTERIX is free software: you can redistribute it and/or modify
+ * ATSDB is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * jASTERIX is distributed in the hope that it will be useful,
+ * ATSDB is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
 
  * You should have received a copy of the GNU General Public License
- * along with jASTERIX.  If not, see <http://www.gnu.org/licenses/>.
+ * along with ATSDB.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 
 #ifndef FRAMEPARSERTASK_H
 #define FRAMEPARSERTASK_H
@@ -21,6 +22,8 @@
 #include "jasterix.h"
 #include "frameparser.h"
 #include "logger.h"
+
+#include <tuple>
 
 #include <tbb/tbb.h>
 
@@ -40,13 +43,29 @@ public:
 
     /*override*/ tbb::task* execute()
     {
-        while (!frame_parser_.done()) // || size_-index_ > 0
+        //size_t num_parsed_bytes {0};
+        //size_t num_parsed_chunks {0};
+
+        bool done {false};
+
+        while (!done) // || size_-index_ > 0
         {
-            nlohmann::json data_chunk = header_; // copy header
+            nlohmann::json data_chunk;
+
+            if (frame_parser_.hasFileHeaderItems())
+                data_chunk = header_; // copy header
+
+            //loginf << "FPT UGA index " << index_ << " size " << size_ << logendl;
 
             assert (index_ < size_);
 
-            index_ += frame_parser_.parseFrames(data_, index_, size_, data_chunk, debug_);
+            std::tuple<size_t, size_t, bool> ret = frame_parser_.findFrames(data_, index_, size_, data_chunk, debug_);
+
+            index_ += std::get<0>(ret); // parsed bytes
+            done = std::get<2>(ret); // done flag
+
+//            loginf << "FPT UGA index " << index_ << " done " << done << " chunk '" << data_chunk.dump(4) << "'"
+//                   << logendl;
 
             assert (data_chunk != nullptr);
 
@@ -56,7 +75,7 @@ public:
             if (!data_chunk.at("frames").is_array())
                 throw std::runtime_error ("jASTERIX scoped frames information is not array");
 
-            jasterix_.addDataChunk(data_chunk);
+            jasterix_.addDataChunk(data_chunk, done);
         }
 
         return nullptr; // or a pointer to a new task to be executed immediately

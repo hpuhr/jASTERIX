@@ -1,19 +1,20 @@
 /*
- * This file is part of jASTERIX.
+ * This file is part of ATSDB.
  *
- * jASTERIX is free software: you can redistribute it and/or modify
+ * ATSDB is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * jASTERIX is distributed in the hope that it will be useful,
+ * ATSDB is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
 
  * You should have received a copy of the GNU General Public License
- * along with jASTERIX.  If not, see <http://www.gnu.org/licenses/>.
+ * along with ATSDB.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 
 #include "mapping.h"
 #include "files.h"
@@ -45,10 +46,12 @@ Mapping::Mapping(const std::string& name, const nlohmann::json& definition, cons
 
     file_ = definition.at("file");
 
-    if (!fileExists(definition_path+"/categories/"+file_))
-        throw invalid_argument ("mapping "+name_+" file '"+definition_path+"/categories/"+file_+"' not found");
+    mapping_definition_path_ = definition_path+"/categories/"+file_;
 
-    definition_ = json::parse(ifstream(definition_path+"/categories/"+file_));
+    if (!fileExists(mapping_definition_path_))
+        throw invalid_argument ("mapping "+name_+" file '"+mapping_definition_path_+"' not found");
+
+    definition_ = json::parse(ifstream(mapping_definition_path_));
 
 }
 
@@ -72,6 +75,11 @@ void Mapping::map (nlohmann::json& src, nlohmann::json& dest)
     assert (src.is_object());
     //loginf << "mapping: map";
     mapObject(definition_, src, dest);
+}
+
+std::string Mapping::definitionPath() const
+{
+    return mapping_definition_path_;
 }
 
 void Mapping::mapObject (nlohmann::json& object_definition, const nlohmann::json& src, nlohmann::json& dest)
