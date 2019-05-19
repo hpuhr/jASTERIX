@@ -310,13 +310,13 @@ INFO    : jASTERIX: shutdown
 
 Decoded JSON can also be written to a text or ZIP file using the appropriate arguments.
 
+## Questions & Request
+
+For additional information or request for additional categories / editions please contact the author.
+
 ## Author
 Helmut Puhr
 Contact: atsdb@gmx.at
-
-## Questions & Request
-
-For additional information or request for additional categories / editions please contact the author, who is open tu fulfil reasonable demands.
 
 ## Licenses
 The source code is released under [GNU GPLv3](https://www.gnu.org/licenses/gpl-3.0.en.html)
