@@ -2,9 +2,21 @@
 
 jASTERIX is a C++ Library for EUROCONTROL's [ASTERIX](https://www.eurocontrol.int/services/asterix) to [JSON](https://www.json.org/) conversion. It is part of the [ATSDB project](https://github.com/hpuhr/ATSDB/), but released as a separate library to allow easy usage in other projects.
 
+The library allows decoding of binary ASTERIX data into JSON. The ASTERIX definitions are configuration only, so additional or customized categories or editions can be added without having to recompile. Also, using the Intel TBB library allows for reasonable performance using multi-threading.
+
 ## Features
 
-The library allows decoding of binary ASTERIX data into JSON. The ASTERIX definitions are configuration only, so additional or customized categories or editions can be added without having to recompile. Also, using the Intel TBB library allows for reasonable performance using multi-threading.
+Many ASTERIX decoder libraries exist today, but none of them was suitable/available for the ATSDB project. For this reason, the author decided to implement one, with a strong focus on flexibility first and performance second.
+
+- High flexibility using configuration only
+  - New framings
+  - New categories 
+  - New editions
+- Reasonable performance using multi-threading
+- Client binary
+  - Reading of input file
+  - Printing decoded JSON
+  - Writing decoded JSON to text or ZIP file 
 
 Currently support framings:
 - None: Raw, netto, unframed ASTERIX data blocks
@@ -34,11 +46,6 @@ Currently supported ASTERIX categories & editions:
   - Edition 1.0
 - 065
   - Edition 1.1
-
-
-## Features
-
-Many ASTERIX decoder libraries exist today, but none of them was suitable/available for the ATSDB project. For this reason, the author decided to implement one, with a strong focus on flexibility first and performance second.
 
 ## Contents
 - Folder "cmake_modules": Contains cmake find scripts
