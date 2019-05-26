@@ -27,9 +27,7 @@ public:
 
         size_t parsed_bytes {0};
         size_t num_data_blocks {0};
-        bool done {false};
-
-        while (!done) // || size_-index_ > 0
+        while (!force_stop_ && !done_) // || size_-index_ > 0
         {
             nlohmann::json jdata;
 
@@ -39,18 +37,25 @@ public:
 
             parsed_bytes += std::get<0>(ret);
             num_data_blocks += std::get<1>(ret);
-            done = std::get<2>(ret);
+            done_ = std::get<2>(ret);
 
 //            loginf << "DataBlockFinderTask: ex pb " << parsed_bytes << " num db " << num_data_blocks << " done "
 //                   << done << logendl;
 
-            jasterix_.addDataBlockChunk(jdata, done);
+            jasterix_.addDataBlockChunk(jdata, done_);
         }
+
+        if (force_stop_)
+            done_ = true;
 
         //loginf << "data block finder task done " << done << logendl;
 
         return nullptr; // or a pointer to a new task to be executed immediately
     }
+
+    void forceStop();
+
+    bool done() const;
 
 private:
     jASTERIX& jasterix_;
@@ -59,7 +64,19 @@ private:
     size_t index_;
     size_t size_;
     bool debug_;
+    bool done_ {false};
+    volatile bool force_stop_ {false};
 };
+
+void DataBlockFinderTask::forceStop()
+{
+    force_stop_ = true;
+}
+
+bool DataBlockFinderTask::done() const
+{
+return done_;
+}
 
 }
 

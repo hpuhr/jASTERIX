@@ -83,6 +83,8 @@ public:
     const std::string& categoriesDefinitionPath() const;
     const std::string& framingsFolderPath() const;
 
+    void setDebug(bool debug);
+
 private:
     std::string definition_path_;
     bool print_ {false};
