@@ -134,8 +134,8 @@ jASTERIX::jASTERIX(const std::string& definition_path, bool print, bool debug)
             try
             {
                 category_definitions_.emplace(std::piecewise_construct,
-                                  std::forward_as_tuple(cat_str),
-                                  std::forward_as_tuple(cat_str, cat_def_it.value(), definition_path_));
+                                              std::forward_as_tuple(cat_str),
+                                              std::forward_as_tuple(cat_str, cat_def_it.value(), definition_path_));
 
                 assert (category_definitions_.count(cat_str) == 1);
             }
@@ -352,22 +352,36 @@ void jASTERIX::decodeFile (const std::string& filename, const std::string& frami
             num_callback_frames = data_chunk.at("frames").size();
             num_frames_ += num_callback_frames;
 
-            num_callback_records = frame_parser.decodeFrames(data, data_chunk, debug_);
-            num_records_ += num_callback_records;
-
-            if (debug_)
-                loginf << "jASTERIX processing " << num_frames_ << " frames, " << num_records_ << " records" << logendl;
-
-            if (print_)
-                loginf << data_chunk.dump(print_dump_indent) << logendl;
-
-            if (data_callback)
-                data_callback(data_chunk, num_callback_frames, num_callback_records);
-
-            if (frame_limit > 0 && num_frames_ >= static_cast<unsigned>(frame_limit))
+            try
             {
-                loginf << "jASTERIX processing hit framelimit" << logendl;
-                break;
+                num_callback_records = frame_parser.decodeFrames(data, data_chunk, debug_);
+                num_records_ += num_callback_records;
+
+                if (debug_)
+                    loginf << "jASTERIX processing " << num_frames_ << " frames, " << num_records_ << " records" << logendl;
+
+                if (print_)
+                    loginf << data_chunk.dump(print_dump_indent) << logendl;
+
+                if (data_callback)
+                    data_callback(data_chunk, num_callback_frames, num_callback_records);
+
+                if (frame_limit > 0 && num_frames_ >= static_cast<unsigned>(frame_limit))
+                {
+                    loginf << "jASTERIX processing hit framelimit" << logendl;
+                    break;
+                }
+            }
+            catch (std::exception& e)
+            {
+                loginf << "jASTERIX caught exception, breaking" << logendl;
+                //task->cancel_group_execution();
+                task->forceStop();
+
+                while (!task->done())
+                    std::this_thread::sleep_for(std::chrono::milliseconds(2));
+
+                throw; // rethrow
             }
         }
         else
@@ -377,6 +391,8 @@ void jASTERIX::decodeFile (const std::string& filename, const std::string& frami
             std::this_thread::sleep_for(std::chrono::milliseconds(1));
         }
     }
+
+    loginf << "jASTERIX decode file done" << logendl;
 
 #if USE_BOOST
     file_.close();
@@ -448,19 +464,32 @@ void jASTERIX::decodeFile (const std::string& filename,
         if (data_block_chunks_.try_pop(data_block_chunk))
         {
             //loginf << "jasterix: decoding data block" << logendl;
+            try
+            {
+                if (data_block_chunk.find ("data_blocks") == data_block_chunk.end())
+                    throw runtime_error("jasterix data blocks not found");
 
-            if (data_block_chunk.find ("data_blocks") == data_block_chunk.end())
-                throw runtime_error("jasterix data blocks not found");
+                if (!data_block_chunk.at("data_blocks").is_array())
+                    throw runtime_error("jasterix data blocks is not an array");
 
-            if (!data_block_chunk.at("data_blocks").is_array())
-                throw runtime_error("jasterix data blocks is not an array");
+                num_data_records = asterix_parser.decodeDataBlocks(data, data_block_chunk.at("data_blocks"), debug_);
+                num_records_ += num_data_records;
 
-            num_data_records = asterix_parser.decodeDataBlocks(data, data_block_chunk.at("data_blocks"), debug_);
+                if (data_callback)
+                    data_callback(data_block_chunk, 0, num_data_records);
 
-            num_records_ += num_data_records;
+            }
+            catch (std::exception& e)
+            {
+                loginf << "jASTERIX caught exception, breaking" << logendl;
+                task->forceStop();
+//                task->cancel_group_execution();
 
-            if (data_callback)
-                data_callback(data_block_chunk, 0, num_data_records);
+                while (!task->done())
+                    std::this_thread::sleep_for(std::chrono::milliseconds(1));
+
+                throw;
+            }
 
             //loginf << "jasterix: decoding data block done, num_records " << num_records_ << logendl;
         }
@@ -472,7 +501,7 @@ void jASTERIX::decodeFile (const std::string& filename,
         }
     }
 
-    //loginf << "jASTERIX decode file done" << logendl;
+    loginf << "jASTERIX decode file done" << logendl;
 
 #if USE_BOOST
     file_.close();
@@ -480,7 +509,7 @@ void jASTERIX::decodeFile (const std::string& filename,
 }
 
 void jASTERIX::decodeASTERIX (const char* data, size_t size,
-             std::function<void(nlohmann::json&, size_t, size_t)> callback)
+                              std::function<void(nlohmann::json&, size_t, size_t)> callback)
 {
     // create ASTERIX parser
     ASTERIXParser asterix_parser (data_block_definition_, current_category_editions_,
@@ -511,7 +540,7 @@ void jASTERIX::decodeASTERIX (const char* data, size_t size,
         throw runtime_error("jasterix data blocks is not an array");
 
     for (json& data_block : data_chunk.at("data_blocks"))
-         asterix_parser.decodeDataBlock(data, data_block, debug_);
+        asterix_parser.decodeDataBlock(data, data_block, debug_);
 
     if (callback)
         callback(data_chunk, 0, 0);
@@ -575,6 +604,11 @@ const std::string& jASTERIX::categoriesDefinitionPath() const
 const std::string& jASTERIX::framingsFolderPath() const
 {
     return framing_path_;
+}
+
+void jASTERIX::setDebug(bool debug)
+{
+    debug_ = debug;
 }
 
 }
