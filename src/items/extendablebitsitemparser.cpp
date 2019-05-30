@@ -47,7 +47,8 @@ size_t ExtendableBitsItemParser::parseItem (const char* data, size_t index, size
                                             nlohmann::json& target, bool debug)
 {
     if (debug)
-        loginf << "parsing extendable bits item '" << name_ << "'" << logendl;
+        loginf << "parsing extendable bits item '" << name_ << "' index " << index << " size " << size
+               << " current parsed bytes " << current_parsed_bytes << logendl;
 
     const char* current_data = &data[index];
 

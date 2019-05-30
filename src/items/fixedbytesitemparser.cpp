@@ -62,10 +62,8 @@ size_t FixedBytesItemParser::parseItem (const char* data, size_t index, size_t s
                               nlohmann::json& target, bool debug)
 {
     if (debug)
-    {
-        assert (type_ == "fixed_bytes");
-        loginf << "parsing fixed bytes item '" << name_ << "'" << logendl;
-    }
+        loginf << "parsing fixed bytes item '" << name_ << "' index "
+               << index << " size " << size << " current parsed bytes " << current_parsed_bytes << logendl;
 
     unsigned char tmp{0};
     size_t data_uint{0};

@@ -133,7 +133,8 @@ size_t Record::parseItem (const char* data, size_t index, size_t size, size_t cu
                               nlohmann::json& target, bool debug)
 {
     if (debug)
-        loginf << "parsing record item '" << name_ << "' with " << items_.size() << " items" << logendl;
+        loginf << "parsing record item '" << name_ << "' with index " << index << " size " << size
+               << " current parsed bytes " << current_parsed_bytes << logendl;
 
     size_t parsed_bytes {0};
 
@@ -148,7 +149,7 @@ size_t Record::parseItem (const char* data, size_t index, size_t size, size_t cu
     std::vector<bool> fspec_bits = target.at("FSPEC");
 
     if (!has_conditional_uap_ && fspec_bits.size() > uap_names_.size())
-        throw runtime_error ("record item '"+name_+"' has more fspec bits than defined uap items");
+        throw runtime_error ("record item '"+name_+"' has more FSPEC bits than defined uap items");
 
     if (debug)
         loginf << "parsing record item '"+name_+"' data items" << logendl;

@@ -64,7 +64,8 @@ size_t OptionalItemParser::parseItem (const char* data, size_t index, size_t siz
                               nlohmann::json& target, bool debug)
 {
     if (debug)
-        loginf << "parsing optional item '" << name_ << "'" << logendl;
+        loginf << "parsing optional item '" << name_ << "' index "
+               << index << " size " << size << " current parsed bytes " << current_parsed_bytes << logendl;
 
     if (debug && target.find(bitfield_name_) == target.end())
         throw runtime_error ("parsing optional item '"+name_+"' without defined bitfield '"+bitfield_name_+"'");

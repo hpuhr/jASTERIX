@@ -125,7 +125,7 @@ int main (int argc, char **argv)
     {
         loginf << "jASTERIX test: startup with definition_path '" << definition_path << "'" << logendl;
 
-        jASTERIX::jASTERIX asterix (definition_path, true, true);
+        jASTERIX::jASTERIX asterix (definition_path, true, true, false);
 
         test_cat001(asterix);
         test_cat002(asterix);

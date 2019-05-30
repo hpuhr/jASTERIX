@@ -50,8 +50,9 @@ const std::string DATABLOCK_FILENAME = "/data_block_definition.json";
 const std::string CATEGORY_SUBDIR = "/categories";
 const std::string CATEGORIES_FILENAME = "/categories.json";
 
-jASTERIX::jASTERIX(const std::string& definition_path, bool print, bool debug)
-    : definition_path_(definition_path), print_(print), debug_(debug)
+jASTERIX::jASTERIX(const std::string& definition_path, bool print, bool debug, bool debug_exclude_framing)
+    : definition_path_(definition_path), print_(print), debug_(debug), debug_exclude_framing_(debug_exclude_framing)
+    //init_(debug ? 1 : tbb::task_scheduler_init::automatic),
 {
     // check framing definitions
     if (!directoryExists(definition_path_))
@@ -151,7 +152,6 @@ jASTERIX::jASTERIX(const std::string& definition_path, bool print, bool debug)
     {
         throw runtime_error (string{"jASTERIX parsing error in asterix category definitions: "}+e.what());
     }
-
 }
 
 jASTERIX::~jASTERIX()
@@ -319,7 +319,8 @@ void jASTERIX::decodeFile (const std::string& filename, const std::string& frami
                                   current_category_mappings_, debug_);
 
     // create frame parser
-    FrameParser frame_parser (framing_definition, asterix_parser, debug_);
+    bool debug_framing = debug_ && !debug_exclude_framing_;
+    FrameParser frame_parser (framing_definition, asterix_parser, debug_framing);
 
     nlohmann::json json_header;
 
@@ -328,14 +329,18 @@ void jASTERIX::decodeFile (const std::string& filename, const std::string& frami
     // parsing header
 
     if (frame_parser.hasFileHeaderItems())
-        index = frame_parser.parseHeader(data, 0, file_size, json_header, debug_);
+        index = frame_parser.parseHeader(data, 0, file_size, json_header, debug_framing);
 
     if (debug_)
         loginf << "jasterix: creating frame parser task" << logendl;
 
     FrameParserTask* task = new (tbb::task::allocate_root()) FrameParserTask (
-                *this, frame_parser, json_header, data, index, file_size, debug_);
+                *this, frame_parser, json_header, data, index, file_size, debug_framing);
     tbb::task::enqueue(*task);
+
+    if (debug_)
+        while (!task->done())
+            std::this_thread::sleep_for(std::chrono::milliseconds(5));
 
     nlohmann::json data_chunk;
 
@@ -349,6 +354,9 @@ void jASTERIX::decodeFile (const std::string& filename, const std::string& frami
 
         if (data_chunks_.try_pop(data_chunk))
         {
+            if (debug_)
+                loginf << "jASTERIX: decoding frames" << logendl;
+
             num_callback_frames = data_chunk.at("frames").size();
             num_frames_ += num_callback_frames;
 
@@ -441,13 +449,17 @@ void jASTERIX::decodeFile (const std::string& filename,
                                   current_category_mappings_, debug_);
 
     if (debug_)
-        loginf << "jasterix: finding data blocks" << logendl;
+        loginf << "jASTERIX: finding data blocks" << logendl;
 
     size_t index {0};
 
     DataBlockFinderTask* task = new (tbb::task::allocate_root()) DataBlockFinderTask (
                 *this, asterix_parser, data, index, file_size, debug_);
     tbb::task::enqueue(*task);
+
+    if (debug_)
+        while (!task->done())
+            std::this_thread::sleep_for(std::chrono::milliseconds(5));
 
     nlohmann::json data_block_chunk;
 
@@ -463,7 +475,9 @@ void jASTERIX::decodeFile (const std::string& filename,
 
         if (data_block_chunks_.try_pop(data_block_chunk))
         {
-            //loginf << "jasterix: decoding data block" << logendl;
+            if (debug_)
+                loginf << "jasterix: decoding data block" << logendl;
+
             try
             {
                 if (data_block_chunk.find ("data_blocks") == data_block_chunk.end())

@@ -26,6 +26,7 @@
 #include <boost/iostreams/device/mapped_file.hpp>
 #endif
 
+//#include "tbb/task_scheduler_init.h"
 #include "tbb/concurrent_queue.h"
 
 #include "json.hpp"
@@ -47,7 +48,7 @@ extern int data_write_size;
 class jASTERIX
 {
 public:
-    jASTERIX( const std::string& definition_path, bool print, bool debug);
+    jASTERIX( const std::string& definition_path, bool print, bool debug, bool debug_exclude_framing);
     virtual ~jASTERIX();
 
     bool hasCategory(const std::string& cat_str);
@@ -86,9 +87,12 @@ public:
     void setDebug(bool debug);
 
 private:
+    //tbb::task_scheduler_init init_;
+
     std::string definition_path_;
     bool print_ {false};
     bool debug_ {false};
+    bool debug_exclude_framing_ {false};
 
     std::string framing_path_;
     std::vector<std::string> framings_;
