@@ -130,17 +130,17 @@ int main (int argc, char **argv)
 
         jASTERIX::jASTERIX asterix (definition_path, true, true, false);
 
-//        test_cat001(asterix);
-//        test_cat002(asterix);
-//        test_cat019(asterix);
-//        test_cat020(asterix);
-//        test_cat021(asterix);
-//        test_cat034(asterix);
-//        test_cat048(asterix);
+        test_cat001(asterix);
+        test_cat002(asterix);
+        test_cat019(asterix);
+        test_cat020(asterix);
+        test_cat021(asterix);
+        test_cat034(asterix);
+        test_cat048(asterix);
         test_cat062_112(asterix);
         test_cat062_116(asterix);
-//        test_cat063(asterix);
-//        test_cat065(asterix);
+        test_cat063(asterix);
+        test_cat065(asterix);
 
     }
     catch (exception &ex)

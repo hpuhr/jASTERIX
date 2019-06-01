@@ -552,7 +552,6 @@ void test_cat062_callback (nlohmann::json& json_data, size_t num_frames, size_t 
     assert (json_data.at("data_blocks")[0].at("content").at("records")[0].at("380").at("available").size() == 4*8);
 
     std::vector<bool> tmp_boolvec ({1,1,1,0,0,0,1,1,0,0,0,0,0,1,0,1,0,0,0,0,0,0,0,1,0,0,0,0,1,1,0,0});
-    std::reverse(tmp_boolvec.begin(), tmp_boolvec.end());
 
     assert (json_data.at("data_blocks")[0].at("content").at("records")[0].at("380").at("available")
             == tmp_boolvec);
@@ -667,7 +666,6 @@ void test_cat062_callback (nlohmann::json& json_data, size_t num_frames, size_t 
     assert (json_data.at("data_blocks")[0].at("content").at("records")[0].at("295").at("available").size() == 5*8);
 
     tmp_boolvec = {1,0,0,1,0,0,1,1,0,0,0,1,0,0,0,1,0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,1,1,1,0,0,0,0,0,0};
-    std::reverse(tmp_boolvec.begin(), tmp_boolvec.end());
 
     assert (json_data.at("data_blocks")[0].at("content").at("records")[0].at("295").at("available")
             == tmp_boolvec);
@@ -705,8 +703,6 @@ void test_cat062_callback (nlohmann::json& json_data, size_t num_frames, size_t 
     assert (json_data.at("data_blocks")[0].at("content").at("records")[0].at("390").at("available").size() == 3*8);
 
     tmp_boolvec = {1,1,1,1,1,1,1,1,1,0,1,0,0,0,0,1,0,0,0,0,0,0,0,0};
-    std::reverse(tmp_boolvec.begin(), tmp_boolvec.end());
-
     assert (json_data.at("data_blocks")[0].at("content").at("records")[0].at("390").at("available")
             == tmp_boolvec);
 
@@ -745,8 +741,6 @@ void test_cat062_callback (nlohmann::json& json_data, size_t num_frames, size_t 
     assert (json_data.at("data_blocks")[0].at("content").at("records")[0].at("500").at("available").size() == 2*8);
 
     tmp_boolvec = {1,0,1,1,1,1,1,1,1,0,0,0,0,0,0,0};
-    std::reverse(tmp_boolvec.begin(), tmp_boolvec.end());
-
     assert (json_data.at("data_blocks")[0].at("content").at("records")[0].at("500").at("available")
             == tmp_boolvec);
 
@@ -779,8 +773,6 @@ void test_cat062_callback (nlohmann::json& json_data, size_t num_frames, size_t 
     assert (json_data.at("data_blocks")[0].at("content").at("records")[0].at("340").at("available").size() == 8);
 
     tmp_boolvec = {1,1,0,1,1,1,0,0};
-    std::reverse(tmp_boolvec.begin(), tmp_boolvec.end());
-
     assert (json_data.at("data_blocks")[0].at("content").at("records")[0].at("340").at("available")
             == tmp_boolvec);
 
