@@ -20,6 +20,7 @@
 #include "itemparserbase.h"
 #include "record.h"
 #include "jasterix.h"
+#include "string_conv.h"
 
 #include <iostream>
 #include <iomanip>
@@ -240,7 +241,8 @@ size_t ASTERIXParser::decodeDataBlock (const char* data, nlohmann::json& data_bl
     size_t record_length = data_block_content.at("length");
 
     if (debug)
-        loginf << "ASTERIXParser: decodeDataBlock: index " << record_index << " length " << record_length << logendl;
+        loginf << "ASTERIXParser: decodeDataBlock: index " << record_index << " length " << record_length
+               << " data '" << binary2hex((const unsigned char*)&data[record_index], record_length) << "'" << logendl;
 
     // try to decode
     if (records_.count(cat) != 0)

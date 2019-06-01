@@ -24,7 +24,7 @@
 
 void test_cat062_callback (nlohmann::json& json_data, size_t num_frames, size_t num_records)
 {
-    loginf << "cat062 test: decoded " << num_frames << " frames, " << num_records << " records: " << json_data.dump(4)
+    loginf << "cat062 1.12 test: decoded " << num_frames << " frames, " << num_records << " records: " << json_data.dump(4)
                << logendl;
 
 //    {
@@ -458,7 +458,7 @@ void test_cat062_callback (nlohmann::json& json_data, size_t num_frames, size_t 
 //        ]
 //    }
 
-    loginf << "cat062 test: data block" << logendl;
+    loginf << "cat062 1.12 test: data block" << logendl;
 
     assert (json_data.find ("data_blocks") != json_data.end());
     assert (json_data.at("data_blocks").is_array());
@@ -466,13 +466,13 @@ void test_cat062_callback (nlohmann::json& json_data, size_t num_frames, size_t 
     assert (json_data.at("data_blocks")[0]["category"] == 62);
     assert (json_data.at("data_blocks")[0]["length"] == 151);
 
-    loginf << "cat062 test: num records" << logendl;
+    loginf << "cat062 1.12 test: num records" << logendl;
     assert (json_data.at("data_blocks")[0].at("content").at("records").size() == 1);
 
     //    ; FSPEC: 0x bf df ef 06
     // 10111111110111111110111100000110
 
-    loginf << "cat062 test: fspec" << logendl;
+    loginf << "cat062 1.12 test: fspec" << logendl;
     assert (json_data.at("data_blocks")[0].at("content").at("records")[0].at("FSPEC").size() == 4*8);
 
     assert (json_data.at("data_blocks")[0].at("content").at("records")[0].at("FSPEC")
@@ -481,20 +481,20 @@ void test_cat062_callback (nlohmann::json& json_data, size_t num_frames, size_t 
     //    ;  I062/010: =0x 00 04
     //    ;  Data Source Identifier: 0x0004 (SAC=0; SIC=4)
 
-    loginf << "cat062 test: 010" << logendl;
+    loginf << "cat062 1.12 test: 010" << logendl;
     assert (json_data.at("data_blocks")[0].at("content").at("records")[0].at("010").at("SAC") == 0);
     assert (json_data.at("data_blocks")[0].at("content").at("records")[0].at("010").at("SIC") == 4);
 
     //    ;  I062/015: =0x e1
     //    ;  Service Identification: 225
 
-    loginf << "cat062 test: 015" << logendl;
+    loginf << "cat062 1.12 test: 015" << logendl;
     assert (json_data.at("data_blocks")[0].at("content").at("records")[0].at("015").at("Service Identification") == 225);
 
     //    ;  I062/070: =0x 41 6f 40
     //    ;  Time of Track Information: 0x416f40 (4288320; 09:18:22.500 UTC)
 
-    loginf << "cat062 test: 070" << logendl;
+    loginf << "cat062 1.12 test: 070" << logendl;
     double tmp_d = json_data.at("data_blocks")[0].at("content").at("records")[0].at("070").at("Time Of Track Information");
     assert (fabs(tmp_d-33502.5) < 10e-6);
 
@@ -502,7 +502,7 @@ void test_cat062_callback (nlohmann::json& json_data, size_t num_frames, size_t 
     //    ;  Calculated Position in WGS-84 Co-ordinates:
     //    ;   lat=8475332 (45:27:54.806N); lon=3231012 (017:19:56.996E)
 
-    loginf << "cat062 test: 105" << logendl;
+    loginf << "cat062 1.12 test: 105" << logendl;
     tmp_d = json_data.at("data_blocks")[0].at("content").at("records")[0].at("105").at("Latitude");
     assert (fabs(tmp_d-45.4652237892) < 10e-4);
     tmp_d = json_data.at("data_blocks")[0].at("content").at("records")[0].at("105").at("Longitude");
@@ -511,7 +511,7 @@ void test_cat062_callback (nlohmann::json& json_data, size_t num_frames, size_t 
     //    ;  I062/100: =0x 07 f4 6a f9  43 b1
     //    ;  Calculated Track Position (Cartesian): x=521322 (140.746 nmi); y=-441423 (-119.175 nmi)
 
-    loginf << "cat062 test: 100" << logendl;
+    loginf << "cat062 1.12 test: 100" << logendl;
     tmp_d = json_data.at("data_blocks")[0].at("content").at("records")[0].at("100").at("X");
     assert (fabs(tmp_d-260661) < 10e-4);
     tmp_d = json_data.at("data_blocks")[0].at("content").at("records")[0].at("100").at("Y");
@@ -520,7 +520,7 @@ void test_cat062_callback (nlohmann::json& json_data, size_t num_frames, size_t 
     //    ;  I062/185: =0x 03 3e fe 1e
     //    ;  Calculated Track Velocity (Cartesian): vx=830 (403.348 kts); vy=-482 (-234.233 kts)
 
-    loginf << "cat062 test: 185" << logendl;
+    loginf << "cat062 1.12 test: 185" << logendl;
     tmp_d = json_data.at("data_blocks")[0].at("content").at("records")[0].at("185").at("Vx");
     assert (fabs(tmp_d-207.5) < 10e-4);
     tmp_d = json_data.at("data_blocks")[0].at("content").at("records")[0].at("185").at("Vy");
@@ -529,7 +529,7 @@ void test_cat062_callback (nlohmann::json& json_data, size_t num_frames, size_t 
     //    ;  I062/210: =0x 00 00
     //    ;  Calculated Acceleration (Cartesian): ax=0.00 m/s**2; ay=0.00 m/s**2
 
-    loginf << "cat062 test: 210" << logendl;
+    loginf << "cat062 1.12 test: 210" << logendl;
     tmp_d = json_data.at("data_blocks")[0].at("content").at("records")[0].at("210").at("Ax");
     assert (fabs(tmp_d) < 10e-4);
     tmp_d = json_data.at("data_blocks")[0].at("content").at("records")[0].at("210").at("Ay");
@@ -538,7 +538,7 @@ void test_cat062_callback (nlohmann::json& json_data, size_t num_frames, size_t 
     //    ;  I062/060: =0x 0f 91
     //    ;  Track Mode 3/A Code: i=0; g=0; c=0; code=07621
 
-    loginf << "cat062 test: 060" << logendl;
+    loginf << "cat062 1.12 test: 060" << logendl;
     assert (json_data.at("data_blocks")[0].at("content").at("records")[0].at("060").at("Mode-3/A reply") == 7621);
     assert (json_data.at("data_blocks")[0].at("content").at("records")[0].at("060").at("CH") == 0);
 
@@ -546,7 +546,7 @@ void test_cat062_callback (nlohmann::json& json_data, size_t num_frames, size_t 
     //    ;          + 0x 78 ff fb 01  0a 00 62
     //    ;  Aircraft Derived Data:
 
-    loginf << "cat062 test: 380" << logendl;
+    loginf << "cat062 1.12 test: 380" << logendl;
     // available: e3 05 01 0c
 
     assert (json_data.at("data_blocks")[0].at("content").at("records")[0].at("380").at("available").size() == 4*8);
@@ -579,7 +579,7 @@ void test_cat062_callback (nlohmann::json& json_data, size_t num_frames, size_t 
 
     //    ;  I062/040: =0x 13 de
     //    ;  Track Number: 5086
-    loginf << "cat062 test: 040" << logendl;
+    loginf << "cat062 1.12 test: 040" << logendl;
     assert (json_data.at("data_blocks")[0].at("content").at("records")[0].at("040").at("Track Number") == 5086);
 
     //    ;  I062/080: =0x 0d 13 01 48
@@ -587,7 +587,8 @@ void test_cat062_callback (nlohmann::json& json_data, size_t num_frames, size_t 
     //    ;   MUL MRH=0 SRC=3 (triangulation) CNF
     //    ;   FPC KOS=1
     //    ;   SSR MDS
-    loginf << "cat062 test: 080" << logendl;
+    loginf << "cat062 1.12 test: 080" << logendl;
+    // 00001101
     assert (json_data.at("data_blocks")[0].at("content").at("records")[0].at("080").at("MON") == 0);
     assert (json_data.at("data_blocks")[0].at("content").at("records")[0].at("080").at("SPI") == 0);
     assert (json_data.at("data_blocks")[0].at("content").at("records")[0].at("080").at("MRH") == 0);
@@ -595,6 +596,7 @@ void test_cat062_callback (nlohmann::json& json_data, size_t num_frames, size_t 
     assert (json_data.at("data_blocks")[0].at("content").at("records")[0].at("080").at("CNF") == 0);
     assert (json_data.at("data_blocks")[0].at("content").at("records")[0].at("080").at("FX") == 1);
 
+    // 00010011
     assert (json_data.at("data_blocks")[0].at("content").at("records")[0].at("080").at("SIM") == 0);
     assert (json_data.at("data_blocks")[0].at("content").at("records")[0].at("080").at("TSE") == 0);
     assert (json_data.at("data_blocks")[0].at("content").at("records")[0].at("080").at("TSB") == 0);
@@ -604,6 +606,7 @@ void test_cat062_callback (nlohmann::json& json_data, size_t num_frames, size_t 
     assert (json_data.at("data_blocks")[0].at("content").at("records")[0].at("080").at("KOS") == 1);
     assert (json_data.at("data_blocks")[0].at("content").at("records")[0].at("080").at("FX2") == 1);
 
+    // 00000001
     assert (json_data.at("data_blocks")[0].at("content").at("records")[0].at("080").at("AMA") == 0);
     assert (json_data.at("data_blocks")[0].at("content").at("records")[0].at("080").at("MD4") == 0);
     assert (json_data.at("data_blocks")[0].at("content").at("records")[0].at("080").at("ME") == 0);
@@ -628,7 +631,12 @@ void test_cat062_callback (nlohmann::json& json_data, size_t num_frames, size_t 
     //    ;   ES age: 255 (63.75 sec)
     //    ;   MLT age: 255 (63.75 sec)
 
-    loginf << "cat062 test: 290" << logendl;
+    loginf << "cat062 1.12 test: 290" << logendl;
+
+    // 0111 0101 0010 0000
+    tmp_boolvec  = {0,1,1,1,0,1,0,1,0,0,1,0,0,0,0,0};
+    assert (json_data.at("data_blocks")[0].at("content").at("records")[0].at("290").at("available") == tmp_boolvec);
+
     assert (json_data.at("data_blocks")[0].at("content").at("records")[0].at("290").at("PSR").at("Age") == 63.75);
     assert (json_data.at("data_blocks")[0].at("content").at("records")[0].at("290").at("SSR").at("Age") == 2.00);
     assert (json_data.at("data_blocks")[0].at("content").at("records")[0].at("290").at("MDS").at("Age") == 2.00);
@@ -637,7 +645,7 @@ void test_cat062_callback (nlohmann::json& json_data, size_t num_frames, size_t 
 
     //    ;  I062/200: =0x 00
     //    ;  Mode of Movement: trans=0 (constant course); long=0 (constant groundspeed); vert=0 (level)
-    loginf << "cat062 test: 200" << logendl;
+    loginf << "cat062 1.12 test: 200" << logendl;
     assert (json_data.at("data_blocks")[0].at("content").at("records")[0].at("200").at("TRANS") == 0);
     assert (json_data.at("data_blocks")[0].at("content").at("records")[0].at("200").at("LONG") == 0);
     assert (json_data.at("data_blocks")[0].at("content").at("records")[0].at("200").at("VERT") == 0);
@@ -653,7 +661,7 @@ void test_cat062_callback (nlohmann::json& json_data, size_t num_frames, size_t 
     //    ;   Indicated airspeed data age: 8 (2.00 sec)
     //    ;   Mach number data age: 8 (2.00 sec)
 
-    loginf << "cat062 test: 295" << logendl;
+    loginf << "cat062 1.12 test: 295" << logendl;
 
     // available 93 11 41 01  c0
     assert (json_data.at("data_blocks")[0].at("content").at("records")[0].at("295").at("available").size() == 5*8);
@@ -674,23 +682,23 @@ void test_cat062_callback (nlohmann::json& json_data, size_t num_frames, size_t 
 
     //    ;  I062/136: =0x 05 77
     //    ;  Measured Flight Level: 1399 (349.75 FL)
-    loginf << "cat062 test: 136" << logendl;
+    loginf << "cat062 1.12 test: 136" << logendl;
     assert (json_data.at("data_blocks")[0].at("content").at("records")[0].at("136").at("Measured Flight Level") == 349.75);
 
     //    ;  I062/135: =0x 05 77
     //    ;  Calculated Track Barometric Altitude: qnh=0; alt=1399 (349.75 FL)
-    loginf << "cat062 test: 135" << logendl;
+    loginf << "cat062 1.12 test: 135" << logendl;
     assert (json_data.at("data_blocks")[0].at("content").at("records")[0].at("135").at("Calculated Track Barometric Altitude") == 34975.0);
     assert (json_data.at("data_blocks")[0].at("content").at("records")[0].at("135").at("QNH") == 0);
 
     //    ;  I062/220: =0x 00 00
     //    ;  Calculated Rate of Climb/Descent: 0 (0.00 ft/min)
-    loginf << "cat062 test: 220" << logendl;
+    loginf << "cat062 1.12 test: 220" << logendl;
     assert (json_data.at("data_blocks")[0].at("content").at("records")[0].at("220").at("Rate of Climb/Descent") == 0.0);
 
     //    ;  I062/390: 0x ff a1 00 00  00 44 4c 48  39 43 4b 20  43 c5 39 85
     //    ;          + 0x 44 41 33 32  30 4d 45 44  44 46 4c 42  53 46 05 78
-    loginf << "cat062 test: 390" << logendl;
+    loginf << "cat062 1.12 test: 390" << logendl;
 
     //available ff a1 00
 
@@ -730,7 +738,7 @@ void test_cat062_callback (nlohmann::json& json_data, size_t num_frames, size_t 
     //    ;  I062/500: 0x bf 80 00 50  00 7e 00 69  00 5f ff 01  0b 13 02 03
     //    ;          + 0x 10
 
-    loginf << "cat062 test: 500" << logendl;
+    loginf << "cat062 1.12 test: 500" << logendl;
 
     //available bf 80
 
@@ -764,7 +772,7 @@ void test_cat062_callback (nlohmann::json& json_data, size_t num_frames, size_t 
 
     //    ;  I062/340: 0x dc 32 14 7e  75 5b 07 05  77 2f 91 a0
 
-    loginf << "cat062 test: 340" << logendl;
+    loginf << "cat062 1.12 test: 340" << logendl;
 
     //available dc
 
@@ -802,9 +810,9 @@ void test_cat062_callback (nlohmann::json& json_data, size_t num_frames, size_t 
 
 }
 
-void test_cat062 (jASTERIX::jASTERIX& jasterix)
+void test_cat062_112 (jASTERIX::jASTERIX& jasterix)
 {
-    loginf << "cat062 test: start" << logendl;
+    loginf << "cat062 1.12 test: start" << logendl;
 
     //    ; ASTERIX data block at pos 0: cat=62; len=151
     // 3e0097bfdfef060004e1416f40008152c400314d2407f46af943b1033efe1e00000f91e305010c663ca610c2390cb82055400578fffb010a006213de0d1301487520ff0808ffff0093114101c008080808080808057705770000ffa1000000444c4839434b2043c5398544413332304d454444464c4253460578bf800050007e0069005fff010b13020310dc00017e755b0705772f91a0
@@ -818,7 +826,7 @@ void test_cat062 (jASTERIX::jASTERIX& jasterix)
 
     size_t size = hex2bin (cat062_ed112, target);
 
-    loginf << "cat062 test: src len " << strlen(cat062_ed112) << " bin len " << size << logendl;
+    loginf << "cat062 1.12 test: src len " << strlen(cat062_ed112) << " bin len " << size << logendl;
 
     assert (size == 151);
 
@@ -829,7 +837,7 @@ void test_cat062 (jASTERIX::jASTERIX& jasterix)
 
     jasterix.decodeASTERIX(target, size, test_cat062_callback);
 
-    loginf << "cat062 test: end" << logendl;
+    loginf << "cat062 1.12 test: end" << logendl;
 }
 
 

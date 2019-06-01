@@ -232,6 +232,8 @@ void jASTERIX::setEdition (const std::string& cat_str, const std::string& editio
 {
     assert (hasEdition(cat_str, edition_str));
     category_definitions_.at(cat_str).setCurrentEdition(edition_str);
+
+    updateCurrentEditionsAndMappings();
 }
 
 bool jASTERIX::hasMapping (const std::string& cat_str, const std::string& mapping_str)
