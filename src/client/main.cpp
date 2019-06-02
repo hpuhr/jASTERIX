@@ -80,7 +80,7 @@ int main (int argc, char **argv)
     std::string framing {"netto"};
     std::string definition_path;
     bool debug {false};
-    bool debug_exclude_framing {false};
+    bool debug_include_framing {false};
     bool print {false};
     std::string write_type;
     std::string write_filename;
@@ -99,7 +99,7 @@ int main (int argc, char **argv)
         ("data_write_size", po::value<int>(&data_write_size),
          "number of frame chunks to write in one file write, default 100, use -1 to disable.")
         ("debug", po::bool_switch(&debug), "print debug output")
-        ("debug_exclude_framing", po::bool_switch(&debug_exclude_framing), "print debug output excluding framing, debug still has to be set")
+        ("debug_include_framing", po::bool_switch(&debug_include_framing), "print debug output including framing, debug still has to be set, disable per default")
         ("print", po::bool_switch(&print), "print JSON output")
         ("print_indent", po::value<int>(&print_dump_indent), "intendation of json print, use -1 to disable.")
         ("write_type", po::value<std::string>(&write_type), "optional write type, e.g. text,zip. needs write_filename.")
@@ -138,7 +138,7 @@ int main (int argc, char **argv)
         loginf << "frame_chunk_size: number of frames to process in one chunk, default 1000, use -1 to disable." << logendl;
         loginf << "data_write_size: number of frame chunks to write in one file write, default 100, use -1 to disable." << logendl;
         loginf << "debug: print debug output" << logendl;
-        loginf << "debug_exclude_framing: print debug excluding framing, debug still has to be set" << logendl;
+        loginf << "debug_include_framing: print debug excluding framing, debug still has to be set, disabled by default" << logendl;
         loginf << "print: print JSON output" << logendl;
         loginf << "print_indent: intendation of json print, use -1 to disable." << logendl;
         loginf << "write_type (value): optional write type, e.g. text,zip. needs write_filename." << logendl;
@@ -168,8 +168,8 @@ int main (int argc, char **argv)
     if (find(arguments.begin(), arguments.end(), "--debug") != arguments.end())
         debug = true;
 
-    if (find(arguments.begin(), arguments.end(), "--debug_exclude_framing") != arguments.end())
-        debug_exclude_framing = true;
+    if (find(arguments.begin(), arguments.end(), "--debug_include_framing") != arguments.end())
+        debug_include_framing = true;
 
     if (find(arguments.begin(), arguments.end(), "--print") != arguments.end())
         print = true;
@@ -213,7 +213,7 @@ int main (int argc, char **argv)
             loginf << "jASTERIX client: startup with filename '" << filename << "' framing '" << framing
                    << "' definition_path '" << definition_path << "' debug " << debug << logendl;
 
-        jASTERIX::jASTERIX asterix (definition_path, print, debug, debug_exclude_framing);
+        jASTERIX::jASTERIX asterix (definition_path, print, debug, !debug_include_framing);
 
 #if USE_BOOST
         boost::posix_time::ptime start_time = boost::posix_time::microsec_clock::local_time();
