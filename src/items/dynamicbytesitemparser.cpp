@@ -50,7 +50,8 @@ size_t DynamicBytesItemParser::parseItem (const char* data, size_t index, size_t
 {
     if (debug)
         loginf << "parsing dynamic bytes item '" << name_ << "' substract " << substract_previous_
-               << " additative " << has_additative_factor_ << logendl;
+               << " additative " << has_additative_factor_ << " index "
+               << index << " size " << size << " current parsed bytes " << current_parsed_bytes << logendl;
 
     if (debug && target.find(length_variable_name_) == target.end())
         throw runtime_error ("dynamic bytes item '"+name_+"' parsing without given length");

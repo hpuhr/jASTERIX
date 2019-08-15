@@ -67,7 +67,8 @@ size_t CompoundItemParser::parseItem (const char* data, size_t index, size_t siz
                               nlohmann::json& target, bool debug)
 {
     if (debug)
-        loginf << "parsing compound item '" << name_ << "' with " << items_.size() << " items" << logendl;
+        loginf << "parsing compound item '" << name_ << "' with " << items_.size() << " items index "
+               << index << " size " << size << " current parsed bytes " << current_parsed_bytes << logendl;
 
     size_t parsed_bytes {0};
 

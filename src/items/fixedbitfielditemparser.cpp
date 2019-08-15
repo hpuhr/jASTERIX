@@ -78,7 +78,8 @@ size_t FixedBitFieldItemParser::parseItem (const char* data, size_t index, size_
                                            nlohmann::json& target, bool debug)
 {
     if (debug)
-        loginf << "parsing fixed bitfield item '" << name_ << "'" << logendl;
+        loginf << "parsing fixed bitfield item '" << name_ << "' index "
+               << index << " size " << size << " current parsed bytes " << current_parsed_bytes << logendl;
 
     if (optional_ && !variableHasValue(target, optional_variable_name_, optional_variable_value_))
     {

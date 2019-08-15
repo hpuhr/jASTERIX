@@ -56,7 +56,10 @@ void test_cat021_callback (nlohmann::json& json_data, size_t num_frames, size_t 
 void test_cat021 (jASTERIX::jASTERIX& jasterix);
 
 void test_cat062_callback (nlohmann::json& json_data, size_t num_frames, size_t num_records);
-void test_cat062 (jASTERIX::jASTERIX& jasterix);
+void test_cat062_112 (jASTERIX::jASTERIX& jasterix);
+
+void test_cat062_116_callback (nlohmann::json& json_data, size_t num_frames, size_t num_records);
+void test_cat062_116 (jASTERIX::jASTERIX& jasterix);
 
 void test_cat063_callback (nlohmann::json& json_data, size_t num_frames, size_t num_records);
 void test_cat063 (jASTERIX::jASTERIX& jasterix);
@@ -125,7 +128,7 @@ int main (int argc, char **argv)
     {
         loginf << "jASTERIX test: startup with definition_path '" << definition_path << "'" << logendl;
 
-        jASTERIX::jASTERIX asterix (definition_path, true, true);
+        jASTERIX::jASTERIX asterix (definition_path, true, true, false);
 
         test_cat001(asterix);
         test_cat002(asterix);
@@ -134,7 +137,8 @@ int main (int argc, char **argv)
         test_cat021(asterix);
         test_cat034(asterix);
         test_cat048(asterix);
-        test_cat062(asterix);
+        test_cat062_112(asterix);
+        test_cat062_116(asterix);
         test_cat063(asterix);
         test_cat065(asterix);
 

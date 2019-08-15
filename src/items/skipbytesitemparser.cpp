@@ -41,7 +41,8 @@ size_t SkipBytesItemParser::parseItem (const char* data, size_t index, size_t si
                               nlohmann::json& target, bool debug)
 {
     if (debug)
-        loginf << "parsing skipped bytes item '"+name_+"' index " << index << " length " << length_ << logendl;
+        loginf << "parsing skipped bytes item '"+name_+"' index " << index << " length " << length_ << " index "
+               << index << " size " << size << " current parsed bytes " << current_parsed_bytes << logendl;
 
     return length_;
 }

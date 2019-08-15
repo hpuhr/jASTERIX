@@ -242,8 +242,10 @@ void test_cat048_callback (nlohmann::json& json_data, size_t num_frames, size_t 
     //    ;   Amplitude of (M)SSR reply: -63 dBm
 
     loginf << "cat048 test: 130" << logendl;
+
+    // 00100000
     assert (json_data.at("data_blocks")[0].at("content").at("records")[0].at("130").at("available")
-            == std::vector<bool>({0,0,0,0,0,1,0,0}));
+            == std::vector<bool>({0,0,1,0,0,0,0,0}));
     assert (json_data.at("data_blocks")[0].at("content").at("records")[0].at("130").at("SAM").at("value") == -63);
 
     //    ;  I048/220: =0x ab 4c bd

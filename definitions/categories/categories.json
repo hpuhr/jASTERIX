@@ -1,7 +1,6 @@
 {
     "001":{
         "comment":"Category 001 Transmission of Monoradar Data Target Reports",
-        "decode":true,
         "default_edition":"1.1",
         "default_mapping":"",
         "editions":{
@@ -12,11 +11,14 @@
             }
         },
         "mappings":{
+            "atsdb":{
+                "comment":"conversion to atsdb cat048",
+                "file":"001/cat001_1.1_to_cat048_.1.15_mapping.json"
+            }
         }
     },
     "002":{
         "comment":"Category 002 Transmission of Monoradar Service Messages",
-        "decode":true,
         "default_edition":"1.0",
         "default_mapping":"",
         "editions":{
@@ -31,14 +33,19 @@
     },
     "019":{
         "comment":"Category 019 Multilateration System Status Messages",
-        "decode":true,
         "default_edition":"1.3",
         "default_mapping":"",
         "editions":{
+            "1.2":{
+                "document":"SUR.ET1.ST05.2000-STD-18-02",
+                "date":"August 2009",
+                "file":"019/cat019_1.2.json"
+            },        
             "1.3":{
                 "document":"SUR.ET1.ST05.2000-STD-18-02",
                 "date":"December 2010",
-                "file":"019/cat019_1.3.json"
+                "file":"019/cat019_1.3.json",
+                "comment":"Same as 1.2"
             }
         },
         "mappings":{
@@ -46,14 +53,19 @@
     },
     "020":{
         "comment":"Category 020 Multilateration Target Reports",
-        "decode":true,
-        "default_edition":"1.5",
+        "default_edition":"1.8",
         "default_mapping":"",
         "editions":{
             "1.5":{
                 "document":"SUR.ET1.ST05.2000-STD-14-02",
                 "date":"April 2008",
                 "file":"020/cat020_1.5.json"
+            },
+            "1.8":{
+                "document":"SUR.ET1.ST05.2000-STD-14-02",
+                "date":"December 2010",
+                "file":"020/cat020_1.5.json",
+                "comment":"Same as 1.5"
             }
         },
         "mappings":{
@@ -65,7 +77,6 @@
     },
     "021":{
         "comment":"Category 021 ADS-B Reports",
-        "decode":true,
         "default_edition":"2.1",
         "default_mapping":"",
         "editions":{
@@ -85,7 +96,6 @@
     },
     "023":{
         "comment":"Category 023 CNS/ATM Ground Station and Service Status Reports",
-        "decode":true,
         "default_edition":"1.2",
         "default_mapping":"",
         "editions":{
@@ -100,7 +110,6 @@
     },
     "034":{
         "comment":"Category 034 Transmission of Monoradar Service Messages",
-        "decode":true,
         "default_edition":"1.26",
         "default_mapping":"",
         "editions":{
@@ -115,7 +124,6 @@
     },
     "048":{
         "comment":"Category 048 Transmission of Monoradar Target Reports",
-        "decode":true,
         "default_edition":"1.15",
         "default_mapping":"",
         "editions":{
@@ -134,14 +142,18 @@
     },
     "062":{
         "comment":"Category 062 SURVEILLANCE DATA EXCHANGE SDPS Track Messages",
-        "decode":true,
-        "default_edition":"1.12",
+        "default_edition":"1.16",
         "default_mapping":"",
         "editions":{
             "1.12":{
                 "document":"SUR.ET1.ST05.2000-STD-09-01",
                 "date":"September 2010",
                 "file":"062/cat062_1.12.json"
+            },
+            "1.16":{
+                "document":"SUR.ET1.ST05.2000-STD-09-01",
+                "date":"July 2012",
+                "file":"062/cat062_1.16.json"
             }
         },
         "mappings":{
@@ -153,7 +165,6 @@
     },
     "063":{
         "comment":"Category 063 Sensor Status Messages",
-        "decode":true,
         "default_edition":"1.0",
         "default_mapping":"",
         "editions":{
@@ -161,6 +172,12 @@
                 "document":"SUR.ET1.ST05.2000-STD-10-01",
                 "date":"March 2004",
                 "file":"063/cat063_1.0.json"
+            },
+            "1.1":{
+                "document":"SUR.ET1.ST05.2000-STD-10-01",
+                "date":"March 2005",
+                "file":"063/cat063_1.1.json",
+                "comment":"Same as 1.0"
             }
         },
         "mappings":{
@@ -168,14 +185,19 @@
     },
     "065":{
         "comment":"Category 065 SDPS Service Status Messages",
-        "decode":true,
         "default_edition":"1.3",
         "default_mapping":"",
         "editions":{
+            "1.2":{
+                "document":"SUR.ET1.ST05.2000-STD-15-01",
+                "date":"March 2005",
+                "file":"065/cat065_1.2.json"
+            },
             "1.3":{
                 "document":"SUR.ET1.ST05.2000-STD-15-01",
                 "date":"April 2007",
-                "file":"065/cat065_1.3.json"
+                "file":"065/cat065_1.3.json",
+                "comment":"Same as 1.2"
             }
         },
         "mappings":{

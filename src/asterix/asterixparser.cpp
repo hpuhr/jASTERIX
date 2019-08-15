@@ -20,6 +20,7 @@
 #include "itemparserbase.h"
 #include "record.h"
 #include "jasterix.h"
+#include "string_conv.h"
 
 #include <iostream>
 #include <iomanip>
@@ -89,6 +90,9 @@ ASTERIXParser::ASTERIXParser(const nlohmann::json& data_block_definition,
 std::tuple<size_t, size_t, bool> ASTERIXParser::findDataBlocks (const char* data, size_t index, size_t length,
                                                          nlohmann::json& target, bool debug)
 {
+    if (debug)
+        loginf << "ASTERIXParser: findDataBlocks index " << index << " length " << length << logendl;
+
     size_t parsed_bytes {0};
     size_t parsed_data_block_bytes {0};
     size_t parsed_bytes_sum {0};
@@ -152,11 +156,18 @@ std::tuple<size_t, size_t, bool> ASTERIXParser::findDataBlocks (const char* data
     //        "frame_relative_time_ms": 2117
     //    }
 
+    if (debug)
+        loginf << "ASTERIXParser: findDataBlocks done parsed bytes " << parsed_bytes_sum
+               << " num blocks " << num_blocks << " limit hit " << record_limit_hit << logendl;
+
     return std::make_tuple (parsed_bytes_sum, num_blocks, !record_limit_hit);
 }
 
 size_t ASTERIXParser::decodeDataBlocks (const char* data, nlohmann::json& data_blocks, bool debug)
 {
+    if (debug)
+        loginf << "ASTERIXParser: decodeDataBlocks" << logendl;
+
     size_t num_records_sum {0};
 
     if (!data_blocks.is_array())
@@ -167,19 +178,33 @@ size_t ASTERIXParser::decodeDataBlocks (const char* data, nlohmann::json& data_b
     std::vector<size_t> num_records;
     num_records.resize(num_data_blocks, 0);
 
-    tbb::parallel_for( size_t(0), num_data_blocks, [&]( size_t cnt )
+    if (debug) // switch to single thread in debug
     {
-        num_records.at(cnt) = decodeDataBlock (data, data_blocks[cnt], debug);
-    });
+        for (size_t cnt=0; cnt < num_data_blocks; ++cnt)
+            num_records.at(cnt) = decodeDataBlock (data, data_blocks[cnt], debug);
+    }
+    else
+    {
+        tbb::parallel_for( size_t(0), num_data_blocks, [&]( size_t cnt )
+        {
+            num_records.at(cnt) = decodeDataBlock (data, data_blocks[cnt], debug);
+        });
+    }
 
     for (auto num_record_it : num_records)
         num_records_sum += num_record_it;
+
+    if (debug)
+        loginf << "ASTERIXParser: decodeDataBlocks: done" << logendl;
 
     return num_records_sum;
 }
 
 size_t ASTERIXParser::decodeDataBlock (const char* data, nlohmann::json& data_block, bool debug)
 {
+    if (debug)
+        loginf << "ASTERIXParser: decodeDataBlock" << logendl;
+
     size_t parsed_bytes {0}; // TODO unsure if used
     size_t num_records {0};
 
@@ -214,6 +239,10 @@ size_t ASTERIXParser::decodeDataBlock (const char* data, nlohmann::json& data_bl
         throw runtime_error("asterix parser record content does not contain length information");
 
     size_t record_length = data_block_content.at("length");
+
+    if (debug)
+        loginf << "ASTERIXParser: decodeDataBlock: index " << record_index << " length " << record_length
+               << " data '" << binary2hex((const unsigned char*)&data[record_index], record_length) << "'" << logendl;
 
     // try to decode
     if (records_.count(cat) != 0)
@@ -263,15 +292,10 @@ size_t ASTERIXParser::decodeDataBlock (const char* data, nlohmann::json& data_bl
 
     }
 
-    //loginf << "UGA " << num_records << logendl;
+    if (debug)
+        loginf << "ASTERIXParser: decodeDataBlock: done num records " << num_records << logendl;
 
     return num_records;
 }
-
-//size_t ASTERIXParser::decodeDataBlock (const char* data, unsigned int cat, size_t index, size_t size,
-//                                       nlohmann::json& target, bool debug)
-//{
-
-//}
 
 }

@@ -29,9 +29,11 @@ Currently supported ASTERIX categories & editions:
 - 002
   - Edition 1.0
 - 019
+  - Edition 1.2
   - Edition 1.3
 - 020
   - Edition 1.5
+  - Edition 1.8
 - 021
   - Edition 2.1
 - 023
@@ -42,10 +44,13 @@ Currently supported ASTERIX categories & editions:
   - Edition 1.15
 - 062
   - Edition 1.12
+  - Edition 1.16
 - 063
   - Edition 1.0
-- 065
   - Edition 1.1
+- 065
+  - Edition 1.2
+  - Edition 1.3
 
 ## Contents
 - Folder "cmake_modules": Contains cmake find scripts
