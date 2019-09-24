@@ -16,8 +16,8 @@
  */
 
 
-#ifndef RECORD_H
-#define RECORD_H
+#ifndef RESERVEDEXPSIONFIELD_H
+#define RESERVEDEXPSIONFIELD_H
 
 #include <jasterix/itemparserbase.h>
 
@@ -27,26 +27,21 @@
 namespace jASTERIX
 {
 // decodes a field specification/availablity field (ending with extend bit), and list of items
-class Record : public ItemParserBase
+class ReservedExpansionField : public ItemParserBase
 {
 public:
-    Record (const nlohmann::json& item_definition);
-    virtual ~Record() override {}
+    ReservedExpansionField (const nlohmann::json& item_definition);
+    virtual ~ReservedExpansionField() override;
 
     virtual size_t parseItem (const char* data, size_t index, size_t size, size_t current_parsed_bytes,
                               nlohmann::json& target, bool debug) override;
 protected:
     std::unique_ptr<ItemParserBase> field_specification_;
-    std::vector<std::string> uap_names_;
-
-    bool has_conditional_uap_{false};
-    std::string conditional_uaps_key_;
-    std::vector<std::string> conditional_uaps_sub_keys_;
-    std::map<std::string, std::vector<std::string>> conditional_uap_names_;
+    std::vector<std::string> items_names_;
     std::map<std::string, std::unique_ptr<ItemParserBase>> items_;
 
-    bool compareKey (const nlohmann::json& container, const std::string& value);
+    //bool compareKey (const nlohmann::json& container, const std::string& value);
 };
 
 }
-#endif // RECORD_H
+#endif // RESERVEDEXPSIONFIELD_H

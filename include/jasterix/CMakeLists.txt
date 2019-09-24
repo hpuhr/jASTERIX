@@ -11,6 +11,8 @@ target_sources(jasterix
         "${CMAKE_CURRENT_LIST_DIR}/category.h"
         "${CMAKE_CURRENT_LIST_DIR}/mapping.h"
         "${CMAKE_CURRENT_LIST_DIR}/record.h"
+        "${CMAKE_CURRENT_LIST_DIR}/refedition.h"
+        "${CMAKE_CURRENT_LIST_DIR}/ref.h"
         "${CMAKE_CURRENT_LIST_DIR}/itemparserbase.h"
 )
 

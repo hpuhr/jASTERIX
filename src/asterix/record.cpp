@@ -263,7 +263,7 @@ size_t Record::parseItem (const char* data, size_t index, size_t size, size_t cu
     {
         size_t re_bytes = data[index+parsed_bytes];
 
-        if (debug)
+        //if (debug)
             loginf << "record '"+name_+"' has special purpose field, skipping " << re_bytes << " bytes " << logendl;
 
         parsed_bytes += re_bytes;
@@ -273,7 +273,7 @@ size_t Record::parseItem (const char* data, size_t index, size_t size, size_t cu
     {
         size_t re_bytes = data[index+parsed_bytes];
 
-        if (debug)
+        //if (debug)
             loginf << "record '"+name_+"' has reserved expansion field, skipping " << re_bytes << " bytes " << logendl;
 
         parsed_bytes += re_bytes;

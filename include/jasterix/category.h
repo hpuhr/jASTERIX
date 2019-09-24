@@ -21,6 +21,7 @@
 
 #include "json.hpp"
 #include <jasterix/edition.h>
+#include <jasterix/refedition.h>
 #include <jasterix/mapping.h>
 
 #include <string>
@@ -32,11 +33,12 @@ class Category
 {
 public:
     Category(const std::string& number, const nlohmann::json& definition, const std::string& definition_path);
-    virtual ~Category() {}
+    virtual ~Category();
 
     std::string number() const;
     std::string comment() const;
 
+    // edition stuff
     bool hasEdition (const std::string& edition_str) const;
     std::shared_ptr<Edition> edition (const std::string& edition_str);
     std::string editionPath (const std::string& edition_str) const;
@@ -45,15 +47,25 @@ public:
     void setCurrentEdition (const std::string& edition_str);
     std::shared_ptr<Edition> getCurrentEdition();
 
+    // ref stuff
+    bool hasREFEdition (const std::string& edition_str) const;
+    std::shared_ptr<REFEdition> refEdition (const std::string& edition_str);
+    std::string refEditionPath (const std::string& edition_str) const;
+
+    std::string defaultREFEdition () const;
+    void setCurrentREFEdition (const std::string& edition_str);
+    std::shared_ptr<REFEdition> getCurrentREFEdition ();
+
+    // mapping stuff
     bool hasMapping (const std::string& mapping_str);
     std::shared_ptr<Mapping> mapping (const std::string& mapping_str);
-
 
     std::string defaultMapping() const;
     bool hasCurrentMapping();
     std::shared_ptr<Mapping> getCurrentMapping();
 
     const std::map<std::string, std::shared_ptr<Edition>>& editions() const;
+    const std::map<std::string, std::shared_ptr<REFEdition>>& refEditions() const;
     const std::map<std::string, std::shared_ptr<Mapping>>& mappings() const;
 
     bool decode() const;
@@ -62,12 +74,18 @@ public:
 protected:
     std::string number_;
     std::string comment_;
+
     std::string default_edition_;
+    std::string default_ref_edition_;
+
     std::string current_edition_;
+    std::string current_ref_edition_;
+
     std::string default_mapping_;
     bool decode_{true};
 
     std::map<std::string, std::shared_ptr<Edition>> editions_;
+    std::map<std::string, std::shared_ptr<REFEdition>> ref_editions_;
     std::map<std::string, std::shared_ptr<Mapping>> mappings_;
 };
 

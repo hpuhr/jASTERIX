@@ -42,6 +42,10 @@ Category::Category(const std::string& number, const nlohmann::json& definition, 
 
     default_edition_ = definition.at("default_edition");
 
+    //    "default_ref_edition" : "1.8",
+    if (definition.find("default_ref_edition") != definition.end()) // is optional
+        default_ref_edition_ = definition.at("default_ref_edition");
+
     // decode flag
     if (definition.find("decode") != definition.end())
         decode_ = definition.at("decode");
@@ -66,6 +70,26 @@ Category::Category(const std::string& number, const nlohmann::json& definition, 
     if (editions_.count(default_edition_) != 1)
         throw invalid_argument ("category '"+number_+"' default edition '"+default_edition_+"' not defined");
 
+    //    "ref_editions":
+
+    if (definition.find("ref_editions") != definition.end())
+    {
+        const json& ref_edition_definitions = definition.at("ref_editions");
+
+        if (!ref_edition_definitions.is_object())
+            throw invalid_argument ("category '"+number_+"' with non-object REF edition definition");
+
+        for (auto ed_def_it = ref_edition_definitions.begin(); ed_def_it != ref_edition_definitions.end();
+             ++ed_def_it)
+        {
+            ref_editions_[ed_def_it.key()] = std::shared_ptr<REFEdition> (
+                        new REFEdition(ed_def_it.key(), ed_def_it.value(), definition_path));
+        }
+
+        if (ref_editions_.count(default_ref_edition_) != 1)
+            throw invalid_argument ("category '"+number_+"' default REF edition '"+default_ref_edition_
+                                    +"' not defined");
+    }
     //    "default_mapping" : "1.0",
 
     if (definition.find("default_mapping") == definition.end())
@@ -94,8 +118,25 @@ Category::Category(const std::string& number, const nlohmann::json& definition, 
         throw invalid_argument ("category '"+number_+"' default mapping '"+default_mapping_+"' not defined");
 
     current_edition_ = default_edition_;
+    current_ref_edition_ = default_ref_edition_;
 }
 
+Category::~Category()
+{
+
+}
+
+std::string Category::number() const
+{
+    return number_;
+}
+
+std::string Category::comment() const
+{
+    return comment_;
+}
+
+// edition stuff
 bool Category::hasEdition (const std::string& edition_str) const
 {
     return editions_.count(edition_str) == 1;
@@ -111,16 +152,6 @@ std::string Category::editionPath (const std::string& edition_str) const
 {
     assert (hasEdition(edition_str));
     return editions_.at(edition_str)->definitionPath();
-}
-
-std::string Category::number() const
-{
-    return number_;
-}
-
-std::string Category::comment() const
-{
-    return comment_;
 }
 
 std::string Category::defaultEdition() const
@@ -140,6 +171,54 @@ std::shared_ptr<Edition> Category::getCurrentEdition()
     return editions_.at(current_edition_);
 }
 
+const std::map<std::string, std::shared_ptr<Edition>>& Category::editions() const
+{
+    return editions_;
+}
+
+
+// ref stuff
+bool Category::hasREFEdition (const std::string& edition_str) const
+{
+    return ref_editions_.count(edition_str) == 1;
+}
+
+std::shared_ptr<REFEdition> Category::refEdition (const std::string& edition_str)
+{
+    assert (hasREFEdition(edition_str));
+    return ref_editions_.at(edition_str);
+}
+
+std::string Category::refEditionPath (const std::string& edition_str) const
+{
+    assert (hasREFEdition(edition_str));
+    return ref_editions_.at(edition_str)->definitionPath();
+}
+
+std::string Category::defaultREFEdition() const
+{
+    return default_ref_edition_;
+}
+
+void Category::setCurrentREFEdition (const std::string& edition_str)
+{
+    assert (hasREFEdition(edition_str));
+    current_ref_edition_ = edition_str;
+}
+
+std::shared_ptr<REFEdition> Category::getCurrentREFEdition()
+{
+    assert (hasEdition(current_ref_edition_));
+    return ref_editions_.at(current_ref_edition_);
+}
+
+const std::map<std::string, std::shared_ptr<REFEdition>>& Category::refEditions() const
+{
+    return ref_editions_;
+}
+
+
+// mapping stuff
 bool Category::hasMapping (const std::string& mapping_str)
 {
     return mappings_.count(mapping_str) == 1;
@@ -168,11 +247,6 @@ std::shared_ptr<Mapping> Category::getCurrentMapping()
 {
     assert (hasCurrentMapping());
     return mappings_.at(default_mapping_);
-}
-
-const std::map<std::string, std::shared_ptr<Edition>>& Category::editions() const
-{
-    return editions_;
 }
 
 const std::map<std::string, std::shared_ptr<Mapping>>& Category::mappings() const
