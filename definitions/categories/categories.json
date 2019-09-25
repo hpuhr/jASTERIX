@@ -54,7 +54,7 @@
     "020":{
         "comment":"Category 020 Multilateration Target Reports",
         "default_edition":"1.8",
-        "default_ref_edition":"1.8",
+        "default_ref_edition":"1.3",
         "default_mapping":"",
         "editions":{
             "1.5":{

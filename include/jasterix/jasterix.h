@@ -48,7 +48,7 @@ extern int data_write_size;
 class jASTERIX
 {
 public:
-    jASTERIX( const std::string& definition_path, bool print, bool debug, bool debug_exclude_framing);
+    jASTERIX(const std::string& definition_path, bool print, bool debug, bool debug_exclude_framing);
     virtual ~jASTERIX();
 
     bool hasCategory(const std::string& cat_str);

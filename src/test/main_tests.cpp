@@ -32,7 +32,7 @@ namespace po = boost::program_options;
 #endif
 
 using namespace std;
-using namespace jASTERIX;
+//using namespace jASTERIX;
 
 void test_cat001_callback (nlohmann::json& json_data, size_t num_frames, size_t num_records);
 void test_cat001 (jASTERIX::jASTERIX& jasterix);
@@ -128,18 +128,29 @@ int main (int argc, char **argv)
     {
         loginf << "jASTERIX test: startup with definition_path '" << definition_path << "'" << logendl;
 
+        //(const std::string& definition_path, bool print, bool debug, bool debug_exclude_framing)
         jASTERIX::jASTERIX asterix (definition_path, true, true, false);
 
+        loginf << "jASTERIX test: CAT 001 test" << logendl;
         test_cat001(asterix);
+        loginf << "jASTERIX test: CAT 002 test" << logendl;
         test_cat002(asterix);
+        loginf << "jASTERIX test: CAT 019 test" << logendl;
         test_cat019(asterix);
+        loginf << "jASTERIX test: CAT 020 test" << logendl;
         test_cat020(asterix);
+        loginf << "jASTERIX test: CAT 021 test" << logendl;
         test_cat021(asterix);
+        loginf << "jASTERIX test: CAT 034 test" << logendl;
         test_cat034(asterix);
+        loginf << "jASTERIX test: CAT 048 test" << logendl;
         test_cat048(asterix);
+        loginf << "jASTERIX test: CAT 062 test" << logendl;
         test_cat062_112(asterix);
         test_cat062_116(asterix);
+        loginf << "jASTERIX test: CAT 063 test" << logendl;
         test_cat063(asterix);
+        loginf << "jASTERIX test: CAT 065 test" << logendl;
         test_cat065(asterix);
 
     }
