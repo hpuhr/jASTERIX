@@ -134,9 +134,11 @@ jASTERIX::jASTERIX(const std::string& definition_path, bool print, bool debug, b
 
             try
             {
-                category_definitions_.emplace(std::piecewise_construct,
-                                              std::forward_as_tuple(cat),
-                                              std::forward_as_tuple(cat_str, cat_def_it.value(), definition_path_));
+//                category_definitions_.emplace(std::piecewise_construct,
+//                                              std::forward_as_tuple(cat),
+//                                              std::forward_as_tuple(cat_str, cat_def_it.value(), definition_path_));
+                category_definitions_[cat] = std::shared_ptr<Category> (
+                            new Category(cat_str, cat_def_it.value(), definition_path));
 
                 assert (category_definitions_.count(cat) == 1);
             }
@@ -174,58 +176,26 @@ bool jASTERIX::hasCategory(unsigned int cat)
 bool jASTERIX::decodeCategory(unsigned int cat)
 {
     assert (hasCategory(cat));
-    return category_definitions_.at(cat).decode();
+    return category_definitions_.at(cat)->decode();
 }
 
 void jASTERIX::setDecodeCategory (unsigned int cat, bool decode)
 {
     assert (hasCategory(cat));
-    category_definitions_.at(cat).decode(decode);
+    category_definitions_.at(cat)->decode(decode);
 }
 
 void jASTERIX::decodeNoCategories()
 {
     for (auto& cat_it : category_definitions_)
-        cat_it.second.decode(false);
+        cat_it.second->decode(false);
 }
 
-bool jASTERIX::hasEdition (unsigned int cat, const std::string& edition_str)
-{
-    if (!hasCategory(cat))
-        return false;
-
-    return category_definitions_.at(cat).hasEdition(edition_str);
-}
-
-void jASTERIX::setEdition (unsigned int cat, const std::string& edition_str)
-{
-    assert (hasEdition(cat, edition_str));
-    category_definitions_.at(cat).setCurrentEdition(edition_str);
-}
-
-bool jASTERIX::hasMapping (unsigned int cat, const std::string& mapping_str)
-{
-    if (!hasCategory(cat))
-        return false;
-
-    return category_definitions_.at(cat).hasMapping(mapping_str);
-}
-
-void jASTERIX::setMapping (unsigned int cat, const std::string& mapping_str)
+std::shared_ptr<Category> jASTERIX::category (unsigned int cat)
 {
     assert (hasCategory(cat));
-
-    if (!mapping_str.size()) // "" for no mapping
-    {
-        category_definitions_.at(cat).eraseMapping();
-        return;
-    }
-
-    assert (hasMapping(cat, mapping_str));
-
-    category_definitions_.at(cat).setCurrentMapping(mapping_str);
+    return category_definitions_.at(cat);
 }
-
 
 void jASTERIX::decodeFile (const std::string& filename, const std::string& framing,
                            std::function<void(nlohmann::json&, size_t, size_t)> data_callback)

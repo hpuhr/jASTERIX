@@ -43,8 +43,6 @@ extern int frame_chunk_size;
 extern int record_chunk_size;
 extern int data_write_size;
 
-//class Category;
-
 class jASTERIX
 {
 public:
@@ -56,11 +54,8 @@ public:
     void setDecodeCategory (unsigned int cat, bool decode);
     void decodeNoCategories();
 
-    bool hasEdition (unsigned int cat, const std::string& edition_str);
-    void setEdition (unsigned int cat, const std::string& edition_str);
-
-    bool hasMapping (unsigned int cat, const std::string& mapping_str);
-    void setMapping (unsigned int cat, const std::string& mapping_str);
+    std::shared_ptr<Category> category (unsigned int cat);
+    const std::map<unsigned int, std::shared_ptr<Category>>& categories() { return category_definitions_; }
 
     void decodeFile (const std::string& filename, const std::string& framing_str,
                      std::function<void(nlohmann::json&, size_t, size_t)> data_callback=nullptr);
@@ -78,7 +73,6 @@ public:
     void addDataChunk (nlohmann::json& data_chunk, bool done);
 
     const std::vector<std::string>& framings() { return framings_; }
-    const std::map<unsigned int, Category>& categories() { return category_definitions_; }
 
     const std::string& dataBlockDefinitionPath() const;
     const std::string& categoriesDefinitionPath() const;
@@ -103,7 +97,7 @@ private:
     std::string categories_definition_path_;
     nlohmann::json categories_definition_;
 
-    std::map<unsigned int, Category> category_definitions_;
+    std::map<unsigned int, std::shared_ptr<Category>> category_definitions_;
 
 #if USE_BOOST
     boost::iostreams::mapped_file_source file_;

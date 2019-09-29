@@ -202,9 +202,10 @@ void test_cat001 (jASTERIX::jASTERIX& jasterix)
     assert (size == 20);
 
     assert (jasterix.hasCategory(1));
-    assert (jasterix.hasEdition(1, "1.1"));
-    jasterix.setEdition(1, "1.1");
-    jasterix.setMapping(1, "");
+    std::shared_ptr<jASTERIX::Category> cat001 = jasterix.category(1);
+    assert (cat001->hasEdition("1.1"));
+    cat001->setCurrentEdition("1.1");
+    cat001->setCurrentMapping("");
 
     jasterix.decodeASTERIX(target, size, test_cat001_callback);
 

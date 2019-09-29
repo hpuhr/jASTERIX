@@ -33,7 +33,7 @@ using namespace nlohmann;
 namespace jASTERIX {
 
 ASTERIXParser::ASTERIXParser(const nlohmann::json& data_block_definition,
-                             std::map<unsigned int, Category>& category_definitions,
+                             std::map<unsigned int, std::shared_ptr<Category>>& category_definitions,
                              bool debug)
 {
     // data block
@@ -73,10 +73,10 @@ ASTERIXParser::ASTERIXParser(const nlohmann::json& data_block_definition,
                    << logendl;
 
         records_.insert(std::pair<unsigned int, std::shared_ptr<Record>>
-                        (cat_it.first, std::shared_ptr<Record>{cat_it.second.getCurrentEdition()->record()}));
+                        (cat_it.first, std::shared_ptr<Record>{cat_it.second->getCurrentEdition()->record()}));
 
-        if (cat_it.second.hasCurrentREFEdition())
-            records_.at(cat_it.first)->setRef(cat_it.second.getCurrentREFEdition()->reservedExpansionField());
+        if (cat_it.second->hasCurrentREFEdition())
+            records_.at(cat_it.first)->setRef(cat_it.second->getCurrentREFEdition()->reservedExpansionField());
 
         //        if (ast_cat_def_it.second->hasCurrentMapping())
         //        {

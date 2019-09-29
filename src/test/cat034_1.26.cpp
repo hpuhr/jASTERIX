@@ -256,9 +256,10 @@ void test_cat034 (jASTERIX::jASTERIX& jasterix)
     assert (size == 20);
 
     assert (jasterix.hasCategory(34));
-    assert (jasterix.hasEdition(34, "1.26"));
-    jasterix.setEdition(34, "1.26");
-    jasterix.setMapping(34, "");
+    std::shared_ptr<jASTERIX::Category> cat034 = jasterix.category(34);
+    assert (cat034->hasEdition("1.26"));
+    cat034->setCurrentEdition("1.26");
+    cat034->setCurrentMapping("");
 
     jasterix.decodeASTERIX(target, size, test_cat034_callback);
 

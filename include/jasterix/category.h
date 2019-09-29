@@ -59,7 +59,6 @@ public:
 
     // mapping stuff
     bool hasMapping (const std::string& mapping_str);
-    void eraseMapping ();
     std::shared_ptr<Mapping> mapping (const std::string& mapping_str);
 
     std::string defaultMapping() const;

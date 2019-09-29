@@ -248,13 +248,14 @@ bool Category::hasCurrentMapping()
 
 void Category::setCurrentMapping(const std::string& mapping_str)
 {
+    if (mapping_str.size() == 0) // erase current mapping
+    {
+        current_mapping_ = "";
+        return;
+    }
+
     assert (hasMapping(mapping_str));
     current_mapping_ = mapping_str;
-}
-
-void Category::eraseMapping ()
-{
-    current_mapping_ = "";
 }
 
 std::shared_ptr<Mapping> Category::getCurrentMapping()
