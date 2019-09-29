@@ -2,7 +2,7 @@
     "name":"cat020_ref_1.3",
     "type":"ReservedExpansionField",
     "field_specification":{
-        "name":"FSPEC",
+        "name":"REF_FSPEC",
         "type":"extendable_bits",
         "reverse_bits":true,
         "data_type":"bitfield"

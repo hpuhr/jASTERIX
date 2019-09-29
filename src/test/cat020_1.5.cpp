@@ -431,18 +431,18 @@ void test_cat020 (jASTERIX::jASTERIX& jasterix)
 
     size_t size = hex2bin (cat020_ed15, target);
 
-    loginf << "cat020 test: src len " << strlen(cat020_ed15) << " bin len " << size << logendl;
+    loginf << "cat020 ed 1.5 test: src len " << strlen(cat020_ed15) << " bin len " << size << logendl;
 
     assert (size == 101);
 
-    assert (jasterix.hasCategory("020"));
-    assert (jasterix.hasEdition("020", "1.5"));
-    jasterix.setEdition("020", "1.5");
-    jasterix.setMapping("020", "");
+    assert (jasterix.hasCategory(20));
+    assert (jasterix.hasEdition(20, "1.5"));
+    jasterix.setEdition(20, "1.5");
+    jasterix.setMapping(20, "");
 
     jasterix.decodeASTERIX(target, size, test_cat020_callback);
 
-    loginf << "cat020 test: end" << logendl;
+    loginf << "cat020 ed 1.5 test: end" << logendl;
 }
 
 

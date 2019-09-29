@@ -54,14 +54,17 @@ public:
 
     std::string defaultREFEdition () const;
     void setCurrentREFEdition (const std::string& edition_str);
+    bool hasCurrentREFEdition();
     std::shared_ptr<REFEdition> getCurrentREFEdition ();
 
     // mapping stuff
     bool hasMapping (const std::string& mapping_str);
+    void eraseMapping ();
     std::shared_ptr<Mapping> mapping (const std::string& mapping_str);
 
     std::string defaultMapping() const;
     bool hasCurrentMapping();
+    void setCurrentMapping (const std::string& mapping_str);
     std::shared_ptr<Mapping> getCurrentMapping();
 
     const std::map<std::string, std::shared_ptr<Edition>>& editions() const;
@@ -77,11 +80,12 @@ protected:
 
     std::string default_edition_;
     std::string default_ref_edition_;
+    std::string default_mapping_;
 
     std::string current_edition_;
     std::string current_ref_edition_;
+    std::string current_mapping_;
 
-    std::string default_mapping_;
     bool decode_{true};
 
     std::map<std::string, std::shared_ptr<Edition>> editions_;

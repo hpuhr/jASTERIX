@@ -119,11 +119,11 @@ Category::Category(const std::string& number, const nlohmann::json& definition, 
 
     current_edition_ = default_edition_;
     current_ref_edition_ = default_ref_edition_;
+    current_mapping_ = default_mapping_;
 }
 
 Category::~Category()
 {
-
 }
 
 std::string Category::number() const
@@ -176,7 +176,6 @@ const std::map<std::string, std::shared_ptr<Edition>>& Category::editions() cons
     return editions_;
 }
 
-
 // ref stuff
 bool Category::hasREFEdition (const std::string& edition_str) const
 {
@@ -206,9 +205,14 @@ void Category::setCurrentREFEdition (const std::string& edition_str)
     current_ref_edition_ = edition_str;
 }
 
+bool Category::hasCurrentREFEdition()
+{
+    return hasREFEdition(current_ref_edition_);
+}
+
 std::shared_ptr<REFEdition> Category::getCurrentREFEdition()
 {
-    assert (hasEdition(current_ref_edition_));
+    assert (hasREFEdition(current_ref_edition_));
     return ref_editions_.at(current_ref_edition_);
 }
 
@@ -216,7 +220,6 @@ const std::map<std::string, std::shared_ptr<REFEdition>>& Category::refEditions(
 {
     return ref_editions_;
 }
-
 
 // mapping stuff
 bool Category::hasMapping (const std::string& mapping_str)
@@ -237,16 +240,27 @@ std::string Category::defaultMapping() const
 
 bool Category::hasCurrentMapping()
 {
-    if (default_mapping_.size() == 0)
+    if (current_mapping_.size() == 0)
         return false;
 
-    return mappings_.count(default_mapping_) == 1;
+    return mappings_.count(current_mapping_) == 1;
+}
+
+void Category::setCurrentMapping(const std::string& mapping_str)
+{
+    assert (hasMapping(mapping_str));
+    current_mapping_ = mapping_str;
+}
+
+void Category::eraseMapping ()
+{
+    current_mapping_ = "";
 }
 
 std::shared_ptr<Mapping> Category::getCurrentMapping()
 {
     assert (hasCurrentMapping());
-    return mappings_.at(default_mapping_);
+    return mappings_.at(current_mapping_);
 }
 
 const std::map<std::string, std::shared_ptr<Mapping>>& Category::mappings() const

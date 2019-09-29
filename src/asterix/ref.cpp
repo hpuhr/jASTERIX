@@ -104,10 +104,10 @@ size_t ReservedExpansionField::parseItem (const char* data, size_t index, size_t
 
     parsed_bytes = field_specification_->parseItem(data, index+parsed_bytes, size, parsed_bytes, target, debug);
 
-    if (target.find("FSPEC") == target.end())
+    if (target.find("REF_FSPEC") == target.end())
         throw runtime_error ("ReservedExpansionField item '"+name_+"' FSPEC not found");
 
-    std::vector<bool> fspec_bits = target.at("FSPEC");
+    std::vector<bool> fspec_bits = target.at("REF_FSPEC");
 
 //    if (!has_conditional_uap_ && fspec_bits.size() > uap_names_.size())
 //        throw runtime_error ("ReservedExpansionField item '"+name_+"' has more FSPEC bits than defined uap items");

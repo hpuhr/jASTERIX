@@ -117,16 +117,16 @@ jASTERIX::jASTERIX(const std::string& definition_path, bool print, bool debug, b
     try // asterix category definitions
     {
         std::string cat_str;
-        int cat;
+        unsigned int cat;
 
         for (auto cat_def_it = categories_definition_.begin(); cat_def_it != categories_definition_.end();
              ++cat_def_it)
         {
-            cat = -1;
+            cat = 256; // impossible number
             cat_str = cat_def_it.key();
-            cat = stoi(cat_str);
+            cat = static_cast<unsigned int> (stoul(cat_str));
 
-            if (cat < 0 || cat > 255 || current_category_editions_.count(cat) != 0)
+            if (cat > 255 || category_definitions_.count(cat) != 0)
                 throw invalid_argument ("jASTERIX called with wrong asterix category '"+cat_str+"' in list definition");
 
             if (debug)
@@ -135,18 +135,16 @@ jASTERIX::jASTERIX(const std::string& definition_path, bool print, bool debug, b
             try
             {
                 category_definitions_.emplace(std::piecewise_construct,
-                                              std::forward_as_tuple(cat_str),
+                                              std::forward_as_tuple(cat),
                                               std::forward_as_tuple(cat_str, cat_def_it.value(), definition_path_));
 
-                assert (category_definitions_.count(cat_str) == 1);
+                assert (category_definitions_.count(cat) == 1);
             }
             catch (json::exception& e)
             {
                 throw runtime_error ("jASTERIX parsing error in asterix category "+cat_str+": "+e.what());
             }
         }
-
-        updateCurrentEditionsAndMappings();
     }
     catch (json::exception& e)
     {
@@ -168,98 +166,64 @@ jASTERIX::~jASTERIX()
 #endif
 }
 
-void jASTERIX::updateCurrentEditionsAndMappings ()
+bool jASTERIX::hasCategory(unsigned int cat)
 {
-    current_category_editions_.clear();
-
-    int cat;
-
-    for (auto& cat_it : category_definitions_)
-    {
-        if (!cat_it.second.decode()) // skip if should not be decoded
-        {
-            //loginf << "jASTERIX: updateCurrentEditionsAndMappings: not decoding cat " << cat_it.first;
-            continue;
-        }
-
-        //loginf << "jASTERIX: updateCurrentEditionsAndMappings: decoding cat " << cat_it.first;
-
-        cat = stoi(cat_it.first);
-
-        current_category_editions_[cat] = cat_it.second.getCurrentEdition();
-
-        if (cat_it.second.hasCurrentMapping())
-            current_category_mappings_[cat] = cat_it.second.getCurrentMapping();
-    }
+    return category_definitions_.count(cat) == 1;
 }
 
-bool jASTERIX::hasCategory(const std::string& cat_str)
+bool jASTERIX::decodeCategory(unsigned int cat)
 {
-    return category_definitions_.count(cat_str) == 1;
+    assert (hasCategory(cat));
+    return category_definitions_.at(cat).decode();
 }
 
-bool jASTERIX::decodeCategory(const std::string& cat_str)
+void jASTERIX::setDecodeCategory (unsigned int cat, bool decode)
 {
-    assert (hasCategory(cat_str));
-    return category_definitions_.at(cat_str).decode();
-}
-
-void jASTERIX::setDecodeCategory (const std::string& cat_str, bool decode)
-{
-    assert (hasCategory(cat_str));
-    category_definitions_.at(cat_str).decode(decode);
-
-    updateCurrentEditionsAndMappings();
+    assert (hasCategory(cat));
+    category_definitions_.at(cat).decode(decode);
 }
 
 void jASTERIX::decodeNoCategories()
 {
     for (auto& cat_it : category_definitions_)
         cat_it.second.decode(false);
-
-    updateCurrentEditionsAndMappings();
 }
 
-bool jASTERIX::hasEdition (const std::string& cat_str, const std::string& edition_str)
+bool jASTERIX::hasEdition (unsigned int cat, const std::string& edition_str)
 {
-    if (!hasCategory(cat_str))
+    if (!hasCategory(cat))
         return false;
 
-    return category_definitions_.at(cat_str).hasEdition(edition_str);
+    return category_definitions_.at(cat).hasEdition(edition_str);
 }
 
-void jASTERIX::setEdition (const std::string& cat_str, const std::string& edition_str)
+void jASTERIX::setEdition (unsigned int cat, const std::string& edition_str)
 {
-    assert (hasEdition(cat_str, edition_str));
-    category_definitions_.at(cat_str).setCurrentEdition(edition_str);
-
-    updateCurrentEditionsAndMappings();
+    assert (hasEdition(cat, edition_str));
+    category_definitions_.at(cat).setCurrentEdition(edition_str);
 }
 
-bool jASTERIX::hasMapping (const std::string& cat_str, const std::string& mapping_str)
+bool jASTERIX::hasMapping (unsigned int cat, const std::string& mapping_str)
 {
-    if (!hasCategory(cat_str))
+    if (!hasCategory(cat))
         return false;
 
-    return category_definitions_.at(cat_str).hasMapping(mapping_str);
+    return category_definitions_.at(cat).hasMapping(mapping_str);
 }
 
-void jASTERIX::setMapping (const std::string& cat_str, const std::string& mapping_str)
+void jASTERIX::setMapping (unsigned int cat, const std::string& mapping_str)
 {
-    int cat = -1;
-    cat = stoi(cat_str);
-    assert (cat > 0);
+    assert (hasCategory(cat));
 
     if (!mapping_str.size()) // "" for no mapping
     {
-        if (current_category_mappings_.count(cat))
-            current_category_mappings_.erase(cat);
+        category_definitions_.at(cat).eraseMapping();
         return;
     }
 
-    assert (hasMapping(cat_str, mapping_str));
+    assert (hasMapping(cat, mapping_str));
 
-    current_category_mappings_[cat] = category_definitions_.at(cat_str).mapping(mapping_str);
+    category_definitions_.at(cat).setCurrentMapping(mapping_str);
 }
 
 
@@ -317,8 +281,7 @@ void jASTERIX::decodeFile (const std::string& filename, const std::string& frami
     }
 
     // create ASTERIX parser
-    ASTERIXParser asterix_parser (data_block_definition_, current_category_editions_,
-                                  current_category_mappings_, debug_);
+    ASTERIXParser asterix_parser (data_block_definition_, category_definitions_, debug_);
 
     // create frame parser
     bool debug_framing = debug_ && !debug_exclude_framing_;
@@ -447,8 +410,7 @@ void jASTERIX::decodeFile (const std::string& filename,
 #endif
 
     // create ASTERIX parser
-    ASTERIXParser asterix_parser (data_block_definition_, current_category_editions_,
-                                  current_category_mappings_, debug_);
+    ASTERIXParser asterix_parser (data_block_definition_, category_definitions_, debug_);
 
     if (debug_)
         loginf << "jASTERIX: finding data blocks" << logendl;
@@ -528,8 +490,7 @@ void jASTERIX::decodeASTERIX (const char* data, size_t size,
                               std::function<void(nlohmann::json&, size_t, size_t)> callback)
 {
     // create ASTERIX parser
-    ASTERIXParser asterix_parser (data_block_definition_, current_category_editions_,
-                                  current_category_mappings_, debug_);
+    ASTERIXParser asterix_parser (data_block_definition_, category_definitions_, debug_);
 
     nlohmann::json data_chunk;
 

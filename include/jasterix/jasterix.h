@@ -51,16 +51,16 @@ public:
     jASTERIX(const std::string& definition_path, bool print, bool debug, bool debug_exclude_framing);
     virtual ~jASTERIX();
 
-    bool hasCategory(const std::string& cat_str);
-    bool decodeCategory(const std::string& cat_str);
-    void setDecodeCategory (const std::string& cat_str, bool decode);
+    bool hasCategory(unsigned int cat);
+    bool decodeCategory(unsigned int cat);
+    void setDecodeCategory (unsigned int cat, bool decode);
     void decodeNoCategories();
 
-    bool hasEdition (const std::string& cat_str, const std::string& edition_str);
-    void setEdition (const std::string& cat_str, const std::string& edition_str);
+    bool hasEdition (unsigned int cat, const std::string& edition_str);
+    void setEdition (unsigned int cat, const std::string& edition_str);
 
-    bool hasMapping (const std::string& cat_str, const std::string& mapping_str);
-    void setMapping (const std::string& cat_str, const std::string& mapping_str);
+    bool hasMapping (unsigned int cat, const std::string& mapping_str);
+    void setMapping (unsigned int cat, const std::string& mapping_str);
 
     void decodeFile (const std::string& filename, const std::string& framing_str,
                      std::function<void(nlohmann::json&, size_t, size_t)> data_callback=nullptr);
@@ -78,7 +78,7 @@ public:
     void addDataChunk (nlohmann::json& data_chunk, bool done);
 
     const std::vector<std::string>& framings() { return framings_; }
-    const std::map<std::string, Category>& categories() { return category_definitions_; }
+    const std::map<unsigned int, Category>& categories() { return category_definitions_; }
 
     const std::string& dataBlockDefinitionPath() const;
     const std::string& categoriesDefinitionPath() const;
@@ -103,9 +103,7 @@ private:
     std::string categories_definition_path_;
     nlohmann::json categories_definition_;
 
-    std::map<std::string, Category> category_definitions_;
-    std::map<unsigned int, std::shared_ptr<Edition>> current_category_editions_; // cat -> edition
-    std::map<unsigned int, std::shared_ptr<Mapping>> current_category_mappings_; // cat -> edition
+    std::map<unsigned int, Category> category_definitions_;
 
 #if USE_BOOST
     boost::iostreams::mapped_file_source file_;
@@ -121,8 +119,6 @@ private:
 
     size_t num_frames_{0};
     size_t num_records_{0};
-
-    void updateCurrentEditionsAndMappings ();
 };
 }
 

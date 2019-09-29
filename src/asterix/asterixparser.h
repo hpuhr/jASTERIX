@@ -19,8 +19,9 @@
 #define ASTERIXPARSER_H
 
 #include "json.hpp"
-#include "record.h"
+#include "category.h"
 #include "edition.h"
+
 #include "mapping.h"
 
 #include <tuple>
@@ -33,8 +34,7 @@ class ASTERIXParser
 {
 public:
     ASTERIXParser(const nlohmann::json& data_block_definition,
-                  const std::map<unsigned int, std::shared_ptr<Edition>>& asterix_category_definitions,
-                  const std::map<unsigned int, std::shared_ptr<Mapping>>& mappings, bool debug);
+                  std::map<unsigned int, Category>& category_definitions, bool debug);
 
     std::tuple<size_t, size_t, bool> findDataBlocks (const char* data, size_t index, size_t length,
                                                      nlohmann::json& target,bool debug);
@@ -49,6 +49,7 @@ private:
     std::string data_block_name_;
     std::vector<std::unique_ptr<ItemParserBase>> data_block_items_;
     std::map<unsigned int, std::shared_ptr<Record>> records_;
+    std::map<unsigned int, std::shared_ptr<ReservedExpansionField>> refs_;
     std::map<unsigned int, std::shared_ptr<Mapping>> mappings_;
 };
 

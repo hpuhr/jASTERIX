@@ -370,10 +370,10 @@ void test_cat019 (jASTERIX::jASTERIX& jasterix)
 
     assert (size == 57);
 
-    assert (jasterix.hasCategory("019"));
-    assert (jasterix.hasEdition("019", "1.3"));
-    jasterix.setEdition("019", "1.3");
-    jasterix.setMapping("019", "");
+    assert (jasterix.hasCategory(19));
+    assert (jasterix.hasEdition(19, "1.3"));
+    jasterix.setEdition(19, "1.3");
+    jasterix.setMapping(19, "");
 
     jasterix.decodeASTERIX(target, size, test_cat019_callback);
 

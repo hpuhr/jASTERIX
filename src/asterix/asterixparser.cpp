@@ -33,10 +33,8 @@ using namespace nlohmann;
 namespace jASTERIX {
 
 ASTERIXParser::ASTERIXParser(const nlohmann::json& data_block_definition,
-                             const std::map<unsigned int, std::shared_ptr<Edition>>& asterix_category_definitions,
-                             const std::map<unsigned int, std::shared_ptr<Mapping>>& mappings,
+                             std::map<unsigned int, Category>& category_definitions,
                              bool debug)
-    : mappings_(mappings)
 {
     // data block
 
@@ -68,15 +66,17 @@ ASTERIXParser::ASTERIXParser(const nlohmann::json& data_block_definition,
 
     // asterix record definitions
 
-    for (auto& ast_cat_def_it : asterix_category_definitions)
+    for (auto& cat_it : category_definitions)
     {
         if (debug)
-            loginf << "asterix parser constructing cat '" << setfill('0') << setw(3) << ast_cat_def_it.first << "'"
+            loginf << "asterix parser constructing cat '" << setfill('0') << setw(3) << cat_it.first << "'"
                    << logendl;
 
-        records_.insert(
-                    std::pair<unsigned int, std::shared_ptr<Record>>
-                    (ast_cat_def_it.first, std::shared_ptr<Record>{ast_cat_def_it.second->record()}));
+        records_.insert(std::pair<unsigned int, std::shared_ptr<Record>>
+                        (cat_it.first, std::shared_ptr<Record>{cat_it.second.getCurrentEdition()->record()}));
+
+        if (cat_it.second.hasCurrentREFEdition())
+            records_.at(cat_it.first)->setRef(cat_it.second.getCurrentREFEdition()->reservedExpansionField());
 
         //        if (ast_cat_def_it.second->hasCurrentMapping())
         //        {

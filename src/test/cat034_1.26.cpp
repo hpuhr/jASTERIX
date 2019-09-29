@@ -255,10 +255,10 @@ void test_cat034 (jASTERIX::jASTERIX& jasterix)
 
     assert (size == 20);
 
-    assert (jasterix.hasCategory("034"));
-    assert (jasterix.hasEdition("034", "1.26"));
-    jasterix.setEdition("034", "1.26");
-    jasterix.setMapping("034", "");
+    assert (jasterix.hasCategory(34));
+    assert (jasterix.hasEdition(34, "1.26"));
+    jasterix.setEdition(34, "1.26");
+    jasterix.setMapping(34, "");
 
     jasterix.decodeASTERIX(target, size, test_cat034_callback);
 

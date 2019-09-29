@@ -148,10 +148,10 @@ void test_cat002 (jASTERIX::jASTERIX& jasterix)
 
     assert (size == 12);
 
-    assert (jasterix.hasCategory("002"));
-    assert (jasterix.hasEdition("002", "1.0"));
-    jasterix.setEdition("002", "1.0");
-    jasterix.setMapping("002", "");
+    assert (jasterix.hasCategory(2));
+    assert (jasterix.hasEdition(2, "1.0"));
+    jasterix.setEdition(2, "1.0");
+    jasterix.setMapping(2, "");
 
     jasterix.decodeASTERIX(target, size, test_cat002_callback);
 

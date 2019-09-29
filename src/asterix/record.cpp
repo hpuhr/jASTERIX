@@ -261,9 +261,9 @@ size_t Record::parseItem (const char* data, size_t index, size_t size, size_t cu
 
     if (special_purpose_field_present)
     {
-        size_t re_bytes = data[index+parsed_bytes];
+        size_t re_bytes = static_cast<size_t> (data[index+parsed_bytes]);
 
-        //if (debug)
+        if (debug)
             loginf << "record '"+name_+"' has special purpose field, skipping " << re_bytes << " bytes " << logendl;
 
         parsed_bytes += re_bytes;
@@ -271,15 +271,35 @@ size_t Record::parseItem (const char* data, size_t index, size_t size, size_t cu
 
     if (reserved_expansion_field_present)
     {
-        size_t re_bytes = data[index+parsed_bytes];
+        size_t re_bytes = static_cast<size_t> (data[index+parsed_bytes]);
 
-        //if (debug)
+        if (debug)
             loginf << "record '"+name_+"' has reserved expansion field, skipping " << re_bytes << " bytes " << logendl;
 
         parsed_bytes += re_bytes;
     }
 
     return parsed_bytes;
+}
+
+bool Record::decodeREF() const
+{
+    return decode_ref_;
+}
+
+void Record::decodeREF(bool decode_ref)
+{
+    decode_ref_ = decode_ref;
+}
+
+std::shared_ptr<ReservedExpansionField> Record::ref() const
+{
+    return ref_;
+}
+
+void Record::setRef(const std::shared_ptr<ReservedExpansionField> &ref)
+{
+    ref_ = ref;
 }
 
 bool Record::compareKey (const nlohmann::json& container, const std::string& value)
