@@ -213,7 +213,46 @@ void test_cat020_callback (nlohmann::json& json_data, size_t num_frames, size_t 
 //                                true,
 //                                false,
 //                                false
-//                            ]
+//                            ],
+//                            "REF": {
+//                                "PA": {
+//                                    "DOP": {
+//                                        "DOP-x": 4.5,
+//                                        "DOP-xy": -3.75,
+//                                        "DOP-y": 3.75
+//                                    },
+//                                    "SDC": {
+//                                        "COV-XY (Covariance Component)": -30.5,
+//                                        "SDC (X-Component)": 34.25,
+//                                        "SDC (Y-Component)": 31.0
+//                                    },
+//                                    "SDW": {
+//                                        "COV-WGS (Lat/Long Covariance Component)": -0.00033795783,
+//                                        "SDW (Latitude Component)": 0.00028431372999999997,
+//                                        "SDW (Longitude Component)": 0.00044524603
+//                                    },
+//                                    "available": [
+//                                        true,
+//                                        true,
+//                                        false,
+//                                        true,
+//                                        false,
+//                                        false,
+//                                        false,
+//                                        false
+//                                    ]
+//                                },
+//                                "REF_FSPEC": [
+//                                    true,
+//                                    false,
+//                                    false,
+//                                    false,
+//                                    false,
+//                                    false,
+//                                    false,
+//                                    false
+//                                ]
+//                            }
 //                        }
 //                    ]
 //                },
@@ -413,10 +452,35 @@ void test_cat020_callback (nlohmann::json& json_data, size_t num_frames, size_t 
 
     //    ;  I020/RE:  0x 15 80 d0 00  12 00 0f ff  f1 00 89 00  7c ff 86 00
     //    ;            0x 35 00 53 ff  c1
+
+    loginf << "cat020 test: REF: PA" << logendl;
     //    ;  Position Accuracy:
     //    ;   DOP of Position: x=18 (4.50); y=15 (3.75); xy=-15 (-3.75)
+    assert (json_data.at("data_blocks")[0].at("content").at("records")[0].at("REF").at("PA").at("DOP").at("DOP-x")
+            == 4.5);
+    assert (json_data.at("data_blocks")[0].at("content").at("records")[0].at("REF").at("PA").at("DOP").at("DOP-y")
+            == 3.75);
+    assert (json_data.at("data_blocks")[0].at("content").at("records")[0].at("REF").at("PA").at("DOP").at("DOP-xy")
+            == -3.75);
+
     //    ;   Standard Deviation of Position: x=137 (34.25 mtr); y=124 (31.00 mtr); xy=-122 (-30.50 mtr)
+    assert (json_data.at("data_blocks")[0].at("content").at("records")[0].at("REF").at("PA").at("SDC").at(
+                "SDC (X-Component)") == 34.25);
+    assert (json_data.at("data_blocks")[0].at("content").at("records")[0].at("REF").at("PA").at("SDC").at(
+                "SDC (Y-Component)") == 31);
+    assert (json_data.at("data_blocks")[0].at("content").at("records")[0].at("REF").at("PA").at("SDC").at(
+                "COV-XY (Covariance Component)") == -30.5);
+
     //    ;   Standard Deviation of Position: lat=53 (0.000284 deg); lon=83 (0.000445 deg); cov=-63 (-0.000338 deg)
+    tmp_d = json_data.at("data_blocks")[0].at("content").at("records")[0].at("REF").at("PA").at("SDW").at(
+                "SDW (Latitude Component)");
+    assert (tmp_d - 0.000284 < 10e-6);
+    tmp_d = json_data.at("data_blocks")[0].at("content").at("records")[0].at("REF").at("PA").at("SDW").at(
+                "SDW (Longitude Component)");
+    assert (tmp_d - 0.000445 < 10e-6);
+    tmp_d = json_data.at("data_blocks")[0].at("content").at("records")[0].at("REF").at("PA").at("SDW").at(
+                "COV-WGS (Lat/Long Covariance Component)");
+    assert (tmp_d + 0.000338 < 10e-6);
 }
 
 void test_cat020 (jASTERIX::jASTERIX& jasterix)

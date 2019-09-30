@@ -266,6 +266,8 @@ size_t Record::parseItem (const char* data, size_t index, size_t size, size_t cu
         if (debug)
             loginf << "record '"+name_+"' has special purpose field, skipping " << re_bytes << " bytes " << logendl;
 
+        target["SPF"] = binary2hex((const unsigned char*)&data[index+parsed_bytes], re_bytes);
+
         parsed_bytes += re_bytes;
     }
 
@@ -273,8 +275,30 @@ size_t Record::parseItem (const char* data, size_t index, size_t size, size_t cu
     {
         size_t re_bytes = static_cast<size_t> (data[index+parsed_bytes]);
 
-        if (debug)
-            loginf << "record '"+name_+"' has reserved expansion field, skipping " << re_bytes << " bytes " << logendl;
+        if (ref_) // decode ref
+        {
+            if (debug)
+                loginf << "record '"+name_+"' has reserved expansion field, reading " << re_bytes << " bytes "
+                       << logendl;
+
+            assert (re_bytes > 1);
+
+            size_t ref_bytes = ref_->parseItem(data, index+parsed_bytes+1, re_bytes-1, 0, target["REF"], debug);
+
+            if (debug)
+                loginf << "record '"+name_+"' parsed reserved expansion field, read " << ref_bytes << " ref in "
+                       << re_bytes << " bytes " << logendl;
+
+            if (ref_bytes != re_bytes-1)
+                throw runtime_error ("record item '"+name_+"' reserved expansion field definition only read "
+                                     + to_string(ref_bytes) + " bytes of specified "+to_string(ref_bytes-1));
+        }
+        else
+        {
+            if (debug)
+                loginf << "record '"+name_+"' has reserved expansion field, reading " << re_bytes << " bytes "
+                       << logendl;
+        }
 
         parsed_bytes += re_bytes;
     }
