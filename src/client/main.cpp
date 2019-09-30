@@ -41,11 +41,10 @@ namespace po = boost::program_options;
 #include "log4cpp/SimpleLayout.hh"
 #endif
 
-
 using namespace std;
-using namespace jASTERIX;
+//using namespace jASTERIX;
 
-JSONWriter* json_writer {nullptr};
+jASTERIX::JSONWriter* json_writer {nullptr};
 
 void print_callback (nlohmann::json& data_chunk, size_t num_frames, size_t num_records)
 {
@@ -77,7 +76,7 @@ int main (int argc, char **argv)
 #endif
 
     std::string filename;
-    std::string framing {"netto"};
+    std::string framing {""};
     std::string definition_path;
     bool debug {false};
     bool debug_include_framing {false};
@@ -92,17 +91,20 @@ int main (int argc, char **argv)
         ("filename", po::value<std::string>(&filename), "input file name")
         ("definition_path", po::value<std::string>(&definition_path), "path to jASTERIX definition files")
         ("framing", po::value<std::string>(&framing), "input framine format, as specified in the framing definitions."
-                                                      " netto is default")
-        ("frame_limit", po::value<int>(&frame_limit), "number of frames to process, default -1, use -1 to disable.")
-        ("frame_chunk_size", po::value<int>(&frame_chunk_size),
+                                                      " raw/netto is default")
+        ("frame_limit", po::value<int>(&jASTERIX::frame_limit),
+         "number of frames to process, default -1, use -1 to disable.")
+        ("frame_chunk_size", po::value<int>(&jASTERIX::frame_chunk_size),
          "number of frames to process in one chunk, default 1000, use -1 to disable.")
-        ("data_write_size", po::value<int>(&data_write_size),
+        ("data_write_size", po::value<int>(&jASTERIX::data_write_size),
          "number of frame chunks to write in one file write, default 100, use -1 to disable.")
         ("debug", po::bool_switch(&debug), "print debug output")
-        ("debug_include_framing", po::bool_switch(&debug_include_framing), "print debug output including framing, debug still has to be set, disable per default")
+        ("debug_include_framing", po::bool_switch(&debug_include_framing),
+         "print debug output including framing, debug still has to be set, disable per default")
         ("print", po::bool_switch(&print), "print JSON output")
-        ("print_indent", po::value<int>(&print_dump_indent), "intendation of json print, use -1 to disable.")
-        ("write_type", po::value<std::string>(&write_type), "optional write type, e.g. text,zip. needs write_filename.")
+        ("print_indent", po::value<int>(&jASTERIX::print_dump_indent), "intendation of json print, use -1 to disable.")
+        ("write_type", po::value<std::string>(&write_type),
+         "optional write type, e.g. text,zip. needs write_filename.")
         ("write_filename", po::value<std::string>(&write_filename), "optional write filename, e.g. test.zip.")
     ;
 
@@ -133,7 +135,7 @@ int main (int argc, char **argv)
         loginf << "filename (value): input filename." << logendl;
         loginf << "definition_path (value): path to jASTERIX definition files." << logendl;
         loginf << "framing (value): input framine format, as specified in the framing definitions."
-                  " netto is default" << logendl;
+                  " raw/netto is default" << logendl;
         loginf << "frame_limit: number of frames to process, default -1, use -1 to disable." << logendl;
         loginf << "frame_chunk_size: number of frames to process in one chunk, default 1000, use -1 to disable." << logendl;
         loginf << "data_write_size: number of frame chunks to write in one file write, default 100, use -1 to disable." << logendl;
@@ -201,9 +203,9 @@ int main (int argc, char **argv)
         }
 
         if (write_type == "text")
-            json_writer = new JSONWriter(JSON_TEXT, write_filename);
+            json_writer = new jASTERIX::JSONWriter(jASTERIX::JSON_TEXT, write_filename);
         else if (write_type == "zip")
-            json_writer = new JSONWriter(JSON_ZIP_TEXT, write_filename);
+            json_writer = new jASTERIX::JSONWriter(jASTERIX::JSON_ZIP_TEXT, write_filename);
     }
 
     // check if basic configuration works
