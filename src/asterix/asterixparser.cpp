@@ -72,6 +72,15 @@ ASTERIXParser::ASTERIXParser(const nlohmann::json& data_block_definition,
             loginf << "asterix parser constructing cat '" << setfill('0') << setw(3) << cat_it.first << "'"
                    << logendl;
 
+        if (!cat_it.second->decode()) // if not decode, do not store record
+        {
+            loginf << "asterix parser not decoding cat '" << setfill('0') << setw(3) << cat_it.first << "'"
+                   << logendl;
+            continue;
+        }
+        loginf << "asterix parser decoding cat '" << setfill('0') << setw(3) << cat_it.first << "'"
+               << logendl;
+
         records_.insert(std::pair<unsigned int, std::shared_ptr<Record>>
                         (cat_it.first, std::shared_ptr<Record>{cat_it.second->getCurrentEdition()->record()}));
 

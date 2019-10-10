@@ -317,7 +317,7 @@ void jASTERIX::decodeFile (const std::string& filename, const std::string& frami
             }
             catch (std::exception& e)
             {
-                loginf << "jASTERIX caught exception, breaking" << logendl;
+                loginf << "jASTERIX caught exception '" << e.what() << "', breaking" << logendl;
                 //task->cancel_group_execution();
                 task->forceStop();
 
@@ -429,7 +429,7 @@ void jASTERIX::decodeFile (const std::string& filename,
             }
             catch (std::exception& e)
             {
-                loginf << "jASTERIX caught exception, breaking" << logendl;
+                loginf << "jASTERIX caught exception'" << e.what() << "', breaking" << logendl;
                 task->forceStop();
 //                task->cancel_group_execution();
 
