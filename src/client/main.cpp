@@ -46,14 +46,15 @@ using namespace std;
 
 jASTERIX::JSONWriter* json_writer {nullptr};
 
-void print_callback (nlohmann::json& data_chunk, size_t num_frames, size_t num_records)
+void print_callback (nlohmann::json& data_chunk, size_t num_frames, size_t num_records, size_t num_errors)
 {
     loginf << data_chunk.dump(4);
 }
 
-void write_callback (nlohmann::json& data_chunk, size_t num_frames, size_t num_records)
+void write_callback (nlohmann::json& data_chunk, size_t num_frames, size_t num_records, size_t num_errors)
 {
-    loginf << "jASTERIX: write_callback " << num_frames << " frames, " << num_records;
+    loginf << "jASTERIX: write_callback " << num_frames << " frames, " << num_records << " records, "
+           << num_errors << " errors";
     assert (json_writer);
 
     json_writer->write(data_chunk);

@@ -172,20 +172,20 @@ std::tuple<size_t, size_t, bool> ASTERIXParser::findDataBlocks (const char* data
     return std::make_tuple (parsed_bytes_sum, num_blocks, !record_limit_hit);
 }
 
-size_t ASTERIXParser::decodeDataBlocks (const char* data, nlohmann::json& data_blocks, bool debug)
+std::pair<size_t, size_t> ASTERIXParser::decodeDataBlocks (const char* data, nlohmann::json& data_blocks, bool debug)
 {
     if (debug)
         loginf << "ASTERIXParser: decodeDataBlocks" << logendl;
 
-    size_t num_records_sum {0};
+    std::pair<size_t, size_t> ret {0,0}; // num records, num errors
 
     if (!data_blocks.is_array())
         throw runtime_error("asterix parser data blocks is not an array");
 
     size_t num_data_blocks = data_blocks.size();
 
-    std::vector<size_t> num_records;
-    num_records.resize(num_data_blocks, 0);
+    std::vector<std::pair<size_t, size_t>> num_records;
+    num_records.resize(num_data_blocks, {0,0});
 
     if (debug) // switch to single thread in debug
     {
@@ -201,21 +201,24 @@ size_t ASTERIXParser::decodeDataBlocks (const char* data, nlohmann::json& data_b
     }
 
     for (auto num_record_it : num_records)
-        num_records_sum += num_record_it;
+    {
+        ret.first += num_record_it.first;
+        ret.second += num_record_it.second;
+    }
 
     if (debug)
         loginf << "ASTERIXParser: decodeDataBlocks: done" << logendl;
 
-    return num_records_sum;
+    return ret;
 }
 
-size_t ASTERIXParser::decodeDataBlock (const char* data, nlohmann::json& data_block, bool debug)
+std::pair<size_t, size_t> ASTERIXParser::decodeDataBlock (const char* data, nlohmann::json& data_block, bool debug)
 {
     if (debug)
         loginf << "ASTERIXParser: decodeDataBlock" << logendl;
 
     size_t parsed_bytes {0}; // TODO unsure if used
-    size_t num_records {0};
+    std::pair<size_t, size_t> ret {0,0}; // num records, num errors
 
     // check record information
     //json& record = target.at(data_block_name_);
@@ -256,45 +259,54 @@ size_t ASTERIXParser::decodeDataBlock (const char* data, nlohmann::json& data_bl
     // try to decode
     if (records_.count(cat) != 0)
     {
-        // decode
-        if (debug)
-            loginf << "asterix parser decoding record with cat " << cat << " index " << record_index
-                   << " length " << record_length << logendl;
-
         size_t parsed_bytes_record {0};
 
-        data_block_content["records"] = json::array();
-
-        // create records until end of content
-        while (parsed_bytes_record < record_length)
+        try
         {
-            //loginf << "asterix parser decoding record " << cnt << " parsed bytes " << parsed_bytes_record << " length " << record_length;
-
-            parsed_bytes_record += records_.at(cat)->parseItem(
-                        data, record_index+parsed_bytes_record, record_length-parsed_bytes_record,
-                        parsed_bytes+parsed_bytes_record,
-                        data_block_content.at("records")[num_records], debug);
-
+            // decode
             if (debug)
                 loginf << "asterix parser decoding record with cat " << cat << " index " << record_index
-                       << ": " << data_block_content.at("records")[num_records].dump(4) << "'" << logendl;
-            ++num_records;
+                       << " length " << record_length << logendl;
+
+            data_block_content["records"] = json::array();
+
+            // create records until end of content
+            while (parsed_bytes_record < record_length)
+            {
+                //loginf << "asterix parser decoding record " << cnt << " parsed bytes " << parsed_bytes_record << " length " << record_length;
+
+                parsed_bytes_record += records_.at(cat)->parseItem(
+                            data, record_index+parsed_bytes_record, record_length-parsed_bytes_record,
+                            parsed_bytes+parsed_bytes_record,
+                            data_block_content.at("records")[ret.first], debug);
+
+                if (debug)
+                    loginf << "asterix parser decoding record with cat " << cat << " index " << record_index
+                           << ": " << data_block_content.at("records")[ret.first].dump(4) << "'" << logendl;
+                ++ret.first;
+            }
+        }
+        catch (std::exception& e)
+        {
+            loginf << "asterix parser decoding of cat " << cat << " failed with exception: '"
+                   << e.what() << "'"  << "' after index " << record_index+parsed_bytes_record << logendl;
+            ++ret.second;
         }
     }
     else if (debug)
         loginf << "asterix parser decoding record with cat " << cat << " index " << record_index
                << " length " << record_length << " skipped since cat definition is missing " << logendl;
 
-    if (num_records && mappings_.count(cat))
+    if (ret.first && mappings_.count(cat))
     {
         if (debug)
-            loginf << "asterix parser decoding mapping cat " << cat << ", num records " << num_records << logendl;
+            loginf << "asterix parser decoding mapping cat " << cat << ", num records " << ret.first << logendl;
 
         std::shared_ptr<Mapping> current_mapping = mappings_.at(cat);
         json& mapping_src = data_block_content.at("records");
         json mapping_dest = json::array();
 
-        for (size_t cnt=0; cnt < num_records; ++cnt)
+        for (size_t cnt=0; cnt < ret.first; ++cnt)
             current_mapping->map(mapping_src[cnt], mapping_dest[cnt]);
 
         data_block_content["records"] = std::move(mapping_dest);
@@ -302,9 +314,10 @@ size_t ASTERIXParser::decodeDataBlock (const char* data, nlohmann::json& data_bl
     }
 
     if (debug)
-        loginf << "ASTERIXParser: decodeDataBlock: done num records " << num_records << logendl;
+        loginf << "ASTERIXParser: decodeDataBlock: done num records " << ret.first
+               << " errors " << ret.second << logendl;
 
-    return num_records;
+    return ret;
 }
 
 }

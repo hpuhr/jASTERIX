@@ -22,10 +22,11 @@
 
 #include <cmath>
 
-void test_cat021_callback (nlohmann::json& json_data, size_t num_frames, size_t num_records)
+void test_cat021_callback (nlohmann::json& json_data, size_t num_frames, size_t num_records, size_t num_errors)
 {
-    loginf << "cat021 test: decoded " << num_frames << " frames, " << num_records << " records: " << json_data.dump(4)
-               << logendl;
+    loginf << "cat021 test: decoded " << num_frames << " frames, " << num_records << " records, " << num_errors
+           << " errors: " << json_data.dump(4) << logendl;
+    assert (num_errors == 0);
 
 //    {
 //        "data_blocks": [

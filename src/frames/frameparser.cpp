@@ -168,42 +168,49 @@ std::tuple<size_t, size_t, bool> FrameParser::findFrames (const char* data, size
     return std::make_tuple (parsed_bytes_sum, chunk_frames_cnt, !(hit_frame_limit || hit_frame_chunk_limit));
 }
 
-size_t FrameParser::decodeFrames (const char* data, json& target, bool debug)
+std::pair<size_t, size_t> FrameParser::decodeFrames (const char* data, json& target, bool debug)
 {
     assert (data);
     assert (target != nullptr);
 
 //    loginf << "FrameParser: decodeFrames" << logendl;
 
-    size_t num_records_sum {0};
+    std::pair<size_t, size_t> ret {0,0};
     nlohmann::json& j_frames = target.at("frames");
 
     if (debug) // switch to single thread in debug
     {
+        std::pair<size_t, size_t> tmp {0,0};
+
         for (json& frame_it : j_frames)
         {
-            num_records_sum += decodeFrame (data, frame_it, debug);
+            tmp = decodeFrame (data, frame_it, debug);
+            ret.first += tmp.first;
+            ret.second += tmp.second;
         }
     }
     else
     {
         size_t num_frames = j_frames.size();
-        std::vector<size_t> num_records;
-        num_records.resize(num_frames, 0);
+        std::vector<std::pair<size_t, size_t>> dec_ret;
+        dec_ret.resize(num_frames, {0,0});
 
         tbb::parallel_for( size_t(0), num_frames, [&]( size_t cnt )
         {
-            num_records.at(cnt) = decodeFrame (data, j_frames.at(cnt), debug);
+            dec_ret.at(cnt) = decodeFrame (data, j_frames.at(cnt), debug);
         });
 
-        for (auto num_record_it : num_records)
-            num_records_sum += num_record_it;
+        for (auto num_record_it : dec_ret)
+        {
+            ret.first += num_record_it.first;
+            ret.second += num_record_it.second;
+        }
     }
 
     if (debug)
-        loginf << "frames decoded, num frames " << num_records_sum << logendl;
+        loginf << "frames decoded, num frames " << ret.first << " num errors " << ret.second << logendl;
 
-    return num_records_sum;
+    return ret;
 }
 
 bool FrameParser::hasFileHeaderItems() const
@@ -211,7 +218,7 @@ bool FrameParser::hasFileHeaderItems() const
     return has_file_header_items_;
 }
 
-size_t FrameParser::decodeFrame (const char* data, json& json_frame, bool debug)
+std::pair<size_t, size_t> FrameParser::decodeFrame (const char* data, json& json_frame, bool debug)
 {
     if (debug && json_frame.find("content") == json_frame.end())
         throw runtime_error("frame parser scoped frames does not contain correct content");
@@ -233,12 +240,12 @@ size_t FrameParser::decodeFrame (const char* data, json& json_frame, bool debug)
     size_t index = frame_content.at("index");
     size_t size = frame_content.at("length");
 
-    std::tuple<size_t, size_t, bool> ret = asterix_parser_.findDataBlocks(data, index, size, frame_content, debug);
+    std::tuple<size_t, size_t, bool> db_ret = asterix_parser_.findDataBlocks(data, index, size, frame_content, debug);
 
     //parsed_bytes += std::get<0>(ret);
     //size_t num_data_blocks = std::get<1>(ret);
 
-    assert (std::get<2>(ret)); // done flag
+    assert (std::get<2>(db_ret)); // done flag
 
     if (frame_content.find("data_blocks") == frame_content.end())
         throw runtime_error("frame parser scoped frames do not contain data blocks");
@@ -246,16 +253,19 @@ size_t FrameParser::decodeFrame (const char* data, json& json_frame, bool debug)
     if (!frame_content.at("data_blocks").is_array())
         throw runtime_error("frame parser scoped frames data blocks are non-array");
 
-    size_t parsed_bytes {0};
+    std::pair<size_t, size_t> ret {0, 0};
+    std::pair<size_t, size_t> dec_ret {0, 0};
 
     for (json& data_block : frame_content.at("data_blocks"))
     {
-        parsed_bytes += asterix_parser_.decodeDataBlock(data, data_block, debug);
+        dec_ret = asterix_parser_.decodeDataBlock(data, data_block, debug);
+        ret.first += dec_ret.first;
+        ret.second += dec_ret.second;
     }
 
     //loginf << "FP UGA '" << json_frame.dump(4) << "'" << logendl;
 
-    return parsed_bytes;
+    return ret;
 }
 
 }

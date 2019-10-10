@@ -40,8 +40,9 @@ public:
                                                      nlohmann::json& target,bool debug);
     // parsed bytes, num data blocks, done flag
 
-    size_t decodeDataBlocks (const char* data, nlohmann::json& data_blocks, bool debug);
-    size_t decodeDataBlock (const char* data, nlohmann::json& data_block, bool debug);
+    // num recored, num errors
+    std::pair<size_t, size_t> decodeDataBlocks (const char* data, nlohmann::json& data_blocks, bool debug);
+    std::pair<size_t, size_t> decodeDataBlock (const char* data, nlohmann::json& data_block, bool debug);
 //    size_t decodeDataBlock (const char* data, unsigned int cat, size_t index, size_t size, nlohmann::json& target,
 //                            bool debug);
 

@@ -198,7 +198,7 @@ std::shared_ptr<Category> jASTERIX::category (unsigned int cat)
 }
 
 void jASTERIX::decodeFile (const std::string& filename, const std::string& framing,
-                           std::function<void(nlohmann::json&, size_t, size_t)> data_callback)
+                           std::function<void(nlohmann::json&, size_t, size_t, size_t)> data_callback)
 {
     // check and open file
     if (!fileExists(filename))
@@ -280,7 +280,7 @@ void jASTERIX::decodeFile (const std::string& filename, const std::string& frami
     nlohmann::json data_chunk;
 
     size_t num_callback_frames;
-    size_t num_callback_records;
+    std::pair<size_t, size_t> dec_ret {0, 0};
 
     while (1)
     {
@@ -297,17 +297,19 @@ void jASTERIX::decodeFile (const std::string& filename, const std::string& frami
 
             try
             {
-                num_callback_records = frame_parser.decodeFrames(data, data_chunk, debug_);
-                num_records_ += num_callback_records;
+                dec_ret = frame_parser.decodeFrames(data, data_chunk, debug_);
+                num_records_ += dec_ret.first;
+                num_errors_ += dec_ret.second;
 
                 if (debug_)
-                    loginf << "jASTERIX processing " << num_frames_ << " frames, " << num_records_ << " records" << logendl;
+                    loginf << "jASTERIX processing " << num_frames_ << " frames, " << num_records_ << " records "
+                           << num_errors_ << " errors " << logendl;
 
                 if (print_)
                     loginf << data_chunk.dump(print_dump_indent) << logendl;
 
                 if (data_callback)
-                    data_callback(data_chunk, num_callback_frames, num_callback_records);
+                    data_callback(data_chunk, num_callback_frames, dec_ret.first, dec_ret.second);
 
                 if (frame_limit > 0 && num_frames_ >= static_cast<unsigned>(frame_limit))
                 {
@@ -343,7 +345,7 @@ void jASTERIX::decodeFile (const std::string& filename, const std::string& frami
 }
 
 void jASTERIX::decodeFile (const std::string& filename,
-                           std::function<void(nlohmann::json&, size_t, size_t)> data_callback)
+                           std::function<void(nlohmann::json&, size_t, size_t, size_t)> data_callback)
 {
     // check and open file
     if (!fileExists(filename))
@@ -397,7 +399,7 @@ void jASTERIX::decodeFile (const std::string& filename,
 
     nlohmann::json data_block_chunk;
 
-    size_t num_data_records {0};
+    std::pair<size_t, size_t> dec_ret {0,0};
 
     while (1)
     {
@@ -420,11 +422,12 @@ void jASTERIX::decodeFile (const std::string& filename,
                 if (!data_block_chunk.at("data_blocks").is_array())
                     throw runtime_error("jasterix data blocks is not an array");
 
-                num_data_records = asterix_parser.decodeDataBlocks(data, data_block_chunk.at("data_blocks"), debug_);
-                num_records_ += num_data_records;
+                dec_ret = asterix_parser.decodeDataBlocks(data, data_block_chunk.at("data_blocks"), debug_);
+                num_records_ += dec_ret.first;
+                num_errors_ += dec_ret.second;
 
                 if (data_callback)
-                    data_callback(data_block_chunk, 0, num_data_records);
+                    data_callback(data_block_chunk, 0, dec_ret.first, dec_ret.second);
 
             }
             catch (std::exception& e)
@@ -457,7 +460,7 @@ void jASTERIX::decodeFile (const std::string& filename,
 }
 
 void jASTERIX::decodeASTERIX (const char* data, size_t size,
-                              std::function<void(nlohmann::json&, size_t, size_t)> callback)
+                              std::function<void(nlohmann::json&, size_t, size_t, size_t)> callback)
 {
     // create ASTERIX parser
     ASTERIXParser asterix_parser (data_block_definition_, category_definitions_, debug_);
@@ -490,7 +493,7 @@ void jASTERIX::decodeASTERIX (const char* data, size_t size,
         asterix_parser.decodeDataBlock(data, data_block, debug_);
 
     if (callback)
-        callback(data_chunk, 0, 0);
+        callback(data_chunk, 0, 0, 0); // TODO added counters
 }
 
 
@@ -556,6 +559,11 @@ const std::string& jASTERIX::framingsFolderPath() const
 void jASTERIX::setDebug(bool debug)
 {
     debug_ = debug;
+}
+
+size_t jASTERIX::numErrors() const
+{
+    return num_errors_;
 }
 
 }

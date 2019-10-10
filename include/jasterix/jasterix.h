@@ -58,16 +58,17 @@ public:
     const std::map<unsigned int, std::shared_ptr<Category>>& categories() { return category_definitions_; }
 
     void decodeFile (const std::string& filename, const std::string& framing_str,
-                     std::function<void(nlohmann::json&, size_t, size_t)> data_callback=nullptr);
-    // callback gets moved chunk, accumulated number of frames, number of records
+                     std::function<void(nlohmann::json&, size_t, size_t, size_t)> data_callback=nullptr);
+    // callback gets moved chunk, accumulated number of frames, number of records, number of errors
     void decodeFile (const std::string& filename,
-                     std::function<void(nlohmann::json&, size_t, size_t)> data_callback=nullptr);
+                     std::function<void(nlohmann::json&, size_t, size_t, size_t)> data_callback=nullptr);
 
     void decodeASTERIX (const char* data, size_t size,
-                 std::function<void(nlohmann::json&, size_t, size_t)> data_callback=nullptr);
+                 std::function<void(nlohmann::json&, size_t, size_t, size_t)> data_callback=nullptr);
 
     size_t numFrames() const;
     size_t numRecords() const;
+    size_t numErrors() const;
 
     void addDataBlockChunk (nlohmann::json& data_block_chunk, bool done);
     void addDataChunk (nlohmann::json& data_chunk, bool done);
@@ -79,6 +80,7 @@ public:
     const std::string& framingsFolderPath() const;
 
     void setDebug(bool debug);
+
 
 private:
     //tbb::task_scheduler_init init_;
@@ -113,6 +115,7 @@ private:
 
     size_t num_frames_{0};
     size_t num_records_{0};
+    size_t num_errors_{0};
 };
 }
 

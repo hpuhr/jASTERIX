@@ -34,37 +34,37 @@ namespace po = boost::program_options;
 using namespace std;
 //using namespace jASTERIX;
 
-void test_cat001_callback (nlohmann::json& json_data, size_t num_frames, size_t num_records);
+void test_cat001_callback (nlohmann::json& json_data, size_t num_frames, size_t num_records, size_t num_errors);
 void test_cat001 (jASTERIX::jASTERIX& jasterix);
 
-void test_cat002_callback (nlohmann::json& json_data, size_t num_frames, size_t num_records);
+void test_cat002_callback (nlohmann::json& json_data, size_t num_frames, size_t num_records, size_t num_errors);
 void test_cat002 (jASTERIX::jASTERIX& jasterix);
 
-void test_cat019_callback (nlohmann::json& json_data, size_t num_frames, size_t num_records);
+void test_cat019_callback (nlohmann::json& json_data, size_t num_frames, size_t num_records, size_t num_errors);
 void test_cat019 (jASTERIX::jASTERIX& jasterix);
 
-void test_cat020_callback (nlohmann::json& json_data, size_t num_frames, size_t num_records);
+void test_cat020_callback (nlohmann::json& json_data, size_t num_frames, size_t num_records, size_t num_errors);
 void test_cat020 (jASTERIX::jASTERIX& jasterix);
 
-void test_cat034_callback (nlohmann::json& json_data, size_t num_frames, size_t num_records);
+void test_cat034_callback (nlohmann::json& json_data, size_t num_frames, size_t num_records, size_t num_errors);
 void test_cat034 (jASTERIX::jASTERIX& jasterix);
 
-void test_cat048_callback (nlohmann::json& json_data, size_t num_frames, size_t num_records);
+void test_cat048_callback (nlohmann::json& json_data, size_t num_frames, size_t num_records, size_t num_errors);
 void test_cat048 (jASTERIX::jASTERIX& jasterix);
 
-void test_cat021_callback (nlohmann::json& json_data, size_t num_frames, size_t num_records);
+void test_cat021_callback (nlohmann::json& json_data, size_t num_frames, size_t num_records, size_t num_errors);
 void test_cat021 (jASTERIX::jASTERIX& jasterix);
 
-void test_cat062_callback (nlohmann::json& json_data, size_t num_frames, size_t num_records);
+void test_cat062_callback (nlohmann::json& json_data, size_t num_frames, size_t num_records, size_t num_errors);
 void test_cat062_112 (jASTERIX::jASTERIX& jasterix);
 
-void test_cat062_116_callback (nlohmann::json& json_data, size_t num_frames, size_t num_records);
+void test_cat062_116_callback (nlohmann::json& json_data, size_t num_frames, size_t num_records, size_t num_errors);
 void test_cat062_116 (jASTERIX::jASTERIX& jasterix);
 
-void test_cat063_callback (nlohmann::json& json_data, size_t num_frames, size_t num_records);
+void test_cat063_callback (nlohmann::json& json_data, size_t num_frames, size_t num_records, size_t num_errors);
 void test_cat063 (jASTERIX::jASTERIX& jasterix);
 
-void test_cat065_callback (nlohmann::json& json_data, size_t num_frames, size_t num_records);
+void test_cat065_callback (nlohmann::json& json_data, size_t num_frames, size_t num_records, size_t num_errors);
 void test_cat065 (jASTERIX::jASTERIX& jasterix);
 
 int main (int argc, char **argv)
