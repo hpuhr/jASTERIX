@@ -87,12 +87,12 @@ ASTERIXParser::ASTERIXParser(const nlohmann::json& data_block_definition,
         if (cat_it.second->hasCurrentREFEdition())
             records_.at(cat_it.first)->setRef(cat_it.second->getCurrentREFEdition()->reservedExpansionField());
 
-        //        if (ast_cat_def_it.second->hasCurrentMapping())
-        //        {
-        //            mappings_.insert(
-        //                        std::pair<unsigned int, std::shared_ptr<Mapping>>
-        //                        (ast_cat_def_it.first, std::shared_ptr<Mapping>{ast_cat_def_it.second->record()}));
-        //        }
+        if (cat_it.second->hasCurrentMapping())
+        {
+            mappings_.insert(
+                        std::pair<unsigned int, std::shared_ptr<Mapping>>
+                        (cat_it.first, std::shared_ptr<Mapping>{cat_it.second->getCurrentMapping()}));
+        }
     }
 }
 
