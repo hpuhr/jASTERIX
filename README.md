@@ -24,33 +24,24 @@ Currently support framings:
 - RFF: Comsoft RFF format
 
 Currently supported ASTERIX categories & editions:
-- 001
-  - Edition 1.1
-- 002
-  - Edition 1.0
-- 019
-  - Edition 1.2
-  - Edition 1.3
-- 020
-  - Edition 1.5
-  - Edition 1.8
-- 021
-  - Edition 2.1
-- 023
-  - Edition 1.2
-- 034
-  - Edition 1.26
-- 048
-  - Edition 1.15
-- 062
-  - Edition 1.12
-  - Edition 1.16
-- 063
-  - Edition 1.0
-  - Edition 1.1
-- 065
-  - Edition 1.2
-  - Edition 1.3
+
+| CAT | Editions | REFs|
+|-----|----------|-----|
+|  001|       1.1|     |
+|  002|       1.0|     |
+|  019|       1.2|     |
+|  020|       1.5|     |
+|     |       1.8|     |
+|  021|       2.1|     |
+|  023|       1.2|     |
+|  034|      1.26|     |
+|  048|      1.15|     |
+|  062|      1.12|     |
+|     |      1.16|     |
+|  063|       1.0|     |
+|  063|       1.1|     |
+|  065|       1.2|     |
+|     |       1.3|     |
 
 ## Contents
 - Folder "cmake_modules": Contains cmake find scripts
