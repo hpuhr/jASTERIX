@@ -36,9 +36,9 @@ public:
     ASTERIXParser(const nlohmann::json& data_block_definition,
                   std::map<unsigned int, std::shared_ptr<Category>>& category_definitions, bool debug);
 
-    std::tuple<size_t, size_t, bool> findDataBlocks (const char* data, size_t index, size_t length,
+    // parsed bytes, num data blocks, error flag, done flag
+    std::tuple<size_t, size_t, bool, bool> findDataBlocks (const char* data, size_t index, size_t length,
                                                      nlohmann::json& target,bool debug);
-    // parsed bytes, num data blocks, done flag
 
     // num recored, num errors
     std::pair<size_t, size_t> decodeDataBlocks (const char* data, nlohmann::json& data_blocks, bool debug);

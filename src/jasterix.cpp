@@ -472,9 +472,14 @@ void jASTERIX::decodeASTERIX (const char* data, size_t size,
 
     //loginf << "UGA find db" << logendl;
 
-    std::tuple<size_t, size_t, bool> ret = asterix_parser.findDataBlocks(data, index, size, data_chunk, debug_);
+    std::tuple<size_t, size_t, bool, bool> ret = asterix_parser.findDataBlocks(data, index, size, data_chunk, debug_);
 
-    bool done = std::get<2>(ret);
+    bool error = std::get<2>(ret);
+
+    if (error)
+        throw std::runtime_error("jASTERIX decodeASTERIX function failed with error");
+
+    bool done = std::get<3>(ret);
 
     //loginf << "UGA find done " << done << logendl;
 
@@ -507,11 +512,11 @@ size_t jASTERIX::numRecords() const
     return num_records_;
 }
 
-void jASTERIX::addDataBlockChunk (nlohmann::json& data_block_chunk, bool done)
+void jASTERIX::addDataBlockChunk (nlohmann::json& data_block_chunk, bool error, bool done)
 {
     if (debug_)
     {
-        loginf << "jASTERIX adding data block chunk, done " << done << logendl;
+        loginf << "jASTERIX adding data block chunk, error " << error << " done " << done << logendl;
 
         if (data_block_chunk.find("data_blocks") == data_block_chunk.end())
             throw std::runtime_error ("jASTERIX scoped data block information contains no data blocks");
@@ -519,6 +524,9 @@ void jASTERIX::addDataBlockChunk (nlohmann::json& data_block_chunk, bool done)
         if (!data_block_chunk.at("data_blocks").is_array())
             throw std::runtime_error ("jASTERIX scoped scoped data block information is not array");
     }
+
+    if (error)
+        num_errors_ += 1;
 
     data_block_chunks_.push(std::move(data_block_chunk));
     data_block_processing_done_ = done;

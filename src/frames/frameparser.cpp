@@ -240,12 +240,15 @@ std::pair<size_t, size_t> FrameParser::decodeFrame (const char* data, json& json
     size_t index = frame_content.at("index");
     size_t size = frame_content.at("length");
 
-    std::tuple<size_t, size_t, bool> db_ret = asterix_parser_.findDataBlocks(data, index, size, frame_content, debug);
+    std::tuple<size_t, size_t, bool, bool> db_ret =
+            asterix_parser_.findDataBlocks(data, index, size, frame_content, debug);
 
     //parsed_bytes += std::get<0>(ret);
     //size_t num_data_blocks = std::get<1>(ret);
 
-    assert (std::get<2>(db_ret)); // done flag
+    bool error = std::get<2>(db_ret); // error flag
+
+    assert (std::get<3>(db_ret)); // done flag
 
     if (frame_content.find("data_blocks") == frame_content.end())
         throw runtime_error("frame parser scoped frames do not contain data blocks");
@@ -255,6 +258,9 @@ std::pair<size_t, size_t> FrameParser::decodeFrame (const char* data, json& json
 
     std::pair<size_t, size_t> ret {0, 0};
     std::pair<size_t, size_t> dec_ret {0, 0};
+
+    if (error) // add data block errors
+        ret.second += 1;
 
     for (json& data_block : frame_content.at("data_blocks"))
     {

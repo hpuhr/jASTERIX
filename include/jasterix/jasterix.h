@@ -70,7 +70,7 @@ public:
     size_t numRecords() const;
     size_t numErrors() const;
 
-    void addDataBlockChunk (nlohmann::json& data_block_chunk, bool done);
+    void addDataBlockChunk (nlohmann::json& data_block_chunk, bool error, bool done);
     void addDataChunk (nlohmann::json& data_chunk, bool done);
 
     const std::vector<std::string>& framings() { return framings_; }

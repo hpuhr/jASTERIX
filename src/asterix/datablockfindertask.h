@@ -31,18 +31,19 @@ public:
         {
             nlohmann::json jdata;
 
-            std::tuple<size_t, size_t, bool> ret = asterix_parser_.findDataBlocks(data_, index_+parsed_bytes,
+            std::tuple<size_t, size_t, bool, bool> ret = asterix_parser_.findDataBlocks(data_, index_+parsed_bytes,
                                                                                   size_-parsed_bytes,
                                                                                   jdata, debug_);
 
             parsed_bytes += std::get<0>(ret);
             num_data_blocks += std::get<1>(ret);
-            done_ = std::get<2>(ret);
+            error_ += std::get<2>(ret);
+            done_ = std::get<3>(ret);
 
 //            loginf << "DataBlockFinderTask: ex pb " << parsed_bytes << " num db " << num_data_blocks << " done "
 //                   << done << logendl;
 
-            jasterix_.addDataBlockChunk(jdata, done_);
+            jasterix_.addDataBlockChunk(jdata, error_, done_);
         }
 
         if (force_stop_)
@@ -57,6 +58,8 @@ public:
 
     bool done() const;
 
+    bool error() const;
+
 private:
     jASTERIX& jasterix_;
     ASTERIXParser& asterix_parser_;
@@ -64,6 +67,7 @@ private:
     size_t index_;
     size_t size_;
     bool debug_;
+    bool error_ {false};
     bool done_ {false};
     volatile bool force_stop_ {false};
 };
@@ -76,6 +80,11 @@ void DataBlockFinderTask::forceStop()
 bool DataBlockFinderTask::done() const
 {
 return done_;
+}
+
+bool DataBlockFinderTask::error() const
+{
+return error_;
 }
 
 }

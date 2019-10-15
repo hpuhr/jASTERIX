@@ -96,8 +96,8 @@ ASTERIXParser::ASTERIXParser(const nlohmann::json& data_block_definition,
     }
 }
 
-std::tuple<size_t, size_t, bool> ASTERIXParser::findDataBlocks (const char* data, size_t index, size_t length,
-                                                         nlohmann::json& target, bool debug)
+std::tuple<size_t, size_t, bool, bool> ASTERIXParser::findDataBlocks (const char* data, size_t index, size_t length,
+                                                                      nlohmann::json& target, bool debug)
 {
     if (debug)
         loginf << "ASTERIXParser: findDataBlocks index " << index << " length " << length << logendl;
@@ -106,44 +106,57 @@ std::tuple<size_t, size_t, bool> ASTERIXParser::findDataBlocks (const char* data
     size_t parsed_data_block_bytes {0};
     size_t parsed_bytes_sum {0};
     size_t num_blocks {0};
+    bool error {false};
 
-//    loginf << "UGA AP index " << index << " length " << length << logendl;
+    //    loginf << "UGA AP index " << index << " length " << length << logendl;
 
     bool record_limit_hit {false};
     size_t current_index {index};
 
-    while (parsed_bytes_sum < length)
+    try
     {
-//        loginf << "UGA AP1 parsed sum " << parsed_bytes_sum << " length " << length << " block " << num_blocks << logendl;
 
-        if (record_chunk_size > 0 && num_blocks >= static_cast<size_t> (record_chunk_size))
+
+        while (parsed_bytes_sum < length)
         {
-            record_limit_hit = true;
-            break;
+            //        loginf << "UGA AP1 parsed sum " << parsed_bytes_sum << " length " << length << " block " << num_blocks << logendl;
+
+            if (record_chunk_size > 0 && num_blocks >= static_cast<size_t> (record_chunk_size))
+            {
+                record_limit_hit = true;
+                break;
+            }
+
+            parsed_data_block_bytes = 0;
+
+
+            for (auto& r_item : data_block_items_)
+            {
+                parsed_bytes = r_item->parseItem(data, current_index, length, parsed_data_block_bytes,
+                                                 target[data_block_name_][num_blocks], debug);
+                //            loginf << "UGA FP2 parsed " << parsed_bytes << " target '" << target[data_block_name_][num_blocks]
+                //                      << "'" << logendl;
+
+                parsed_data_block_bytes += parsed_bytes;
+                parsed_bytes_sum += parsed_bytes;
+                current_index += parsed_bytes;
+            }
+
+            //loginf << "UGA2 target block '" << target[data_block_name_][num_blocks].dump(4) << "'" << logendl;
+
+            //        loginf << "UGA AP3 parsed " << parsed_bytes_sum << " length " << length << " block " << num_blocks
+            //               << " target '" << target[data_block_name_][num_blocks] << "'" << logendl;
+
+            ++num_blocks;
         }
 
-        parsed_data_block_bytes = 0;
-
-        for (auto& r_item : data_block_items_)
-        {
-            parsed_bytes = r_item->parseItem(data, current_index, length, parsed_data_block_bytes,
-                                              target[data_block_name_][num_blocks], debug);
-//            loginf << "UGA FP2 parsed " << parsed_bytes << " target '" << target[data_block_name_][num_blocks]
-//                      << "'" << logendl;
-
-            parsed_data_block_bytes += parsed_bytes;
-            parsed_bytes_sum += parsed_bytes;
-            current_index += parsed_bytes;
-        }
-
-        //loginf << "UGA2 target block '" << target[data_block_name_][num_blocks].dump(4) << "'" << logendl;
-
-//        loginf << "UGA AP3 parsed " << parsed_bytes_sum << " length " << length << " block " << num_blocks
-//               << " target '" << target[data_block_name_][num_blocks] << "'" << logendl;
-
-        ++num_blocks;
-     }
-
+    }
+    catch (std::exception& e)
+    {
+        loginf << "asterix parser finding data blocks caught exception '" << e.what() << "' at index " << index
+               << " length " << length << ", current index " << current_index << ", breaking" << logendl;
+        error = true;
+    }
 
     //loginf << "UGA3 target '" << target.dump(4) << "' parsed " << parsed_bytes_sum << " size " << length << logendl;
 
@@ -167,9 +180,12 @@ std::tuple<size_t, size_t, bool> ASTERIXParser::findDataBlocks (const char* data
 
     if (debug)
         loginf << "ASTERIXParser: findDataBlocks done parsed bytes " << parsed_bytes_sum
-               << " num blocks " << num_blocks << " limit hit " << record_limit_hit << logendl;
+               << " num blocks " << num_blocks << " error " << error << " limit hit " << record_limit_hit << logendl;
 
-    return std::make_tuple (parsed_bytes_sum, num_blocks, !record_limit_hit);
+    if (error)
+        return std::make_tuple (parsed_bytes_sum, num_blocks, true, true); // error and done
+    else
+        return std::make_tuple (parsed_bytes_sum, num_blocks, false, !record_limit_hit);
 }
 
 std::pair<size_t, size_t> ASTERIXParser::decodeDataBlocks (const char* data, nlohmann::json& data_blocks, bool debug)
@@ -232,23 +248,39 @@ std::pair<size_t, size_t> ASTERIXParser::decodeDataBlock (const char* data, nloh
     //            "length": 55
     //        }
 
-    if (debug && data_block.find ("category") == data_block.end())
-        throw runtime_error("asterix parser data block does not contain category information");
+    if (data_block.find ("category") == data_block.end())
+    {
+        loginf << "asterix parser data block '" << data_block.dump(4)
+               << "' does not contain category information" << logendl;
+        return {0, 1};
+    }
 
     unsigned int cat = data_block.at("category");
 
-    if (debug && data_block.find ("content") == data_block.end())
-        throw runtime_error("asterix parser data block does not contain content information");
+    if (data_block.find ("content") == data_block.end())
+    {
+        loginf << "asterix parser data block '" << data_block.dump(4)
+               << "' does not contain content information" << logendl;
+        return {0, 1};
+    }
 
     json& data_block_content = data_block.at("content");
 
-    if (debug && data_block_content.find ("index") == data_block_content.end())
-        throw runtime_error("asterix parser record content does not contain index information");
+    if (data_block_content.find ("index") == data_block_content.end())
+    {
+        loginf << "asterix parser data block '" << data_block.dump(4)
+               << "' does not contain content index information" << logendl;
+        return {0, 1};
+    }
 
     size_t record_index = data_block_content.at("index");
 
-    if (debug && data_block_content.find ("length") == data_block_content.end())
-        throw runtime_error("asterix parser record content does not contain length information");
+    if (data_block_content.find ("length") == data_block_content.end())
+    {
+        loginf << "asterix parser data block '" << data_block.dump(4)
+               << "' does not contain content length information" << logendl;
+        return {0, 1};
+    }
 
     size_t record_length = data_block_content.at("length");
 
