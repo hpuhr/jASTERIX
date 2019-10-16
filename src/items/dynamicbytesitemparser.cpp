@@ -65,8 +65,8 @@ size_t DynamicBytesItemParser::parseItem (const char* data, size_t index, size_t
     {
         if (length < current_parsed_bytes)
         {
-            loginf << "UGA length " << (has_additative_factor_ ? length - current_parsed_bytes + additative_factor_ :
-                                                                length - current_parsed_bytes)<< logendl;
+//            loginf << "UGA length " << (has_additative_factor_ ? length - current_parsed_bytes + additative_factor_ :
+//                                                                length - current_parsed_bytes)<< logendl;
             throw runtime_error ("dynamic bytes item '"+name_+"' length "+std::to_string(length)
                                  +" < current parsed bytes "+std::to_string(current_parsed_bytes));
         }
