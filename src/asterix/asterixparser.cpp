@@ -100,7 +100,7 @@ std::tuple<size_t, size_t, bool, bool> ASTERIXParser::findDataBlocks (const char
                                                                       nlohmann::json& target, bool debug)
 {
     if (debug)
-        loginf << "ASTERIXParser: findDataBlocks index " << index << " length " << length << logendl;
+        loginf << "asterix parser finding data blocks at index " << index << " length " << length << logendl;
 
     size_t parsed_bytes {0};
     size_t parsed_data_block_bytes {0};
@@ -115,8 +115,6 @@ std::tuple<size_t, size_t, bool, bool> ASTERIXParser::findDataBlocks (const char
 
     try
     {
-
-
         while (parsed_bytes_sum < length)
         {
             //        loginf << "UGA AP1 parsed sum " << parsed_bytes_sum << " length " << length << " block " << num_blocks << logendl;
@@ -153,8 +151,9 @@ std::tuple<size_t, size_t, bool, bool> ASTERIXParser::findDataBlocks (const char
     }
     catch (std::exception& e)
     {
-        loginf << "asterix parser finding data blocks caught exception '" << e.what() << "' at index " << index
-               << " length " << length << ", current index " << current_index << ", breaking" << logendl;
+        logerr << "asterix parser finding data blocks caught exception '" << e.what() << "' at index " << index
+               << " length " << length << ", current index " << current_index << ", breaking "<< num_blocks << logendl;
+
         error = true;
     }
 
@@ -216,10 +215,27 @@ std::pair<size_t, size_t> ASTERIXParser::decodeDataBlocks (const char* data, nlo
         });
     }
 
-    for (auto num_record_it : num_records)
+//    for (auto num_record_it : num_records)
+//    {
+//        ret.first += num_record_it.first;
+//        ret.second += num_record_it.second;
+//    }
+
+    size_t cnt = 0;
+    for (std::vector<std::pair<size_t, size_t>>::iterator it = num_records.begin(); it != num_records.end(); ++it)
     {
-        ret.first += num_record_it.first;
-        ret.second += num_record_it.second;
+        ret.first += it->first;
+        ret.second += it->second;
+
+        if (it->second)
+        {
+            loginf << "asterix parser reported error in record '" << data_blocks[cnt].dump(4) << "'" << logendl;
+
+            if (it != num_records.begin())
+                loginf << "previous record " << data_blocks[cnt-1].dump(4) << "'" << logendl;
+        }
+
+        ++cnt;
     }
 
     if (debug)
