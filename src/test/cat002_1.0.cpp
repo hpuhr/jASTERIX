@@ -22,10 +22,10 @@
 
 #include <cmath>
 
-void test_cat002_callback (nlohmann::json& json_data, size_t num_frames, size_t num_records, size_t num_errors)
+void test_cat002_callback (std::unique_ptr<nlohmann::json> json_data, size_t num_frames, size_t num_records, size_t num_errors)
 {
     loginf << "cat002 test: decoded " << num_frames << " frames, " << num_records << " records, " << num_errors
-           << " errors: " << json_data.dump(4) << logendl;
+           << " errors: " << json_data->dump(4) << logendl;
     assert (num_errors == 0);
 
 //    {
@@ -79,11 +79,11 @@ void test_cat002_callback (nlohmann::json& json_data, size_t num_frames, size_t 
 
     loginf << "cat002 test: data block" << logendl;
 
-    assert (json_data.find ("data_blocks") != json_data.end());
-    assert (json_data.at("data_blocks").is_array());
-    assert (json_data.at("data_blocks").size() == 1);
-    assert (json_data.at("data_blocks")[0]["category"] == 2);
-    assert (json_data.at("data_blocks")[0]["length"] == 12);
+    assert (json_data->find ("data_blocks") != json_data->end());
+    assert (json_data->at("data_blocks").is_array());
+    assert (json_data->at("data_blocks").size() == 1);
+    assert (json_data->at("data_blocks")[0]["category"] == 2);
+    assert (json_data->at("data_blocks")[0]["length"] == 12);
 
 //    ; Netto frame 1 (length=12) at offset 0x00000000 (0):
 //      0x 02 00 0c d4  00 01 01 41  6e b5 93 02
@@ -93,14 +93,14 @@ void test_cat002_callback (nlohmann::json& json_data, size_t num_frames, size_t 
 
 
     loginf << "cat002 test: num records" << logendl;
-    assert (json_data.at("data_blocks")[0].at("content").at("records").size() == 1);
+    assert (json_data->at("data_blocks")[0].at("content").at("records").size() == 1);
 
     //    ; FSPEC: 0x d4
 
     loginf << "cat002 test: fspec" << logendl;
-    assert (json_data.at("data_blocks")[0].at("content").at("records")[0].at("FSPEC").size() == 8);
+    assert (json_data->at("data_blocks")[0].at("content").at("records")[0].at("FSPEC").size() == 8);
 
-    assert (json_data.at("data_blocks")[0].at("content").at("records")[0].at("FSPEC")
+    assert (json_data->at("data_blocks")[0].at("content").at("records")[0].at("FSPEC")
             == std::vector<bool>({1,1,0,1,0,1,0,0}));
 
     //    ; Data Record:
@@ -108,27 +108,27 @@ void test_cat002_callback (nlohmann::json& json_data, size_t num_frames, size_t 
     //    ;  Data Source Identifier: 0x0001 (SAC=0; SIC=1)
 
     loginf << "cat002 test: 010" << logendl;
-    assert (json_data.at("data_blocks")[0].at("content").at("records")[0].at("010").at("SAC") == 0);
-    assert (json_data.at("data_blocks")[0].at("content").at("records")[0].at("010").at("SIC") == 1);
+    assert (json_data->at("data_blocks")[0].at("content").at("records")[0].at("010").at("SAC") == 0);
+    assert (json_data->at("data_blocks")[0].at("content").at("records")[0].at("010").at("SIC") == 1);
 
     //    ;  I002/000: =0x 01
     //    ;  Message Type: mtp=1 (North marker message)
     loginf << "cat002 test: 000" << logendl;
-    assert (json_data.at("data_blocks")[0].at("content").at("records")[0].at("000").at("Message Type") == 1);
+    assert (json_data->at("data_blocks")[0].at("content").at("records")[0].at("000").at("Message Type") == 1);
 
 
     //    ;  I002/030: =0x 41 6e b5
     //    ;  Time of Day: 0x416eb5 (4288181; 33501.414062 secs; 09:18:21.414 UTC)
     loginf << "cat002 test: 030" << logendl;
-    double tmp_d = json_data.at("data_blocks")[0].at("content").at("records")[0].at("030").at("Time of Day");
+    double tmp_d = json_data->at("data_blocks")[0].at("content").at("records")[0].at("030").at("Time of Day");
     assert (fabs(tmp_d-33501.4140625) < 10e-6);
 
     //    ;  I002/050: =0x 93 02
     //    ;  Station Configuration Status: 0x 92 02
     loginf << "cat002 test: 050" << logendl;
-    assert (json_data.at("data_blocks")[0].at("content").at("records")[0].at("050").at("Station Configuration Status").size() == 2);
-    assert (json_data.at("data_blocks")[0].at("content").at("records")[0].at("050").at("Station Configuration Status")[0].at("Value") == 73);
-    assert (json_data.at("data_blocks")[0].at("content").at("records")[0].at("050").at("Station Configuration Status")[1].at("Value") == 1);
+    assert (json_data->at("data_blocks")[0].at("content").at("records")[0].at("050").at("Station Configuration Status").size() == 2);
+    assert (json_data->at("data_blocks")[0].at("content").at("records")[0].at("050").at("Station Configuration Status")[0].at("Value") == 73);
+    assert (json_data->at("data_blocks")[0].at("content").at("records")[0].at("050").at("Station Configuration Status")[1].at("Value") == 1);
 
     //     [--:--:--.---] M 09:18:21.414 -- 0x0001 A1 S:NMK ----- A-    0.000
 }
@@ -156,6 +156,8 @@ void test_cat002 (jASTERIX::jASTERIX& jasterix)
     cat002->setCurrentMapping("");
 
     jasterix.decodeASTERIX(target, size, test_cat002_callback);
+
+    delete[] target;
 
     loginf << "cat002 test: end" << logendl;
 }

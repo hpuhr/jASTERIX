@@ -70,7 +70,7 @@ JSONWriter::~JSONWriter ()
         closeJsonZipFile();
 }
 
-void JSONWriter::write(nlohmann::json& data)
+void JSONWriter::write(std::unique_ptr<nlohmann::json> data)
 {
     switch (json_output_type_)
     {
@@ -93,8 +93,8 @@ void JSONWriter::writeData()
 {
     assert (json_data_.size());
 
-    for (nlohmann::json& j_it : json_data_)
-        j_it["rec_num"] = rec_num_cnt_++;
+    for (std::unique_ptr<nlohmann::json>& j_it : json_data_)
+        (*j_it)["rec_num"] = rec_num_cnt_++;
 
     // convert to string or binary data
 
@@ -137,7 +137,7 @@ void JSONWriter::convertJSON2Text ()
 
     tbb::parallel_for( size_t(0), size, [&]( size_t cnt )
     {
-        text_data_[cnt] = json_data_.at(cnt).dump(print_dump_indent) + "\n";
+        text_data_[cnt] = json_data_.at(cnt)->dump(print_dump_indent) + "\n";
     } );
 
 //    size_t cnt = 0;

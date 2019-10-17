@@ -39,7 +39,9 @@ public:
                      const char* data, size_t index, size_t size, bool debug)
         : jasterix_(jasterix), frame_parser_(frame_parser), header_(header), data_(data), index_(index), size_(size),
           debug_(debug)
-    {}
+    {
+        //loginf << "frame parser ctor" << logendl;
+    }
 
     /*override*/ tbb::task* execute()
     {
@@ -48,7 +50,11 @@ public:
 
         while (!force_stop_ && !done_) // || size_-index_ > 0
         {
-            nlohmann::json data_chunk;
+            //loginf << "frame parser task execute 2" << logendl;
+
+            std::unique_ptr<nlohmann::json> data_chunk {new nlohmann::json()};
+
+            //loginf << "frame parser task execute 2a" << logendl;
 
             if (frame_parser_.hasFileHeaderItems())
                 data_chunk = header_; // copy header
@@ -57,7 +63,12 @@ public:
 
             assert (index_ < size_);
 
-            std::tuple<size_t, size_t, bool> ret = frame_parser_.findFrames(data_, index_, size_, data_chunk, debug_);
+            //loginf << "frame parser task execute 2b" << logendl;
+
+            std::tuple<size_t, size_t, bool> ret = frame_parser_.findFrames(data_, index_, size_, data_chunk.get(),
+                                                                            debug_);
+
+            //loginf << "frame parser task execute 3" << logendl;
 
             index_ += std::get<0>(ret); // parsed bytes
             done_ = std::get<2>(ret); // done flag
@@ -67,13 +78,17 @@ public:
 
             assert (data_chunk != nullptr);
 
-            if (data_chunk.find("frames") == data_chunk.end())
+            if (data_chunk->find("frames") == data_chunk->end())
                 throw std::runtime_error ("jASTERIX scoped frames information contains no frames");
 
-            if (!data_chunk.at("frames").is_array())
+            if (!data_chunk->at("frames").is_array())
                 throw std::runtime_error ("jASTERIX scoped frames information is not array");
 
-            jasterix_.addDataChunk(data_chunk, done_);
+            //loginf << "frame parser task execute 4" << logendl;
+
+            jasterix_.addDataChunk(std::move(data_chunk), done_);
+
+            //loginf << "frame parser task execute 5" << logendl;
         }
 
         if (force_stop_)

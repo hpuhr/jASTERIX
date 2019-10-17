@@ -97,11 +97,12 @@ size_t FrameParser::parseHeader (const char* data, size_t index, size_t size, js
 
 
 std::tuple<size_t, size_t, bool> FrameParser::findFrames (const char* data, size_t index, size_t size,
-                                                           nlohmann::json& target, bool debug)
+                                                           nlohmann::json* target, bool debug)
 {
     assert (data);
     assert (size);
     assert (index < size);
+    assert (target);
 
     if (has_file_header_items_)
         assert (target != nullptr);
@@ -114,7 +115,7 @@ std::tuple<size_t, size_t, bool> FrameParser::findFrames (const char* data, size
     if (debug)
         loginf << "finding frames index " << index <<  " size " << size << " num_frames " << frame_chunk_size;
 
-    nlohmann::json& j_frames = target["frames"];
+    nlohmann::json& j_frames = (*target)["frames"];
 
     bool hit_frame_limit {false};
     bool hit_frame_chunk_limit {false};
@@ -168,7 +169,7 @@ std::tuple<size_t, size_t, bool> FrameParser::findFrames (const char* data, size
     return std::make_tuple (parsed_bytes_sum, chunk_frames_cnt, !(hit_frame_limit || hit_frame_chunk_limit));
 }
 
-std::pair<size_t, size_t> FrameParser::decodeFrames (const char* data, json& target, bool debug)
+std::pair<size_t, size_t> FrameParser::decodeFrames (const char* data, json* target, bool debug)
 {
     assert (data);
     assert (target != nullptr);
@@ -176,7 +177,7 @@ std::pair<size_t, size_t> FrameParser::decodeFrames (const char* data, json& tar
 //    loginf << "FrameParser: decodeFrames" << logendl;
 
     std::pair<size_t, size_t> ret {0,0};
-    nlohmann::json& j_frames = target.at("frames");
+    nlohmann::json& j_frames = target->at("frames");
 
     if (debug) // switch to single thread in debug
     {
@@ -241,7 +242,7 @@ std::pair<size_t, size_t> FrameParser::decodeFrame (const char* data, json& json
     size_t size = frame_content.at("length");
 
     std::tuple<size_t, size_t, bool, bool> db_ret =
-            asterix_parser_.findDataBlocks(data, index, size, frame_content, debug);
+            asterix_parser_.findDataBlocks(data, index, size, &frame_content, debug);
 
     //parsed_bytes += std::get<0>(ret);
     //size_t num_data_blocks = std::get<1>(ret);

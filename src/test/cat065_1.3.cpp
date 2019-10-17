@@ -22,10 +22,10 @@
 
 #include <cmath>
 
-void test_cat065_callback (nlohmann::json& json_data, size_t num_frames, size_t num_records, size_t num_errors)
+void test_cat065_callback (std::unique_ptr<nlohmann::json> json_data, size_t num_frames, size_t num_records, size_t num_errors)
 {
     loginf << "cat065 test: decoded " << num_frames << " frames, " << num_records << " records, " << num_errors
-           << " errors: " << json_data.dump(4) << logendl;
+           << " errors: " << json_data->dump(4) << logendl;
     assert (num_errors == 0);
 
 //    {
@@ -73,23 +73,23 @@ void test_cat065_callback (nlohmann::json& json_data, size_t num_frames, size_t 
 
     loginf << "cat065 test: data block" << logendl;
 
-    assert (json_data.find ("data_blocks") != json_data.end());
-    assert (json_data.at("data_blocks").is_array());
-    assert (json_data.at("data_blocks").size() == 1);
-    assert (json_data.at("data_blocks")[0]["category"] == 65);
-    assert (json_data.at("data_blocks")[0]["length"] == 12);
+    assert (json_data->find ("data_blocks") != json_data->end());
+    assert (json_data->at("data_blocks").is_array());
+    assert (json_data->at("data_blocks").size() == 1);
+    assert (json_data->at("data_blocks")[0]["category"] == 65);
+    assert (json_data->at("data_blocks")[0]["length"] == 12);
 
 
 
     loginf << "cat065 test: num records" << logendl;
-    assert (json_data.at("data_blocks")[0].at("content").at("records").size() == 1);
+    assert (json_data->at("data_blocks")[0].at("content").at("records").size() == 1);
 
     //    ; FSPEC: 0x f8
 
     loginf << "cat065 test: fspec" << logendl;
-    assert (json_data.at("data_blocks")[0].at("content").at("records")[0].at("FSPEC").size() == 8);
+    assert (json_data->at("data_blocks")[0].at("content").at("records")[0].at("FSPEC").size() == 8);
 
-    assert (json_data.at("data_blocks")[0].at("content").at("records")[0].at("FSPEC")
+    assert (json_data->at("data_blocks")[0].at("content").at("records")[0].at("FSPEC")
             == std::vector<bool>({1,1,1,1,1,0,0,0}));
 
     //    ; Data Record:
@@ -97,34 +97,34 @@ void test_cat065_callback (nlohmann::json& json_data, size_t num_frames, size_t 
     //    ;  Data Source Identifier: 0x0005 (SAC=0; SIC=5)
 
     loginf << "cat065 test: 010" << logendl;
-    assert (json_data.at("data_blocks")[0].at("content").at("records")[0].at("010").at("SAC") == 0);
-    assert (json_data.at("data_blocks")[0].at("content").at("records")[0].at("010").at("SIC") == 5);
+    assert (json_data->at("data_blocks")[0].at("content").at("records")[0].at("010").at("SAC") == 0);
+    assert (json_data->at("data_blocks")[0].at("content").at("records")[0].at("010").at("SIC") == 5);
 
     //    ;  I065/000: =0x 02
     //    ;  Message Type: 2 (end of batch)
 
     loginf << "cat065 test: 000" << logendl;
-    assert (json_data.at("data_blocks")[0].at("content").at("records")[0].at("000").at("Message Type") == 02);
+    assert (json_data->at("data_blocks")[0].at("content").at("records")[0].at("000").at("Message Type") == 02);
 
     //    ;  I065/015: =0x c1
     //    ;  Service Identification: 193
 
     loginf << "cat065 test: 015" << logendl;
-    assert (json_data.at("data_blocks")[0].at("content").at("records")[0].at("015").at("Service Identification") == 193);
+    assert (json_data->at("data_blocks")[0].at("content").at("records")[0].at("015").at("Service Identification") == 193);
 
     //    ;  I065/030: =0x 41 6f 26
     //    ;  Time of Message: 0x416f26 (4288294; 09:18:22.297 UTC)
 
 
     loginf << "cat065 test: 030" << logendl;
-    double tmp_d = json_data.at("data_blocks")[0].at("content").at("records")[0].at("030").at("Time of Message");
+    double tmp_d = json_data->at("data_blocks")[0].at("content").at("records")[0].at("030").at("Time of Message");
     assert (fabs(tmp_d-33502.296875) < 10e-6);
 
     //    ;  I065/020: =0x 00
     //    ;  Batch Number: 0
 
     loginf << "cat065 test: 020" << logendl;
-    assert (json_data.at("data_blocks")[0].at("content").at("records")[0].at("020").at("Batch Number") == 0);
+    assert (json_data->at("data_blocks")[0].at("content").at("records")[0].at("020").at("Batch Number") == 0);
 }
 
 void test_cat065 (jASTERIX::jASTERIX& jasterix)
@@ -152,6 +152,8 @@ void test_cat065 (jASTERIX::jASTERIX& jasterix)
     cat065->setCurrentMapping("");
 
     jasterix.decodeASTERIX(target, size, test_cat065_callback);
+
+    delete[] target;
 
     loginf << "cat065 test: end" << logendl;
 }

@@ -46,20 +46,24 @@ using namespace std;
 
 jASTERIX::JSONWriter* json_writer {nullptr};
 
-void print_callback (nlohmann::json& data_chunk, size_t num_frames, size_t num_records, size_t num_errors)
+void print_callback (std::unique_ptr<nlohmann::json> data_chunk, size_t num_frames, size_t num_records, size_t num_errors)
 {
-    loginf << data_chunk.dump(4);
+    loginf << data_chunk->dump(4);
 }
 
-void write_callback (nlohmann::json& data_chunk, size_t num_frames, size_t num_records, size_t num_errors)
+void write_callback (std::unique_ptr<nlohmann::json> data_chunk, size_t num_frames, size_t num_records, size_t num_errors)
 {
     loginf << "jASTERIX: write_callback " << num_frames << " frames, " << num_records << " records, "
            << num_errors << " errors";
     assert (json_writer);
 
-    json_writer->write(data_chunk);
+    json_writer->write(std::move(data_chunk));
 }
 
+void test_callback (std::unique_ptr<nlohmann::json> data_chunk, size_t num_frames, size_t num_records, size_t num_errors)
+{
+    assert (data_chunk);
+}
 
 int main (int argc, char **argv)
 {
@@ -231,7 +235,7 @@ int main (int argc, char **argv)
             else if (print)
                 asterix.decodeFile (filename, print_callback);
             else
-                asterix.decodeFile (filename);
+                asterix.decodeFile (filename, test_callback);
         }
         else
         {
@@ -240,7 +244,7 @@ int main (int argc, char **argv)
             else if (print)
                 asterix.decodeFile (filename, framing, print_callback);
             else
-                asterix.decodeFile (filename, framing);
+                asterix.decodeFile (filename, framing, test_callback);
         }
 
         size_t num_frames = asterix.numFrames();

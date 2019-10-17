@@ -74,12 +74,15 @@ ASTERIXParser::ASTERIXParser(const nlohmann::json& data_block_definition,
 
         if (!cat_it.second->decode()) // if not decode, do not store record
         {
-            loginf << "asterix parser not decoding cat '" << setfill('0') << setw(3) << cat_it.first << "'"
-                   << logendl;
+            if (debug)
+                loginf << "asterix parser not decoding cat '" << setfill('0') << setw(3) << cat_it.first << "'"
+                       << logendl;
             continue;
         }
-        loginf << "asterix parser decoding cat '" << setfill('0') << setw(3) << cat_it.first << "'"
-               << logendl;
+
+        if (debug)
+            loginf << "asterix parser decoding cat '" << setfill('0') << setw(3) << cat_it.first << "'"
+                   << logendl;
 
         records_.insert(std::pair<unsigned int, std::shared_ptr<Record>>
                         (cat_it.first, std::shared_ptr<Record>{cat_it.second->getCurrentEdition()->record()}));
@@ -97,10 +100,12 @@ ASTERIXParser::ASTERIXParser(const nlohmann::json& data_block_definition,
 }
 
 std::tuple<size_t, size_t, bool, bool> ASTERIXParser::findDataBlocks (const char* data, size_t index, size_t length,
-                                                                      nlohmann::json& target, bool debug)
+                                                                      nlohmann::json* target, bool debug)
 {
     if (debug)
         loginf << "asterix parser finding data blocks at index " << index << " length " << length << logendl;
+
+    assert (target);
 
     size_t parsed_bytes {0};
     size_t parsed_data_block_bytes {0};
@@ -131,7 +136,7 @@ std::tuple<size_t, size_t, bool, bool> ASTERIXParser::findDataBlocks (const char
             for (auto& r_item : data_block_items_)
             {
                 parsed_bytes = r_item->parseItem(data, current_index, length, parsed_data_block_bytes,
-                                                 target[data_block_name_][num_blocks], debug);
+                                                 (*target)[data_block_name_][num_blocks], debug);
                 //            loginf << "UGA FP2 parsed " << parsed_bytes << " target '" << target[data_block_name_][num_blocks]
                 //                      << "'" << logendl;
 

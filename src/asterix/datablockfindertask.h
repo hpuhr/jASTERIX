@@ -29,11 +29,11 @@ public:
         size_t num_data_blocks {0};
         while (!force_stop_ && !done_) // || size_-index_ > 0
         {
-            nlohmann::json jdata;
+            std::unique_ptr<nlohmann::json> jdata {new nlohmann::json()};
 
             std::tuple<size_t, size_t, bool, bool> ret = asterix_parser_.findDataBlocks(data_, index_+parsed_bytes,
                                                                                   size_-parsed_bytes,
-                                                                                  jdata, debug_);
+                                                                                  jdata.get(), debug_);
 
             parsed_bytes += std::get<0>(ret);
             num_data_blocks += std::get<1>(ret);
@@ -43,7 +43,7 @@ public:
 //            loginf << "DataBlockFinderTask: ex pb " << parsed_bytes << " num db " << num_data_blocks << " done "
 //                   << done << logendl;
 
-            jasterix_.addDataBlockChunk(jdata, error_, done_);
+            jasterix_.addDataBlockChunk(std::move(jdata), error_, done_);
         }
 
         if (force_stop_)

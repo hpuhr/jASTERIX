@@ -58,20 +58,20 @@ public:
     const std::map<unsigned int, std::shared_ptr<Category>>& categories() { return category_definitions_; }
 
     void decodeFile (const std::string& filename, const std::string& framing_str,
-                     std::function<void(nlohmann::json&, size_t, size_t, size_t)> data_callback=nullptr);
+                     std::function<void(std::unique_ptr<nlohmann::json>, size_t, size_t, size_t)> data_callback=nullptr);
     // callback gets moved chunk, accumulated number of frames, number of records, number of errors
     void decodeFile (const std::string& filename,
-                     std::function<void(nlohmann::json&, size_t, size_t, size_t)> data_callback=nullptr);
+                     std::function<void(std::unique_ptr<nlohmann::json>, size_t, size_t, size_t)> data_callback=nullptr);
 
     void decodeASTERIX (const char* data, size_t size,
-                 std::function<void(nlohmann::json&, size_t, size_t, size_t)> data_callback=nullptr);
+                 std::function<void(std::unique_ptr<nlohmann::json>, size_t, size_t, size_t)> data_callback=nullptr);
 
     size_t numFrames() const;
     size_t numRecords() const;
     size_t numErrors() const;
 
-    void addDataBlockChunk (nlohmann::json& data_block_chunk, bool error, bool done);
-    void addDataChunk (nlohmann::json& data_chunk, bool done);
+    void addDataBlockChunk (std::unique_ptr<nlohmann::json> data_block_chunk, bool error, bool done);
+    void addDataChunk (std::unique_ptr<nlohmann::json> data_chunk, bool done);
 
     const std::vector<std::string>& framings() { return framings_; }
 
@@ -107,10 +107,10 @@ private:
     char* file_buffer_{nullptr};
 #endif
 
-    tbb::concurrent_queue<nlohmann::json> data_block_chunks_;
+    tbb::concurrent_queue<std::unique_ptr<nlohmann::json>> data_block_chunks_;
     bool data_block_processing_done_ {false};
 
-    tbb::concurrent_queue<nlohmann::json> data_chunks_;
+    tbb::concurrent_queue<std::unique_ptr<nlohmann::json>> data_chunks_;
     bool data_processing_done_ {false};
 
     size_t num_frames_{0};

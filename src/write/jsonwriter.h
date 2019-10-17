@@ -48,7 +48,7 @@ public:
     ~JSONWriter ();
 
     // will move the data
-    void write(nlohmann::json& data);
+    void write(std::unique_ptr<nlohmann::json> data);
 
     void fileWritingDone () { file_write_in_progress_ = false ;}
 
@@ -64,7 +64,7 @@ private:
 
 
     size_t rec_num_cnt_ {0};
-    std::vector <nlohmann::json> json_data_;
+    std::vector <std::unique_ptr<nlohmann::json>> json_data_;
     std::vector <std::string> text_data_;
     std::vector <std::vector<std::uint8_t>> binary_data_;
 

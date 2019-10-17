@@ -38,7 +38,7 @@ public:
 
     // parsed bytes, num data blocks, error flag, done flag
     std::tuple<size_t, size_t, bool, bool> findDataBlocks (const char* data, size_t index, size_t length,
-                                                     nlohmann::json& target,bool debug);
+                                                     nlohmann::json* target,bool debug);
 
     // num recored, num errors
     std::pair<size_t, size_t> decodeDataBlocks (const char* data, nlohmann::json& data_blocks, bool debug);

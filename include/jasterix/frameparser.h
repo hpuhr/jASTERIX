@@ -36,11 +36,11 @@ public:
     size_t parseHeader (const char* data, size_t index, size_t size, nlohmann::json& target, bool debug);
 
     // parsed bytes, num frames, done flag
-    std::tuple<size_t, size_t, bool> findFrames (const char* data, size_t index, size_t size, nlohmann::json& target,
+    std::tuple<size_t, size_t, bool> findFrames (const char* data, size_t index, size_t size, nlohmann::json* target,
                                                   bool debug);
 
     // num records, num errors
-    std::pair<size_t, size_t> decodeFrames (const char* data, nlohmann::json& target, bool debug);
+    std::pair<size_t, size_t> decodeFrames (const char* data, nlohmann::json* target, bool debug);
 
     bool hasFileHeaderItems() const;
 
