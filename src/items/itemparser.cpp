@@ -30,7 +30,7 @@ ItemParser::ItemParser (const nlohmann::json& item_definition)
 {
     assert (type_ == "item");
 
-    if (item_definition.find("number") == item_definition.end())
+    if (!item_definition.contains("number"))
         throw runtime_error ("parsing item '"+name_+"' without number");
 
     number_ = item_definition.at("number");

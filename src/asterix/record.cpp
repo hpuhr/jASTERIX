@@ -32,7 +32,7 @@ Record::Record (const nlohmann::json& item_definition)
 
     // fspec
 
-    if (item_definition.find("field_specification") == item_definition.end())
+    if (!item_definition.contains("field_specification"))
         throw runtime_error ("record item '"+name_+"' parsing without field specification");
 
     const json& field_specification = item_definition.at("field_specification");
@@ -45,7 +45,7 @@ Record::Record (const nlohmann::json& item_definition)
 
     // uap
 
-    if (item_definition.find("uap") == item_definition.end())
+    if (!item_definition.contains("uap"))
         throw runtime_error ("record item '"+name_+"' without uap");
 
     const json& uap = item_definition.at("uap");
@@ -58,7 +58,7 @@ Record::Record (const nlohmann::json& item_definition)
 
     // conditional uaps
 
-    if (item_definition.find("conditional_uaps") != item_definition.end())
+    if (item_definition.contains("conditional_uaps"))
     {
         has_conditional_uap_ = true;
         const json& conditional_uaps = item_definition.at("conditional_uaps");
@@ -66,14 +66,14 @@ Record::Record (const nlohmann::json& item_definition)
         if (!conditional_uaps.is_object())
             throw runtime_error ("record item '"+name_+"' conditional uaps is not an object");
 
-        if (conditional_uaps.find("key") == conditional_uaps.end())
+        if (!conditional_uaps.contains("key"))
             throw runtime_error ("record item '"+name_+"' conditional uap without key");
 
         conditional_uaps_key_ = conditional_uaps.at("key");
 
         conditional_uaps_sub_keys_ = split(conditional_uaps_key_, '.');
 
-        if (conditional_uaps.find("values") == conditional_uaps.end())
+        if (!conditional_uaps.contains("values"))
             throw runtime_error ("record item '"+name_+"' conditional uap without values");
 
         const json& conditional_uaps_values = conditional_uaps.at("values");
@@ -102,7 +102,7 @@ Record::Record (const nlohmann::json& item_definition)
 
     // items
 
-    if (item_definition.find("items") == item_definition.end())
+    if (!item_definition.contains("items"))
         throw runtime_error ("record item '"+name_+"' without items");
 
     const json& items = item_definition.at("items");
@@ -115,7 +115,7 @@ Record::Record (const nlohmann::json& item_definition)
 
     for (const json& data_item_it : items)
     {
-        if (data_item_it.find("number") == data_item_it.end())
+        if (!data_item_it.contains("number"))
             throw runtime_error ("record item '"+data_item_it.dump(4)+"' without number");
 
         item_number = data_item_it.at("number");
@@ -143,7 +143,7 @@ size_t Record::parseItem (const char* data, size_t index, size_t size, size_t cu
 
     parsed_bytes = field_specification_->parseItem(data, index+parsed_bytes, size, parsed_bytes, target, debug);
 
-    if (target.find("FSPEC") == target.end())
+    if (!target.contains("FSPEC"))
         throw runtime_error ("record item '"+name_+"' FSPEC not found");
 
     std::vector<bool> fspec_bits = target.at("FSPEC");
@@ -261,20 +261,44 @@ size_t Record::parseItem (const char* data, size_t index, size_t size, size_t cu
 
     if (special_purpose_field_present)
     {
-        size_t re_bytes = data[index+parsed_bytes];
+        size_t re_bytes = static_cast<size_t> (data[index+parsed_bytes]);
 
         if (debug)
             loginf << "record '"+name_+"' has special purpose field, skipping " << re_bytes << " bytes " << logendl;
+
+        target["SPF"] = binary2hex((const unsigned char*)&data[index+parsed_bytes], re_bytes);
 
         parsed_bytes += re_bytes;
     }
 
     if (reserved_expansion_field_present)
     {
-        size_t re_bytes = data[index+parsed_bytes];
+        size_t re_bytes = static_cast<size_t> (data[index+parsed_bytes]);
 
-        if (debug)
-            loginf << "record '"+name_+"' has reserved expansion field, skipping " << re_bytes << " bytes " << logendl;
+        if (ref_) // decode ref
+        {
+            if (debug)
+                loginf << "record '"+name_+"' has reserved expansion field, reading " << re_bytes << " bytes "
+                       << logendl;
+
+            assert (re_bytes > 1);
+
+            size_t ref_bytes = ref_->parseItem(data, index+parsed_bytes+1, re_bytes-1, 0, target["REF"], debug);
+
+            if (debug)
+                loginf << "record '"+name_+"' parsed reserved expansion field, read " << ref_bytes << " ref in "
+                       << re_bytes << " bytes " << logendl;
+
+            if (ref_bytes != re_bytes-1)
+                throw runtime_error ("record item '"+name_+"' reserved expansion field definition only read "
+                                     + to_string(ref_bytes) + " bytes of specified "+to_string(ref_bytes-1));
+        }
+        else
+        {
+            if (debug)
+                loginf << "record '"+name_+"' has reserved expansion field, reading " << re_bytes << " bytes "
+                       << logendl;
+        }
 
         parsed_bytes += re_bytes;
     }
@@ -282,21 +306,41 @@ size_t Record::parseItem (const char* data, size_t index, size_t size, size_t cu
     return parsed_bytes;
 }
 
-bool Record::compareKey (const nlohmann::json& container, const std::string& value)
+bool Record::decodeREF() const
 {
-    //loginf << "mapping key '" << key_definition << "' src value '" << src_value << "'";
-
-    const nlohmann::json* val_ptr = &container;
-
-    for (const std::string& sub_key : conditional_uaps_sub_keys_)
-    {
-        //loginf << "UGA '" << sub_key << "' json '" << val_ptr->dump(4) << "'"<< logendl;
-        val_ptr = &(*val_ptr)[sub_key];
-    }
-
-    return (toString(*val_ptr) == value);
-
-    //loginf << "mapping key '" << key_definition << "' dest '" << dest.dump(4) << "'";
+    return decode_ref_;
 }
+
+void Record::decodeREF(bool decode_ref)
+{
+    decode_ref_ = decode_ref;
+}
+
+std::shared_ptr<ReservedExpansionField> Record::ref() const
+{
+    return ref_;
+}
+
+void Record::setRef(const std::shared_ptr<ReservedExpansionField> &ref)
+{
+    ref_ = ref;
+}
+
+//bool Record::compareKey (const nlohmann::json& container, const std::string& value)
+//{
+//    //loginf << "mapping key '" << key_definition << "' src value '" << src_value << "'";
+
+//    const nlohmann::json* val_ptr = &container;
+
+//    for (const std::string& sub_key : conditional_uaps_sub_keys_)
+//    {
+//        //loginf << "UGA '" << sub_key << "' json '" << val_ptr->dump(4) << "'"<< logendl;
+//        val_ptr = &(*val_ptr)[sub_key];
+//    }
+
+//    return (toString(*val_ptr) == value);
+
+//    //loginf << "mapping key '" << key_definition << "' dest '" << dest.dump(4) << "'";
+//}
 
 }

@@ -43,48 +43,44 @@ extern int frame_chunk_size;
 extern int record_chunk_size;
 extern int data_write_size;
 
-//class Category;
-
 class jASTERIX
 {
 public:
-    jASTERIX( const std::string& definition_path, bool print, bool debug, bool debug_exclude_framing);
+    jASTERIX(const std::string& definition_path, bool print, bool debug, bool debug_exclude_framing);
     virtual ~jASTERIX();
 
-    bool hasCategory(const std::string& cat_str);
-    bool decodeCategory(const std::string& cat_str);
-    void setDecodeCategory (const std::string& cat_str, bool decode);
+    bool hasCategory(unsigned int cat);
+    bool decodeCategory(unsigned int cat);
+    void setDecodeCategory (unsigned int cat, bool decode);
     void decodeNoCategories();
 
-    bool hasEdition (const std::string& cat_str, const std::string& edition_str);
-    void setEdition (const std::string& cat_str, const std::string& edition_str);
-
-    bool hasMapping (const std::string& cat_str, const std::string& mapping_str);
-    void setMapping (const std::string& cat_str, const std::string& mapping_str);
+    std::shared_ptr<Category> category (unsigned int cat);
+    const std::map<unsigned int, std::shared_ptr<Category>>& categories() { return category_definitions_; }
 
     void decodeFile (const std::string& filename, const std::string& framing_str,
-                     std::function<void(nlohmann::json&, size_t, size_t)> data_callback=nullptr);
-    // callback gets moved chunk, accumulated number of frames, number of records
+                     std::function<void(std::unique_ptr<nlohmann::json>, size_t, size_t, size_t)> data_callback=nullptr);
+    // callback gets moved chunk, accumulated number of frames, number of records, number of errors
     void decodeFile (const std::string& filename,
-                     std::function<void(nlohmann::json&, size_t, size_t)> data_callback=nullptr);
+                     std::function<void(std::unique_ptr<nlohmann::json>, size_t, size_t, size_t)> data_callback=nullptr);
 
     void decodeASTERIX (const char* data, size_t size,
-                 std::function<void(nlohmann::json&, size_t, size_t)> data_callback=nullptr);
+                 std::function<void(std::unique_ptr<nlohmann::json>, size_t, size_t, size_t)> data_callback=nullptr);
 
     size_t numFrames() const;
     size_t numRecords() const;
+    size_t numErrors() const;
 
-    void addDataBlockChunk (nlohmann::json& data_block_chunk, bool done);
-    void addDataChunk (nlohmann::json& data_chunk, bool done);
+    void addDataBlockChunk (std::unique_ptr<nlohmann::json> data_block_chunk, bool error, bool done);
+    void addDataChunk (std::unique_ptr<nlohmann::json> data_chunk, bool done);
 
     const std::vector<std::string>& framings() { return framings_; }
-    const std::map<std::string, Category>& categories() { return category_definitions_; }
 
     const std::string& dataBlockDefinitionPath() const;
     const std::string& categoriesDefinitionPath() const;
     const std::string& framingsFolderPath() const;
 
     void setDebug(bool debug);
+
 
 private:
     //tbb::task_scheduler_init init_;
@@ -103,9 +99,7 @@ private:
     std::string categories_definition_path_;
     nlohmann::json categories_definition_;
 
-    std::map<std::string, Category> category_definitions_;
-    std::map<unsigned int, std::shared_ptr<Edition>> current_category_editions_; // cat -> edition
-    std::map<unsigned int, std::shared_ptr<Mapping>> current_category_mappings_; // cat -> edition
+    std::map<unsigned int, std::shared_ptr<Category>> category_definitions_;
 
 #if USE_BOOST
     boost::iostreams::mapped_file_source file_;
@@ -113,16 +107,15 @@ private:
     char* file_buffer_{nullptr};
 #endif
 
-    tbb::concurrent_queue<nlohmann::json> data_block_chunks_;
+    tbb::concurrent_queue<std::unique_ptr<nlohmann::json>> data_block_chunks_;
     bool data_block_processing_done_ {false};
 
-    tbb::concurrent_queue<nlohmann::json> data_chunks_;
+    tbb::concurrent_queue<std::unique_ptr<nlohmann::json>> data_chunks_;
     bool data_processing_done_ {false};
 
     size_t num_frames_{0};
     size_t num_records_{0};
-
-    void updateCurrentEditionsAndMappings ();
+    size_t num_errors_{0};
 };
 }
 

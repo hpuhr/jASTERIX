@@ -16,36 +16,32 @@
  */
 
 
-#ifndef FIXEDBITFIELDITEMPARSER_H
-#define FIXEDBITFIELDITEMPARSER_H
+#ifndef RESERVEDEXPSIONFIELD_H
+#define RESERVEDEXPSIONFIELD_H
 
-#include "itemparserbase.h"
-#include "json.hpp"
+#include <jasterix/itemparserbase.h>
 
 #include <vector>
 #include <memory>
 
 namespace jASTERIX
 {
-
-class FixedBitFieldItemParser : public ItemParserBase
+// decodes a field specification/availablity field (ending with extend bit), and list of items
+class ReservedExpansionField : public ItemParserBase
 {
 public:
-    FixedBitFieldItemParser (const nlohmann::json& item_definition);
-    virtual ~FixedBitFieldItemParser() {}
+    ReservedExpansionField (const nlohmann::json& item_definition);
+    virtual ~ReservedExpansionField() override;
 
     virtual size_t parseItem (const char* data, size_t index, size_t size, size_t current_parsed_bytes,
                               nlohmann::json& target, bool debug) override;
 protected:
-    bool optional_{false};
-    std::string optional_variable_name_;
-    std::vector <std::string> optional_variable_name_parts_;
-    nlohmann::json optional_variable_value_;
-    size_t length_; // byte length
-    std::vector<std::unique_ptr<ItemParserBase>> items_;
+    std::unique_ptr<ItemParserBase> field_specification_;
+    std::vector<std::string> items_names_;
+    std::map<std::string, std::unique_ptr<ItemParserBase>> items_;
+
+    //bool compareKey (const nlohmann::json& container, const std::string& value);
 };
 
 }
-
-
-#endif // FIXEDBITFIELDITEMPARSER_H
+#endif // RESERVEDEXPSIONFIELD_H

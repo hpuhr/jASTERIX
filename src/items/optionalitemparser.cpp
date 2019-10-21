@@ -30,17 +30,17 @@ OptionalItemParser::OptionalItemParser (const nlohmann::json& item_definition)
 {
     assert (type_ == "optional_item");
 
-    if (item_definition.find("optional_bitfield_name") == item_definition.end())
+    if (!item_definition.contains("optional_bitfield_name"))
         throw runtime_error ("optional item '"+name_+"' parsing without bitfield name");
 
     bitfield_name_ = item_definition.at("optional_bitfield_name");
 
-    if (item_definition.find("optional_bitfield_index") == item_definition.end())
+    if (!item_definition.contains("optional_bitfield_index"))
         throw runtime_error ("optional item '"+name_+"' parsing without bitfield index");
 
     bitfield_index_ = item_definition.at("optional_bitfield_index");
 
-    if (item_definition.find("data_fields") == item_definition.end())
+    if (!item_definition.contains("data_fields"))
         throw runtime_error ("parsing optional item '"+name_+"' without sub-items");
 
     const json& data_fields = item_definition.at("data_fields");
@@ -67,7 +67,7 @@ size_t OptionalItemParser::parseItem (const char* data, size_t index, size_t siz
         loginf << "parsing optional item '" << name_ << "' index "
                << index << " size " << size << " current parsed bytes " << current_parsed_bytes << logendl;
 
-    if (debug && target.find(bitfield_name_) == target.end())
+    if (debug && !target.contains(bitfield_name_))
         throw runtime_error ("parsing optional item '"+name_+"' without defined bitfield '"+bitfield_name_+"'");
 
     const json& bitfield = target.at(bitfield_name_);

@@ -21,7 +21,7 @@ add_definitions ( -Wall -std=c++11 -Wno-int-in-bool-context)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 # Instruct CMake to run moc automatically when needed.
-set(CMAKE_AUTOMOC ON)
+#set(CMAKE_AUTOMOC ON)
 
 add_library(jasterix "")
 
@@ -95,7 +95,7 @@ message("Installing using prefix: ${CMAKE_INSTALL_PREFIX}")
 #install(DIRECTORY "specifications" DESTINATION jasterix)
 
 set_target_properties(jasterix PROPERTIES PUBLIC_HEADER
-    "include/jasterix/jasterix.h;include/jasterix/category.h;include/jasterix/edition.h;include/jasterix/mapping.h;include/jasterix/frameparser.h;include/jasterix/record.h;include/jasterix/itemparserbase.h;build/include/jasterix/global.h")
+    "include/jasterix/jasterix.h;include/jasterix/category.h;include/jasterix/edition.h;include/jasterix/refedition.h;include/jasterix/ref.h;include/jasterix/mapping.h;include/jasterix/frameparser.h;include/jasterix/record.h;include/jasterix/itemparserbase.h;build/include/jasterix/global.h")
 
 #install (TARGETS jasterix DESTINATION lib)
 install (TARGETS jasterix DESTINATION lib

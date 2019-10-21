@@ -20,6 +20,7 @@
 #define RECORD_H
 
 #include <jasterix/itemparserbase.h>
+#include <jasterix/ref.h>
 
 #include <vector>
 #include <memory>
@@ -31,10 +32,16 @@ class Record : public ItemParserBase
 {
 public:
     Record (const nlohmann::json& item_definition);
-    virtual ~Record() {}
+    virtual ~Record() override {}
 
     virtual size_t parseItem (const char* data, size_t index, size_t size, size_t current_parsed_bytes,
                               nlohmann::json& target, bool debug) override;
+    bool decodeREF() const;
+    void decodeREF(bool decodeREF);
+
+    std::shared_ptr<ReservedExpansionField> ref() const;
+    void setRef(const std::shared_ptr<ReservedExpansionField> &ref);
+
 protected:
     std::unique_ptr<ItemParserBase> field_specification_;
     std::vector<std::string> uap_names_;
@@ -45,7 +52,24 @@ protected:
     std::map<std::string, std::vector<std::string>> conditional_uap_names_;
     std::map<std::string, std::unique_ptr<ItemParserBase>> items_;
 
-    bool compareKey (const nlohmann::json& container, const std::string& value);
+    bool decode_ref_ {false};
+    std::shared_ptr<ReservedExpansionField> ref_;
+
+    inline bool compareKey (const nlohmann::json& container, const std::string& value)
+    {
+        const nlohmann::json* val_ptr = &container;
+
+        for (const std::string& sub_key : conditional_uaps_sub_keys_)
+        {
+            //loginf << "UGA '" << sub_key << "' json '" << val_ptr->dump(4) << "'"<< logendl;
+            val_ptr = &(*val_ptr)[sub_key];
+        }
+
+        if (val_ptr->type() == nlohmann::json::value_t::string) // from string conv
+            return val_ptr->get<std::string>() == value;
+        else
+            return val_ptr->dump() == value;
+    }
 };
 
 }

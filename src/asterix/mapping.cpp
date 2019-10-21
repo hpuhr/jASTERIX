@@ -35,13 +35,13 @@ Mapping::Mapping(const std::string& name, const nlohmann::json& definition, cons
 : name_(name)
 {
     //    "comment":"conversion to general format 1.0",
-    if (definition.find("comment") == definition.end())
+    if (!definition.contains("comment"))
         throw runtime_error ("mapping '"+name_+"' has no comment");
 
     comment_ = definition.at("comment");
 
     //    "file": "048/cat048_1.15.json"
-    if (definition.find("file") == definition.end())
+    if (!definition.contains("file"))
         throw runtime_error ("mapping '"+name_+"' has no file");
 
     file_ = definition.at("file");
@@ -97,7 +97,7 @@ void Mapping::mapObject (nlohmann::json& object_definition, const nlohmann::json
         def_key = def_it.key();
 
         // check if exists in src
-        if (src.find (def_key) != src.end())
+        if (src.contains(def_key))
         {
             const json& src_value = src.at(def_key);
 
@@ -113,7 +113,7 @@ void Mapping::mapObject (nlohmann::json& object_definition, const nlohmann::json
                 {
                     src_value_str = toString(src_value);
 
-                    if (def_it.value().find(src_value_str) != def_it.value().end()) // skip if not defined
+                    if (def_it.value().contains(src_value_str)) // skip if not defined
                     {
                         const json& src_val_mapped_obj = def_it.value()[src_value_str];
                         assert (src_val_mapped_obj.is_object());

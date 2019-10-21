@@ -15,9 +15,9 @@
  * along with ATSDB.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "edition.h"
+#include "refedition.h"
 #include "files.h"
-#include "record.h"
+#include "ref.h"
 
 #include <fstream>
 
@@ -28,68 +28,68 @@ using namespace Files;
 using namespace std;
 using namespace nlohmann;
 
-Edition::Edition(const std::string& number, const nlohmann::json& definition, const std::string& definition_path)
+REFEdition::REFEdition(const std::string& number, const nlohmann::json& definition, const std::string& definition_path)
   : number_(number)
 {
     //    "document": "SUR.ET1.ST05.2000-STD-04-01",
     if (!definition.contains("document"))
-        throw runtime_error ("edition '"+number_+"' has no document reference");
+        throw runtime_error ("REFEdition '"+number_+"' has no document reference");
 
     document_ = definition.at("document");
 
     //    "date": "April 2007",
     if (!definition.contains("date"))
-        throw runtime_error ("edition '"+number_+"' has no date");
+        throw runtime_error ("REFEdition '"+number_+"' has no date");
 
     date_ = definition.at("date");
 
     //    "file": "048/cat048_1.15.json"
     if (!definition.contains("file"))
-        throw runtime_error ("edition '"+number_+"' has no file");
+        throw runtime_error ("REFEdition '"+number_+"' has no file");
 
     file_ = definition.at("file");
 
     edition_definition_path_ = definition_path+"/categories/"+file_;
 
     if (!fileExists(edition_definition_path_))
-        throw invalid_argument ("edition "+number_+" file '"+edition_definition_path_+"' not found");
+        throw invalid_argument ("REFEdition "+number_+" file '"+edition_definition_path_+"' not found");
 
     definition_ = json::parse(ifstream(edition_definition_path_));
 
-    record_.reset(new Record(definition_));
+    ref_.reset(new ReservedExpansionField(definition_));
 }
 
-Edition::~Edition()
+REFEdition::~REFEdition()
 {
 
 }
 
-std::string Edition::document() const
+std::string REFEdition::document() const
 {
     return document_;
 }
 
-std::string Edition::date() const
+std::string REFEdition::date() const
 {
     return date_;
 }
 
-std::string Edition::file() const
+std::string REFEdition::file() const
 {
     return file_;
 }
 
-std::shared_ptr<Record> Edition::record() const
+std::shared_ptr<ReservedExpansionField> REFEdition::reservedExpansionField() const
 {
-    return record_;
+    return ref_;
 }
 
-std::string Edition::definitionPath() const
+std::string REFEdition::definitionPath() const
 {
     return edition_definition_path_;
 }
 
-std::string Edition::number() const
+std::string REFEdition::number() const
 {
     return number_;
 }

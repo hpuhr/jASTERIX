@@ -33,12 +33,12 @@ FixedBitsItemParser::FixedBitsItemParser (const nlohmann::json& item_definition,
 {
     assert (type_ == "fixed_bits");
 
-    if (item_definition.find("start_bit") == item_definition.end())
+    if (!item_definition.contains("start_bit"))
         throw runtime_error ("fixed byte bitfield item '"+name_+"' without start bit");
 
     start_bit_ = item_definition.at("start_bit");
 
-    if (item_definition.find("bit_length") == item_definition.end())
+    if (!item_definition.contains("bit_length"))
         throw runtime_error ("fixed byte bitfield item '"+name_+"' without bit length");
 
     bit_length_ = item_definition.at("bit_length");
@@ -50,10 +50,10 @@ FixedBitsItemParser::FixedBitsItemParser (const nlohmann::json& item_definition,
         throw runtime_error ("fixed byte bitfield item '"+name_+"' wrong length "+to_string(byte_length*8)
                              +" for bitsize "+to_string(start_bit_+bit_length_));
 
-    if (item_definition.find("data_type") != item_definition.end())
+    if (item_definition.contains("data_type"))
         data_type_ = item_definition.at("data_type");
 
-    if (item_definition.find("lsb") != item_definition.end())
+    if (item_definition.contains("lsb"))
     {
         has_lsb_ = true;
         lsb_ = item_definition.at("lsb");
@@ -98,12 +98,12 @@ FixedBitsItemParser::FixedBitsItemParser (const nlohmann::json& item_definition,
     }
     else if (data_type_ == "digits")
     {
-        if (item_definition.find("num_digits") == item_definition.end())
+        if (!item_definition.contains("num_digits"))
             throw runtime_error ("fixed byte bitfield item '"+name_+"' data type digits without number of digits");
 
         num_digits_ = item_definition.at("num_digits");
 
-        if (item_definition.find("digit_bit_length") == item_definition.end())
+        if (!item_definition.contains("digit_bit_length"))
             throw runtime_error ("fixed byte bitfield item '"+name_+"' data type digits without digit bit length");
 
         digit_bit_length_ = item_definition.at("digit_bit_length");
@@ -177,13 +177,13 @@ FixedBitsItemParser::FixedBitsItemParser (const nlohmann::json& item_definition,
     }
     else if (data_type_ == "icao_characters" || data_type_ == "ascii_characters")
     {
-        if (item_definition.find("num_characters") == item_definition.end())
+        if (!item_definition.contains("num_characters"))
             throw runtime_error ("fixed byte bitfield item '"+name_
                                  +"' data type characters without number of characters");
 
         num_characters_ = item_definition.at("num_characters");
 
-        if (item_definition.find("character_bit_length") == item_definition.end())
+        if (!item_definition.contains("character_bit_length"))
             throw runtime_error ("fixed byte bitfield item '"+name_
                                  +"' data type characters without characters bit length");
 

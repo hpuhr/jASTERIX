@@ -33,25 +33,23 @@ FixedBytesItemParser::FixedBytesItemParser (const nlohmann::json& item_definitio
 {
     assert (type_ == "fixed_bytes");
 
-    if (item_definition.find("length") == item_definition.end())
+    if (!item_definition.contains("length"))
         throw runtime_error ("fixed bytes item '"+name_+"' parsing without length");
 
     length_ = item_definition.at("length");
 
-    if (item_definition.find("data_type") == item_definition.end())
+    if (!item_definition.contains("data_type"))
         throw runtime_error ("fixed bytes item '"+name_+"' parsing without data type");
 
     data_type_ = item_definition.at("data_type");
 
-    reverse_bits_ = (item_definition.find("reverse_bits") != item_definition.end()
-            && item_definition.at("reverse_bits") == true);
+    reverse_bits_ = (item_definition.contains("reverse_bits") && item_definition.at("reverse_bits") == true);
 
-    reverse_bytes_ = (item_definition.find("reverse_bytes") != item_definition.end()
-            && item_definition.at("reverse_bytes") == true);
+    reverse_bytes_ = (item_definition.contains("reverse_bytes") && item_definition.at("reverse_bytes") == true);
 
     negative_bit_pos_ = length_*8-1;
 
-    if (item_definition.find("lsb") != item_definition.end())
+    if (item_definition.contains("lsb"))
     {
         has_lsb_ = true;
         lsb_ = item_definition.at("lsb");
@@ -79,7 +77,7 @@ size_t FixedBytesItemParser::parseItem (const char* data, size_t index, size_t s
             loginf << "fixed bytes item '"+name_+"' parsing index " << index << " length " << length_
                    << " data type " << data_type_ << " value '" << data_str << "'" << logendl;
 
-        assert (target.find(name_) == target.end());
+        assert (!target.contains(name_));
         target.emplace(name_, std::move(data_str));
 
         return length_;
@@ -130,7 +128,7 @@ size_t FixedBytesItemParser::parseItem (const char* data, size_t index, size_t s
                    << " data type " << data_type_ << " value '" << data_uint << "'"
                    << (has_lsb_ ? " lsb "+to_string(lsb_) : "") << logendl;
 
-        assert (target.find(name_) == target.end());
+        assert (!target.contains(name_));
 
         if (has_lsb_)
             target.emplace(name_, lsb_*data_uint);
@@ -189,7 +187,7 @@ size_t FixedBytesItemParser::parseItem (const char* data, size_t index, size_t s
                    << " data type " << data_type_ << " value '" << data_int << "'"
                    << (has_lsb_ ? " lsb "+to_string(lsb_) : "") << logendl;
 
-        assert (target.find(name_) == target.end());
+        assert (!target.contains(name_));
 
         if (has_lsb_)
             target.emplace(name_, lsb_*data_int);
@@ -208,7 +206,7 @@ size_t FixedBytesItemParser::parseItem (const char* data, size_t index, size_t s
                    << " data type " << data_type_ << " value '" << data_str << "'" << logendl;
         }
 
-        assert (target.find(name_) == target.end());
+        assert (!target.contains(name_));
         //target[name_] = data_str;
         target.emplace(name_, std::move(data_str));
 

@@ -22,10 +22,11 @@
 
 #include <cmath>
 
-void test_cat034_callback (nlohmann::json& json_data, size_t num_frames, size_t num_records)
+void test_cat034_callback (std::unique_ptr<nlohmann::json> json_data, size_t num_frames, size_t num_records, size_t num_errors)
 {
-    loginf << "cat034 test: decoded " << num_frames << " frames, " << num_records << " records: " << json_data.dump(4)
-               << logendl;
+    loginf << "cat034 test: decoded " << num_frames << " frames, " << num_records << " records, " << num_errors
+           << " errors: " << json_data->dump(4) << logendl;
+    assert (num_errors == 0);
 
 //    {
 //        "data_blocks": [
@@ -131,21 +132,21 @@ void test_cat034_callback (nlohmann::json& json_data, size_t num_frames, size_t 
 
     loginf << "cat034 test: data block" << logendl;
 
-    assert (json_data.find ("data_blocks") != json_data.end());
-    assert (json_data.at("data_blocks").is_array());
-    assert (json_data.at("data_blocks").size() == 1);
-    assert (json_data.at("data_blocks")[0]["category"] == 34);
-    assert (json_data.at("data_blocks")[0]["length"] == 20);
+    assert (json_data->find ("data_blocks") != json_data->end());
+    assert (json_data->at("data_blocks").is_array());
+    assert (json_data->at("data_blocks").size() == 1);
+    assert (json_data->at("data_blocks")[0]["category"] == 34);
+    assert (json_data->at("data_blocks")[0]["length"] == 20);
 
     loginf << "cat034 test: num records" << logendl;
-    assert (json_data.at("data_blocks")[0].at("content").at("records").size() == 1);
+    assert (json_data->at("data_blocks")[0].at("content").at("records").size() == 1);
 
     //    ; FSPEC: 0x f6
 
     loginf << "cat034 test: fspec" << logendl;
-    assert (json_data.at("data_blocks")[0].at("content").at("records")[0].at("FSPEC").size() == 8);
+    assert (json_data->at("data_blocks")[0].at("content").at("records")[0].at("FSPEC").size() == 8);
 
-    assert (json_data.at("data_blocks")[0].at("content").at("records")[0].at("FSPEC")
+    assert (json_data->at("data_blocks")[0].at("content").at("records")[0].at("FSPEC")
             == std::vector<bool>({1,1,1,1,0,1,1,0}));
 
     //    ; Data Record:
@@ -153,62 +154,62 @@ void test_cat034_callback (nlohmann::json& json_data, size_t num_frames, size_t 
     //    ;  Data Source Identifier: 0x0002 (SAC=0; SIC=2)
 
     loginf << "cat034 test: 010" << logendl;
-    assert (json_data.at("data_blocks")[0].at("content").at("records")[0].at("010").at("SAC") == 0);
-    assert (json_data.at("data_blocks")[0].at("content").at("records")[0].at("010").at("SIC") == 2);
+    assert (json_data->at("data_blocks")[0].at("content").at("records")[0].at("010").at("SAC") == 0);
+    assert (json_data->at("data_blocks")[0].at("content").at("records")[0].at("010").at("SIC") == 2);
 
     //    ;  I034/000: =0x 02
     //    ;  Message Type: Sector crossing message
 
     loginf << "cat034 test: 000" << logendl;
-    assert (json_data.at("data_blocks")[0].at("content").at("records")[0].at("000").at("Message Type") == 2);
+    assert (json_data->at("data_blocks")[0].at("content").at("records")[0].at("000").at("Message Type") == 2);
 
     //    ;  I034/030: =0x 41 6d ec
     //    ;  Time of Day: 0x416dec (4287980; 33499.843750 secs; 09:18:19.844 UTC)
 
     loginf << "cat034 test: 030" << logendl;
-    double tmp_d = json_data.at("data_blocks")[0].at("content").at("records")[0].at("030").at("Time of Day");
+    double tmp_d = json_data->at("data_blocks")[0].at("content").at("records")[0].at("030").at("Time of Day");
     assert (fabs(tmp_d-33499.84375) < 10e-6);
 
     //    ;  I034/020: =0x 40
     //    ;  Sector Angle: 64 (90.000 degrees)
 
     loginf << "cat034 test: 020" << logendl;
-    assert (json_data.at("data_blocks")[0].at("content").at("records")[0].at("020").at("Sector Number") == 90.0);
+    assert (json_data->at("data_blocks")[0].at("content").at("records")[0].at("020").at("Sector Number") == 90.0);
 
     //    ;  I034/050: 0x 94 40 60 44 00
     loginf << "cat034 test: 050" << logendl;
-    assert (json_data.at("data_blocks")[0].at("content").at("records")[0].at("050").at("COM").is_object());
-    assert (json_data.at("data_blocks")[0].at("content").at("records")[0].at("050").at("PSR").is_object());
-    assert (json_data.at("data_blocks")[0].at("content").at("records")[0].at("050").at("MDS").is_object());
+    assert (json_data->at("data_blocks")[0].at("content").at("records")[0].at("050").at("COM").is_object());
+    assert (json_data->at("data_blocks")[0].at("content").at("records")[0].at("050").at("PSR").is_object());
+    assert (json_data->at("data_blocks")[0].at("content").at("records")[0].at("050").at("MDS").is_object());
 
     // 10010100
     //COM 0 0 PSR SSR MDS 0 FX
 
     //    ;  System Configuration and Status:
     //    ;   Common Part: NOGO=0; RDPC=1; RDPR=0; OVL_RDP=0; OVL_XMT=0; MSC=0; TSV=0
-    assert (json_data.at("data_blocks")[0].at("content").at("records")[0].at("050").at("COM").at("NOGO") == 0);
-    assert (json_data.at("data_blocks")[0].at("content").at("records")[0].at("050").at("COM").at("RDPC") == 1);
-    assert (json_data.at("data_blocks")[0].at("content").at("records")[0].at("050").at("COM").at("RDPR") == 0);
-    assert (json_data.at("data_blocks")[0].at("content").at("records")[0].at("050").at("COM").at("OVL RDP") == 0);
-    assert (json_data.at("data_blocks")[0].at("content").at("records")[0].at("050").at("COM").at("OVL XMT") == 0);
-    assert (json_data.at("data_blocks")[0].at("content").at("records")[0].at("050").at("COM").at("MSC") == 0);
-    assert (json_data.at("data_blocks")[0].at("content").at("records")[0].at("050").at("COM").at("TSV") == 0);
+    assert (json_data->at("data_blocks")[0].at("content").at("records")[0].at("050").at("COM").at("NOGO") == 0);
+    assert (json_data->at("data_blocks")[0].at("content").at("records")[0].at("050").at("COM").at("RDPC") == 1);
+    assert (json_data->at("data_blocks")[0].at("content").at("records")[0].at("050").at("COM").at("RDPR") == 0);
+    assert (json_data->at("data_blocks")[0].at("content").at("records")[0].at("050").at("COM").at("OVL RDP") == 0);
+    assert (json_data->at("data_blocks")[0].at("content").at("records")[0].at("050").at("COM").at("OVL XMT") == 0);
+    assert (json_data->at("data_blocks")[0].at("content").at("records")[0].at("050").at("COM").at("MSC") == 0);
+    assert (json_data->at("data_blocks")[0].at("content").at("records")[0].at("050").at("COM").at("TSV") == 0);
 
     //    ;   PSR Sensor: ANT=0; CH-A/B=3; OVL=0; MSC=0
-    assert (json_data.at("data_blocks")[0].at("content").at("records")[0].at("050").at("PSR").at("ANT") == 0);
-    assert (json_data.at("data_blocks")[0].at("content").at("records")[0].at("050").at("PSR").at("CH-A/B") == 3);
-    assert (json_data.at("data_blocks")[0].at("content").at("records")[0].at("050").at("PSR").at("OVL") == 0);
-    assert (json_data.at("data_blocks")[0].at("content").at("records")[0].at("050").at("PSR").at("MSC") == 0);
+    assert (json_data->at("data_blocks")[0].at("content").at("records")[0].at("050").at("PSR").at("ANT") == 0);
+    assert (json_data->at("data_blocks")[0].at("content").at("records")[0].at("050").at("PSR").at("CH-A/B") == 3);
+    assert (json_data->at("data_blocks")[0].at("content").at("records")[0].at("050").at("PSR").at("OVL") == 0);
+    assert (json_data->at("data_blocks")[0].at("content").at("records")[0].at("050").at("PSR").at("MSC") == 0);
 
     //    ;   Mode S Sensor: ANT=0; CH-A/B=2; OVL_SUR=0; MSC=0; SCF=1; DLF=0; OVL_SCF=0; OVL_DLF=0
-    assert (json_data.at("data_blocks")[0].at("content").at("records")[0].at("050").at("MDS").at("ANT") == 0);
-    assert (json_data.at("data_blocks")[0].at("content").at("records")[0].at("050").at("MDS").at("CH-A/B") == 2);
-    assert (json_data.at("data_blocks")[0].at("content").at("records")[0].at("050").at("MDS").at("OVL SUR") == 0);
-    assert (json_data.at("data_blocks")[0].at("content").at("records")[0].at("050").at("MDS").at("MSC") == 0);
-    assert (json_data.at("data_blocks")[0].at("content").at("records")[0].at("050").at("MDS").at("SCF") == 1);
-    assert (json_data.at("data_blocks")[0].at("content").at("records")[0].at("050").at("MDS").at("DLF") == 0);
-    assert (json_data.at("data_blocks")[0].at("content").at("records")[0].at("050").at("MDS").at("OVL SCF") == 0);
-    assert (json_data.at("data_blocks")[0].at("content").at("records")[0].at("050").at("MDS").at("OVL DLF") == 0);
+    assert (json_data->at("data_blocks")[0].at("content").at("records")[0].at("050").at("MDS").at("ANT") == 0);
+    assert (json_data->at("data_blocks")[0].at("content").at("records")[0].at("050").at("MDS").at("CH-A/B") == 2);
+    assert (json_data->at("data_blocks")[0].at("content").at("records")[0].at("050").at("MDS").at("OVL SUR") == 0);
+    assert (json_data->at("data_blocks")[0].at("content").at("records")[0].at("050").at("MDS").at("MSC") == 0);
+    assert (json_data->at("data_blocks")[0].at("content").at("records")[0].at("050").at("MDS").at("SCF") == 1);
+    assert (json_data->at("data_blocks")[0].at("content").at("records")[0].at("050").at("MDS").at("DLF") == 0);
+    assert (json_data->at("data_blocks")[0].at("content").at("records")[0].at("050").at("MDS").at("OVL SCF") == 0);
+    assert (json_data->at("data_blocks")[0].at("content").at("records")[0].at("050").at("MDS").at("OVL DLF") == 0);
 
 
     //    ;  I034/060: 0x 94 00 00 10
@@ -216,23 +217,23 @@ void test_cat034_callback (nlohmann::json& json_data, size_t num_frames, size_t 
 
     // 10010100
     //COM 0 0 PSR SSR MDS 0 FX
-    assert (json_data.at("data_blocks")[0].at("content").at("records")[0].at("060").at("COM").is_object());
-    assert (json_data.at("data_blocks")[0].at("content").at("records")[0].at("060").at("PSR").is_object());
-    assert (json_data.at("data_blocks")[0].at("content").at("records")[0].at("060").at("MDS").is_object());
+    assert (json_data->at("data_blocks")[0].at("content").at("records")[0].at("060").at("COM").is_object());
+    assert (json_data->at("data_blocks")[0].at("content").at("records")[0].at("060").at("PSR").is_object());
+    assert (json_data->at("data_blocks")[0].at("content").at("records")[0].at("060").at("MDS").is_object());
 
     //    ;  System Processing Mode:
     //    ;   Common Part: RED_RDP=0; RED_XMT=0
-    assert (json_data.at("data_blocks")[0].at("content").at("records")[0].at("060").at("COM").at("RED-RDP") == 0);
-    assert (json_data.at("data_blocks")[0].at("content").at("records")[0].at("060").at("COM").at("RED-XMT") == 0);
+    assert (json_data->at("data_blocks")[0].at("content").at("records")[0].at("060").at("COM").at("RED-RDP") == 0);
+    assert (json_data->at("data_blocks")[0].at("content").at("records")[0].at("060").at("COM").at("RED-XMT") == 0);
 
     //    ;   PSR Sensor: POL=0; RED_RAD=0; STC=0
-    assert (json_data.at("data_blocks")[0].at("content").at("records")[0].at("060").at("PSR").at("POL") == 0);
-    assert (json_data.at("data_blocks")[0].at("content").at("records")[0].at("060").at("PSR").at("RED-RAD") == 0);
-    assert (json_data.at("data_blocks")[0].at("content").at("records")[0].at("060").at("PSR").at("STC") == 0);
+    assert (json_data->at("data_blocks")[0].at("content").at("records")[0].at("060").at("PSR").at("POL") == 0);
+    assert (json_data->at("data_blocks")[0].at("content").at("records")[0].at("060").at("PSR").at("RED-RAD") == 0);
+    assert (json_data->at("data_blocks")[0].at("content").at("records")[0].at("060").at("PSR").at("STC") == 0);
 
     //    ;   Mode S Sensor: RED_RAD=0; CLU=1
-    assert (json_data.at("data_blocks")[0].at("content").at("records")[0].at("060").at("MDS").at("RED-RAD") == 0);
-    assert (json_data.at("data_blocks")[0].at("content").at("records")[0].at("060").at("MDS").at("CLU") == 1);
+    assert (json_data->at("data_blocks")[0].at("content").at("records")[0].at("060").at("MDS").at("RED-RAD") == 0);
+    assert (json_data->at("data_blocks")[0].at("content").at("records")[0].at("060").at("MDS").at("CLU") == 1);
 
     //     [--:--:--.---] M 09:18:19.844 -- 0x0002 A1 S:SCT ----- A-   90.000
 }
@@ -255,12 +256,15 @@ void test_cat034 (jASTERIX::jASTERIX& jasterix)
 
     assert (size == 20);
 
-    assert (jasterix.hasCategory("034"));
-    assert (jasterix.hasEdition("034", "1.26"));
-    jasterix.setEdition("034", "1.26");
-    jasterix.setMapping("034", "");
+    assert (jasterix.hasCategory(34));
+    std::shared_ptr<jASTERIX::Category> cat034 = jasterix.category(34);
+    assert (cat034->hasEdition("1.26"));
+    cat034->setCurrentEdition("1.26");
+    cat034->setCurrentMapping("");
 
     jasterix.decodeASTERIX(target, size, test_cat034_callback);
+
+    delete[] target;
 
     loginf << "cat034 test: end" << logendl;
 }

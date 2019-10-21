@@ -30,7 +30,7 @@ ExtendableItemParser::ExtendableItemParser (const nlohmann::json& item_definitio
 {
     assert (type_ == "extendable");
 
-    if (item_definition.find("items") == item_definition.end())
+    if (!item_definition.contains("items"))
         throw runtime_error ("parsing extendable item '"+name_+"' without items");
 
     const json& items = item_definition.at("items");
@@ -65,7 +65,7 @@ size_t ExtendableItemParser::parseItem (const char* data, size_t index, size_t s
     unsigned int extend = 1;
     unsigned int cnt = 0;
 
-    assert (target.find(name_) == target.end());
+    assert (!target.contains(name_));
     json j_data = json::array();
 
     while (extend)
@@ -81,7 +81,7 @@ size_t ExtendableItemParser::parseItem (const char* data, size_t index, size_t s
             parsed_bytes += data_item_it->parseItem(data, index+parsed_bytes, size, parsed_bytes,
                                                     j_data[cnt], debug);
 
-            if (debug && j_data.at(cnt).find("extend") == j_data.at(cnt).end())
+            if (debug && !j_data.at(cnt).contains("extend"))
                 throw runtime_error ("parsing extendable item '"+name_+"' without extend information");
 
             extend = j_data.at(cnt).at("extend");
