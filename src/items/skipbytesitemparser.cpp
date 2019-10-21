@@ -31,7 +31,7 @@ SkipBytesItemParser::SkipBytesItemParser (const nlohmann::json& item_definition)
 {
     assert (type_ == "skip_bytes");
 
-    if (item_definition.find("length") == item_definition.end())
+    if (!item_definition.contains("length"))
         throw runtime_error ("fixed bytes item '"+name_+"' parsing without length");
 
     length_ = item_definition.at("length");

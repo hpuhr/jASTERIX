@@ -30,15 +30,15 @@ DynamicBytesItemParser::DynamicBytesItemParser (const nlohmann::json& item_defin
 {
     assert (type_ == "dynamic_bytes");
 
-    if (item_definition.find("length_variable") == item_definition.end())
+    if (!item_definition.contains("length_variable"))
         throw runtime_error ("dynamic bytes item '"+name_+"' parsing without length variable");
 
     length_variable_name_ = item_definition.at("length_variable");
 
-    substract_previous_ = item_definition.find("substract_previous") != item_definition.end()
+    substract_previous_ = item_definition.contains("substract_previous")
             && item_definition.at("substract_previous") == true;
 
-    if (item_definition.find("additative_factor") != item_definition.end())
+    if (item_definition.contains("additative_factor"))
     {
         has_additative_factor_ = true;
         additative_factor_ = item_definition.at("additative_factor");
@@ -53,7 +53,7 @@ size_t DynamicBytesItemParser::parseItem (const char* data, size_t index, size_t
                << " additative " << has_additative_factor_ << " index "
                << index << " size " << size << " current parsed bytes " << current_parsed_bytes << logendl;
 
-    if (debug && target.find(length_variable_name_) == target.end())
+    if (debug && !target.contains(length_variable_name_))
         throw runtime_error ("dynamic bytes item '"+name_+"' parsing without given length");
 
     size_t length = target.at(length_variable_name_);
@@ -93,7 +93,7 @@ size_t DynamicBytesItemParser::parseItem (const char* data, size_t index, size_t
     if (debug)
         loginf << "parsing dynamic bytes item '"+name_+"' index " << index << " length " << length << logendl;
 
-    assert (target.find(name_) == target.end());
+    assert (!target.contains(name_));
 
     target.emplace(name_, json::object({ {"index", index}, {"length", length} }));
 

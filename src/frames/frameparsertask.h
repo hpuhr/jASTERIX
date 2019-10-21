@@ -78,7 +78,7 @@ public:
 
             assert (data_chunk != nullptr);
 
-            if (data_chunk->find("frames") == data_chunk->end())
+            if (!data_chunk->contains("frames"))
                 throw std::runtime_error ("jASTERIX scoped frames information contains no frames");
 
             if (!data_chunk->at("frames").is_array())

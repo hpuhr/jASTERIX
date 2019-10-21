@@ -19,6 +19,8 @@
 #ifndef RECORD_H
 #define RECORD_H
 
+#include "string_conv.h"
+
 #include <jasterix/itemparserbase.h>
 #include <jasterix/ref.h>
 
@@ -55,7 +57,18 @@ protected:
     bool decode_ref_ {false};
     std::shared_ptr<ReservedExpansionField> ref_;
 
-    bool compareKey (const nlohmann::json& container, const std::string& value);
+    inline bool compareKey (const nlohmann::json& container, const std::string& value)
+    {
+        const nlohmann::json* val_ptr = &container;
+
+        for (const std::string& sub_key : conditional_uaps_sub_keys_)
+        {
+            //loginf << "UGA '" << sub_key << "' json '" << val_ptr->dump(4) << "'"<< logendl;
+            val_ptr = &(*val_ptr)[sub_key];
+        }
+
+        return (toString(*val_ptr) == value);
+    }
 };
 
 }

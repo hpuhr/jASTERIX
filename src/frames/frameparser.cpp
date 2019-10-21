@@ -32,14 +32,13 @@ namespace jASTERIX {
 FrameParser::FrameParser(const json& framing_definition, ASTERIXParser& asterix_parser, bool debug)
     : asterix_parser_(asterix_parser)
 {
-    if (framing_definition.find("name") == framing_definition.end())
+    if (!framing_definition.contains("name"))
         throw runtime_error ("frame parser construction without JSON name definition");
-
 
     std::string item_name;
     ItemParserBase* item {nullptr};
 
-    if (framing_definition.find("file_header_items") != framing_definition.end())
+    if (framing_definition.contains("file_header_items"))
     {
         if (!framing_definition.at("file_header_items").is_array())
             throw runtime_error ("frame parser construction with header items non-array");
@@ -59,7 +58,7 @@ FrameParser::FrameParser(const json& framing_definition, ASTERIXParser& asterix_
         has_file_header_items_ = true;
     }
 
-    if (framing_definition.find("frame_items") == framing_definition.end())
+    if (!framing_definition.contains("frame_items"))
         throw runtime_error ("frame parser construction without frame items");
 
     if (!framing_definition.at("frame_items").is_array())
@@ -221,7 +220,7 @@ bool FrameParser::hasFileHeaderItems() const
 
 std::pair<size_t, size_t> FrameParser::decodeFrame (const char* data, json& json_frame, bool debug)
 {
-    if (debug && json_frame.find("content") == json_frame.end())
+    if (!json_frame.contains("content"))
         throw runtime_error("frame parser scoped frames does not contain correct content");
 
     //    {
@@ -251,7 +250,7 @@ std::pair<size_t, size_t> FrameParser::decodeFrame (const char* data, json& json
 
     assert (std::get<3>(db_ret)); // done flag
 
-    if (frame_content.find("data_blocks") == frame_content.end())
+    if (!frame_content.contains("data_blocks"))
         throw runtime_error("frame parser scoped frames do not contain data blocks");
 
     if (!frame_content.at("data_blocks").is_array())

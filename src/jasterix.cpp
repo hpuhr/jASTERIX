@@ -31,6 +31,13 @@
 #include <iostream>
 #include <thread>
 #include <chrono>
+#include <malloc.h>
+
+//#define TBB_PREVIEW_MEMORY_POOL 1
+
+//#include <tbb/memory_pool.h>
+//#include <tbb/scalable_allocator.h>
+//#include <tbb/tbb.h>
 
 using namespace nlohmann;
 
@@ -152,6 +159,9 @@ jASTERIX::jASTERIX(const std::string& definition_path, bool print, bool debug, b
     {
         throw runtime_error (string{"jASTERIX parsing error in asterix category definitions: "}+e.what());
     }
+
+//    tbb::memory_pool< std::allocator<char> > mem_pool;
+//    tbb::memory_pool_allocator<payload> tbb_allocator ( mem_pool );
 }
 
 jASTERIX::~jASTERIX()
@@ -166,6 +176,20 @@ jASTERIX::~jASTERIX()
         file_buffer_ = nullptr;
     }
 #endif
+//    scalable_allocation_command(TBBMALLOC_CLEAN_ALL_BUFFERS,0);
+//    scalable_allocation_command(TBBMALLOC_CLEAN_THREAD_BUFFERS, 0);
+
+//    loginf << "jASTERIX stats 1 " << logendl;
+
+//    malloc_stats();
+
+//    loginf << "jASTERIX time " << logendl;
+
+//    malloc_trim(0);
+
+//    loginf << "jASTERIX stats 2 " << logendl;
+
+//    malloc_stats();
 }
 
 bool jASTERIX::hasCategory(unsigned int cat)
@@ -275,7 +299,7 @@ void jASTERIX::decodeFile (const std::string& filename, const std::string& frami
 
     if (debug_)
         while (!task->done())
-            std::this_thread::sleep_for(std::chrono::milliseconds(5));
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));
 
     std::unique_ptr<nlohmann::json> data_chunk;
 
@@ -399,7 +423,7 @@ void jASTERIX::decodeFile (const std::string& filename,
 
     if (debug_)
         while (!task->done())
-            std::this_thread::sleep_for(std::chrono::milliseconds(5));
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));
 
     std::unique_ptr<nlohmann::json> data_block_chunk;
 
@@ -422,7 +446,7 @@ void jASTERIX::decodeFile (const std::string& filename,
 
             try
             {
-                if (data_block_chunk->find ("data_blocks") == data_block_chunk->end())
+                if (!data_block_chunk->contains ("data_blocks"))
                     throw runtime_error("jasterix data blocks not found");
 
                 if (!data_block_chunk->at("data_blocks").is_array())
@@ -497,25 +521,17 @@ void jASTERIX::decodeASTERIX (const char* data, size_t size,
 
     //loginf << "UGA decoding '" << data_chunk.dump(4) << "'" << logendl;
 
-    loginf << "UGA0" << logendl;
-
-    if (data_chunk->find ("data_blocks") == data_chunk->end())
+    if (!data_chunk->contains ("data_blocks"))
         throw runtime_error("jasterix data blocks not found");
 
     if (!data_chunk->at("data_blocks").is_array())
         throw runtime_error("jasterix data blocks is not an array");
 
-    loginf << "UGA1" << logendl;
-
     for (json& data_block : data_chunk->at("data_blocks"))
         asterix_parser.decodeDataBlock(data, data_block, debug_);
 
-    loginf << "UGA2" << logendl;
-
     if (callback)
         callback(std::move(data_chunk), 0, 0, 0); // TODO added counters
-
-    loginf << "UGA3" << logendl;
 }
 
 
@@ -535,7 +551,7 @@ void jASTERIX::addDataBlockChunk (std::unique_ptr<nlohmann::json> data_block_chu
     {
         loginf << "jASTERIX adding data block chunk, error " << error << " done " << done << logendl;
 
-        if (data_block_chunk->find("data_blocks") == data_block_chunk->end())
+        if (!data_block_chunk->contains("data_blocks"))
             throw std::runtime_error ("jASTERIX scoped data block information contains no data blocks");
 
         if (!data_block_chunk->at("data_blocks").is_array())
@@ -555,7 +571,7 @@ void jASTERIX::addDataChunk (std::unique_ptr<nlohmann::json> data_chunk, bool do
     {
         loginf << "jASTERIX adding data chunk, done " << done << logendl;
 
-        if (data_chunk->find("frames") == data_chunk->end())
+        if (!data_chunk->contains("frames"))
             throw std::runtime_error ("jASTERIX scoped frames information contains no frames");
 
         if (!data_chunk->at("frames").is_array())

@@ -30,7 +30,7 @@ RepetetiveItemParser::RepetetiveItemParser (const nlohmann::json& item_definitio
 {
     assert (type_ == "repetitive");
 
-    if (item_definition.find("repetition_item") == item_definition.end())
+    if (!item_definition.contains("repetition_item"))
         throw runtime_error ("repetitive item '"+name_+"' parsing without repetition item specification");
 
     const json& repetition_item = item_definition.at("repetition_item");
@@ -44,7 +44,7 @@ RepetetiveItemParser::RepetetiveItemParser (const nlohmann::json& item_definitio
     repetition_item_.reset(ItemParserBase::createItemParser(repetition_item));
     assert (repetition_item_);
 
-    if (item_definition.find("items") == item_definition.end())
+    if (!item_definition.contains("items"))
         throw runtime_error ("parsing repetitive item '"+name_+"' without items");
 
     const json& items = item_definition.at("items");
@@ -80,7 +80,7 @@ size_t RepetetiveItemParser::parseItem (const char* data, size_t index, size_t s
 
     unsigned int rep = target.at("REP");
 
-    assert (target.find(name_) == target.end());
+    assert (!target.contains(name_));
     json j_data = json::array();
 
     if (debug)

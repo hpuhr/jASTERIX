@@ -30,29 +30,29 @@ Category::Category(const std::string& number, const nlohmann::json& definition, 
 {
     //    "comment": "Category 048 Transmission of Monoradar Target Reports",
 
-    if (definition.find("comment") == definition.end())
+    if (!definition.contains("comment"))
         throw runtime_error ("category '"+number_+"' has no comment");
 
     comment_ = definition.at("comment");
 
     //    "default_edition" : "1.15",
 
-    if (definition.find("default_edition") == definition.end())
+    if (!definition.contains("default_edition"))
         throw runtime_error ("category '"+number_+"' has no default edition");
 
     default_edition_ = definition.at("default_edition");
 
     //    "default_ref_edition" : "1.8",
-    if (definition.find("default_ref_edition") != definition.end()) // is optional
+    if (definition.contains("default_ref_edition")) // is optional
         default_ref_edition_ = definition.at("default_ref_edition");
 
     // decode flag
-    if (definition.find("decode") != definition.end())
+    if (definition.contains("decode"))
         decode_ = definition.at("decode");
 
     //    "editions":
 
-    if (definition.find("editions") == definition.end())
+    if (!definition.contains("editions"))
         throw runtime_error ("category '"+number_+"' has no editions");
 
     const json& edition_definitions = definition.at("editions");
@@ -72,7 +72,7 @@ Category::Category(const std::string& number, const nlohmann::json& definition, 
 
     //    "ref_editions":
 
-    if (definition.find("ref_editions") != definition.end())
+    if (definition.contains("ref_editions"))
     {
         const json& ref_edition_definitions = definition.at("ref_editions");
 
@@ -92,14 +92,14 @@ Category::Category(const std::string& number, const nlohmann::json& definition, 
     }
     //    "default_mapping" : "1.0",
 
-    if (definition.find("default_mapping") == definition.end())
+    if (!definition.contains("default_mapping"))
         throw runtime_error ("category '"+number_+"' has no default mapping");
 
     default_mapping_ = definition.at("default_mapping");
 
     //    "mappings":
 
-    if (definition.find("mappings") == definition.end())
+    if (!definition.contains("mappings"))
         throw runtime_error ("category '"+number_+"' has no mappings");
 
     const json& mapping_definitions = definition.at("mappings");

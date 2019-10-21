@@ -53,7 +53,7 @@ protected:
     std::string type_;
 };
 
-bool variableHasValue (const nlohmann::json& data, const std::string& variable_name,
+bool variableHasValue (const nlohmann::json& data, const std::vector <std::string>& variable_name_parts,
                        const nlohmann::json& variable_value);
 
 inline unsigned char reverseBits(unsigned char b)

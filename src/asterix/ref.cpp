@@ -32,7 +32,7 @@ ReservedExpansionField::ReservedExpansionField (const nlohmann::json& item_defin
 
     // fspec
 
-    if (item_definition.find("field_specification") == item_definition.end())
+    if (!item_definition.contains("field_specification"))
         throw runtime_error ("ReservedExpansionField item '"+name_+"' parsing without field specification");
 
     const json& field_specification = item_definition.at("field_specification");
@@ -45,7 +45,7 @@ ReservedExpansionField::ReservedExpansionField (const nlohmann::json& item_defin
 
     // uap
 
-    if (item_definition.find("items_indicator") == item_definition.end())
+    if (!item_definition.contains("items_indicator"))
         throw runtime_error ("ReservedExpansionField item '"+name_+"' without items indicator definition");
 
     const json& items_indicator = item_definition.at("items_indicator");
@@ -58,7 +58,7 @@ ReservedExpansionField::ReservedExpansionField (const nlohmann::json& item_defin
 
     // items
 
-    if (item_definition.find("items") == item_definition.end())
+    if (!item_definition.contains("items"))
         throw runtime_error ("ReservedExpansionField item '"+name_+"' without items");
 
     const json& items = item_definition.at("items");
@@ -71,7 +71,7 @@ ReservedExpansionField::ReservedExpansionField (const nlohmann::json& item_defin
 
     for (const json& data_item_it : items)
     {
-        if (data_item_it.find("number") == data_item_it.end())
+        if (!data_item_it.contains("number"))
             throw runtime_error ("ReservedExpansionField item '"+data_item_it.dump(4)+"' without number");
 
         item_number = data_item_it.at("number");
@@ -104,7 +104,7 @@ size_t ReservedExpansionField::parseItem (const char* data, size_t index, size_t
 
     parsed_bytes = field_specification_->parseItem(data, index+parsed_bytes, size, parsed_bytes, target, debug);
 
-    if (target.find("REF_FSPEC") == target.end())
+    if (!target.contains("REF_FSPEC"))
         throw runtime_error ("ReservedExpansionField item '"+name_+"' FSPEC not found");
 
     std::vector<bool> fspec_bits = target.at("REF_FSPEC");

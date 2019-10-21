@@ -38,12 +38,12 @@ ASTERIXParser::ASTERIXParser(const nlohmann::json& data_block_definition,
 {
     // data block
 
-    if (data_block_definition.find("name") == data_block_definition.end())
+    if (!data_block_definition.contains("name"))
         throw runtime_error ("data block construction without JSON name definition");
 
     data_block_name_ = data_block_definition.at("name");
 
-    if (data_block_definition.find("items") == data_block_definition.end())
+    if (!data_block_definition.contains("items"))
         throw runtime_error ("data block construction without header items");
 
     if (!data_block_definition.at("items").is_array())
@@ -269,7 +269,7 @@ std::pair<size_t, size_t> ASTERIXParser::decodeDataBlock (const char* data, nloh
     //            "length": 55
     //        }
 
-    if (data_block.find ("category") == data_block.end())
+    if (!data_block.contains("category"))
     {
         loginf << "asterix parser data block '" << data_block.dump(4)
                << "' does not contain category information" << logendl;
@@ -278,7 +278,7 @@ std::pair<size_t, size_t> ASTERIXParser::decodeDataBlock (const char* data, nloh
 
     unsigned int cat = data_block.at("category");
 
-    if (data_block.find ("content") == data_block.end())
+    if (!data_block.contains("content"))
     {
         loginf << "asterix parser data block '" << data_block.dump(4)
                << "' does not contain content information" << logendl;
@@ -287,7 +287,7 @@ std::pair<size_t, size_t> ASTERIXParser::decodeDataBlock (const char* data, nloh
 
     json& data_block_content = data_block.at("content");
 
-    if (data_block_content.find ("index") == data_block_content.end())
+    if (!data_block_content.contains("index"))
     {
         loginf << "asterix parser data block '" << data_block.dump(4)
                << "' does not contain content index information" << logendl;
@@ -296,7 +296,7 @@ std::pair<size_t, size_t> ASTERIXParser::decodeDataBlock (const char* data, nloh
 
     size_t record_index = data_block_content.at("index");
 
-    if (data_block_content.find ("length") == data_block_content.end())
+    if (!data_block_content.contains("length"))
     {
         loginf << "asterix parser data block '" << data_block.dump(4)
                << "' does not contain content length information" << logendl;
@@ -321,7 +321,7 @@ std::pair<size_t, size_t> ASTERIXParser::decodeDataBlock (const char* data, nloh
                 loginf << "asterix parser decoding record with cat " << cat << " index " << record_index
                        << " length " << record_length << logendl;
 
-            data_block_content["records"] = json::array();
+            data_block_content.emplace("records", json::array());
 
             // create records until end of content
             while (parsed_bytes_record < record_length)
@@ -362,7 +362,7 @@ std::pair<size_t, size_t> ASTERIXParser::decodeDataBlock (const char* data, nloh
         for (size_t cnt=0; cnt < ret.first; ++cnt)
             current_mapping->map(mapping_src[cnt], mapping_dest[cnt]);
 
-        data_block_content["records"] = std::move(mapping_dest);
+        data_block_content.emplace("records", std::move(mapping_dest));
 
     }
 

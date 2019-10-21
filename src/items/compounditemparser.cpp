@@ -30,7 +30,7 @@ CompoundItemParser::CompoundItemParser (const nlohmann::json& item_definition)
 {
     assert (type_ == "compound");
 
-    if (item_definition.find("field_specification") == item_definition.end())
+    if (!item_definition.contains("field_specification"))
         throw runtime_error ("compound item '"+name_+"' parsing without field specification");
 
     const json& field_specification = item_definition.at("field_specification");
@@ -43,7 +43,7 @@ CompoundItemParser::CompoundItemParser (const nlohmann::json& item_definition)
     field_specification_.reset(ItemParserBase::createItemParser(field_specification));
     assert (field_specification_);
 
-    if (item_definition.find("items") == item_definition.end())
+    if (!item_definition.contains("items"))
         throw runtime_error ("parsing compound item '"+name_+"' without items");
 
     const json& items = item_definition.at("items");

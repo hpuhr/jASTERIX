@@ -39,6 +39,7 @@ public:
 protected:
     bool optional_{false};
     std::string optional_variable_name_;
+    std::vector <std::string> optional_variable_name_parts_;
     nlohmann::json optional_variable_value_;
     size_t length_; // byte length
     std::vector<std::unique_ptr<ItemParserBase>> items_;

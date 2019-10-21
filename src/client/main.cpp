@@ -34,6 +34,8 @@ namespace po = boost::program_options;
 
 #include <iostream>
 #include <cstdlib>
+#include <chrono>
+#include <thread>
 
 #if USE_LOG4CPP
 #include "log4cpp/OstreamAppender.hh"
@@ -299,5 +301,8 @@ int main (int argc, char **argv)
 
     loginf << "jASTERIX: shutdown" << logendl;
 
+//#if USE_BOOST
+//    std::this_thread::sleep_for(std::chrono::seconds(15));
+//#endif
     return 0;
 }

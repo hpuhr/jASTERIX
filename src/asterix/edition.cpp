@@ -32,19 +32,19 @@ Edition::Edition(const std::string& number, const nlohmann::json& definition, co
   : number_(number)
 {
     //    "document": "SUR.ET1.ST05.2000-STD-04-01",
-    if (definition.find("document") == definition.end())
+    if (!definition.contains("document"))
         throw runtime_error ("edition '"+number_+"' has no document reference");
 
     document_ = definition.at("document");
 
     //    "date": "April 2007",
-    if (definition.find("date") == definition.end())
+    if (!definition.contains("date"))
         throw runtime_error ("edition '"+number_+"' has no date");
 
     date_ = definition.at("date");
 
     //    "file": "048/cat048_1.15.json"
-    if (definition.find("file") == definition.end())
+    if (!definition.contains("file"))
         throw runtime_error ("edition '"+number_+"' has no file");
 
     file_ = definition.at("file");
