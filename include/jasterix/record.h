@@ -19,8 +19,6 @@
 #ifndef RECORD_H
 #define RECORD_H
 
-#include "string_conv.h"
-
 #include <jasterix/itemparserbase.h>
 #include <jasterix/ref.h>
 
@@ -67,7 +65,10 @@ protected:
             val_ptr = &(*val_ptr)[sub_key];
         }
 
-        return (toString(*val_ptr) == value);
+        if (val_ptr->type() == nlohmann::json::value_t::string) // from string conv
+            return val_ptr->get<std::string>() == value;
+        else
+            return val_ptr->dump() == value;
     }
 };
 
