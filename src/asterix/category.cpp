@@ -201,7 +201,9 @@ std::string Category::defaultREFEdition() const
 
 void Category::setCurrentREFEdition (const std::string& edition_str)
 {
-    assert (hasREFEdition(edition_str));
+    if (edition_str.size()) // empty is clear
+        assert (hasREFEdition(edition_str));
+
     current_ref_edition_ = edition_str;
 }
 
