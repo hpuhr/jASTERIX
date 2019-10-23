@@ -2,14 +2,14 @@ set(ATSDB_PATH "${CMAKE_CURRENT_SOURCE_DIR}")
 message("  Path: ${ATSDB_PATH}")
 
 cmake_minimum_required(VERSION 3.1)
-set ( CMAKE_BUILD_TYPE Debug )
-set(CMAKE_CXX_FLAGS_MYREL "-O3")
-#set ( CMAKE_BUILD_TYPE Release )
+#set ( CMAKE_BUILD_TYPE Debug )
+#set(CMAKE_CXX_FLAGS_MYREL "-O3")
+set ( CMAKE_BUILD_TYPE Release )
 
 project( jASTERIX )
 SET(CPACK_PACKAGE_VERSION_MAJOR "0")
 SET(CPACK_PACKAGE_VERSION_MINOR "0")
-SET(CPACK_PACKAGE_VERSION_PATCH "1")
+SET(CPACK_PACKAGE_VERSION_PATCH "2")
 
 message("  System: ${CMAKE_SYSTEM}")
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
@@ -95,7 +95,7 @@ message("Installing using prefix: ${CMAKE_INSTALL_PREFIX}")
 #install(DIRECTORY "specifications" DESTINATION jasterix)
 
 set_target_properties(jasterix PROPERTIES PUBLIC_HEADER
-    "include/jasterix/jasterix.h;include/jasterix/category.h;include/jasterix/edition.h;include/jasterix/refedition.h;include/jasterix/ref.h;include/jasterix/mapping.h;include/jasterix/frameparser.h;include/jasterix/record.h;include/jasterix/itemparserbase.h;build/include/jasterix/global.h")
+    "include/jasterix/jasterix.h;include/jasterix/category.h;include/jasterix/edition.h;include/jasterix/refedition.h;include/jasterix/ref.h;include/jasterix/spfedition.h;include/jasterix/spf.h;include/jasterix/mapping.h;include/jasterix/frameparser.h;include/jasterix/record.h;include/jasterix/itemparserbase.h;build/include/jasterix/global.h")
 
 #install (TARGETS jasterix DESTINATION lib)
 install (TARGETS jasterix DESTINATION lib
