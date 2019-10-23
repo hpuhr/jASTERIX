@@ -90,6 +90,10 @@ ASTERIXParser::ASTERIXParser(const nlohmann::json& data_block_definition,
         if (cat_it.second->hasCurrentREFEdition())
             records_.at(cat_it.first)->setRef(cat_it.second->getCurrentREFEdition()->reservedExpansionField());
 
+        if (cat_it.second->hasCurrentSPFEdition())
+            records_.at(cat_it.first)->setSpf(cat_it.second->getCurrentSPFEdition()->specialPurposeField());
+
+
         if (cat_it.second->hasCurrentMapping())
         {
             mappings_.insert(

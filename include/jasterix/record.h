@@ -21,6 +21,7 @@
 
 #include <jasterix/itemparserbase.h>
 #include <jasterix/ref.h>
+#include <jasterix/spf.h>
 
 #include <vector>
 #include <memory>
@@ -42,6 +43,9 @@ public:
     std::shared_ptr<ReservedExpansionField> ref() const;
     void setRef(const std::shared_ptr<ReservedExpansionField> &ref);
 
+    std::shared_ptr<SpecialPurposeField> spf() const;
+    void setSpf(const std::shared_ptr<SpecialPurposeField> &spf);
+
 protected:
     std::unique_ptr<ItemParserBase> field_specification_;
     std::vector<std::string> uap_names_;
@@ -54,6 +58,7 @@ protected:
 
     bool decode_ref_ {false};
     std::shared_ptr<ReservedExpansionField> ref_;
+    std::shared_ptr<SpecialPurposeField> spf_;
 
     inline bool compareKey (const nlohmann::json& container, const std::string& value)
     {

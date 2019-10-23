@@ -22,6 +22,7 @@
 #include "json.hpp"
 #include <jasterix/edition.h>
 #include <jasterix/refedition.h>
+#include <jasterix/spfedition.h>
 #include <jasterix/mapping.h>
 
 #include <string>
@@ -57,6 +58,16 @@ public:
     bool hasCurrentREFEdition();
     std::shared_ptr<REFEdition> getCurrentREFEdition ();
 
+    // spf stuff
+    bool hasSPFEdition (const std::string& edition_str) const;
+    std::shared_ptr<SPFEdition> spfEdition (const std::string& edition_str);
+    std::string spfEditionPath (const std::string& edition_str) const;
+
+    std::string defaultSPFEdition () const;
+    void setCurrentSPFEdition (const std::string& edition_str);
+    bool hasCurrentSPFEdition();
+    std::shared_ptr<SPFEdition> getCurrentSPFEdition ();
+
     // mapping stuff
     bool hasMapping (const std::string& mapping_str);
     std::shared_ptr<Mapping> mapping (const std::string& mapping_str);
@@ -68,6 +79,7 @@ public:
 
     const std::map<std::string, std::shared_ptr<Edition>>& editions() const;
     const std::map<std::string, std::shared_ptr<REFEdition>>& refEditions() const;
+    const std::map<std::string, std::shared_ptr<SPFEdition>>& spfEditions() const;
     const std::map<std::string, std::shared_ptr<Mapping>>& mappings() const;
 
     bool decode() const;
@@ -79,16 +91,19 @@ protected:
 
     std::string default_edition_;
     std::string default_ref_edition_;
+    std::string default_spf_edition_;
     std::string default_mapping_;
 
     std::string current_edition_;
     std::string current_ref_edition_;
+    std::string current_spf_edition_;
     std::string current_mapping_;
 
     bool decode_{true};
 
     std::map<std::string, std::shared_ptr<Edition>> editions_;
     std::map<std::string, std::shared_ptr<REFEdition>> ref_editions_;
+    std::map<std::string, std::shared_ptr<SPFEdition>> spf_editions_;
     std::map<std::string, std::shared_ptr<Mapping>> mappings_;
 };
 

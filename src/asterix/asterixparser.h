@@ -50,7 +50,8 @@ private:
     std::string data_block_name_;
     std::vector<std::unique_ptr<ItemParserBase>> data_block_items_;
     std::map<unsigned int, std::shared_ptr<Record>> records_;
-    std::map<unsigned int, std::shared_ptr<ReservedExpansionField>> refs_;
+//    std::map<unsigned int, std::shared_ptr<ReservedExpansionField>> refs_;
+//    std::map<unsigned int, std::shared_ptr<SpecialPurposeField>> spfs_;
     std::map<unsigned int, std::shared_ptr<Mapping>> mappings_;
 };
 
