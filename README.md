@@ -23,22 +23,22 @@ Currently support framings:
 - IOSS: IOSS Final Format
 - RFF: Comsoft RFF format
 
-Currently supported ASTERIX categories & editions:
+Currently supported ASTERIX categories & editions, reserved expansion fields and special purpose fields:
 
-| CAT |       Editions | REFs|
-|-----|----------------|-----|
-|  001|             1.1|     |
-|  002|             1.0|     |
-|  019|             1.2|     |
-|  020|        1.5, 1.8|  1.3|
-|  021|             2.1|     |
-|  023|             1.2|     |
-|  034|            1.26|     |
-|  048|            1.15|     |
-|  062|      1.12, 1.16|     |
-|  063|             1.0|     |
-|  063|             1.1|     |
-|  065|        1.2, 1.3|     |
+| CAT |       Editions | REFs|       SPFs|
+|-----|----------------|-----|-----------|
+|  001|             1.1|     |           |
+|  002|             1.0|     |           |
+|  019|             1.2|     |           |
+|  020|        1.5, 1.8|  1.3|           |
+|  021|             2.1|     |           |
+|  023|             1.2|     |           |
+|  034|            1.26|     |           |
+|  048|            1.15|     |           |
+|  062|      1.12, 1.16|     |           |
+|  063|             1.0|     | ARTAS TRIs|
+|  063|             1.1|     |           |
+|  065|        1.2, 1.3|     |           |
 
 
 ## Contents
