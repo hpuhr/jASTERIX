@@ -165,7 +165,8 @@ std::tuple<size_t, size_t, bool> FrameParser::findFrames (const char* data, size
         ++sum_frames_cnt_;
     }
 
-    return std::make_tuple (parsed_bytes_sum, chunk_frames_cnt, !(hit_frame_limit || hit_frame_chunk_limit));
+    return std::make_tuple (parsed_bytes_sum, chunk_frames_cnt, hit_frame_limit ? true : !hit_frame_chunk_limit);
+    // done if frame limit hit, if not -> done if frame chunk limit not hit
 }
 
 std::pair<size_t, size_t> FrameParser::decodeFrames (const char* data, json* target, bool debug)
@@ -178,7 +179,7 @@ std::pair<size_t, size_t> FrameParser::decodeFrames (const char* data, json* tar
     std::pair<size_t, size_t> ret {0,0};
     nlohmann::json& j_frames = target->at("frames");
 
-    if (debug) // switch to single thread in debug
+    if (debug || single_thread) // switch to single thread in debug
     {
         std::pair<size_t, size_t> tmp {0,0};
 

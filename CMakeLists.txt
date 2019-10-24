@@ -31,6 +31,9 @@ message("USE_LOG4CPP: ${USE_LOG4CPP}")
 set (USE_BOOST true)
 message("USE_BOOST: ${USE_BOOST}")
 
+set (USE_OPENSSL true)
+message("USE_OPENSSL: ${USE_OPENSSL}")
+
 configure_file(include/jasterix/global.h.in include/jasterix/global.h)
 
 IF (USE_BOOST)
@@ -64,6 +67,16 @@ message("  LOG4CPP_LIBRARY: ${LOG4CPP_LIBRARIES}")
 
 target_link_libraries ( jasterix
     ${LOG4CPP_LIBRARIES}
+    )
+ENDIF()
+
+IF (USE_OPENSSL)
+find_package ( OpenSSL REQUIRED )
+message("  OPENSSL_INCLUDE_DIR: ${OPENSSL_INCLUDE_DIR}")
+message("  OPENSSL_CRYPTO_LIBRARY: ${OPENSSL_CRYPTO_LIBRARY}")
+
+target_link_libraries ( jasterix
+    ${OPENSSL_CRYPTO_LIBRARY}
     )
 ENDIF()
 

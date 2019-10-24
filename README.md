@@ -58,6 +58,7 @@ The following libraries are mandatory:
 The following libaries are optional (can be deactivated in CMakeList.txt):
 - Boost
 - Log4Cpp
+- OpenSSL
 
 Also, the Nlohmann::JSON library is used.
 
@@ -81,23 +82,28 @@ After building, the following jASTERIX client can be used (from the check-out fo
 ```
 /build/bin/jasterix_client --help
 INFO    : Allowed options:
-  --help                 produce help message
-  --filename arg         input file name
-  --definition_path arg  path to jASTERIX definition files
-  --framing arg          input framine format, as specified in the framing 
-                         definitions. netto is default
-  --frame_limit arg      number of frames to process, default -1, use -1 to 
-                         disable.
-  --frame_chunk_size arg number of frames to process in one chunk, default 
-                         1000, use -1 to disable.
-  --data_write_size arg  number of frame chunks to write in one file write, 
-                         default 100, use -1 to disable.
-  --debug                print debug output
-  --print                print JSON output
-  --print_indent arg     intendation of json print, use -1 to disable.
-  --write_type arg       optional write type, e.g. text,zip. needs 
-                         write_filename.
-  --write_filename arg   optional write filename, e.g. test.zip.
+  --help                   produce help message
+  --filename arg           input file name
+  --definition_path arg    path to jASTERIX definition files
+  --framing arg            input framine format, as specified in the framing 
+                           definitions. raw/netto is default
+  --frame_limit arg        number of frames to process, default -1, use -1 to 
+                           disable.
+  --frame_chunk_size arg   number of frames to process in one chunk, default 
+                           1000, use -1 to disable.
+  --data_write_size arg    number of frame chunks to write in one file write, 
+                           default 100, use -1 to disable.
+  --debug                  print debug output
+  --debug_include_framing  print debug output including framing, debug still 
+                           has to be set, disable per default
+  --single_thread          process data in single thread
+  --add_artas_md5          add ARTAS MD5 hashes
+  --print                  print JSON output
+  --print_indent arg       intendation of json print, use -1 to disable.
+  --write_type arg         optional write type, e.g. text,zip. needs 
+                           write_filename.
+  --write_filename arg     optional write filename, e.g. test.zip.
+
 
 ```
 

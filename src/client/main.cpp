@@ -46,23 +46,20 @@ namespace po = boost::program_options;
 using namespace std;
 //using namespace jASTERIX;
 
-jASTERIX::JSONWriter* json_writer {nullptr};
+extern jASTERIX::JSONWriter* json_writer;
 
-void print_callback (std::unique_ptr<nlohmann::json> data_chunk, size_t num_frames, size_t num_records, size_t num_errors)
-{
-    loginf << data_chunk->dump(4);
-}
+jASTERIX::JSONWriter* json_writer {nullptr};
 
 void write_callback (std::unique_ptr<nlohmann::json> data_chunk, size_t num_frames, size_t num_records, size_t num_errors)
 {
-    loginf << "jASTERIX: write_callback " << num_frames << " frames, " << num_records << " records, "
-           << num_errors << " errors";
+//    loginf << "jASTERIX: write_callback " << num_frames << " frames, " << num_records << " records, "
+//           << num_errors << " errors";
     assert (json_writer);
 
     json_writer->write(std::move(data_chunk));
 }
 
-void test_callback (std::unique_ptr<nlohmann::json> data_chunk, size_t num_frames, size_t num_records, size_t num_errors)
+void empty_callback (std::unique_ptr<nlohmann::json> data_chunk, size_t num_frames, size_t num_records, size_t num_errors)
 {
     assert (data_chunk);
 }
@@ -108,6 +105,10 @@ int main (int argc, char **argv)
         ("debug", po::bool_switch(&debug), "print debug output")
         ("debug_include_framing", po::bool_switch(&debug_include_framing),
          "print debug output including framing, debug still has to be set, disable per default")
+        ("single_thread", po::bool_switch(&jASTERIX::single_thread), "process data in single thread")
+#if USE_OPENSSL
+        ("add_artas_md5", po::bool_switch(&jASTERIX::add_artas_md5_hash), "add ARTAS MD5 hashes")
+#endif
         ("print", po::bool_switch(&print), "print JSON output")
         ("print_indent", po::value<int>(&jASTERIX::print_dump_indent), "intendation of json print, use -1 to disable.")
         ("write_type", po::value<std::string>(&write_type),
@@ -129,7 +130,7 @@ int main (int argc, char **argv)
     }
     catch (exception& e)
     {
-        logerr << "jASTERIX: unable to parse command line parameters: \n" << e.what() << logendl;
+        logerr << "jASTERIX client: unable to parse command line parameters: \n" << e.what() << logendl;
         return -1;
     }
 #else
@@ -148,6 +149,10 @@ int main (int argc, char **argv)
         loginf << "data_write_size: number of frame chunks to write in one file write, default 100, use -1 to disable." << logendl;
         loginf << "debug: print debug output" << logendl;
         loginf << "debug_include_framing: print debug excluding framing, debug still has to be set, disabled by default" << logendl;
+        loginf << "single_thread: process data in single thread" << logendl;
+#if USE_OPENSSL
+        loginf << "add_artas_md5: padd ARTAS MD5 hashes" << logendl;
+#endif
         loginf << "print: print JSON output" << logendl;
         loginf << "print_indent: intendation of json print, use -1 to disable." << logendl;
         loginf << "write_type (value): optional write type, e.g. text,zip. needs write_filename." << logendl;
@@ -180,6 +185,14 @@ int main (int argc, char **argv)
     if (find(arguments.begin(), arguments.end(), "--debug_include_framing") != arguments.end())
         debug_include_framing = true;
 
+    if (find(arguments.begin(), arguments.end(), "--single_thread") != arguments.end())
+        jASTERIX::single_thread = true;
+
+#if USE_OPENSSL
+    if (find(arguments.begin(), arguments.end(), "--add_artas_md5") != arguments.end())
+        jASTERIX::add_artas_md5_hash = true;
+#endif
+
     if (find(arguments.begin(), arguments.end(), "--print") != arguments.end())
         print = true;
 
@@ -199,13 +212,13 @@ int main (int argc, char **argv)
     {
         if (write_type != "text" && write_type != "zip")
         {
-            logerr << "jASTERIX: unknown write_type '" << write_type << "'" << logendl;
+            logerr << "jASTERIX client: unknown write_type '" << write_type << "'" << logendl;
             return -1;
         }
 
         if (!write_filename.size())
         {
-            logerr << "jASTERIX: write_type '" << write_type << "' requires write_filename to be set" << logendl;
+            logerr << "jASTERIX client: write_type '" << write_type << "' requires write_filename to be set" << logendl;
             return -1;
         }
 
@@ -234,19 +247,15 @@ int main (int argc, char **argv)
         {
             if (json_writer)
                 asterix.decodeFile (filename, write_callback);
-            else if (print)
-                asterix.decodeFile (filename, print_callback);
-            else
-                asterix.decodeFile (filename, test_callback);
+            else // printing done via flag
+                asterix.decodeFile (filename, empty_callback);
         }
         else
         {
             if (json_writer)
                 asterix.decodeFile (filename, framing, write_callback);
-            else if (print)
-                asterix.decodeFile (filename, framing, print_callback);
-            else
-                asterix.decodeFile (filename, framing, test_callback);
+            else // printing done via flag
+                asterix.decodeFile (filename, framing, empty_callback);
         }
 
         size_t num_frames = asterix.numFrames();
@@ -281,7 +290,7 @@ int main (int argc, char **argv)
     }
     catch (exception &ex)
     {
-        logerr << "jASTERIX: caught exception: " << ex.what() << logendl;
+        logerr << "jASTERIX client: caught exception: " << ex.what() << logendl;
 
         //assert (false);
 
@@ -289,7 +298,7 @@ int main (int argc, char **argv)
     }
     catch(...)
     {
-        logerr << "jASTERIX: caught exception" << logendl;
+        logerr << "jASTERIX client: caught exception" << logendl;
 
         //assert (false);
 
@@ -297,9 +306,11 @@ int main (int argc, char **argv)
     }
 
     if (json_writer)
+    {
         delete json_writer;
+    }
 
-    loginf << "jASTERIX: shutdown" << logendl;
+    loginf << "jASTERIX client: shutdown" << logendl;
 
 //#if USE_BOOST
 //    std::this_thread::sleep_for(std::chrono::seconds(15));

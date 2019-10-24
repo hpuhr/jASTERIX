@@ -48,6 +48,11 @@ int frame_limit=-1;
 int frame_chunk_size=1000;
 int record_chunk_size=1000;
 int data_write_size=100;
+bool single_thread=false;
+
+#if USE_OPENSSL
+bool add_artas_md5_hash=false;
+#endif
 
 using namespace Files;
 using namespace std;
@@ -341,7 +346,9 @@ void jASTERIX::decodeFile (const std::string& filename, const std::string& frami
 
                 if (frame_limit > 0 && num_frames_ >= static_cast<unsigned>(frame_limit))
                 {
-                    loginf << "jASTERIX processing hit framelimit" << logendl;
+                    if (debug_)
+                        loginf << "jASTERIX processing hit framelimit" << logendl;
+
                     break;
                 }
             }
@@ -365,7 +372,8 @@ void jASTERIX::decodeFile (const std::string& filename, const std::string& frami
         }
     }
 
-    loginf << "jASTERIX decode file done" << logendl;
+    if (debug_)
+        loginf << "jASTERIX decode file done" << logendl;
 
 #if USE_BOOST
     file_.close();

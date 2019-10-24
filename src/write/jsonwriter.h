@@ -50,7 +50,7 @@ public:
     // will move the data
     void write(std::unique_ptr<nlohmann::json> data);
 
-    void fileWritingDone () { file_write_in_progress_ = false ;}
+    void fileWritingDone ();
 
 private:
     JSON_OUTPUT_TYPE json_output_type_;

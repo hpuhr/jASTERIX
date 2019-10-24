@@ -43,6 +43,12 @@ extern int frame_chunk_size;
 extern int record_chunk_size;
 extern int data_write_size;
 
+extern bool single_thread;
+
+#if USE_OPENSSL
+extern bool add_artas_md5_hash;
+#endif
+
 class jASTERIX
 {
 public:

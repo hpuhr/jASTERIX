@@ -21,6 +21,7 @@
 #include "json.hpp"
 #include "category.h"
 #include "edition.h"
+#include "jasterix/global.h"
 
 #include "mapping.h"
 
@@ -50,9 +51,12 @@ private:
     std::string data_block_name_;
     std::vector<std::unique_ptr<ItemParserBase>> data_block_items_;
     std::map<unsigned int, std::shared_ptr<Record>> records_;
-//    std::map<unsigned int, std::shared_ptr<ReservedExpansionField>> refs_;
-//    std::map<unsigned int, std::shared_ptr<SpecialPurposeField>> spfs_;
     std::map<unsigned int, std::shared_ptr<Mapping>> mappings_;
+
+
+#if USE_OPENSSL
+    void calculateARTASMD5Hash (const char* data, size_t length, nlohmann::json& target);
+#endif
 };
 
 }
