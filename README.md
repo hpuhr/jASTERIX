@@ -8,7 +8,7 @@ The library allows decoding of binary ASTERIX data into JSON. The ASTERIX defini
 
 Many ASTERIX decoder libraries exist today, but none of them was suitable/available for the ATSDB project. For this reason, the author decided to implement one, with a strong focus on flexibility first and performance second.
 
-- High flexibility using configuration only
+- High flexibility using configuration only, e.g. a user can add:
   - New framings
   - New categories 
   - New editions
@@ -76,11 +76,21 @@ To install the built libary in the system, execute the following command in the 
 sudo make install
 ```
 
+## Installation without Building
+
+Since v0.0.3 an AppImage is supplied, which can be executed (without setup effort) under all recent Linux distributions (since Ubuntu 14.04).
+
+Download the AppImage and the jASTERIX definitions from the Releases page, and extract the definitions into a local folder, e.g. 'definitions'. Execute the following command to add the executable flag to the AppImage:
+
+```
+chmod +x jASTERIX_client_v0.0.3-x86_64.AppImage
+```
+
 ## Usage
 
 After building, the following jASTERIX client can be used (from the check-out folder):
 ```
-./build/bin/jasterix_client --help
+./jASTERIX_client_v0.0.3-x86_64.AppImage --help
 INFO    : Allowed options:
   --help                   produce help message
   --filename arg           input file name
@@ -110,7 +120,7 @@ INFO    : Allowed options:
 
 To decode and print an ASTERIX file as JSON text, use:
 ```
-./build/bin/jasterix_client --definition_path definitions/ --filename src/test/cat020ed1.5.bin --print
+./jASTERIX_client_v0.0.3-x86_64.AppImage --definition_path definitions/ --filename src/test/cat020ed1.5.bin --print
 INFO    : {
     "data_blocks": [
         {
