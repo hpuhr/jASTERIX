@@ -40,7 +40,6 @@ protected:
     std::vector<std::string> items_names_;
     std::map<std::string, std::unique_ptr<ItemParserBase>> items_;
 
-    //bool compareKey (const nlohmann::json& container, const std::string& value);
 };
 
 }

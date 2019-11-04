@@ -8,7 +8,7 @@ The library allows decoding of binary ASTERIX data into JSON. The ASTERIX defini
 
 Many ASTERIX decoder libraries exist today, but none of them was suitable/available for the ATSDB project. For this reason, the author decided to implement one, with a strong focus on flexibility first and performance second.
 
-- High flexibility using configuration only
+- High flexibility using configuration only, e.g. a user can add:
   - New framings
   - New categories 
   - New editions
@@ -23,22 +23,22 @@ Currently support framings:
 - IOSS: IOSS Final Format
 - RFF: Comsoft RFF format
 
-Currently supported ASTERIX categories & editions:
+Currently supported ASTERIX categories & editions, reserved expansion fields and special purpose fields:
 
-| CAT |       Editions | REFs|
-|-----|----------------|-----|
-|  001|             1.1|     |
-|  002|             1.0|     |
-|  019|             1.2|     |
-|  020|        1.5, 1.8|  1.3|
-|  021|             2.1|     |
-|  023|             1.2|     |
-|  034|            1.26|     |
-|  048|            1.15|     |
-|  062|      1.12, 1.16|     |
-|  063|             1.0|     |
-|  063|             1.1|     |
-|  065|        1.2, 1.3|     |
+| CAT |       Editions | REFs|       SPFs|
+|-----|----------------|-----|-----------|
+|  001|             1.1|     |           |
+|  002|             1.0|     |           |
+|  019|             1.2|     |           |
+|  020|        1.5, 1.8|  1.3|           |
+|  021|             2.1|     |           |
+|  023|             1.2|     |           |
+|  034|            1.26|     |           |
+|  048|            1.15|     |           |
+|  062|      1.12, 1.16|     | ARTAS TRIs|
+|  063|             1.0|     |           |
+|  063|             1.1|     |           |
+|  065|        1.2, 1.3|     |           |
 
 
 ## Contents
@@ -58,10 +58,23 @@ The following libraries are mandatory:
 The following libaries are optional (can be deactivated in CMakeList.txt):
 - Boost
 - Log4Cpp
+- OpenSSL
 
 Also, the Nlohmann::JSON library is used.
 
-## Installation / Building
+## Client Installation without Building
+
+Since v0.0.3 an client AppImage is supplied, which can be executed (without setup effort) under all recent Linux distributions (since Ubuntu 14.04).
+
+Download the AppImage and the jASTERIX definitions from the [Releases](https://github.com/hpuhr/jASTERIX/releases) page, and extract the definitions into a local folder, e.g. 'definitions'. Execute the following command to add the executable flag to the AppImage:
+
+```
+chmod +x jASTERIX_client_v0.0.3-x86_64.AppImage
+```
+
+After this, the jASTERIX client can be run from the console (see Usage section).
+
+## Installation with Building
 
 Download the source code from this page, then execute the following commands in the check-out folder:
 ```
@@ -79,31 +92,37 @@ sudo make install
 
 After building, the following jASTERIX client can be used (from the check-out folder):
 ```
-/build/bin/jasterix_client --help
+./jASTERIX_client_v0.0.3-x86_64.AppImage --help
 INFO    : Allowed options:
-  --help                 produce help message
-  --filename arg         input file name
-  --definition_path arg  path to jASTERIX definition files
-  --framing arg          input framine format, as specified in the framing 
-                         definitions. netto is default
-  --frame_limit arg      number of frames to process, default -1, use -1 to 
-                         disable.
-  --frame_chunk_size arg number of frames to process in one chunk, default 
-                         1000, use -1 to disable.
-  --data_write_size arg  number of frame chunks to write in one file write, 
-                         default 100, use -1 to disable.
-  --debug                print debug output
-  --print                print JSON output
-  --print_indent arg     intendation of json print, use -1 to disable.
-  --write_type arg       optional write type, e.g. text,zip. needs 
-                         write_filename.
-  --write_filename arg   optional write filename, e.g. test.zip.
+  --help                   produce help message
+  --filename arg           input file name
+  --definition_path arg    path to jASTERIX definition files
+  --framing arg            input framine format, as specified in the framing 
+                           definitions. raw/netto is default
+  --frame_limit arg        number of frames to process, default -1, use -1 to 
+                           disable.
+  --frame_chunk_size arg   number of frames to process in one chunk, default 
+                           1000, use -1 to disable.
+  --data_write_size arg    number of frame chunks to write in one file write, 
+                           default 100, use -1 to disable.
+  --debug                  print debug output
+  --debug_include_framing  print debug output including framing, debug still 
+                           has to be set, disable per default
+  --single_thread          process data in single thread
+  --add_artas_md5          add ARTAS MD5 hashes
+  --check_artas_md5        add and check ARTAS MD5 hashes
+  --add_record_data        add original record data in hex
+  --print                  print JSON output
+  --print_indent arg       intendation of json print, use -1 to disable.
+  --write_type arg         optional write type, e.g. text,zip. needs 
+                           write_filename.
+  --write_filename arg     optional write filename, e.g. test.zip.
 
 ```
 
 To decode and print an ASTERIX file as JSON text, use:
 ```
-./build/bin/jasterix_client --definition_path definitions/ --filename src/test/cat020ed1.5.bin --print
+./jASTERIX_client_v0.0.3-x86_64.AppImage --definition_path definitions/ --filename src/test/cat020ed1.5.bin --print
 INFO    : {
     "data_blocks": [
         {

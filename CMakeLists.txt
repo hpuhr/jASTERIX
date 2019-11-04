@@ -9,7 +9,7 @@ set ( CMAKE_BUILD_TYPE Release )
 project( jASTERIX )
 SET(CPACK_PACKAGE_VERSION_MAJOR "0")
 SET(CPACK_PACKAGE_VERSION_MINOR "0")
-SET(CPACK_PACKAGE_VERSION_PATCH "1")
+SET(CPACK_PACKAGE_VERSION_PATCH "3")
 
 message("  System: ${CMAKE_SYSTEM}")
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
@@ -30,6 +30,9 @@ message("USE_LOG4CPP: ${USE_LOG4CPP}")
 
 set (USE_BOOST true)
 message("USE_BOOST: ${USE_BOOST}")
+
+set (USE_OPENSSL true)
+message("USE_OPENSSL: ${USE_OPENSSL}")
 
 configure_file(include/jasterix/global.h.in include/jasterix/global.h)
 
@@ -67,6 +70,16 @@ target_link_libraries ( jasterix
     )
 ENDIF()
 
+IF (USE_OPENSSL)
+find_package ( OpenSSL REQUIRED )
+message("  OPENSSL_INCLUDE_DIR: ${OPENSSL_INCLUDE_DIR}")
+message("  OPENSSL_CRYPTO_LIBRARY: ${OPENSSL_CRYPTO_LIBRARY}")
+
+target_link_libraries ( jasterix
+    ${OPENSSL_CRYPTO_LIBRARY}
+    )
+ENDIF()
+
 find_package(TBB REQUIRED)
 
 find_package ( LibArchive REQUIRED )
@@ -95,7 +108,7 @@ message("Installing using prefix: ${CMAKE_INSTALL_PREFIX}")
 #install(DIRECTORY "specifications" DESTINATION jasterix)
 
 set_target_properties(jasterix PROPERTIES PUBLIC_HEADER
-    "include/jasterix/jasterix.h;include/jasterix/category.h;include/jasterix/edition.h;include/jasterix/refedition.h;include/jasterix/ref.h;include/jasterix/mapping.h;include/jasterix/frameparser.h;include/jasterix/record.h;include/jasterix/itemparserbase.h;build/include/jasterix/global.h")
+    "include/jasterix/jasterix.h;include/jasterix/category.h;include/jasterix/edition.h;include/jasterix/refedition.h;include/jasterix/ref.h;include/jasterix/spfedition.h;include/jasterix/spf.h;include/jasterix/mapping.h;include/jasterix/frameparser.h;include/jasterix/record.h;include/jasterix/itemparserbase.h;build/include/jasterix/global.h")
 
 #install (TARGETS jasterix DESTINATION lib)
 install (TARGETS jasterix DESTINATION lib

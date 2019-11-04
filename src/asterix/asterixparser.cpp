@@ -27,6 +27,10 @@
 
 #include <tbb/tbb.h>
 
+#if USE_OPENSSL
+#include <openssl/md5.h>
+#endif
+
 using namespace std;
 using namespace nlohmann;
 
@@ -89,6 +93,10 @@ ASTERIXParser::ASTERIXParser(const nlohmann::json& data_block_definition,
 
         if (cat_it.second->hasCurrentREFEdition())
             records_.at(cat_it.first)->setRef(cat_it.second->getCurrentREFEdition()->reservedExpansionField());
+
+        if (cat_it.second->hasCurrentSPFEdition())
+            records_.at(cat_it.first)->setSpf(cat_it.second->getCurrentSPFEdition()->specialPurposeField());
+
 
         if (cat_it.second->hasCurrentMapping())
         {
@@ -207,7 +215,7 @@ std::pair<size_t, size_t> ASTERIXParser::decodeDataBlocks (const char* data, nlo
     std::vector<std::pair<size_t, size_t>> num_records;
     num_records.resize(num_data_blocks, {0,0});
 
-    if (debug) // switch to single thread in debug
+    if (debug || single_thread) // switch to single thread in debug
     {
         for (size_t cnt=0; cnt < num_data_blocks; ++cnt)
             num_records.at(cnt) = decodeDataBlock (data, data_blocks[cnt], debug);
@@ -254,7 +262,7 @@ std::pair<size_t, size_t> ASTERIXParser::decodeDataBlock (const char* data, nloh
     if (debug)
         loginf << "ASTERIXParser: decodeDataBlock" << logendl;
 
-    size_t parsed_bytes {0}; // TODO unsure if used
+    //size_t parsed_bytes {0}; // TODO unsure if used
     std::pair<size_t, size_t> ret {0,0}; // num records, num errors
 
     // check record information
@@ -294,7 +302,7 @@ std::pair<size_t, size_t> ASTERIXParser::decodeDataBlock (const char* data, nloh
         return {0, 1};
     }
 
-    size_t record_index = data_block_content.at("index");
+    size_t data_block_index = data_block_content.at("index");
 
     if (!data_block_content.contains("length"))
     {
@@ -303,52 +311,71 @@ std::pair<size_t, size_t> ASTERIXParser::decodeDataBlock (const char* data, nloh
         return {0, 1};
     }
 
-    size_t record_length = data_block_content.at("length");
+    size_t data_block_length = data_block_content.at("length");
 
     if (debug)
-        loginf << "ASTERIXParser: decodeDataBlock: index " << record_index << " length " << record_length
-               << " data '" << binary2hex((const unsigned char*)&data[record_index], record_length) << "'" << logendl;
+        loginf << "ASTERIXParser: decodeDataBlock: index " << data_block_index << " length " << data_block_length
+               << " data '" << binary2hex((const unsigned char*)&data[data_block_index], data_block_length) << "'" << logendl;
 
     // try to decode
     if (records_.count(cat) != 0)
     {
-        size_t parsed_bytes_record {0};
+        size_t data_block_parsed_bytes {0};
+        size_t record_parsed_bytes {0};
 
         try
         {
             // decode
             if (debug)
-                loginf << "asterix parser decoding record with cat " << cat << " index " << record_index
-                       << " length " << record_length << logendl;
+                loginf << "asterix parser decoding record with cat " << cat << " index " << data_block_index
+                       << " length " << data_block_length << logendl;
 
             data_block_content.emplace("records", json::array());
 
             // create records until end of content
-            while (parsed_bytes_record < record_length)
+            while (data_block_parsed_bytes < data_block_length)
             {
                 //loginf << "asterix parser decoding record " << cnt << " parsed bytes " << parsed_bytes_record << " length " << record_length;
 
-                parsed_bytes_record += records_.at(cat)->parseItem(
-                            data, record_index+parsed_bytes_record, record_length-parsed_bytes_record,
-                            parsed_bytes+parsed_bytes_record,
-                            data_block_content.at("records")[ret.first], debug);
+                record_parsed_bytes = records_.at(cat)->parseItem(
+                            data, data_block_index+data_block_parsed_bytes, data_block_length-data_block_parsed_bytes,
+                            data_block_parsed_bytes, data_block_content.at("records")[ret.first], debug);
 
                 if (debug)
-                    loginf << "asterix parser decoding record with cat " << cat << " index " << record_index
+                    loginf << "record with cat " << cat << " index " << data_block_index+data_block_parsed_bytes
+                           << " length " << record_parsed_bytes << " data '"
+                           << binary2hex((const unsigned char*)&data[data_block_index+data_block_parsed_bytes],
+                            record_parsed_bytes) << "'" << logendl;
+
+                if (debug)
+                    loginf << "asterix parser decoding record with cat " << cat << " index " << data_block_index
                            << ": " << data_block_content.at("records")[ret.first].dump(4) << "'" << logendl;
+
+#if USE_OPENSSL
+                if (add_artas_md5_hash)
+                    calculateARTASMD5Hash (&data[data_block_index+data_block_parsed_bytes], record_parsed_bytes,
+                            data_block_content.at("records")[ret.first]);
+#endif
+                if (add_record_data)
+                    data_block_content.at("records")[ret.first]["record_data"] = binary2hex(
+                                (const unsigned char*)&data[data_block_index+data_block_parsed_bytes],
+                            record_parsed_bytes);
+
+                data_block_parsed_bytes += record_parsed_bytes ;
+
                 ++ret.first;
             }
         }
         catch (std::exception& e)
         {
             loginf << "asterix parser decoding of cat " << cat << " failed with exception: '"
-                   << e.what() << "'"  << "' after index " << record_index+parsed_bytes_record << logendl;
+                   << e.what() << "'"  << "' after index " << data_block_index+data_block_parsed_bytes << logendl;
             ++ret.second;
         }
     }
     else if (debug)
-        loginf << "asterix parser decoding record with cat " << cat << " index " << record_index
-               << " length " << record_length << " skipped since cat definition is missing " << logendl;
+        loginf << "asterix parser decoding record with cat " << cat << " index " << data_block_index
+               << " length " << data_block_length << " skipped since cat definition is missing " << logendl;
 
     if (ret.first && mappings_.count(cat))
     {
@@ -371,6 +398,32 @@ std::pair<size_t, size_t> ASTERIXParser::decodeDataBlock (const char* data, nloh
                << " errors " << ret.second << logendl;
 
     return ret;
+}
+
+void ASTERIXParser::calculateARTASMD5Hash (const char* data, size_t length, nlohmann::json& target)
+{
+    unsigned char digest[MD5_DIGEST_LENGTH];
+
+    // unsigned char *md5_hash =
+    MD5((const unsigned char*)data, length, digest);
+
+//    The target report identifier is the result of the concatenation of the 1st, 5th, 9th, and 13th byte of the
+//    MD5 message digest algorithm of the input target report.
+
+    //un signed char artas_md5[4];
+
+    //target["org"] = binary2hex((const unsigned char*)data, length);
+    //target["md5"] = binary2hex(digest, MD5_DIGEST_LENGTH);
+    //loginf << "ASTERIXParser: calculateARTASMD5Hash: artas " << binary2hex(digest, MD5_DIGEST_LENGTH) << logendl;
+
+    //digest[0] = digest[0];
+    digest[1] = digest[4];
+    digest[2] = digest[8];
+    digest[3] = digest[12];
+
+    //loginf << "ASTERIXParser: calculateARTASMD5Hash: md5 " << binary2hex(digest, 4) << logendl;
+
+    target["artas_md5"] = binary2hex(digest, 4);
 }
 
 }

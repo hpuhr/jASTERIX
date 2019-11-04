@@ -45,36 +45,26 @@ public:
 
     /*override*/ tbb::task* execute()
     {
-        //size_t num_parsed_bytes {0};
-        //size_t num_parsed_chunks {0};
+        if (debug_)
+            loginf << "frame parser task execute" << logendl;
 
         while (!force_stop_ && !done_) // || size_-index_ > 0
         {
-            //loginf << "frame parser task execute 2" << logendl;
-
             std::unique_ptr<nlohmann::json> data_chunk {new nlohmann::json()};
-
-            //loginf << "frame parser task execute 2a" << logendl;
 
             if (frame_parser_.hasFileHeaderItems())
                 data_chunk = header_; // copy header
 
-            //loginf << "FPT UGA index " << index_ << " size " << size_ << logendl;
-
             assert (index_ < size_);
-
-            //loginf << "frame parser task execute 2b" << logendl;
 
             std::tuple<size_t, size_t, bool> ret = frame_parser_.findFrames(data_, index_, size_, data_chunk.get(),
                                                                             debug_);
 
-            //loginf << "frame parser task execute 3" << logendl;
-
             index_ += std::get<0>(ret); // parsed bytes
             done_ = std::get<2>(ret); // done flag
 
-//            loginf << "FPT UGA index " << index_ << " done " << done << " chunk '" << data_chunk.dump(4) << "'"
-//                   << logendl;
+//            if (done_)
+//                loginf << "frame parser task done" << logendl;
 
             assert (data_chunk != nullptr);
 
@@ -84,15 +74,14 @@ public:
             if (!data_chunk->at("frames").is_array())
                 throw std::runtime_error ("jASTERIX scoped frames information is not array");
 
-            //loginf << "frame parser task execute 4" << logendl;
-
             jasterix_.addDataChunk(std::move(data_chunk), done_);
-
-            //loginf << "frame parser task execute 5" << logendl;
         }
 
         if (force_stop_)
             done_ = true;
+
+        if (debug_)
+            loginf << "frame parser task execute done" << logendl;
 
         return nullptr; // or a pointer to a new task to be executed immediately
     }

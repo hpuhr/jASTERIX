@@ -263,10 +263,36 @@ size_t Record::parseItem (const char* data, size_t index, size_t size, size_t cu
     {
         size_t re_bytes = static_cast<size_t> (data[index+parsed_bytes]);
 
-        if (debug)
-            loginf << "record '"+name_+"' has special purpose field, skipping " << re_bytes << " bytes " << logendl;
+        if (spf_) // decode ref
+        {
 
-        target["SPF"] = binary2hex((const unsigned char*)&data[index+parsed_bytes], re_bytes);
+            if (debug)
+                loginf << "record '"+name_+"' has special purpose field, reading " << re_bytes << " bytes "
+                       << logendl;
+
+            assert (re_bytes > 1);
+
+            size_t ref_bytes = spf_->parseItem(data, index+parsed_bytes+1, re_bytes-1, 0, target["SPF"], debug);
+
+            if (debug)
+                loginf << "record '"+name_+"' parsed special purpose field, read " << ref_bytes << " ref in "
+                       << re_bytes << " bytes " << logendl;
+
+            if (ref_bytes != re_bytes-1)
+                throw runtime_error ("record item '"+name_+"' special purpose field definition only read "
+                                     + to_string(ref_bytes) + " bytes of specified "+to_string(ref_bytes-1));
+
+            //loginf << "UGA SPF '" << target["SPF"].dump(4) << "'" << logendl;
+        }
+        else
+        {
+            if (debug)
+                loginf << "record '"+name_+"' has special purpose field, reading " << re_bytes << " bytes "
+                       << logendl;
+
+            target["SPF"] = binary2hex((const unsigned char*)&data[index+parsed_bytes], re_bytes);
+
+        }
 
         parsed_bytes += re_bytes;
     }
@@ -292,12 +318,16 @@ size_t Record::parseItem (const char* data, size_t index, size_t size, size_t cu
             if (ref_bytes != re_bytes-1)
                 throw runtime_error ("record item '"+name_+"' reserved expansion field definition only read "
                                      + to_string(ref_bytes) + " bytes of specified "+to_string(ref_bytes-1));
+
+            //loginf << "UGA REF '" << target["REF"].dump(4) << "'" << logendl;
         }
         else
         {
             if (debug)
                 loginf << "record '"+name_+"' has reserved expansion field, reading " << re_bytes << " bytes "
                        << logendl;
+
+            target["REF"] = binary2hex((const unsigned char*)&data[index+parsed_bytes], re_bytes);
         }
 
         parsed_bytes += re_bytes;
@@ -324,6 +354,16 @@ std::shared_ptr<ReservedExpansionField> Record::ref() const
 void Record::setRef(const std::shared_ptr<ReservedExpansionField> &ref)
 {
     ref_ = ref;
+}
+
+std::shared_ptr<SpecialPurposeField> Record::spf() const
+{
+    return spf_;
+}
+
+void Record::setSpf(const std::shared_ptr<SpecialPurposeField> &spf)
+{
+    spf_ = spf;
 }
 
 //bool Record::compareKey (const nlohmann::json& container, const std::string& value)

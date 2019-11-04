@@ -28,6 +28,7 @@
 #include <archive_entry.h>
 
 #include "jsonwriter.h"
+#include "logger.h"
 
 namespace jASTERIX
 {
@@ -37,14 +38,20 @@ class JSONTextFileWriteTask : public tbb::task
 public:
     JSONTextFileWriteTask (std::ofstream& json_file, std::vector <std::string>&& text, JSONWriter& json_writer)
         : json_file_(json_file), text_(text), json_writer_(json_writer)
-    {    }
+    {
+        // loginf << "JSONTextFileWriteTask: ctor" << logendl;
+    }
 
     /*override*/ tbb::task* execute()
     {
-        for (const std::string str_it : text_)
+        // loginf << "JSONTextFileWriteTask: execute" << logendl;
+
+        for (const std::string& str_it : text_)
             json_file_ << str_it;
 
         json_writer_.fileWritingDone();
+
+        // loginf << "JSONTextFileWriteTask: execute done" << logendl;
 
         return nullptr; // or a pointer to a new task to be executed immediately
     }

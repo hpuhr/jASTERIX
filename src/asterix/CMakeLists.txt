@@ -15,5 +15,7 @@ target_sources(jasterix
         "${CMAKE_CURRENT_LIST_DIR}/record.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/refedition.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/ref.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/spfedition.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/spf.cpp"
 )
 

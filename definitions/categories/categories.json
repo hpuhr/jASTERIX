@@ -11,10 +11,6 @@
             }
         },
         "mappings":{
-            "atsdb":{
-                "comment":"conversion to atsdb cat048",
-                "file":"001/cat001_1.1_to_cat048_.1.15_mapping.json"
-            }
         }
     },
     "002":{
@@ -151,6 +147,7 @@
     "062":{
         "comment":"Category 062 SURVEILLANCE DATA EXCHANGE SDPS Track Messages",
         "default_edition":"1.16",
+        "default_spf_edition":"ARTAS",
         "default_mapping":"",
         "editions":{
             "1.12":{
@@ -162,6 +159,13 @@
                 "document":"SUR.ET1.ST05.2000-STD-09-01",
                 "date":"July 2012",
                 "file":"062/cat062_1.16.json"
+            }
+        },
+        "spf_editions":{
+            "ARTAS":{
+                "document":"SDIS/SUR/ARTAS/ASTX.015",
+                "date":"06/01/2009",
+                "file":"062/cat062_spf_artas.json"
             }
         },
         "mappings":{

@@ -48,6 +48,13 @@ int frame_limit=-1;
 int frame_chunk_size=1000;
 int record_chunk_size=1000;
 int data_write_size=100;
+bool single_thread=false;
+
+#if USE_OPENSSL
+bool add_artas_md5_hash=false;
+#endif
+
+bool add_record_data=false;
 
 using namespace Files;
 using namespace std;
@@ -178,18 +185,6 @@ jASTERIX::~jASTERIX()
 #endif
 //    scalable_allocation_command(TBBMALLOC_CLEAN_ALL_BUFFERS,0);
 //    scalable_allocation_command(TBBMALLOC_CLEAN_THREAD_BUFFERS, 0);
-
-//    loginf << "jASTERIX stats 1 " << logendl;
-
-//    malloc_stats();
-
-//    loginf << "jASTERIX time " << logendl;
-
-//    malloc_trim(0);
-
-//    loginf << "jASTERIX stats 2 " << logendl;
-
-//    malloc_stats();
 }
 
 bool jASTERIX::hasCategory(unsigned int cat)
@@ -341,7 +336,9 @@ void jASTERIX::decodeFile (const std::string& filename, const std::string& frami
 
                 if (frame_limit > 0 && num_frames_ >= static_cast<unsigned>(frame_limit))
                 {
-                    loginf << "jASTERIX processing hit framelimit" << logendl;
+                    if (debug_)
+                        loginf << "jASTERIX processing hit framelimit" << logendl;
+
                     break;
                 }
             }
@@ -365,7 +362,8 @@ void jASTERIX::decodeFile (const std::string& filename, const std::string& frami
         }
     }
 
-    loginf << "jASTERIX decode file done" << logendl;
+    if (debug_)
+        loginf << "jASTERIX decode file done" << logendl;
 
 #if USE_BOOST
     file_.close();
@@ -456,6 +454,9 @@ void jASTERIX::decodeFile (const std::string& filename,
                 num_records_ += dec_ret.first;
                 num_errors_ += dec_ret.second;
 
+                if (print_)
+                    loginf << data_block_chunk->dump(print_dump_indent) << logendl;
+
                 if (data_callback)
                     data_callback(std::move(data_block_chunk), 0, dec_ret.first, dec_ret.second);
                 else
@@ -529,6 +530,9 @@ void jASTERIX::decodeASTERIX (const char* data, size_t size,
 
     for (json& data_block : data_chunk->at("data_blocks"))
         asterix_parser.decodeDataBlock(data, data_block, debug_);
+
+    if (print_)
+        loginf << data_chunk->dump(print_dump_indent) << logendl;
 
     if (callback)
         callback(std::move(data_chunk), 0, 0, 0); // TODO added counters

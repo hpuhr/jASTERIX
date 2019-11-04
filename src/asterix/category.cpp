@@ -46,6 +46,10 @@ Category::Category(const std::string& number, const nlohmann::json& definition, 
     if (definition.contains("default_ref_edition")) // is optional
         default_ref_edition_ = definition.at("default_ref_edition");
 
+    //    "default_spf_edition" : "ARTAS",
+    if (definition.contains("default_spf_edition")) // is optional
+        default_spf_edition_ = definition.at("default_spf_edition");
+
     // decode flag
     if (definition.contains("decode"))
         decode_ = definition.at("decode");
@@ -63,8 +67,7 @@ Category::Category(const std::string& number, const nlohmann::json& definition, 
     for (auto ed_def_it = edition_definitions.begin(); ed_def_it != edition_definitions.end();
          ++ed_def_it)
     {
-        editions_[ed_def_it.key()] = std::shared_ptr<Edition> (
-                    new Edition(ed_def_it.key(), ed_def_it.value(), definition_path));
+        editions_[ed_def_it.key()] = std::make_shared<Edition> (ed_def_it.key(), ed_def_it.value(), definition_path);
     }
 
     if (editions_.count(default_edition_) != 1)
@@ -82,14 +85,36 @@ Category::Category(const std::string& number, const nlohmann::json& definition, 
         for (auto ed_def_it = ref_edition_definitions.begin(); ed_def_it != ref_edition_definitions.end();
              ++ed_def_it)
         {
-            ref_editions_[ed_def_it.key()] = std::shared_ptr<REFEdition> (
-                        new REFEdition(ed_def_it.key(), ed_def_it.value(), definition_path));
+            ref_editions_[ed_def_it.key()] =
+                    std::make_shared<REFEdition> (ed_def_it.key(), ed_def_it.value(), definition_path);
         }
 
         if (ref_editions_.count(default_ref_edition_) != 1)
             throw invalid_argument ("category '"+number_+"' default REF edition '"+default_ref_edition_
                                     +"' not defined");
     }
+
+    //    "spf_editions":
+
+    if (definition.contains("spf_editions"))
+    {
+        const json& spf_edition_definitions = definition.at("spf_editions");
+
+        if (!spf_edition_definitions.is_object())
+            throw invalid_argument ("category '"+number_+"' with non-object SPF edition definition");
+
+        for (auto ed_def_it = spf_edition_definitions.begin(); ed_def_it != spf_edition_definitions.end();
+             ++ed_def_it)
+        {
+            spf_editions_[ed_def_it.key()] =
+                    std::make_shared<SPFEdition> (ed_def_it.key(), ed_def_it.value(), definition_path);
+        }
+
+        if (spf_editions_.count(default_spf_edition_) != 1)
+            throw invalid_argument ("category '"+number_+"' default SPF edition '"+default_spf_edition_
+                                    +"' not defined");
+    }
+
     //    "default_mapping" : "1.0",
 
     if (!definition.contains("default_mapping"))
@@ -119,6 +144,7 @@ Category::Category(const std::string& number, const nlohmann::json& definition, 
 
     current_edition_ = default_edition_;
     current_ref_edition_ = default_ref_edition_;
+    current_spf_edition_ = default_spf_edition_;
     current_mapping_ = default_mapping_;
 }
 
@@ -201,7 +227,9 @@ std::string Category::defaultREFEdition() const
 
 void Category::setCurrentREFEdition (const std::string& edition_str)
 {
-    assert (hasREFEdition(edition_str));
+    if (edition_str.size()) // empty is clear
+        assert (hasREFEdition(edition_str));
+
     current_ref_edition_ = edition_str;
 }
 
@@ -219,6 +247,53 @@ std::shared_ptr<REFEdition> Category::getCurrentREFEdition()
 const std::map<std::string, std::shared_ptr<REFEdition>>& Category::refEditions() const
 {
     return ref_editions_;
+}
+
+// spf stuff
+bool Category::hasSPFEdition (const std::string& edition_str) const
+{
+    return spf_editions_.count(edition_str) == 1;
+}
+
+std::shared_ptr<SPFEdition> Category::spfEdition (const std::string& edition_str)
+{
+    assert (hasSPFEdition(edition_str));
+    return spf_editions_.at(edition_str);
+}
+
+std::string Category::spfEditionPath (const std::string& edition_str) const
+{
+    assert (hasSPFEdition(edition_str));
+    return spf_editions_.at(edition_str)->definitionPath();
+}
+
+std::string Category::defaultSPFEdition() const
+{
+    return default_spf_edition_;
+}
+
+void Category::setCurrentSPFEdition (const std::string& edition_str)
+{
+    if (edition_str.size()) // empty is clear
+        assert (hasSPFEdition(edition_str));
+
+    current_spf_edition_ = edition_str;
+}
+
+bool Category::hasCurrentSPFEdition()
+{
+    return hasSPFEdition(current_spf_edition_);
+}
+
+std::shared_ptr<SPFEdition> Category::getCurrentSPFEdition()
+{
+    assert (hasSPFEdition(current_spf_edition_));
+    return spf_editions_.at(current_spf_edition_);
+}
+
+const std::map<std::string, std::shared_ptr<SPFEdition>>& Category::spfEditions() const
+{
+    return spf_editions_;
 }
 
 // mapping stuff

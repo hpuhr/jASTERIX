@@ -51,7 +51,6 @@ JSONWriter::JSONWriter(JSON_OUTPUT_TYPE json_output_type, const std::string& jso
         break;
     default:
         throw runtime_error ("unhandled JSON output type "+to_string(json_output_type_)+" during construction");
-        break;
     }
 }
 
@@ -61,7 +60,10 @@ JSONWriter::~JSONWriter ()
         writeData();
 
     while (file_write_in_progress_)
+    {
+        //loginf << "JSONWriter: dtor: waiting for file write" << logendl;
         std::this_thread::sleep_for(std::chrono::milliseconds(5));
+    }
 
     if (json_file_open_)
         closeJsonFile ();
@@ -82,7 +84,6 @@ void JSONWriter::write(std::unique_ptr<nlohmann::json> data)
         break;
     default:
         throw runtime_error ("unhandled JSON output type "+to_string(json_output_type_)+" write");
-        break;
     }
 
     if (data_write_size > 0 && json_data_.size() > static_cast<size_t>(data_write_size))
@@ -106,7 +107,6 @@ void JSONWriter::writeData()
         break;
     default:
         throw runtime_error ("unhandled JSON output type "+to_string(json_output_type_)+" write data");
-        break;
     }
 
     assert (!json_data_.size());
@@ -121,7 +121,6 @@ void JSONWriter::writeData()
         break;
     default:
         throw runtime_error ("unhandled JSON output type "+to_string(json_output_type_)+" write data");
-        break;
     }
 
     assert (!text_data_.size());
@@ -164,7 +163,6 @@ void JSONWriter::openJsonFile ()
         break;
     default:
         throw runtime_error ("unhandled JSON output type "+to_string(json_output_type_)+" open");
-        break;
     }
 
     json_file_open_ = true;
@@ -184,6 +182,8 @@ void JSONWriter::writeTextToFile ()
         std::this_thread::sleep_for(std::chrono::milliseconds(5));
 
     file_write_in_progress_ = true;
+
+    //loginf << "JSONWriter: new write task" << logendl;
 
     JSONTextFileWriteTask* write_task = new (tbb::task::allocate_root()) JSONTextFileWriteTask (
                 json_file_, std::move(text_data_), *this);
@@ -283,6 +283,12 @@ void JSONWriter::closeJsonZipFile ()
     archive_write_free(json_zip_file_); // Note 5
 
     json_zip_file_open_ = false;
+}
+
+void JSONWriter::fileWritingDone ()
+{
+    //loginf << "JSONWriter: fileWritingDone" << logendl;
+    file_write_in_progress_ = false;
 }
 
 }
