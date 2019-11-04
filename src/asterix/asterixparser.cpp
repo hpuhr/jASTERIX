@@ -356,6 +356,10 @@ std::pair<size_t, size_t> ASTERIXParser::decodeDataBlock (const char* data, nloh
                     calculateARTASMD5Hash (&data[data_block_index+data_block_parsed_bytes], record_parsed_bytes,
                             data_block_content.at("records")[ret.first]);
 #endif
+                if (add_record_data)
+                    data_block_content.at("records")[ret.first]["record_data"] = binary2hex(
+                                (const unsigned char*)&data[data_block_index+data_block_parsed_bytes],
+                            record_parsed_bytes);
 
                 data_block_parsed_bytes += record_parsed_bytes ;
 

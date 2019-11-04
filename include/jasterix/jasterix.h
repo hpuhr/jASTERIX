@@ -49,6 +49,8 @@ extern bool single_thread;
 extern bool add_artas_md5_hash;
 #endif
 
+extern bool add_record_data;
+
 class jASTERIX
 {
 public:

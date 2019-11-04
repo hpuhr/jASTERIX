@@ -74,7 +74,7 @@ inline std::vector<std::string> split(const std::string &s, char delim)
     {
         elems.push_back(item);
     }
-    return std::move(elems);
+    return elems;
 }
 
 }

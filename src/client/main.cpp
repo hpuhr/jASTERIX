@@ -21,6 +21,10 @@
 #include "jsonwriter.h"
 #include "jasterix/global.h"
 
+#if USE_OPENSSL
+#include "utils/hashchecker.h"
+#endif
+
 #if USE_BOOST
 #include <boost/program_options.hpp>
 #include "boost/date_time/posix_time/posix_time.hpp"
@@ -50,16 +54,18 @@ extern jASTERIX::JSONWriter* json_writer;
 
 jASTERIX::JSONWriter* json_writer {nullptr};
 
-void write_callback (std::unique_ptr<nlohmann::json> data_chunk, size_t num_frames, size_t num_records, size_t num_errors)
+void write_callback (std::unique_ptr<nlohmann::json> data_chunk, size_t num_frames, size_t num_records,
+                     size_t num_errors)
 {
 //    loginf << "jASTERIX: write_callback " << num_frames << " frames, " << num_records << " records, "
 //           << num_errors << " errors";
-    assert (json_writer);
 
+    assert (json_writer);
     json_writer->write(std::move(data_chunk));
 }
 
-void empty_callback (std::unique_ptr<nlohmann::json> data_chunk, size_t num_frames, size_t num_records, size_t num_errors)
+void empty_callback (std::unique_ptr<nlohmann::json> data_chunk, size_t num_frames, size_t num_records,
+                     size_t num_errors)
 {
     assert (data_chunk);
 }
@@ -108,7 +114,9 @@ int main (int argc, char **argv)
         ("single_thread", po::bool_switch(&jASTERIX::single_thread), "process data in single thread")
 #if USE_OPENSSL
         ("add_artas_md5", po::bool_switch(&jASTERIX::add_artas_md5_hash), "add ARTAS MD5 hashes")
+        ("check_artas_md5", po::bool_switch(&check_artas_md5_hash), "add and check ARTAS MD5 hashes")
 #endif
+        ("add_record_data", po::bool_switch(&jASTERIX::add_record_data), "add original record data in hex")
         ("print", po::bool_switch(&print), "print JSON output")
         ("print_indent", po::value<int>(&jASTERIX::print_dump_indent), "intendation of json print, use -1 to disable.")
         ("write_type", po::value<std::string>(&write_type),
@@ -151,8 +159,10 @@ int main (int argc, char **argv)
         loginf << "debug_include_framing: print debug excluding framing, debug still has to be set, disabled by default" << logendl;
         loginf << "single_thread: process data in single thread" << logendl;
 #if USE_OPENSSL
-        loginf << "add_artas_md5: padd ARTAS MD5 hashes" << logendl;
+        loginf << "add_artas_md5: add ARTAS MD5 hashes" << logendl;
+        loginf << "check_artas_md5: add and check ARTAS MD5 hashes" << logendl;
 #endif
+        loginf << "add_record_data: add original record data in hex" << logendl;
         loginf << "print: print JSON output" << logendl;
         loginf << "print_indent: intendation of json print, use -1 to disable." << logendl;
         loginf << "write_type (value): optional write type, e.g. text,zip. needs write_filename." << logendl;
@@ -191,7 +201,12 @@ int main (int argc, char **argv)
 #if USE_OPENSSL
     if (find(arguments.begin(), arguments.end(), "--add_artas_md5") != arguments.end())
         jASTERIX::add_artas_md5_hash = true;
+
+    if (find(arguments.begin(), arguments.end(), "--check_artas_md5") != arguments.end())
+        check_artas_md5_hash = true;
 #endif
+    if (find(arguments.begin(), arguments.end(), "--add_record_data") != arguments.end())
+        jASTERIX::add_record_data = true;
 
     if (find(arguments.begin(), arguments.end(), "--print") != arguments.end())
         print = true;
@@ -207,6 +222,20 @@ int main (int argc, char **argv)
 
 #endif
 
+#if USE_OPENSSL
+    if (check_artas_md5_hash)
+    {
+        jASTERIX::add_artas_md5_hash = true;
+
+        if (write_type.size())
+        {
+            logerr << "jASTERIX client: writing can not be used while artas md5 checking" << logendl;
+            return -1;
+        }
+
+        hash_checker = new HashChecker(framing.size()); // true if framing set
+    }
+#endif
 
     if (write_type.size())
     {
@@ -248,14 +277,32 @@ int main (int argc, char **argv)
             if (json_writer)
                 asterix.decodeFile (filename, write_callback);
             else // printing done via flag
+#if USE_OPENSSL
+                if (check_artas_md5_hash)
+                    asterix.decodeFile (filename, check_callback);
+                else {
+                    asterix.decodeFile (filename, empty_callback);
+                }
+#else
                 asterix.decodeFile (filename, empty_callback);
+#endif
         }
         else
         {
             if (json_writer)
                 asterix.decodeFile (filename, framing, write_callback);
             else // printing done via flag
+            {
+#if USE_OPENSSL
+                if (check_artas_md5_hash)
+                    asterix.decodeFile (filename, framing, check_callback);
+                else {
+                    asterix.decodeFile (filename, framing, empty_callback);
+                }
+#else
                 asterix.decodeFile (filename, framing, empty_callback);
+#endif
+            }
         }
 
         size_t num_frames = asterix.numFrames();
@@ -308,7 +355,18 @@ int main (int argc, char **argv)
     if (json_writer)
     {
         delete json_writer;
+        json_writer = nullptr;
     }
+
+#if USE_OPENSSL
+    if (hash_checker)
+    {
+        hash_checker->printCollisions();
+
+        delete hash_checker;
+        hash_checker = nullptr;
+    }
+#endif
 
     loginf << "jASTERIX client: shutdown" << logendl;
 

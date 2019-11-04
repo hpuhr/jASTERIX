@@ -54,6 +54,8 @@ bool single_thread=false;
 bool add_artas_md5_hash=false;
 #endif
 
+bool add_record_data=false;
+
 using namespace Files;
 using namespace std;
 
