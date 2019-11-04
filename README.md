@@ -80,7 +80,7 @@ sudo make install
 
 After building, the following jASTERIX client can be used (from the check-out folder):
 ```
-/build/bin/jasterix_client --help
+./build/bin/jasterix_client --help
 INFO    : Allowed options:
   --help                   produce help message
   --filename arg           input file name
@@ -98,12 +98,13 @@ INFO    : Allowed options:
                            has to be set, disable per default
   --single_thread          process data in single thread
   --add_artas_md5          add ARTAS MD5 hashes
+  --check_artas_md5        add and check ARTAS MD5 hashes
+  --add_record_data        add original record data in hex
   --print                  print JSON output
   --print_indent arg       intendation of json print, use -1 to disable.
   --write_type arg         optional write type, e.g. text,zip. needs 
                            write_filename.
   --write_filename arg     optional write filename, e.g. test.zip.
-
 
 ```
 

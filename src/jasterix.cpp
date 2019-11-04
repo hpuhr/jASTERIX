@@ -185,18 +185,6 @@ jASTERIX::~jASTERIX()
 #endif
 //    scalable_allocation_command(TBBMALLOC_CLEAN_ALL_BUFFERS,0);
 //    scalable_allocation_command(TBBMALLOC_CLEAN_THREAD_BUFFERS, 0);
-
-//    loginf << "jASTERIX stats 1 " << logendl;
-
-//    malloc_stats();
-
-//    loginf << "jASTERIX time " << logendl;
-
-//    malloc_trim(0);
-
-//    loginf << "jASTERIX stats 2 " << logendl;
-
-//    malloc_stats();
 }
 
 bool jASTERIX::hasCategory(unsigned int cat)
@@ -466,6 +454,9 @@ void jASTERIX::decodeFile (const std::string& filename,
                 num_records_ += dec_ret.first;
                 num_errors_ += dec_ret.second;
 
+                if (print_)
+                    loginf << data_block_chunk->dump(print_dump_indent) << logendl;
+
                 if (data_callback)
                     data_callback(std::move(data_block_chunk), 0, dec_ret.first, dec_ret.second);
                 else
@@ -539,6 +530,9 @@ void jASTERIX::decodeASTERIX (const char* data, size_t size,
 
     for (json& data_block : data_chunk->at("data_blocks"))
         asterix_parser.decodeDataBlock(data, data_block, debug_);
+
+    if (print_)
+        loginf << data_chunk->dump(print_dump_indent) << logendl;
 
     if (callback)
         callback(std::move(data_chunk), 0, 0, 0); // TODO added counters
