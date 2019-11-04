@@ -62,7 +62,19 @@ The following libaries are optional (can be deactivated in CMakeList.txt):
 
 Also, the Nlohmann::JSON library is used.
 
-## Installation / Building
+## Client Installation without Building
+
+Since v0.0.3 an client AppImage is supplied, which can be executed (without setup effort) under all recent Linux distributions (since Ubuntu 14.04).
+
+Download the AppImage and the jASTERIX definitions from the [Releases](https://github.com/hpuhr/jASTERIX/releases) page, and extract the definitions into a local folder, e.g. 'definitions'. Execute the following command to add the executable flag to the AppImage:
+
+```
+chmod +x jASTERIX_client_v0.0.3-x86_64.AppImage
+```
+
+After this, the jASTERIX client can be run from the console (see Usage section).
+
+## Installation with Building
 
 Download the source code from this page, then execute the following commands in the check-out folder:
 ```
@@ -74,16 +86,6 @@ make
 To install the built libary in the system, execute the following command in the build folder:
 ```
 sudo make install
-```
-
-## Installation without Building
-
-Since v0.0.3 an AppImage is supplied, which can be executed (without setup effort) under all recent Linux distributions (since Ubuntu 14.04).
-
-Download the AppImage and the jASTERIX definitions from the Releases page, and extract the definitions into a local folder, e.g. 'definitions'. Execute the following command to add the executable flag to the AppImage:
-
-```
-chmod +x jASTERIX_client_v0.0.3-x86_64.AppImage
 ```
 
 ## Usage
