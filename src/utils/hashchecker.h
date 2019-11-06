@@ -26,15 +26,15 @@ public:
 
 private:
     bool framing_used_{false};
-    bool record_data_present_ {false};
 
     std::map <std::string, std::vector<RecordInfo>> hash_map_; // hash -> [RecordInfo]
 
     // data block index, length
-    void processRecord (unsigned int category, unsigned int index, unsigned int length, nlohmann::json& record);
+    void processRecord (unsigned int category, nlohmann::json& record);
 };
 
-extern bool check_artas_md5_hash;
+extern std::string check_artas_md5_hash;
+extern std::vector<int> check_artas_md5_categories;
 extern HashChecker* hash_checker;
 
 extern void check_callback (std::unique_ptr<nlohmann::json> data_chunk, size_t num_frames, size_t num_records,

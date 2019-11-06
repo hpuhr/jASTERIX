@@ -20,6 +20,7 @@
 #include "logger.h"
 #include "jsonwriter.h"
 #include "jasterix/global.h"
+#include "string_conv.h"
 
 #if USE_OPENSSL
 #include "utils/hashchecker.h"
@@ -48,7 +49,6 @@ namespace po = boost::program_options;
 #endif
 
 using namespace std;
-//using namespace jASTERIX;
 
 extern jASTERIX::JSONWriter* json_writer;
 
@@ -114,7 +114,8 @@ int main (int argc, char **argv)
         ("single_thread", po::bool_switch(&jASTERIX::single_thread), "process data in single thread")
 #if USE_OPENSSL
         ("add_artas_md5", po::bool_switch(&jASTERIX::add_artas_md5_hash), "add ARTAS MD5 hashes")
-        ("check_artas_md5", po::bool_switch(&check_artas_md5_hash), "add and check ARTAS MD5 hashes")
+        ("check_artas_md5", po::value<std::string>(&check_artas_md5_hash),
+         "add and check ARTAS MD5 hashes (with record data), stating which categories to check, e.g. 1,20,21,48")
 #endif
         ("add_record_data", po::bool_switch(&jASTERIX::add_record_data), "add original record data in hex")
         ("print", po::bool_switch(&print), "print JSON output")
@@ -160,7 +161,7 @@ int main (int argc, char **argv)
         loginf << "single_thread: process data in single thread" << logendl;
 #if USE_OPENSSL
         loginf << "add_artas_md5: add ARTAS MD5 hashes" << logendl;
-        loginf << "check_artas_md5: add and check ARTAS MD5 hashes" << logendl;
+        loginf << "add and check ARTAS MD5 hashes (with record data), stating which categories to check, e.g. 1,20,21,48" << logendl;
 #endif
         loginf << "add_record_data: add original record data in hex" << logendl;
         loginf << "print: print JSON output" << logendl;
@@ -203,7 +204,7 @@ int main (int argc, char **argv)
         jASTERIX::add_artas_md5_hash = true;
 
     if (find(arguments.begin(), arguments.end(), "--check_artas_md5") != arguments.end())
-        check_artas_md5_hash = true;
+        check_artas_md5_hash = *(find(arguments.begin(), arguments.end(), "--check_artas_md5")+1);
 #endif
     if (find(arguments.begin(), arguments.end(), "--add_record_data") != arguments.end())
         jASTERIX::add_record_data = true;
@@ -223,13 +224,34 @@ int main (int argc, char **argv)
 #endif
 
 #if USE_OPENSSL
-    if (check_artas_md5_hash)
+    if (check_artas_md5_hash.size())
     {
         jASTERIX::add_artas_md5_hash = true;
+        jASTERIX::add_record_data = true;
 
         if (write_type.size())
         {
             logerr << "jASTERIX client: writing can not be used while artas md5 checking" << logendl;
+            return -1;
+        }
+
+        std::vector<std::string> cat_strs;
+        split(check_artas_md5_hash, ',', cat_strs);
+
+        int cat;
+        for (auto& cat_str : cat_strs)
+        {
+            cat = std::atoi(cat_str.c_str());
+            if (cat < 1 || cat > 255)
+            {
+                logerr << "jASTERIX client: impossible artas md5 checking cat value '" << cat_str << "'" << logendl;
+                return -1;
+            }
+            check_artas_md5_categories.push_back(cat);
+        }
+        if (!check_artas_md5_categories.size())
+        {
+            logerr << "jASTERIX client: no valid artas md5 checking cat values given" << logendl;
             return -1;
         }
 
@@ -278,11 +300,11 @@ int main (int argc, char **argv)
                 asterix.decodeFile (filename, write_callback);
             else // printing done via flag
 #if USE_OPENSSL
-                if (check_artas_md5_hash)
+                if (check_artas_md5_hash.size())
                     asterix.decodeFile (filename, check_callback);
-                else {
+                else
                     asterix.decodeFile (filename, empty_callback);
-                }
+
 #else
                 asterix.decodeFile (filename, empty_callback);
 #endif
@@ -294,16 +316,21 @@ int main (int argc, char **argv)
             else // printing done via flag
             {
 #if USE_OPENSSL
-                if (check_artas_md5_hash)
+                if (check_artas_md5_hash.size())
                     asterix.decodeFile (filename, framing, check_callback);
-                else {
+                else
                     asterix.decodeFile (filename, framing, empty_callback);
-                }
+
 #else
                 asterix.decodeFile (filename, framing, empty_callback);
 #endif
             }
         }
+
+#if USE_OPENSSL
+    if (hash_checker)
+        hash_checker->printCollisions();
+#endif
 
         size_t num_frames = asterix.numFrames();
         size_t num_records = asterix.numRecords();
@@ -361,8 +388,6 @@ int main (int argc, char **argv)
 #if USE_OPENSSL
     if (hash_checker)
     {
-        hash_checker->printCollisions();
-
         delete hash_checker;
         hash_checker = nullptr;
     }

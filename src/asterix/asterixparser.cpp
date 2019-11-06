@@ -361,7 +361,10 @@ std::pair<size_t, size_t> ASTERIXParser::decodeDataBlock (const char* data, nloh
                                 (const unsigned char*)&data[data_block_index+data_block_parsed_bytes],
                             record_parsed_bytes);
 
-                data_block_parsed_bytes += record_parsed_bytes ;
+                data_block_content.at("records")[ret.first]["index"] = data_block_index+data_block_parsed_bytes;
+                data_block_content.at("records")[ret.first]["length"] = record_parsed_bytes;
+
+                data_block_parsed_bytes += record_parsed_bytes;
 
                 ++ret.first;
             }
