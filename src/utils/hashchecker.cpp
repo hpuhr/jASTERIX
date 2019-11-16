@@ -2,7 +2,10 @@
 #include "jasterix.h"
 #include "logger.h"
 
-bool check_artas_md5_hash {false};
+#include <sstream>
+
+std::string check_artas_md5_hash;
+std::vector<int> check_artas_md5_categories;
 HashChecker* hash_checker {nullptr};
 
 using namespace nlohmann;
@@ -18,7 +21,7 @@ void check_callback (std::unique_ptr<nlohmann::json> data_chunk, size_t num_fram
 HashChecker::HashChecker(bool framing_used)
     : framing_used_(framing_used)
 {
-    record_data_present_ = jASTERIX::add_record_data;
+    assert(jASTERIX::add_record_data);
 }
 
 void HashChecker::process (std::unique_ptr<nlohmann::json> data)
@@ -26,8 +29,8 @@ void HashChecker::process (std::unique_ptr<nlohmann::json> data)
     //loginf << "UGA '" << data->dump(4) << "'" << logendl;
 
     unsigned int category;
-    unsigned int index;
-    unsigned int length;
+    //    unsigned int index;
+    //    unsigned int length;
 
     if (!framing_used_)
     {
@@ -37,18 +40,22 @@ void HashChecker::process (std::unique_ptr<nlohmann::json> data)
         {
             category = data_block.at("category");
 
+            if (std::find(check_artas_md5_categories.begin(), check_artas_md5_categories.end(), category)
+                    == check_artas_md5_categories.end())
+                continue;
+
             if (!data_block.contains("content")) // data blocks with errors
                 continue;
 
             json& data_block_content = data_block.at("content");
 
-            index = data_block_content.at("index");
-            length = data_block_content.at("length");
+            //            index = data_block_content.at("index");
+            //            length = data_block_content.at("length");
 
             if (data_block_content.contains("records"))
             {
                 for (json& record : data_block_content.at("records"))
-                    processRecord (category, index, length, record);
+                    processRecord (category, record);
             }
         }
     }
@@ -76,71 +83,155 @@ void HashChecker::process (std::unique_ptr<nlohmann::json> data)
 
                 category = data_block.at("category");
 
+                if (std::find(check_artas_md5_categories.begin(), check_artas_md5_categories.end(), category)
+                        == check_artas_md5_categories.end())
+                    continue;
+
                 if (!data_block.contains("content")) // data block with errors
                     continue;
 
                 json& data_block_content = data_block.at("content");
 
-                index = data_block_content.at("index");
-                length = data_block_content.at("length");
+                //                index = data_block_content.at("index");
+                //                length = data_block_content.at("length");
 
                 if (data_block_content.contains("records"))
                 {
                     for (json& record : data_block_content.at("records"))
-                        processRecord (category, index, length, record);
+                        processRecord (category, record);
                 }
             }
         }
     }
 }
 
-void HashChecker::processRecord (unsigned int category, unsigned int index, unsigned int length, nlohmann::json& record)
+void HashChecker::processRecord (unsigned int category, nlohmann::json& record)
 {
-//    loginf << "UGA  cat " << category << " index " << index << " length " << length
-//           << " '" << record.dump(4) << "'" << logendl;
+    //    loginf << "UGA  cat " << category << " index " << index << " length " << length
+    //           << " '" << record.dump(4) << "'" << logendl;
 
     assert (record.contains("artas_md5"));
+    assert (record.contains("index"));
+    assert (record.contains("length"));
+    assert (record.contains("record_data"));
 
-    if (record_data_present_)
-        hash_map_[record.at("artas_md5")].emplace_back(category, index, length, record.at("record_data"));
-    else {
-        hash_map_[record.at("artas_md5")].emplace_back(category, index, length, "");
-    }
+    hash_map_[record.at("artas_md5")].emplace_back(category, record.at("index"), record.at("length"),
+                                                   record.at("record_data"));
 
-//    "artas_md5": "5073ed0f",
-//    "record_data": "ff02620f221f645b9c0fff08bcc175c06ddf82"
+    //    "artas_md5": "5073ed0f",
+    //    "record_data": "ff02620f221f645b9c0fff08bcc175c06ddf82"
 
 }
 
 void HashChecker::printCollisions ()
 {
     unsigned int record_cnt {0};
-    unsigned int collision_cnt {0};
+    unsigned int same_data_collision_cnt {0};
+    unsigned int different_data_collision_cnt {0};
+
+    std::stringstream ss_same_data_indexes;
+    std::map<unsigned int, unsigned int> same_data_collisions_per_cat;
+    std::map<std::pair<unsigned int, unsigned int>, unsigned int> diffent_data_collisions_per_cat;
 
     for (auto& hash_it : hash_map_)
     {
         if (hash_it.second.size() > 1)
         {
-            loginf << "found  " << hash_it.second.size() << " collision in hash '" << hash_it.first << "':" << logendl;
+            loginf << "found  " << hash_it.second.size() << " collisions in hash '" << hash_it.first << "':" << logendl;
+
+            // find same data collisions
+            std::map<std::pair<unsigned int, std::string>, unsigned int> data_counts; // (cat, record data) -> cnt
+            std::pair<unsigned int, std::string> cat_and_recdata;
+
+            std::vector<RecordInfo> cleaned_hash_map; // removed same cat & data occurences
+            ss_same_data_indexes.str("");
 
             for (auto& rec_it : hash_it.second)
             {
-                if (record_data_present_)
-                    loginf << "\t cat " << rec_it.category_ << " data block index " << rec_it.index_ << " length "
-                           << rec_it.length_ << " data '" << rec_it.record_data_ << "'" << logendl;
-                else
-                    loginf << "\t cat " << rec_it.category_ << " data block index " << rec_it.index_ << " length "
-                           << rec_it.length_ << logendl;
-                ++collision_cnt; // one for each
+                cat_and_recdata = std::make_pair(rec_it.category_, rec_it.record_data_);
+                if (data_counts.count(cat_and_recdata)) // same data found, just increase counter
+                {
+                    data_counts[cat_and_recdata]++;
+                    ss_same_data_indexes << "," << rec_it.index_;
+                }
+                else // new data found, add to cleaned map and initialize counter
+                {
+                    cleaned_hash_map.push_back(rec_it);
+                    data_counts[cat_and_recdata] = 1;
+                    ss_same_data_indexes << rec_it.index_;
+                }
+            }
+
+            for (auto& cnt_it : data_counts)
+            {
+                if (cnt_it.second > 1)
+                {
+                    loginf << "\t " << cnt_it.second << " same data collisions in cat " << cnt_it.first.first
+                           << " data '" << cnt_it.first.second << "' at indexes " << ss_same_data_indexes.str()
+                           << logendl;
+                    same_data_collision_cnt += cnt_it.second;
+                    same_data_collisions_per_cat[cnt_it.first.first] += cnt_it.second;
+                }
+            }
+
+            if (cleaned_hash_map.size() > 1)
+            {
+                loginf << "\t found different collisions:" << logendl;
+
+//                for (auto& rec_it : cleaned_hash_map) // hash_it.second
+//                {
+//                    loginf << "\t cat " << rec_it.category_ << " data '" << rec_it.record_data_
+//                           << "' index " << rec_it.index_ << logendl;
+//                    // << " length " << rec_it.length_
+//                    ++different_data_collision_cnt; // one for each
+//                }
+
+                for (auto rec_it=cleaned_hash_map.begin(); rec_it!=cleaned_hash_map.end(); ++rec_it) // hash_it.second
+                {
+                    loginf << "\t cat " << rec_it->category_ << " data '" << rec_it->record_data_
+                           << "' index " << rec_it->index_ << logendl;
+                    // << " length " << rec_it.length_
+                    ++different_data_collision_cnt; // one for each
+
+                    // iterate over rest of collisions and mark each
+                    for (auto rest_rec_it = rec_it+1; rest_rec_it != cleaned_hash_map.end(); ++rest_rec_it)
+                    {
+                        unsigned int min_cat = std::min(rec_it->category_, rest_rec_it->category_);
+                        unsigned int max_cat = std::max(rec_it->category_, rest_rec_it->category_);
+                        diffent_data_collisions_per_cat [std::make_pair(min_cat, max_cat)] += 1;
+                    }
+                }
             }
         }
 
         record_cnt += hash_it.second.size();
     }
 
-    if (record_cnt)
-        loginf << "found " << collision_cnt << " collisions in " << record_cnt << " records ("
-               << 100.0*collision_cnt/record_cnt << "%)" << logendl;
-    else
-        loginf << "found " << collision_cnt << " collisions in " << record_cnt << " records" << logendl;
+    if (!record_cnt)
+    {
+        loginf << "no data found" << logendl;
+        return;
+    }
+
+    loginf << logendl;
+    loginf << "found " << same_data_collision_cnt << " same data collisions in " << record_cnt << " records ("
+           << 100.0*same_data_collision_cnt/record_cnt << "%)" << logendl;
+    if (same_data_collision_cnt)
+    {
+        loginf << "same data collisions per category: " << logendl;
+        for (auto& cat_it : same_data_collisions_per_cat)
+            loginf << "\t cat " << cat_it.first << " count " << cat_it.second <<  " ("
+                   << 100.0*cat_it.second/record_cnt << "%)"<< logendl;
+        loginf << logendl;
+    }
+
+    loginf << "found " << different_data_collision_cnt << " different data collisions in " << record_cnt
+           << " records (" << 100.0*different_data_collision_cnt/record_cnt << "%)" << logendl;
+    if (different_data_collision_cnt)
+    {
+        loginf << "different data collisions per category: " << logendl;
+        for (auto& cat_it : diffent_data_collisions_per_cat)
+            loginf << "\t cat <" << cat_it.first.first << "," << cat_it.first.second << "> count " << cat_it.second
+                   <<  " (" << 100.0*cat_it.second/record_cnt << "%)"<< logendl;
+    }
 }

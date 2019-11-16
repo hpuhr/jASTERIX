@@ -315,7 +315,8 @@ std::pair<size_t, size_t> ASTERIXParser::decodeDataBlock (const char* data, nloh
 
     if (debug)
         loginf << "ASTERIXParser: decodeDataBlock: index " << data_block_index << " length " << data_block_length
-               << " data '" << binary2hex((const unsigned char*)&data[data_block_index], data_block_length) << "'" << logendl;
+               << " data '" << binary2hex((const unsigned char*)&data[data_block_index], data_block_length) << "'"
+               << logendl;
 
     // try to decode
     if (records_.count(cat) != 0)
@@ -335,7 +336,8 @@ std::pair<size_t, size_t> ASTERIXParser::decodeDataBlock (const char* data, nloh
             // create records until end of content
             while (data_block_parsed_bytes < data_block_length)
             {
-                //loginf << "asterix parser decoding record " << cnt << " parsed bytes " << parsed_bytes_record << " length " << record_length;
+                //loginf << "asterix parser decoding record " << cnt << " parsed bytes " << parsed_bytes_record
+                // << " length " << record_length;
 
                 record_parsed_bytes = records_.at(cat)->parseItem(
                             data, data_block_index+data_block_parsed_bytes, data_block_length-data_block_parsed_bytes,
@@ -361,7 +363,10 @@ std::pair<size_t, size_t> ASTERIXParser::decodeDataBlock (const char* data, nloh
                                 (const unsigned char*)&data[data_block_index+data_block_parsed_bytes],
                             record_parsed_bytes);
 
-                data_block_parsed_bytes += record_parsed_bytes ;
+                data_block_content.at("records")[ret.first]["index"] = data_block_index+data_block_parsed_bytes;
+                data_block_content.at("records")[ret.first]["length"] = record_parsed_bytes;
+
+                data_block_parsed_bytes += record_parsed_bytes;
 
                 ++ret.first;
             }
