@@ -29,9 +29,6 @@
 #include <boost/iostreams/device/mapped_file.hpp>
 #endif
 
-//#include "tbb/task_scheduler_init.h"
-//#include "tbb/concurrent_queue.h"
-
 #include "json.hpp"
 #include <jasterix/frameparser.h>
 #include <jasterix/category.h>
@@ -94,8 +91,6 @@ public:
 
 
 private:
-    //tbb::task_scheduler_init init_;
-
     std::string definition_path_;
     bool print_ {false};
     bool debug_ {false};
@@ -118,12 +113,10 @@ private:
     char* file_buffer_{nullptr};
 #endif
 
-    //tbb::concurrent_queue<std::unique_ptr<nlohmann::json>> data_block_chunks_;
     std::deque<std::unique_ptr<nlohmann::json>> data_block_chunks_;
     std::mutex data_block_chunks_mutex_;
     bool data_block_processing_done_ {false};
 
-    //tbb::concurrent_queue<std::unique_ptr<nlohmann::json>> data_chunks_;
     std::deque<std::unique_ptr<nlohmann::json>> data_chunks_;
     std::mutex data_chunks_mutex_;
     bool data_processing_done_ {false};
