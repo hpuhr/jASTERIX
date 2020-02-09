@@ -60,7 +60,7 @@ The following libaries are optional (can be deactivated in CMakeList.txt):
 - Log4Cpp
 - OpenSSL
 
-Also, the Nlohmann::JSON library is used.
+Also, the Nlohmann::JSON and the Catch2 libraries are used.
 
 ## Client Installation without Building
 
