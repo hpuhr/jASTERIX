@@ -4,7 +4,7 @@ message("  Path: ${ATSDB_PATH}")
 cmake_minimum_required(VERSION 3.1)
 #set ( CMAKE_BUILD_TYPE Debug )
 #set(CMAKE_CXX_FLAGS_MYREL "-O3")
-set ( CMAKE_BUILD_TYPE Release )
+set ( CMAKE_BUILD_TYPE RelWithDebInfo )
 
 project( jASTERIX )
 SET(CPACK_PACKAGE_VERSION_MAJOR "0")
@@ -17,7 +17,7 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 message("  Platform: Linux")
-add_definitions ( -Wall -std=c++11 -Wno-int-in-bool-context)
+add_definitions ( -Wall -UNDEBUG -std=c++11 -Wno-int-in-bool-context)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 # Instruct CMake to run moc automatically when needed.

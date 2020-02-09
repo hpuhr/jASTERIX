@@ -71,9 +71,6 @@ public:
     void decodeFile (const std::string& filename,
                      std::function<void(std::unique_ptr<nlohmann::json>, size_t, size_t, size_t)> data_callback=nullptr);
 
-    void decodeASTERIX (const char* data, size_t size,
-                 std::function<void(std::unique_ptr<nlohmann::json>, size_t, size_t, size_t)> data_callback=nullptr);
-
     size_t numFrames() const;
     size_t numRecords() const;
     size_t numErrors() const;

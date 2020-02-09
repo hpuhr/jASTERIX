@@ -483,54 +483,6 @@ namespace jASTERIX {
 #endif
     }
 
-    void jASTERIX::decodeASTERIX (const char* data, size_t size,
-                                  std::function<void(std::unique_ptr<nlohmann::json>, size_t, size_t, size_t)> callback)
-    {
-        // create ASTERIX parser
-        ASTERIXParser asterix_parser (data_block_definition_, category_definitions_, debug_);
-
-        std::unique_ptr<nlohmann::json> data_chunk {new nlohmann::json()};
-        //nlohmann::json data_chunk;
-
-        // TODO 0, size
-        size_t index = 0;
-
-        //loginf << "UGA find db" << logendl;
-
-        std::tuple<size_t, size_t, bool, bool> ret = asterix_parser.findDataBlocks(data, index, size, data_chunk.get(),
-                                                                                   debug_);
-
-        bool error = std::get<2>(ret);
-
-        if (error)
-            throw std::runtime_error("jASTERIX decodeASTERIX function failed with error");
-
-        bool done = std::get<3>(ret);
-
-        //loginf << "UGA find done " << done << logendl;
-
-        if (!done)
-            throw std::runtime_error("jASTERIX decodeASTERIX function called with too much data");
-
-        //loginf << "UGA decoding '" << data_chunk.dump(4) << "'" << logendl;
-
-        if (!data_chunk->contains ("data_blocks"))
-            throw runtime_error("jasterix data blocks not found");
-
-        if (!data_chunk->at("data_blocks").is_array())
-            throw runtime_error("jasterix data blocks is not an array");
-
-        for (json& data_block : data_chunk->at("data_blocks"))
-            asterix_parser.decodeDataBlock(data, data_block, debug_);
-
-        if (print_)
-            loginf << data_chunk->dump(print_dump_indent) << logendl;
-
-        if (callback)
-            callback(std::move(data_chunk), 0, 0, 0); // TODO added counters
-    }
-
-
     size_t jASTERIX::numFrames() const
     {
         return num_frames_;

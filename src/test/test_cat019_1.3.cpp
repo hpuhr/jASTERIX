@@ -19,14 +19,25 @@
 #include "jasterix.h"
 #include "logger.h"
 #include "string_conv.h"
+#include "files.h"
+#include "test_jasterix.h"
+
+#include "catch.hpp"
 
 #include <cmath>
 
-void test_cat019_callback (std::unique_ptr<nlohmann::json> json_data, size_t num_frames, size_t num_records, size_t num_errors)
+using namespace std;
+using namespace nlohmann;
+
+void test_cat019_callback (std::unique_ptr<nlohmann::json> json_data, size_t num_frames, size_t num_records,
+                           size_t num_errors)
 {
     loginf << "cat019 test: decoded " << num_frames << " frames, " << num_records << " records, " << num_errors
-           << " errors: " << json_data->dump(4) << logendl;
-    assert (num_errors == 0);
+           << " errors" << logendl;
+
+    REQUIRE (num_frames == 0);
+    REQUIRE (num_records == 1);
+    REQUIRE (num_errors == 0);
 
 //    {
 //        "data_blocks": [
@@ -234,64 +245,72 @@ void test_cat019_callback (std::unique_ptr<nlohmann::json> json_data, size_t num
 
     loginf << "cat019 test: data block" << logendl;
 
-    assert (json_data->find ("data_blocks") != json_data->end());
-    assert (json_data->at("data_blocks").is_array());
-    assert (json_data->at("data_blocks").size() == 1);
-    assert (json_data->at("data_blocks")[0]["category"] == 19);
-    assert (json_data->at("data_blocks")[0]["length"] == 57);
+    REQUIRE (json_data->contains("data_blocks"));
+    REQUIRE (json_data->at("data_blocks").is_array());
+    REQUIRE (json_data->at("data_blocks").size() == 1);
+
+    const json& first_data_block = json_data->at("data_blocks").at(0);
+
+    REQUIRE (first_data_block.contains("category"));
+    REQUIRE (first_data_block.at("category") == 19);
+    REQUIRE (first_data_block.contains("length"));
+    REQUIRE (first_data_block.at("length") == 57);
 
     loginf << "cat019 test: num records" << logendl;
-    assert (json_data->at("data_blocks")[0].at("content").at("records").size() == 1);
+    REQUIRE (first_data_block.contains("content"));
+    REQUIRE (first_data_block.at("content").contains("records"));
+    REQUIRE (first_data_block.at("content").at("records").is_array());
+    REQUIRE (first_data_block.at("content").at("records").size() == 1);
+
+    const json& record = first_data_block.at("content").at("records").at(0);
 
     //    ; FSPEC: 0x fd e0
 
     loginf << "cat019 test: fspec" << logendl;
-    assert (json_data->at("data_blocks")[0].at("content").at("records")[0].at("FSPEC").size() == 2*8);
+    REQUIRE (record.at("FSPEC").size() == 2*8);
 
-    assert (json_data->at("data_blocks")[0].at("content").at("records")[0].at("FSPEC")
-            == std::vector<bool>({1,1,1,1,1,1,0,1,1,1,1,0,0,0,0,0}));
+    REQUIRE (record.at("FSPEC") == std::vector<bool>({1,1,1,1,1,1,0,1,1,1,1,0,0,0,0,0}));
 
     //    ; Data Record:
     //    ;  I019/010: =0x 00 03
     //    ;  Data Source Identifier: 0x0003 (SAC=0; SIC=3)
 
     loginf << "cat019 test: 010" << logendl;
-    assert (json_data->at("data_blocks")[0].at("content").at("records")[0].at("010").at("SAC") == 0);
-    assert (json_data->at("data_blocks")[0].at("content").at("records")[0].at("010").at("SIC") == 3);
+    REQUIRE (record.at("010").at("SAC") == 0);
+    REQUIRE (record.at("010").at("SIC") == 3);
 
     //    ;  I019/000: =0x 02
     //    ;  Message Type: mtp=2 (Periodic status message)
 
     loginf << "cat019 test: 000" << logendl;
-    assert (json_data->at("data_blocks")[0].at("content").at("records")[0].at("000").at("Message Type") == 2);
+    REQUIRE (record.at("000").at("Message Type") == 2);
 
     //    ;  I019/140: =0x 41 6f 85
     //    ;  Time of Day: 0x416f85 (4288389; 09:18:23.039 UTC)
 
     loginf << "cat019 test: 140" << logendl;
-    double tmp_d = json_data->at("data_blocks")[0].at("content").at("records")[0].at("140").at("Time of Day");
-    assert (fabs(tmp_d-33503.0390625) < 10e-6);
+    REQUIRE (approximatelyEqual(record.at("140").at("Time of Day"), 33503.0390625, 10e-6));
 
     //    ;  I019/550: =0x 00
     //    ;  System Status: nogo=0 (operational); ovl=0; tsv=0; ttf=0
     loginf << "cat019 test: 550" << logendl;
-    assert (json_data->at("data_blocks")[0].at("content").at("records")[0].at("550").at("NOGO") == 0);
-    assert (json_data->at("data_blocks")[0].at("content").at("records")[0].at("550").at("OVL") == 0);
-    assert (json_data->at("data_blocks")[0].at("content").at("records")[0].at("550").at("TSV") == 0);
-    assert (json_data->at("data_blocks")[0].at("content").at("records")[0].at("550").at("TTF") == 0);
+    REQUIRE (record.at("550").at("NOGO") == 0);
+    REQUIRE (record.at("550").at("OVL") == 0);
+    REQUIRE (record.at("550").at("TSV") == 0);
+    REQUIRE (record.at("550").at("TTF") == 0);
 
     //    ;  I019/551: =0x d0
     //    ;  Tracking Processor Detailed Status: 0xd0
     // 11010000
     loginf << "cat019 test: 551" << logendl;
-    assert (json_data->at("data_blocks")[0].at("content").at("records")[0].at("551").at("TP 1a") == 1);
-    assert (json_data->at("data_blocks")[0].at("content").at("records")[0].at("551").at("TP 1b") == 1);
-    assert (json_data->at("data_blocks")[0].at("content").at("records")[0].at("551").at("TP 2a") == 0);
-    assert (json_data->at("data_blocks")[0].at("content").at("records")[0].at("551").at("TP 2b") == 1);
-    assert (json_data->at("data_blocks")[0].at("content").at("records")[0].at("551").at("TP 3a") == 0);
-    assert (json_data->at("data_blocks")[0].at("content").at("records")[0].at("551").at("TP 3b") == 0);
-    assert (json_data->at("data_blocks")[0].at("content").at("records")[0].at("551").at("TP 4a") == 0);
-    assert (json_data->at("data_blocks")[0].at("content").at("records")[0].at("551").at("TP 4b") == 0);
+    REQUIRE (record.at("551").at("TP 1a") == 1);
+    REQUIRE (record.at("551").at("TP 1b") == 1);
+    REQUIRE (record.at("551").at("TP 2a") == 0);
+    REQUIRE (record.at("551").at("TP 2b") == 1);
+    REQUIRE (record.at("551").at("TP 3a") == 0);
+    REQUIRE (record.at("551").at("TP 3b") == 0);
+    REQUIRE (record.at("551").at("TP 4a") == 0);
+    REQUIRE (record.at("551").at("TP 4b") == 0);
 
     //    ;  I019/552: =0x 10 01 6c 02  6c 03 6c 04  6c 05 6c 06  6c 07 6c 08
     //    ;            +0x 6c 09 6c 0a  6c 0b 6c 0c  6c 0d 6c 0e  6c 0f 6c 10
@@ -315,8 +334,8 @@ void test_cat019_callback (std::unique_ptr<nlohmann::json> json_data, size_t num
     //    ;   id=16; type=6; status=12
 
     loginf << "cat019 test: 552" << logendl;
-    assert (json_data->at("data_blocks")[0].at("content").at("records")[0].at("552").at("REP") == 16);
-    assert (json_data->at("data_blocks")[0].at("content").at("records")[0].at("552").at("Remote Sensor Detailed Status").size() == 16);
+    REQUIRE (record.at("552").at("REP") == 16);
+    REQUIRE (record.at("552").at("Remote Sensor Detailed Status").size() == 16);
     // 0110 1100
     // spare 0
     // "Receiver 1090 MHz": 1,
@@ -325,11 +344,11 @@ void test_cat019_callback (std::unique_ptr<nlohmann::json> json_data, size_t num
     // "RS Status": 1,
     // "RS Operational": 1,
 
-    assert (json_data->at("data_blocks")[0].at("content").at("records")[0].at("552").at("Remote Sensor Detailed Status")[0].at("Receiver 1090 MHz") == 1);
-    assert (json_data->at("data_blocks")[0].at("content").at("records")[0].at("552").at("Remote Sensor Detailed Status")[0].at("Transmitter 1030 MHz") == 1);
-    assert (json_data->at("data_blocks")[0].at("content").at("records")[0].at("552").at("Remote Sensor Detailed Status")[0].at("Transmitter 1090 MHz") == 0);
-    assert (json_data->at("data_blocks")[0].at("content").at("records")[0].at("552").at("Remote Sensor Detailed Status")[0].at("RS Status") == 1);
-    assert (json_data->at("data_blocks")[0].at("content").at("records")[0].at("552").at("Remote Sensor Detailed Status")[0].at("RS Operational") == 1);
+    REQUIRE (record.at("552").at("Remote Sensor Detailed Status")[0].at("Receiver 1090 MHz") == 1);
+    REQUIRE (record.at("552").at("Remote Sensor Detailed Status")[0].at("Transmitter 1030 MHz") == 1);
+    REQUIRE (record.at("552").at("Remote Sensor Detailed Status")[0].at("Transmitter 1090 MHz") == 0);
+    REQUIRE (record.at("552").at("Remote Sensor Detailed Status")[0].at("RS Status") == 1);
+    REQUIRE (record.at("552").at("Remote Sensor Detailed Status")[0].at("RS Operational") == 1);
 
     //    ;  I019/600: =0x 10 e3 8e 39  04 fa 4f a5
     //    ;  Position of the MLT System Reference Point:
@@ -337,49 +356,43 @@ void test_cat019_callback (std::unique_ptr<nlohmann::json> json_data, size_t num
     //    ;   Longitude: 83513253 (014:00:00.000E)
 
     loginf << "cat019 test: 600" << logendl;
-    tmp_d = json_data->at("data_blocks")[0].at("content").at("records")[0].at("600").at("Latitude");
-    assert (fabs(tmp_d-47.5) < 10e-6);
-    tmp_d = json_data->at("data_blocks")[0].at("content").at("records")[0].at("600").at("Longitude");
-    assert (fabs(tmp_d-14.0) < 10e-6);
+    REQUIRE (approximatelyEqual(record.at("600").at("Latitude"), 47.5, 10e-6));
+    REQUIRE (approximatelyEqual(record.at("600").at("Longitude"), 14.0, 10e-6));
 
     //    ;  I019/610: =0x 00 00
     //    ;  Height of the MLT System Reference Point: 0.00 mtr
     loginf << "cat019 test: 610" << logendl;
-    assert (json_data->at("data_blocks")[0].at("content").at("records")[0].at("610").at("Height") == 0.0);
+    REQUIRE (record.at("610").at("Height") == 0.0);
 
     //    ;  I019/620: =0x 00
     //    ;  WGS-84 Undulation: 0 mtr
     loginf << "cat019 test: 620" << logendl;
-    assert (json_data->at("data_blocks")[0].at("content").at("records")[0].at("620").at("Undulation") == 0.0);
+    REQUIRE (record.at("620").at("Undulation") == 0.0);
 }
 
-void test_cat019 (jASTERIX::jASTERIX& jasterix)
+TEST_CASE( "jASTERIX CAT019 1.3", "[jASTERIX CAT019]" )
 {
     loginf << "cat019 test: start" << logendl;
+
+    jASTERIX::jASTERIX jasterix (definition_path, true, true, false);
 
     //; ASTERIX data block at pos 0: cat=19; len=57
     //      130039fde0000302416f8500d010016c026c036c046c056c066c076c086c096c0a6c0b6c0c6c0d6c0e6c0f6c106c10e38e3904fa4fa5000000
 
     // echo -n 130039fde0000302416f8500d010016c026c036c046c056c066c076c086c096c0a6c0b6c0c6c0d6c0e6c0f6c106c10e38e3904fa4fa5000000 | xxd -r -p > cat019ed1.3.bin
 
-    const char *cat019_ed10 = "130039fde0000302416f8500d010016c026c036c046c056c066c076c086c096c0a6c0b6c0c6c0d6c0e6c0f6c106c10e38e3904fa4fa5000000";
-    char* target = new char[strlen(cat019_ed10)/2];
-
-    size_t size = hex2bin (cat019_ed10, target);
-
-    loginf << "cat019 test: src len " << strlen(cat019_ed10) << " bin len " << size << logendl;
-
-    assert (size == 57);
-
-    assert (jasterix.hasCategory(19));
+    REQUIRE (jasterix.hasCategory(19));
     std::shared_ptr<jASTERIX::Category> cat019 = jasterix.category(19);
-    assert (cat019->hasEdition("1.3"));
+    REQUIRE (cat019->hasEdition("1.3"));
     cat019->setCurrentEdition("1.3");
     cat019->setCurrentMapping("");
 
-    jasterix.decodeASTERIX(target, size, test_cat019_callback);
+    const std::string filename = "cat019ed1.3.bin";
 
-    delete[] target;
+    REQUIRE(jASTERIX::Files::fileExists(data_path+filename));
+    REQUIRE(jASTERIX::Files::fileSize(data_path+filename) == 57);
+
+    jasterix.decodeFile(data_path+filename, test_cat019_callback);
 
     loginf << "cat019 test: end" << logendl;
 }
