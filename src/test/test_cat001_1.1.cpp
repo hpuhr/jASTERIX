@@ -35,7 +35,8 @@ void test_cat001_callback (std::unique_ptr<nlohmann::json> json_data, size_t num
     loginf << "cat001 test: callback" << logendl;
 
     loginf << "cat001 test: decoded " << num_frames << " frames, " << num_records << " records, " << num_errors
-           << " errors" << logendl; // << json_data->dump(4)
+           << " errors" << logendl;
+
     REQUIRE (num_frames == 0);
     REQUIRE (num_records == 1);
     REQUIRE (num_errors == 0);
@@ -121,6 +122,7 @@ void test_cat001_callback (std::unique_ptr<nlohmann::json> json_data, size_t num
     REQUIRE (json_data->at("data_blocks").size() == 1);
 
     const json& first_data_block = json_data->at("data_blocks").at(0);
+
     REQUIRE (first_data_block.contains("category"));
     REQUIRE (first_data_block.at("category") == 1);
     REQUIRE (first_data_block.contains("length"));
