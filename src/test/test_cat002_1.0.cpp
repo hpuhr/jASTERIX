@@ -140,14 +140,14 @@ void test_cat002 (jASTERIX::jASTERIX& jasterix)
     //      02000cd4000101416eb59302
     // echo -n 02000cd4000101416eb59302 | xxd -r -p > cat002ed1.0.bin
 
-    const char *cat002_ed10 = "02000cd4000101416eb59302";
-    char* target = new char[strlen(cat002_ed10)/2];
+//    const char *cat002_ed10 = "02000cd4000101416eb59302";
+//    char* target = new char[strlen(cat002_ed10)/2];
 
-    size_t size = hex2bin (cat002_ed10, target);
+//    size_t size = hex2bin (cat002_ed10, target);
 
-    loginf << "cat002 test: src len " << strlen(cat002_ed10) << " bin len " << size << logendl;
+//    loginf << "cat002 test: src len " << strlen(cat002_ed10) << " bin len " << size << logendl;
 
-    assert (size == 12);
+//    assert (size == 12);
 
     assert (jasterix.hasCategory(2));
     std::shared_ptr<jASTERIX::Category> cat002 = jasterix.category(2);
@@ -155,9 +155,10 @@ void test_cat002 (jASTERIX::jASTERIX& jasterix)
     cat002->setCurrentEdition("1.0");
     cat002->setCurrentMapping("");
 
-    jasterix.decodeASTERIX(target, size, test_cat002_callback);
+    //jasterix.decodeASTERIX(target, size, test_cat002_callback);
+    jasterix.decodeFile()
 
-    delete[] target;
+    //delete[] target;
 
     loginf << "cat002 test: end" << logendl;
 }
