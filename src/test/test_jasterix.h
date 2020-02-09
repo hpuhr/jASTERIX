@@ -9,7 +9,8 @@ extern std::string data_path;
 
 inline bool approximatelyEqual(double a, double b, double epsilon)
 {
-    return fabs(a - b) <= ( (fabs(a) < fabs(b) ? fabs(b) : fabs(a)) * epsilon);
+    return fabs(a - b) < epsilon;
+    //return fabs(a - b) <= ( (fabs(a) < fabs(b) ? fabs(b) : fabs(a)) * epsilon);
 }
 
 #endif // TEST_JASTERIX_H

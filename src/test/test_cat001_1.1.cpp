@@ -199,9 +199,7 @@ void test_cat001_callback (std::unique_ptr<nlohmann::json> json_data, size_t num
     loginf << "cat001 test: 141" << logendl;
     REQUIRE (approximatelyEqual(record.at("141").at("Truncated Time of Day"), 221.4296875, 10e-6));
 
-    //     [--:--:--.---] - --:--:--.--- -- 0x0001 A1 P:SSR ----- AR  256.619  127.438
-    //          A:05543 --- C: 380    -- ;
-
+    //     [--:--:--.---] - --:--:--.--- -- 0x0001 A1 P:SSR ----- AR  256.619  127.438       A:05543 --- C: 380    -- ;
 }
 
 TEST_CASE( "jASTERIX CAT001 1.1", "[jASTERIX CAT001]" )
