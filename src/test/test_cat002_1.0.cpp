@@ -151,7 +151,7 @@ void test_cat002_callback (std::unique_ptr<nlohmann::json> json_data, size_t num
     //     [--:--:--.---] M 09:18:21.414 -- 0x0001 A1 S:NMK ----- A-    0.000
 }
 
-TEST_CASE( "jASTERIX CAT002 1.0", "[jASTERIX CAT001]" )
+TEST_CASE( "jASTERIX CAT002 1.0", "[jASTERIX CAT002]" )
 {
     loginf << "cat002 test: start" << logendl;
 

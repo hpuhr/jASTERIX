@@ -13,7 +13,7 @@ target_sources(test_jasterix
 #    PRIVATE
         "${CMAKE_CURRENT_LIST_DIR}/test_cat001_1.1.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/test_cat002_1.0.cpp"
-#        "${CMAKE_CURRENT_LIST_DIR}/cat019_1.3.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/test_cat019_1.3.cpp"
 #        "${CMAKE_CURRENT_LIST_DIR}/cat020_1.5.cpp"
 #        "${CMAKE_CURRENT_LIST_DIR}/cat021_2.1.cpp"
 #        "${CMAKE_CURRENT_LIST_DIR}/cat021_2.1.cpp"

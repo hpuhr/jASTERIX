@@ -22,8 +22,6 @@
 #include "files.h"
 #include "test_jasterix.h"
 
-#include <cmath>
-
 #include "catch.hpp"
 
 using namespace std;
