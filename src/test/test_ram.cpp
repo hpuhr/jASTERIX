@@ -35,6 +35,9 @@
 #define CATCH_CONFIG_RUNNER
 #include "catch.hpp"
 
+#include <thread>
+#include <chrono>
+
 using namespace std;
 
 std::string definition_path;
@@ -98,6 +101,8 @@ TEST_CASE( "jASTERIX RAM", "[jASTERIX RAM]" )
 #endif
 
     loginf << "ram test: end" << logendl;
+
+    //std::this_thread::sleep_for(std::chrono::seconds(5));
 }
 
 

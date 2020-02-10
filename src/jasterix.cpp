@@ -39,8 +39,8 @@ namespace jASTERIX {
 
     int print_dump_indent=4;
     int frame_limit=-1;
-    int frame_chunk_size=20000;
-    int record_chunk_size=20000;
+    int frame_chunk_size=10000;
+    int record_chunk_size=10000;
     int data_write_size=100;
     bool single_thread=false;
 
@@ -516,7 +516,7 @@ namespace jASTERIX {
 
         data_block_chunks_mutex_.unlock();
 
-        while (data_block_chunks_.size() > 5)
+        while (data_block_chunks_.size() >= 2)
             std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
 
@@ -538,7 +538,7 @@ namespace jASTERIX {
         data_processing_done_ = done;
         data_chunks_mutex_.unlock();
 
-        while (data_chunks_.size() > 5)
+        while (data_chunks_.size() >= 2)
             std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
 
