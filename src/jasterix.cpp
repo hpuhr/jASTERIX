@@ -39,8 +39,8 @@ namespace jASTERIX {
 
     int print_dump_indent=4;
     int frame_limit=-1;
-    int frame_chunk_size=1000;
-    int record_chunk_size=1000;
+    int frame_chunk_size=50000;
+    int record_chunk_size=50000;
     int data_write_size=100;
     bool single_thread=false;
 
@@ -515,6 +515,9 @@ namespace jASTERIX {
         data_block_processing_done_ = done;
 
         data_block_chunks_mutex_.unlock();
+
+        while (data_block_chunks_.size() > 10)
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
 
     void jASTERIX::addDataChunk (std::unique_ptr<nlohmann::json> data_chunk, bool done)
@@ -534,6 +537,9 @@ namespace jASTERIX {
         data_chunks_.push_back(std::move(data_chunk));
         data_processing_done_ = done;
         data_chunks_mutex_.unlock();
+
+        while (data_chunks_.size() > 10)
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
 
     const std::string& jASTERIX::dataBlockDefinitionPath() const

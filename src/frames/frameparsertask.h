@@ -75,6 +75,7 @@ public:
                 throw std::runtime_error ("jASTERIX scoped frames information is not array");
 
             jasterix_.addDataChunk(std::move(data_chunk), done_);
+            assert (data_chunk == nullptr);
         }
 
         if (force_stop_)
