@@ -28,6 +28,10 @@
 #include "log4cpp/SimpleLayout.hh"
 #endif
 
+#if USE_BOOST
+#include "boost/date_time/posix_time/posix_time.hpp"
+#endif
+
 #define CATCH_CONFIG_RUNNER
 #include "catch.hpp"
 
@@ -38,11 +42,11 @@ std::string filename;
 float start_free_ram;
 
 void test_ram_callback (std::unique_ptr<nlohmann::json> json_data, size_t num_frames, size_t num_records,
-                           size_t num_errors)
+                        size_t num_errors)
 {
     float free_ram = Utils::System::getFreeRAMinGB();
 
-    loginf << "Used RAM: " << std::fixed << std::setprecision(2) << (start_free_ram-free_ram) * 1024.0 << " MB"
+    loginf << "ram test: using " << std::fixed << std::setprecision(2) << (start_free_ram-free_ram) * 1024.0 << " mb"
            << logendl;
 
     json_data = nullptr;
@@ -56,7 +60,42 @@ TEST_CASE( "jASTERIX RAM", "[jASTERIX RAM]" )
 
     REQUIRE(jASTERIX::Files::fileExists(filename));
 
+#if USE_BOOST
+    boost::posix_time::ptime start_time = boost::posix_time::microsec_clock::local_time();
+#else
+    auto start_time = chrono::steady_clock::now();
+#endif
+
     jasterix.decodeFile(filename, "ioss", test_ram_callback);
+
+    size_t num_frames = jasterix.numFrames();
+    size_t num_records = jasterix.numRecords();
+
+#if USE_BOOST
+    boost::posix_time::time_duration diff = boost::posix_time::microsec_clock::local_time() - start_time;
+
+    string time_str = to_string(diff.hours())+"h "+to_string(diff.minutes())+"m "+to_string(diff.seconds())+"s "+
+            to_string(diff.total_milliseconds()%1000)+"ms";
+
+    double seconds = diff.total_milliseconds()/1000.0;
+
+    loginf << "ram test: decoded " << num_frames << " frames, "
+           << num_records << " records in " << time_str << ": "
+           << num_frames/seconds << " fr/s, " << num_records/seconds << " rec/s" << logendl;
+#else
+    auto end_time = chrono::steady_clock::now();
+    double full_seconds = chrono::duration_cast<chrono::milliseconds>(end_time - start_time).count()/1000.0;
+
+    unsigned int hours = full_seconds/3600;
+    unsigned int minutes = (full_seconds-hours*3600)/60;
+    double seconds = full_seconds-hours*3600-minutes*60;
+
+    string time_str = to_string(hours)+"h "+to_string(minutes)+"m "+to_string(seconds)+"s";
+
+    loginf << "ram test: decoded " << num_frames << " frames, "
+           << num_records << " records in " << time_str << ": "
+           << num_frames/full_seconds << " fr/s, " << num_records/full_seconds << " rec/s" << logendl;
+#endif
 
     loginf << "ram test: end" << logendl;
 }
