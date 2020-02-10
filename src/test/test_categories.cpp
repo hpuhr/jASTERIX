@@ -33,17 +33,6 @@ using namespace std;
 std::string definition_path;
 std::string data_path;
 
-TEST_CASE( "jASTERIX startup/shutdown", "[jASTERIX]" )
-{
-    loginf << "jASTERIX test: startup with definition_path '" << definition_path << "'" << logendl;
-
-    //(const std::string& definition_path, bool print, bool debug, bool debug_exclude_framing)
-    jASTERIX::jASTERIX jasterix (definition_path, true, true, false);
-
-    loginf << "jASTERIX test: shutdown" << logendl;
-}
-
-
 int main (int argc, char **argv)
 {
     static_assert (sizeof(size_t) >= 8, "code requires size_t with at least 8 bytes");
