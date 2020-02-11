@@ -42,67 +42,31 @@ using namespace std;
 
 std::string definition_path;
 std::string filename;
-float max_used_ram_mb {0};
+
 unsigned int sum_num_frames {0};
-unsigned int sum_num_records {0};
 
-std::chrono::time_point<std::chrono::steady_clock> start_time;
-std::chrono::time_point<std::chrono::steady_clock> current_time;
-
-void test_performance_callback (std::unique_ptr<nlohmann::json> json_data, size_t num_frames, size_t num_records,
+void test_frame_limit_callback (std::unique_ptr<nlohmann::json> json_data, size_t num_frames, size_t num_records,
                         size_t num_errors)
 {
-    //float free_ram = Utils::System::getFreeRAMinGB();
-
-    float used_ram_mb = Utils::System::getProcessRAMinGB() * 1024.0;
-
-    if (used_ram_mb > max_used_ram_mb)
-        max_used_ram_mb = used_ram_mb;
-
     sum_num_frames += num_frames;
-    sum_num_records += num_records;
-
-    REQUIRE (num_errors == 0);
-
-    auto current_time = chrono::steady_clock::now();
-    double full_seconds = chrono::duration_cast<chrono::milliseconds>(current_time - start_time).count()/1000.0;
-
-    std::ostringstream oss;
-
-    unsigned int hours = full_seconds/3600;
-    unsigned int minutes = (full_seconds-hours*3600)/60;
-    double seconds = full_seconds-hours*3600-minutes*60;
-
-    oss << std::setfill('0') << std::setw(2) << hours
-        << ":" << std::setw(2) << minutes
-        << ":" << std::fixed << std::setw(6) << std::setprecision(3) << seconds;
-
-    loginf << "performance test: decoded " << sum_num_frames << " frames, "
-           << sum_num_records << " records in " << oss.str() << ": "
-           << sum_num_frames/full_seconds << " fr/s, " << sum_num_records/full_seconds << " rec/s using "
-           << std::fixed << std::setprecision(2) << used_ram_mb << " mb, max " << max_used_ram_mb << logendl;
 
     json_data = nullptr;
 }
 
-TEST_CASE( "jASTERIX Performance", "[jASTERIX Performance]" )
+TEST_CASE( "jASTERIX Frame Limit", "[jASTERIX Limits]" )
 {
-    loginf << "performance test: start" << logendl;
+    loginf << "frame limit test: start" << logendl;
 
     jASTERIX::jASTERIX jasterix (definition_path, false, false, false);
-#if USE_OPENSSL
-    jASTERIX::add_artas_md5_hash = true;
-#endif
+    jASTERIX::frame_limit = 17333;
 
     REQUIRE(jASTERIX::Files::fileExists(filename));
 
-    start_time = chrono::steady_clock::now();
+    jasterix.decodeFile(filename, "ioss", test_frame_limit_callback);
 
-    jasterix.decodeFile(filename, "ioss", test_performance_callback);
+    REQUIRE (sum_num_frames == 17333);
 
-    loginf << "performance test: end" << logendl;
-
-    //std::this_thread::sleep_for(std::chrono::seconds(5));
+    loginf << "frame limit test: end" << logendl;
 }
 
 

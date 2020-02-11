@@ -77,7 +77,7 @@ char getIcaoChar (unsigned char c)
 constexpr char hexmap[] = {'0', '1', '2', '3', '4', '5', '6', '7',
                            '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
 
-std::string binary2hex(const unsigned char *data, size_t len)
+std::string binary2hex(const unsigned char* data, size_t len)
 {
   std::string s(len*2, ' ');
   for (int i = 0; i < len; ++i)
