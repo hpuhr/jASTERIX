@@ -92,7 +92,7 @@ sudo make install
 
 After building, the following jASTERIX client can be used (from the check-out folder):
 ```
-./jASTERIX_client_v0.0.3-x86_64.AppImage --help
+./jASTERIX_client-x86_64.AppImage --help
 INFO    : Allowed options:
   --help                   produce help message
   --filename arg           input file name
@@ -103,6 +103,8 @@ INFO    : Allowed options:
                            disable.
   --frame_chunk_size arg   number of frames to process in one chunk, default 
                            1000, use -1 to disable.
+  --data_block_limit arg   number of data blocks to process, default -1, use -1
+                           to disable.
   --data_write_size arg    number of frame chunks to write in one file write, 
                            default 100, use -1 to disable.
   --debug                  print debug output
@@ -110,7 +112,8 @@ INFO    : Allowed options:
                            has to be set, disable per default
   --single_thread          process data in single thread
   --add_artas_md5          add ARTAS MD5 hashes
-  --check_artas_md5        add and check ARTAS MD5 hashes
+  --check_artas_md5 arg    add and check ARTAS MD5 hashes (with record data), 
+                           stating which categories to check, e.g. 1,20,21,48
   --add_record_data        add original record data in hex
   --print                  print JSON output
   --print_indent arg       intendation of json print, use -1 to disable.
@@ -122,7 +125,7 @@ INFO    : Allowed options:
 
 To decode and print an ASTERIX file as JSON text, use:
 ```
-./jASTERIX_client_v0.0.3-x86_64.AppImage --definition_path definitions/ --filename src/test/cat020ed1.5.bin --print
+./jASTERIX_client-x86_64.AppImage --definition_path definitions/ --filename src/test/cat020ed1.5.bin --print
 INFO    : {
     "data_blocks": [
         {
