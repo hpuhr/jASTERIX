@@ -207,7 +207,6 @@ size_t FixedBytesItemParser::parseItem (const char* data, size_t index, size_t s
         }
 
         assert (!target.contains(name_));
-        //target[name_] = data_str;
         target.emplace(name_, std::move(data_str));
 
         return length_;

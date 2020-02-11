@@ -4,6 +4,8 @@
 //#include <sys/sysinfo.h>
 //#include <stdint.h>
 
+#include <sys/resource.h>
+
 #include <string>
 #include <fstream>
 #include <sstream>
@@ -18,6 +20,23 @@ namespace Utils
 
 namespace System
 {
+
+float getProcessRAMinGB ()
+{
+    struct rusage info;
+    getrusage(RUSAGE_SELF, &info);
+
+    //    long int ru_maxrss
+    //    The maximum resident set size used, in kilobytes. That is, the maximum number of kilobytes of physical memory
+    //    that processes used simultaneously.
+
+    return info.ru_maxrss/megabyte;
+
+//        struct sysinfo info;
+//        sysinfo (&info);
+
+//        return ((uint64_t) (info.freeram + info.bufferram) * info.mem_unit)/gigabyte;
+}
 
 float getFreeRAMinGB ()
 {

@@ -42,15 +42,43 @@ using namespace std;
 
 std::string definition_path;
 std::string filename;
-float start_free_ram;
+float max_used_ram_mb {0};
+unsigned int sum_num_frames {0};
+unsigned int sum_num_records {0};
+
+std::chrono::time_point<std::chrono::steady_clock> start_time;
+std::chrono::time_point<std::chrono::steady_clock> current_time;
 
 void test_ram_callback (std::unique_ptr<nlohmann::json> json_data, size_t num_frames, size_t num_records,
                         size_t num_errors)
 {
-    float free_ram = Utils::System::getFreeRAMinGB();
+    //float free_ram = Utils::System::getFreeRAMinGB();
 
-    loginf << "ram test: using " << std::fixed << std::setprecision(2) << (start_free_ram-free_ram) * 1024.0 << " mb"
-           << logendl;
+    float used_ram_mb = Utils::System::getProcessRAMinGB() * 1024.0;
+
+    if (used_ram_mb > max_used_ram_mb)
+        max_used_ram_mb = used_ram_mb;
+
+    sum_num_frames += num_frames;
+    sum_num_records += num_records;
+
+    auto current_time = chrono::steady_clock::now();
+    double full_seconds = chrono::duration_cast<chrono::milliseconds>(current_time - start_time).count()/1000.0;
+
+    std::ostringstream oss;
+
+    unsigned int hours = full_seconds/3600;
+    unsigned int minutes = (full_seconds-hours*3600)/60;
+    double seconds = full_seconds-hours*3600-minutes*60;
+
+    oss << std::setfill('0') << std::setw(2) << hours
+        << ":" << std::setw(2) << minutes
+        << ":" << std::fixed << std::setw(6) << std::setprecision(3) << seconds;
+
+    loginf << "ram test: decoded " << sum_num_frames << " frames, "
+           << sum_num_records << " records in " << oss.str() << ": "
+           << sum_num_frames/full_seconds << " fr/s, " << sum_num_records/full_seconds << " rec/s using "
+           << std::fixed << std::setprecision(2) << used_ram_mb << " mb, max " << max_used_ram_mb << logendl;
 
     json_data = nullptr;
 }
@@ -63,42 +91,25 @@ TEST_CASE( "jASTERIX RAM", "[jASTERIX RAM]" )
 
     REQUIRE(jASTERIX::Files::fileExists(filename));
 
-#if USE_BOOST
-    boost::posix_time::ptime start_time = boost::posix_time::microsec_clock::local_time();
-#else
-    auto start_time = chrono::steady_clock::now();
-#endif
+    start_time = chrono::steady_clock::now();
 
     jasterix.decodeFile(filename, "ioss", test_ram_callback);
 
-    size_t num_frames = jasterix.numFrames();
-    size_t num_records = jasterix.numRecords();
+//    size_t num_frames = jasterix.numFrames();
+//    size_t num_records = jasterix.numRecords();
 
-#if USE_BOOST
-    boost::posix_time::time_duration diff = boost::posix_time::microsec_clock::local_time() - start_time;
+//    auto current_time = chrono::steady_clock::now();
+//    double full_seconds = chrono::duration_cast<chrono::milliseconds>(current_time - start_time).count()/1000.0;
 
-    string time_str = to_string(diff.hours())+"h "+to_string(diff.minutes())+"m "+to_string(diff.seconds())+"s "+
-            to_string(diff.total_milliseconds()%1000)+"ms";
+//    unsigned int hours = full_seconds/3600;
+//    unsigned int minutes = (full_seconds-hours*3600)/60;
+//    double seconds = full_seconds-hours*3600-minutes*60;
 
-    double seconds = diff.total_milliseconds()/1000.0;
+//    string time_str = to_string(hours)+"h "+to_string(minutes)+"m "+to_string(seconds)+"s";
 
-    loginf << "ram test: decoded " << num_frames << " frames, "
-           << num_records << " records in " << time_str << ": "
-           << num_frames/seconds << " fr/s, " << num_records/seconds << " rec/s" << logendl;
-#else
-    auto end_time = chrono::steady_clock::now();
-    double full_seconds = chrono::duration_cast<chrono::milliseconds>(end_time - start_time).count()/1000.0;
-
-    unsigned int hours = full_seconds/3600;
-    unsigned int minutes = (full_seconds-hours*3600)/60;
-    double seconds = full_seconds-hours*3600-minutes*60;
-
-    string time_str = to_string(hours)+"h "+to_string(minutes)+"m "+to_string(seconds)+"s";
-
-    loginf << "ram test: decoded " << num_frames << " frames, "
-           << num_records << " records in " << time_str << ": "
-           << num_frames/full_seconds << " fr/s, " << num_records/full_seconds << " rec/s" << logendl;
-#endif
+//    loginf << "ram test: decoded " << num_frames << " frames, "
+//           << num_records << " records in " << time_str << ": "
+//           << num_frames/full_seconds << " fr/s, " << num_records/full_seconds << " rec/s" << logendl;
 
     loginf << "ram test: end" << logendl;
 
@@ -110,7 +121,7 @@ int main (int argc, char **argv)
 {
     static_assert (sizeof(size_t) >= 8, "code requires size_t with at least 8 bytes");
 
-    start_free_ram = Utils::System::getFreeRAMinGB();
+    //start_free_ram = Utils::System::getFreeRAMinGB();
 
     // setup logging
 #if USE_LOG4CPP

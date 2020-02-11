@@ -74,15 +74,29 @@ char getIcaoChar (unsigned char c)
    return ch;
 }
 
-std::string binary2hex(const unsigned char* src, size_t length)
+constexpr char hexmap[] = {'0', '1', '2', '3', '4', '5', '6', '7',
+                           '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
+
+std::string binary2hex(const unsigned char *data, size_t len)
 {
-    std::stringstream ss;
-    for(size_t i=0; i < length; ++i)
-        ss << std::setfill('0') << std::setw(2) << std::hex << (int)src[i];
-    return ss.str();
+  std::string s(len*2, ' ');
+  for (int i = 0; i < len; ++i)
+  {
+    s[2*i]     = hexmap[(data[i] & 0xF0) >> 4];
+    s[2*i + 1] = hexmap[data[i] & 0x0F];
+  }
+  return s;
 }
 
-std::vector<std::string> &split(const std::string &s, char delim, std::vector<std::string> &elems)
+//std::string binary2hex(const unsigned char* src, size_t length)
+//{
+//    std::stringstream ss;
+//    for(size_t i=0; i < length; ++i)
+//        ss << std::setfill('0') << std::setw(2) << std::hex << (int)src[i];
+//    return ss.str();
+//}
+
+std::vector<std::string>& split(const std::string &s, char delim, std::vector<std::string> &elems)
 {
     std::stringstream ss(s);
     std::string item;
