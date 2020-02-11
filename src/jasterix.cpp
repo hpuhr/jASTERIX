@@ -40,7 +40,8 @@ namespace jASTERIX {
     int print_dump_indent=4;
     int frame_limit=-1;
     int frame_chunk_size=10000;
-    int record_chunk_size=10000;
+    int data_block_limit=-1;
+    int data_block_chunk_size=10000;
     int data_write_size=100;
     bool single_thread=false;
 

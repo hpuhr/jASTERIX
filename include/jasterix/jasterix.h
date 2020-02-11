@@ -40,7 +40,8 @@ namespace jASTERIX {
 extern int print_dump_indent;
 extern int frame_limit;
 extern int frame_chunk_size;
-extern int record_chunk_size;
+extern int data_block_limit;
+extern int data_block_chunk_size;
 extern int data_write_size;
 
 extern bool single_thread;

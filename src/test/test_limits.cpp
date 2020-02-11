@@ -44,11 +44,15 @@ std::string definition_path;
 std::string filename;
 
 unsigned int sum_num_frames {0};
+unsigned int sum_num_records {0};
 
-void test_frame_limit_callback (std::unique_ptr<nlohmann::json> json_data, size_t num_frames, size_t num_records,
+void test_limit_callback (std::unique_ptr<nlohmann::json> json_data, size_t num_frames, size_t num_records,
                         size_t num_errors)
 {
     sum_num_frames += num_frames;
+    sum_num_records += num_records;
+
+    REQUIRE (num_errors == 0);
 
     json_data = nullptr;
 }
@@ -57,16 +61,42 @@ TEST_CASE( "jASTERIX Frame Limit", "[jASTERIX Limits]" )
 {
     loginf << "frame limit test: start" << logendl;
 
+    sum_num_frames = 0;
+    sum_num_records = 0;
+
     jASTERIX::jASTERIX jasterix (definition_path, false, false, false);
     jASTERIX::frame_limit = 17333;
 
     REQUIRE(jASTERIX::Files::fileExists(filename));
 
-    jasterix.decodeFile(filename, "ioss", test_frame_limit_callback);
+    jasterix.decodeFile(filename, "ioss", test_limit_callback);
 
+    loginf << "frame limit test: num frames " << sum_num_frames << " records " << sum_num_records << logendl;
     REQUIRE (sum_num_frames == 17333);
 
     loginf << "frame limit test: end" << logendl;
+}
+
+TEST_CASE( "jASTERIX Data Block Limit", "[jASTERIX Limits]" )
+{
+    loginf << "data block limit test: start" << logendl;
+
+    sum_num_frames = 0;
+    sum_num_records = 0;
+
+    jASTERIX::jASTERIX jasterix (definition_path, false, false, false);
+    jASTERIX::data_block_limit = 17333;
+
+    REQUIRE(jASTERIX::Files::fileExists(filename));
+
+    jasterix.decodeFile(filename, "ioss", test_limit_callback);
+
+    loginf << "data block limit test: num frames " << sum_num_frames << " records " << sum_num_records << logendl;
+
+    REQUIRE (sum_num_frames == 17333); // 1 data block per frame
+    REQUIRE (sum_num_records >= 17333); // at least 1 record per data block
+
+    loginf << "data block limit test: end" << logendl;
 }
 
 
