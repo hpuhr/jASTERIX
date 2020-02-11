@@ -106,6 +106,8 @@ int main (int argc, char **argv)
          "number of frames to process, default -1, use -1 to disable.")
         ("frame_chunk_size", po::value<int>(&jASTERIX::frame_chunk_size),
          "number of frames to process in one chunk, default 1000, use -1 to disable.")
+        ("data_block_limit", po::value<int>(&jASTERIX::data_block_limit),
+        "number of data blocks to process, default -1, use -1 to disable.")
         ("data_write_size", po::value<int>(&jASTERIX::data_write_size),
          "number of frame chunks to write in one file write, default 100, use -1 to disable.")
         ("debug", po::bool_switch(&debug), "print debug output")
@@ -155,6 +157,7 @@ int main (int argc, char **argv)
                   " raw/netto is default" << logendl;
         loginf << "frame_limit: number of frames to process, default -1, use -1 to disable." << logendl;
         loginf << "frame_chunk_size: number of frames to process in one chunk, default 1000, use -1 to disable." << logendl;
+        loginf << "data_block_limit: number of data blocks to process, default -1, use -1 to disable." << logendl;
         loginf << "data_write_size: number of frame chunks to write in one file write, default 100, use -1 to disable." << logendl;
         loginf << "debug: print debug output" << logendl;
         loginf << "debug_include_framing: print debug excluding framing, debug still has to be set, disabled by default" << logendl;
@@ -186,6 +189,9 @@ int main (int argc, char **argv)
 
     if (find(arguments.begin(), arguments.end(), "--frame_chunk_size") != arguments.end())
         frame_chunk_size = std::atoi ((find(arguments.begin(), arguments.end(), "--frame_chunk_size")+1)->c_str());
+
+    if (find(arguments.begin(), arguments.end(), "--data_block_limit") != arguments.end())
+        data_block_limit = std::atoi ((find(arguments.begin(), arguments.end(), "--data_block_limit")+1)->c_str());
 
     if (find(arguments.begin(), arguments.end(), "--data_write_size") != arguments.end())
         data_write_size = std::atoi ((find(arguments.begin(), arguments.end(), "--data_write_size")+1)->c_str());
