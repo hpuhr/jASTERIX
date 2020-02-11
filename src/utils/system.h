@@ -30,21 +30,11 @@ float getProcessRAMinGB ()
     //    The maximum resident set size used, in kilobytes. That is, the maximum number of kilobytes of physical memory
     //    that processes used simultaneously.
 
-    return info.ru_maxrss/megabyte;
-
-//        struct sysinfo info;
-//        sysinfo (&info);
-
-//        return ((uint64_t) (info.freeram + info.bufferram) * info.mem_unit)/gigabyte;
+    return (info.ru_maxrss)/megabyte;
 }
 
 float getFreeRAMinGB ()
 {
-//    struct sysinfo info;
-//    sysinfo (&info);
-
-//    return ((uint64_t) (info.freeram + info.bufferram) * info.mem_unit)/gigabyte;
-
     std::string token;
        std::ifstream file("/proc/meminfo");
        while(file >> token) {

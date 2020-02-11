@@ -5,7 +5,7 @@ include_directories (
 
 
 add_executable ( test_categories "${CMAKE_CURRENT_LIST_DIR}/test_categories.cpp" )
-add_executable ( test_ram "${CMAKE_CURRENT_LIST_DIR}/test_ram.cpp" )
+add_executable ( test_performance "${CMAKE_CURRENT_LIST_DIR}/test_performance.cpp" )
 
 target_sources( test_categories
     PUBLIC
@@ -25,7 +25,7 @@ target_sources( test_categories
         "${CMAKE_CURRENT_LIST_DIR}/test_cat065_1.3.cpp"
 )
 
-target_sources( test_ram
+target_sources( test_performance
     PUBLIC
         "${CMAKE_CURRENT_LIST_DIR}/catch.hpp"
         "${CMAKE_CURRENT_LIST_DIR}/test_jasterix.h"
@@ -44,7 +44,7 @@ target_sources( test_ram
 )
 
 target_link_libraries ( test_categories jasterix )
-target_link_libraries ( test_ram jasterix )
+target_link_libraries ( test_performance jasterix )
 
 enable_testing()
 set ( DEFINITION_PATH "${CMAKE_CURRENT_LIST_DIR}/../../definitions/" )
@@ -53,4 +53,4 @@ set ( DATA_PATH "${CMAKE_CURRENT_LIST_DIR}/" )
 set ( RAM_TEST_FILENAME "/home/sk/data/test/20190506.ff")
 
 add_test(NAME TestCategories COMMAND test_categories --definition_path ${DEFINITION_PATH} --data_path ${DATA_PATH})
-add_test(NAME TestRAM COMMAND test_ram --definition_path ${DEFINITION_PATH} --filename ${RAM_TEST_FILENAME})
+add_test(NAME TestRAM COMMAND test_performance --definition_path ${DEFINITION_PATH} --filename ${RAM_TEST_FILENAME})

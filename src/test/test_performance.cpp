@@ -75,7 +75,7 @@ void test_ram_callback (std::unique_ptr<nlohmann::json> json_data, size_t num_fr
         << ":" << std::setw(2) << minutes
         << ":" << std::fixed << std::setw(6) << std::setprecision(3) << seconds;
 
-    loginf << "ram test: decoded " << sum_num_frames << " frames, "
+    loginf << "performance test: decoded " << sum_num_frames << " frames, "
            << sum_num_records << " records in " << oss.str() << ": "
            << sum_num_frames/full_seconds << " fr/s, " << sum_num_records/full_seconds << " rec/s using "
            << std::fixed << std::setprecision(2) << used_ram_mb << " mb, max " << max_used_ram_mb << logendl;
@@ -85,7 +85,7 @@ void test_ram_callback (std::unique_ptr<nlohmann::json> json_data, size_t num_fr
 
 TEST_CASE( "jASTERIX RAM", "[jASTERIX RAM]" )
 {
-    loginf << "ram test: start" << logendl;
+    loginf << "performance test: start" << logendl;
 
     jASTERIX::jASTERIX jasterix (definition_path, false, false, false);
 
@@ -95,23 +95,7 @@ TEST_CASE( "jASTERIX RAM", "[jASTERIX RAM]" )
 
     jasterix.decodeFile(filename, "ioss", test_ram_callback);
 
-//    size_t num_frames = jasterix.numFrames();
-//    size_t num_records = jasterix.numRecords();
-
-//    auto current_time = chrono::steady_clock::now();
-//    double full_seconds = chrono::duration_cast<chrono::milliseconds>(current_time - start_time).count()/1000.0;
-
-//    unsigned int hours = full_seconds/3600;
-//    unsigned int minutes = (full_seconds-hours*3600)/60;
-//    double seconds = full_seconds-hours*3600-minutes*60;
-
-//    string time_str = to_string(hours)+"h "+to_string(minutes)+"m "+to_string(seconds)+"s";
-
-//    loginf << "ram test: decoded " << num_frames << " frames, "
-//           << num_records << " records in " << time_str << ": "
-//           << num_frames/full_seconds << " fr/s, " << num_records/full_seconds << " rec/s" << logendl;
-
-    loginf << "ram test: end" << logendl;
+    loginf << "performance test: end" << logendl;
 
     //std::this_thread::sleep_for(std::chrono::seconds(5));
 }
@@ -120,8 +104,6 @@ TEST_CASE( "jASTERIX RAM", "[jASTERIX RAM]" )
 int main (int argc, char **argv)
 {
     static_assert (sizeof(size_t) >= 8, "code requires size_t with at least 8 bytes");
-
-    //start_free_ram = Utils::System::getFreeRAMinGB();
 
     // setup logging
 #if USE_LOG4CPP
