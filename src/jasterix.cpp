@@ -268,12 +268,12 @@ namespace jASTERIX {
         size_t index {0};
 
         // parsing header
-
         if (frame_parser.hasFileHeaderItems())
             index = frame_parser.parseHeader(data, 0, file_size, json_header, debug_framing);
 
         if (debug_)
-            loginf << "jasterix: creating frame parser task" << logendl;
+            loginf << "jasterix: creating frame parser task index " << index << " header '" << json_header.dump(4)
+                   << "'" << logendl;
 
         FrameParserTask* task = new (tbb::task::allocate_root()) FrameParserTask (
                     *this, frame_parser, json_header, data, index, file_size, debug_framing);

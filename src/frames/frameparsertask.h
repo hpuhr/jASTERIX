@@ -53,7 +53,7 @@ public:
             std::unique_ptr<nlohmann::json> data_chunk {new nlohmann::json()};
 
             if (frame_parser_.hasFileHeaderItems())
-                data_chunk = header_; // copy header
+                *data_chunk = header_; // copy header
 
             assert (index_ < size_);
 

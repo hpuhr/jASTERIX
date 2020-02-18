@@ -34,5 +34,6 @@ extern std::vector<std::string> &split(const std::string &s, char delim, std::ve
 
 extern std::string toString(const nlohmann::json& j);
 
+extern bool isASCII (const std::string& s);
 
 #endif // STRING_CONV_H

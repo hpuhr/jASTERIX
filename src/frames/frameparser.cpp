@@ -129,7 +129,7 @@ std::tuple<size_t, size_t, bool> FrameParser::findFrames (const char* data, size
         if (frame_limit > 0 && sum_frames_cnt_ >= static_cast<unsigned>(frame_limit))
         {
              // hit frame limit
-            if(debug)
+            if (debug)
                 loginf << "frame parser hit frame limit at " << sum_frames_cnt_ <<", setting done" << logendl;
 
             hit_frame_limit = true;

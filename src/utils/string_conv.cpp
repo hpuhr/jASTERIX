@@ -117,6 +117,13 @@ std::string toString(const nlohmann::json& j)
 }
 
 
+bool isASCII (const std::string& s)
+{
+    return !std::any_of(s.begin(), s.end(), [](char c) {
+        return static_cast<unsigned char>(c) > 127;
+    });
+}
+
 //std::vector<std::string> split(const std::string &s, char delim)
 //{
 //    std::vector<std::string> elems;
