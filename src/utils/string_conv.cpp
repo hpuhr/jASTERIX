@@ -46,7 +46,7 @@ size_t hex2bin(const char* src, char* target)
 
     while(*src && src[1])
     {
-        *(target++) = char2int(*src)*16 + char2int(src[1]);
+        *(target++) = static_cast<char>(char2int(*src)*16 + char2int(src[1]));
         src += 2;
     }
 
@@ -60,7 +60,7 @@ char getIcaoChar (unsigned char c)
    ch = '?';
    if (1 <= c && c <= 26)
    {
-       ch = 'A' + (c - 1);
+       ch = static_cast<char>('A' + (c - 1));
    }
    else if (c == 32)
    {
@@ -68,7 +68,7 @@ char getIcaoChar (unsigned char c)
    }
    else if (48 <= c && c <= 57)
    {
-       ch = '0' + (c - 48);
+       ch = static_cast<char>('0' + (c - 48));
    }
 
    return ch;
@@ -77,10 +77,10 @@ char getIcaoChar (unsigned char c)
 constexpr char hexmap[] = {'0', '1', '2', '3', '4', '5', '6', '7',
                            '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
 
-std::string binary2hex(const unsigned char* data, size_t len)
+std::string binary2hex(const unsigned char* data, unsigned int len)
 {
   std::string s(len*2, ' ');
-  for (int i = 0; i < len; ++i)
+  for (unsigned int i = 0; i < len; ++i)
   {
     s[2*i]     = hexmap[(data[i] & 0xF0) >> 4];
     s[2*i + 1] = hexmap[data[i] & 0x0F];
@@ -88,10 +88,10 @@ std::string binary2hex(const unsigned char* data, size_t len)
   return s;
 }
 
-//std::string binary2hex(const unsigned char* src, size_t length)
+//std::string binary2hex(const unsigned char* src, unsigned int length)
 //{
 //    std::stringstream ss;
-//    for(size_t i=0; i < length; ++i)
+//    for(unsigned int i=0; i < length; ++i)
 //        ss << std::setfill('0') << std::setw(2) << std::hex << (int)src[i];
 //    return ss.str();
 //}
