@@ -44,7 +44,7 @@ def find_records (json_data, use_framing, callback):
         if 'data_blocks' not in json_data:
             raise ValueError("no data_blocks in frame_content")
 
-        data_blocks = frame_content['data_blocks']
+        data_blocks = json_data['data_blocks']
 
         for data_block in data_blocks:
             if 'category' not in data_block:
@@ -66,7 +66,7 @@ def find_records (json_data, use_framing, callback):
                 callback (cat, record)
 
 num_lines=0
-framing = True
+framing = False
 num_records = 0
 num_records_cat = {}
 

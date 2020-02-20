@@ -458,7 +458,7 @@ namespace jASTERIX {
                 num_errors_ += dec_ret.second;
 
                 if (print_)
-                    loginf << data_block_chunk->dump(print_dump_indent) << logendl;
+                    std::cout << data_block_chunk->dump(print_dump_indent) << std::endl;
 
                 if (data_callback)
                     data_callback(std::move(data_block_chunk), 0, dec_ret.first, dec_ret.second);
