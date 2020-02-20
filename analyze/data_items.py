@@ -4,7 +4,7 @@ import sys
 import json
 import time
 
-from record_extractor import RecordExtractor
+from util.record_extractor import RecordExtractor
 
 def pretty_print(d, indent=0):
     for key, value in sorted(d.items()):
