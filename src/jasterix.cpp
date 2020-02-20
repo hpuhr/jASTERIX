@@ -325,7 +325,7 @@ namespace jASTERIX {
                            << num_errors_ << " errors " << logendl;
 
                 if (print_)
-                    loginf << data_chunk->dump(print_dump_indent) << logendl;
+                    std::cout << data_chunk->dump(print_dump_indent) << std::endl;
 
                 if (data_callback)
                     data_callback(std::move(data_chunk), num_callback_frames, dec_ret.first, dec_ret.second);
@@ -477,7 +477,8 @@ namespace jASTERIX {
             }
         }
 
-        loginf << "jASTERIX decode file done" << logendl;
+        if (debug_)
+            loginf << "jASTERIX decode file done" << logendl;
 
 #if USE_BOOST
         file_.close();

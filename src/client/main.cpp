@@ -350,9 +350,9 @@ int main (int argc, char **argv)
         double seconds = diff.total_milliseconds()/1000.0;
 
         //if (debug)
-            loginf << "jASTERIX client: decoded " << num_frames << " frames, "
-                   << num_records << " records in " << time_str << ": "
-                   << num_frames/seconds << " fr/s, " << num_records/seconds << " rec/s" << logendl;
+//            loginf << "jASTERIX client: decoded " << num_frames << " frames, "
+//                   << num_records << " records in " << time_str << ": "
+//                   << num_frames/seconds << " fr/s, " << num_records/seconds << " rec/s" << logendl;
 #else
         auto end_time = chrono::steady_clock::now();
         double full_seconds = chrono::duration_cast<chrono::milliseconds>(end_time - start_time).count()/1000.0;
@@ -399,7 +399,8 @@ int main (int argc, char **argv)
     }
 #endif
 
-    loginf << "jASTERIX client: shutdown" << logendl;
+    if (debug)
+        loginf << "jASTERIX client: shutdown" << logendl;
 
 //#if USE_BOOST
 //    std::this_thread::sleep_for(std::chrono::seconds(15));
