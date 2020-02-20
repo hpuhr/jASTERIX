@@ -6,6 +6,7 @@ import time
 from typing import Dict
 
 from util.record_extractor import RecordExtractor
+from util.common import find_value
 
 
 class DataItemValueStatistic:
@@ -29,8 +30,8 @@ class DataItemValueStatistic:
             self.max = max(self.max, value)
 
     def print(self, count_parent):
-        print('\'{}\' count {} ({}%) min {} max {}'.format(self.key_name, self.count,
-                                                             int(100.0*self.count/count_parent), self.min, self.max))
+        print('\'{}\' count {} ({}%) min \'{}\' max \'{}\''.format(self.key_name, self.count,
+                                                                   int(100.0*self.count/count_parent), self.min, self.max))
 
 
 class DataItemStatistic:
@@ -101,6 +102,17 @@ class DataItemStatisticsCalculator:
             print()
             stat.print()
 
+
+# filter functions return True if record should be skipped
+def filter_cat(cat, record):
+    return cat != 21
+
+
+def filter_cat21(cat, record):
+    if cat != 21:
+        return True
+    return not find_value(["090", "NACp"], record)
+
 def main(argv):
 
     if '--framing' in sys.argv:
@@ -113,7 +125,11 @@ def main(argv):
     num_blocks = 0
 
     statistics_calc = DataItemStatisticsCalculator()  # type: DataItemStatisticsCalculator
-    record_extractor = RecordExtractor (framing, statistics_calc.process_record)  # type: RecordExtractor
+    # without filtering
+    # record_extractor = RecordExtractor(framing, statistics_calc.process_record)  # type: RecordExtractor
+
+    # with filtering
+    record_extractor = RecordExtractor (framing, statistics_calc.process_record, filter_cat21)  # type: RecordExtractor
 
     start_time = time.time()
 

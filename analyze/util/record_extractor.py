@@ -1,9 +1,10 @@
 
 
 class RecordExtractor:
-    def __init__(self, framing, callback):
+    def __init__(self, framing, callback, record_filter=None):
         self.__framing = framing
         self.__callback = callback
+        self.__record_filter = record_filter
 
     def find_records(self, json_data):
 
@@ -42,7 +43,11 @@ class RecordExtractor:
                     records = content['records']
 
                     for record in records:
-                        self.__callback(cat, record)
+                        if self.__record_filter is not None:
+                            if not self.__record_filter(cat, record):
+                                self.__callback(cat, record)
+                        else:
+                            self.__callback(cat, record)
         else:
             if 'data_blocks' not in json_data:
                 raise ValueError("no data_blocks in frame_content")
@@ -66,4 +71,8 @@ class RecordExtractor:
                 records = content['records']
 
                 for record in records:
-                    self.__callback(cat, record)
+                    if self.__record_filter is not None:
+                        if not self.__record_filter(cat, record):
+                            self.__callback(cat, record)
+                    else:
+                        self.__callback(cat, record)
