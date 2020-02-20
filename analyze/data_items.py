@@ -3,23 +3,80 @@
 import sys
 import json
 import time
+from typing import Dict
 
 from util.record_extractor import RecordExtractor
 
-def pretty_print(d, indent=0):
-    for key, value in sorted(d.items()):
-        print('\t' * indent + str(key))
 
-        if isinstance(value, dict):
-            pretty_print(value, indent+1)
+class DataItemValueStatistic:
+    def __init__(self, key_name):
+        self.key_name = key_name
+        self.count = 0
+        self.min = None
+        self.max = None
+
+    def process_value(self, value):
+
+        #print ('process_value: key {} min {} max {} value {}'.format(self.key_name , self.min, self.max, value))
+
+        self.count += 1
+
+        if self.min is None:
+            self.min = value
+            self.max = value
         else:
-            print('\t' * (indent+1) + str(value))
+            self.min = min(self.min, value)
+            self.max = max(self.max, value)
 
-class DataItemStatistics:
+    def print(self, count_parent):
+        print('\'{}\' count {} ({}%) min {} max {}'.format(self.key_name, self.count,
+                                                             int(100.0*self.count/count_parent), self.min, self.max))
+
+
+class DataItemStatistic:
+    def __init__(self, item_name):
+        self.item_name = item_name
+        self.count = 0
+        self.sub_statistics = {}  # type: Dict[str, DataItemStatistic]
+        self.value_statistics = {} # type: Dict[str, DataItemValueStatistic]
+
+    def process_object(self, record_object):
+        assert isinstance(record_object, dict)
+
+        self.count += 1
+
+        for key, value in record_object.items():
+
+            if isinstance(value, dict):
+
+                if key not in self.sub_statistics:
+                    self.sub_statistics[key] = DataItemStatistic(self.item_name + '.' + key)
+
+                self.sub_statistics[key].process_object(value)
+
+            elif isinstance(value, (bool, int, float, str)):
+                if key not in self.value_statistics:
+                    self.value_statistics[key] = DataItemValueStatistic(self.item_name + '.' + key)
+
+                self.value_statistics[key].process_value(value)
+
+    def print(self, count_parent=None):
+
+        if count_parent is None:
+            print('\'{}\' count {}'.format(self.item_name, self.count))
+        else:
+            print('\'{}\' count {} ({}%)'.format(self.item_name, self.count, int(100.0 * self.count / count_parent)))
+
+        for sub_name, sub_stat in sorted(self.sub_statistics.items()):
+            sub_stat.print(self.count)
+
+        for val_name, val_stat in sorted(self.value_statistics.items()):
+            val_stat.print(self.count)
+
+class DataItemStatisticsCalculator:
     def __init__(self):
         self.__num_records = 0
-        self.__num_records_cat = {}
-        self.__data_items = {}
+        self.__statistics = {} # type: Dict[str, DataItemStatistic]
 
     @property
     def num_records(self):
@@ -29,44 +86,20 @@ class DataItemStatistics:
 
         self.__num_records += 1
 
-        if cat not in self.__num_records_cat:
-            self.__num_records_cat[cat] = 1
-        else:
-            self.__num_records_cat[cat] += 1
+        cat_str = str(cat).zfill(3)
 
-        if cat not in self.__data_items:
-            self.__data_items[cat] = {}
+        if cat_str not in self.__statistics:
+            self.__statistics[cat_str] = DataItemStatistic(cat_str)
 
-        self.add_data_items(record, self.__data_items[cat])
-
-    def add_data_items(self, record_object, counter_object):
-
-        assert isinstance(record_object, dict)
-
-        for key, value in record_object.items():
-
-            if key not in counter_object:
-                counter_object[key] = {}
-                counter_object[key]['count'] = 1
-            else:
-                counter_object[key]['count'] += 1
-
-            if isinstance(value, dict):
-                self.add_data_items(value, counter_object[key])
-            elif isinstance(value, (bool, int, float, str)):
-                if 'min' not in counter_object[key]:
-                    counter_object[key]['min'] = value
-                    counter_object[key]['max'] = value
-                else:
-                    counter_object[key]['min'] = min(counter_object[key]['min'], value)
-                    counter_object[key]['max'] = max(counter_object[key]['max'], value)
+        self.__statistics[cat_str].process_object(record)
 
     def print(self):
         print('num records {}'.format(self.__num_records))
-        print('num records per cat')
-        pretty_print(self.__num_records_cat)
+
         print('data items')
-        pretty_print(self.__data_items)
+        for cat, stat in sorted(self.__statistics.items()):
+            print()
+            stat.print()
 
 def main(argv):
 
@@ -77,10 +110,10 @@ def main(argv):
 
     print ('framing {}'.format(framing))
 
-    num_lines = 0
+    num_blocks = 0
 
-    data_item_statistics = DataItemStatistics()  # type: DataItemStatistics
-    record_extractor = RecordExtractor (framing, data_item_statistics.process_record)  # type: RecordExtractor
+    statistics_calc = DataItemStatisticsCalculator()  # type: DataItemStatisticsCalculator
+    record_extractor = RecordExtractor (framing, statistics_calc.process_record)  # type: RecordExtractor
 
     start_time = time.time()
 
@@ -91,14 +124,14 @@ def main(argv):
 
         record_extractor.find_records (json_data)
 
-        #print (json.dumps(loaded_json))
-        num_lines += 1
+        num_blocks += 1
 
         end_time = time.time()
-        print('lines {0} time {1:.2f}s rate {2} rec/s'.format(
-            num_lines, end_time-start_time, int(data_item_statistics.num_records/(end_time-start_time))))
+        print('blocks {0} time {1:.2f}s records {2} rate {3} rec/s'.format(
+            num_blocks, end_time-start_time, statistics_calc.num_records,
+            int(statistics_calc.num_records/(end_time-start_time))))
 
-    data_item_statistics.print()
+    statistics_calc.print()
 
 
 if __name__ == "__main__":
