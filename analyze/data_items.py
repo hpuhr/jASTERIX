@@ -111,7 +111,8 @@ def filter_cat(cat, record):
 def filter_cat21(cat, record):
     if cat != 21:
         return True
-    return not find_value(["090", "NACp"], record)
+    return find_value(["090", "NACp"], record) is None
+
 
 def main(argv):
 
@@ -125,11 +126,14 @@ def main(argv):
     num_blocks = 0
 
     statistics_calc = DataItemStatisticsCalculator()  # type: DataItemStatisticsCalculator
-    # without filtering
-    # record_extractor = RecordExtractor(framing, statistics_calc.process_record)  # type: RecordExtractor
 
-    # with filtering
-    record_extractor = RecordExtractor (framing, statistics_calc.process_record, filter_cat21)  # type: RecordExtractor
+    # without filtering
+    #record_extractor = RecordExtractor(framing, statistics_calc.process_record)  # type: RecordExtractor
+    # with filtering function
+    record_extractor = RecordExtractor (framing, statistics_calc.process_record, filter_cat)  # type: RecordExtractor
+    # with filtering lambda
+    #record_extractor = RecordExtractor(framing, statistics_calc.process_record, lambda cat, record: cat != 21)  # type: RecordExtractor
+
 
     start_time = time.time()
 
@@ -143,9 +147,10 @@ def main(argv):
         num_blocks += 1
 
         end_time = time.time()
-        print('blocks {0} time {1:.2f}s records {2} rate {3} rec/s'.format(
+        print('blocks {0} time {1:.2f}s records {2} filtered {3} rate {4} rec/s'.format(
             num_blocks, end_time-start_time, statistics_calc.num_records,
-            int(statistics_calc.num_records/(end_time-start_time))))
+            record_extractor.num_filtered,
+            int((statistics_calc.num_records+record_extractor.num_filtered)/(end_time-start_time))))
 
     statistics_calc.print()
 
