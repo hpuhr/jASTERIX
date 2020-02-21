@@ -4,6 +4,7 @@ import sys
 import json
 import time
 from typing import Dict
+import argparse
 
 from util.record_extractor import RecordExtractor
 from util.common import find_value
@@ -104,35 +105,47 @@ class DataItemStatisticsCalculator:
 
 
 # filter functions return True if record should be skipped
-def filter_cat(cat, record):
-    return cat != 21
-
-
-def filter_cat21(cat, record):
+def filter_example(cat, record):
     if cat != 21:
         return True
     return find_value(["090", "NACp"], record) is None
 
 
+cat_list = None
+
+
+def filter_cats(cat, record):
+    global cat_list
+
+    return cat not in cat_list
+
 def main(argv):
 
-    if '--framing' in sys.argv:
-        framing = True
-    else:
-        framing = False
+    parser = argparse.ArgumentParser(description='ASTERIX data item analysis')
+    parser.add_argument('--framing', help='Framing True or False', required=True)
+    parser.add_argument('--cats', help='ASTERIX categories to be analyzed as CSV', required=False)
 
-    print ('framing {}'.format(framing))
+    args = parser.parse_args()
+
+    assert args.framing is not None
+    framing = args.framing
+
+    global cat_list
+    if args.cats is not None:
+        cat_list = args.cats.split(",")
+        cat_list = [int(i) for i in cat_list]
+
+    print('framing {}'.format(framing))
+    print('cats {}'.format(cat_list))
 
     num_blocks = 0
 
     statistics_calc = DataItemStatisticsCalculator()  # type: DataItemStatisticsCalculator
 
-    # without filtering
-    #record_extractor = RecordExtractor(framing, statistics_calc.process_record)  # type: RecordExtractor
-    # with filtering function
-    record_extractor = RecordExtractor (framing, statistics_calc.process_record, filter_cat)  # type: RecordExtractor
-    # with filtering lambda
-    #record_extractor = RecordExtractor(framing, statistics_calc.process_record, lambda cat, record: cat != 21)  # type: RecordExtractor
+    if cat_list is None:  # without filtering
+        record_extractor = RecordExtractor (framing, statistics_calc.process_record)  # type: RecordExtractor
+    else:  # with filtering lambda
+        record_extractor = RecordExtractor(framing, statistics_calc.process_record, filter_cats)  # type: RecordExtractor
 
 
     start_time = time.time()

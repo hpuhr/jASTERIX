@@ -3,60 +3,11 @@
 import sys
 import json
 import time
+import argparse
 from typing import List, Dict
 
 from util.record_extractor import RecordExtractor
 from util.common import find_value, ValueStatistic, ValueStatisticList
-
-# '021.020.ECAT' count 2039 (100%) min '1' max '5'
-
-# Emitter Category
-# 0 = No ADS-B Emitter Category Information
-# 1 = light aircraft <= 15500 lbs
-# 2 = 15500 lbs < small aircraft <75000 lbs
-# 3 = 75000 lbs < medium a/c < 300000 lbs
-# 4 = High Vortex Large
-# 5 = 300000 lbs <= heavy aircraft
-# 6 = highly manoeuvrable (5g acceleration
-# capability) and high speed (>400 knots
-# cruise)
-# 7 to 9 = reserved
-# 10 = rotocraft
-# 11 = glider / sailplane
-# 12 = lighter-than-air
-# 13 = unmanned aerial vehicle
-# 14 = space / transatmospheric vehicle
-# 15 = ultralight / handglider / paraglider
-# 16 = parachutist / skydiver
-# 17 to 19 = reserved
-# 20 = surface emergency vehicle
-# 21 = surface service vehicle
-# 22 = fixed ground or tethered obstruction
-# 23 = cluster obstacle
-# 24 = line obstacle
-
-# '021.090.NACp' count 2300 (11%) min '0' max '11'
-# '021.090.NICbaro' count 2300 (11%) min '0' max '1'
-# '021.090.NUCp or NIC' count 19339 (100%) min '0' max '10'
-# '021.090.NUCr or NACv' count 19339 (100%) min '0' max '3'
-# '021.090.SIL' count 2300 (11%) min '0' max '2'
-
-# '021.210' count 19339 (100%)
-# '021.210.LTT' count 19339 (100%) min '2' max '2'
-# '021.210.VN' count 19339 (100%) min '0' max '1'
-# '021.210.VNS' count 19339 (100%) min '0' max '0'
-
-# (VNS) : Version Not Supported
-# = 0 The MOPS Version is supported by the GS
-# = 1 The MOPS Version is not supported by the GS
-
-# (VN) : Version Number
-# This sub-field shall contain a value describing the
-# MOPS used by each aircraft.
-# Currently defined for 1090 ES (LTT=2):
-# = 0 ED102/DO-260 [Ref. 8]
-# = 1 DO-260A [Ref. 9]
-# = 2 ED102A/DO-260B [Ref. 11]
 
 class ADSBQualityStatisticsCalculator:
     def __init__(self):
@@ -124,7 +75,6 @@ class ADSBQualityStatisticsCalculator:
         self.__value_statistics.append(ValueStatistic('Navigation Accuracy Category - Position',
                                                       nacp_key, nacp_value_descriptions))
 
-
         self.__value_statistics_lists = []  # type: List[ValueStatisticList]
         self.__value_statistics_lists.append(ValueStatisticList("MOPS Version for ECAT",
                                                                 ecat_key, ecat_value_descriptions,
@@ -133,6 +83,10 @@ class ADSBQualityStatisticsCalculator:
         self.__value_statistics_lists.append(ValueStatisticList("NACp for ECAT",
                                                                 ecat_key, ecat_value_descriptions,
                                                                 nacp_key, nacp_value_descriptions))
+
+        #self.__value_statistics_lists.append(ValueStatisticList("NACp for Mode S Address",
+        #                                                        ["080", "Target Address"], [],
+        #                                                        nacp_key, nacp_value_descriptions))
 
 
 
@@ -165,12 +119,13 @@ class ADSBQualityStatisticsCalculator:
 
 def main(argv):
 
-    if '--framing' in sys.argv:
-        framing = True
-    else:
-        framing = False
+    parser = argparse.ArgumentParser(description='ASTERIX data item analysis')
+    parser.add_argument('--framing', help='Framing True or False', required=True)
 
-    print ('framing {}'.format(framing))
+    args = parser.parse_args()
+
+    assert args.framing is not None
+    framing = args.framing
 
     num_blocks = 0
 
