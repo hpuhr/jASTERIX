@@ -12,15 +12,18 @@ Many ASTERIX decoder libraries exist today, but none of them was suitable/availa
   - New framings
   - New categories 
   - New editions
+  - New analysis scripts
 - Reasonable performance using multi-threading
 - Client binary
   - Reading of input file
   - Printing decoded JSON
   - Writing decoded JSON to text or ZIP file 
+  - Piping into other applications
 
 Currently support framings:
 - None: Raw, netto, unframed ASTERIX data blocks
 - IOSS: IOSS Final Format
+- IOSS SEQ: IOSS Final Format with preceding sequence numbers
 - RFF: Comsoft RFF format
 
 Currently supported ASTERIX categories & editions, reserved expansion fields and special purpose fields:
@@ -42,9 +45,12 @@ Currently supported ASTERIX categories & editions, reserved expansion fields and
 
 
 ## Contents
+- Folder "analyze": Contains Python scripts for data analysis
+- Folder "appimage": Contains files required for AppImage building
 - Folder "cmake_modules": Contains cmake find scripts
 - Folder "definitions": Contains ASTERIX configuration definitions
 - Folder "include": Main headers
+- Folder "lib": User header-only libraries
 - Folder "src": Contains source code
 - CMakeLists.txt: CMake config file
 - LICENSE: GPL license
@@ -53,14 +59,14 @@ Currently supported ASTERIX categories & editions, reserved expansion fields and
 ## Requirements / Used Libraries
 
 The following libraries are mandatory:
+- Boost
 - Intel Thread Building Blocks
 
 The following libaries are optional (can be deactivated in CMakeList.txt):
-- Boost
 - Log4Cpp
 - OpenSSL
 
-Also, the Nlohmann::JSON library is used.
+Also, the Nlohmann::JSON and the Catch2 libraries are used.
 
 ## Client Installation without Building
 
@@ -90,9 +96,11 @@ sudo make install
 
 ## Usage
 
+### Help
+
 After building, the following jASTERIX client can be used (from the check-out folder):
 ```
-./jASTERIX_client_v0.0.3-x86_64.AppImage --help
+./jASTERIX_client-x86_64.AppImage --help
 INFO    : Allowed options:
   --help                   produce help message
   --filename arg           input file name
@@ -103,27 +111,32 @@ INFO    : Allowed options:
                            disable.
   --frame_chunk_size arg   number of frames to process in one chunk, default 
                            1000, use -1 to disable.
+  --data_block_limit arg   number of data blocks to process, default -1, use -1
+                           to disable.
   --data_write_size arg    number of frame chunks to write in one file write, 
                            default 100, use -1 to disable.
   --debug                  print debug output
   --debug_include_framing  print debug output including framing, debug still 
                            has to be set, disable per default
   --single_thread          process data in single thread
+  --log_perf               enable performance log after processing
   --add_artas_md5          add ARTAS MD5 hashes
-  --check_artas_md5        add and check ARTAS MD5 hashes
+  --check_artas_md5 arg    add and check ARTAS MD5 hashes (with record data), 
+                           stating which categories to check, e.g. 1,20,21,48
   --add_record_data        add original record data in hex
   --print                  print JSON output
   --print_indent arg       intendation of json print, use -1 to disable.
   --write_type arg         optional write type, e.g. text,zip. needs 
                            write_filename.
   --write_filename arg     optional write filename, e.g. test.zip.
-
 ```
+
+### Decode & Print
 
 To decode and print an ASTERIX file as JSON text, use:
 ```
-./jASTERIX_client_v0.0.3-x86_64.AppImage --definition_path definitions/ --filename src/test/cat020ed1.5.bin --print
-INFO    : {
+./jASTERIX_client-x86_64.AppImage --definition_path definitions/ --filename src/test/cat020ed1.5.bin --print
+{
     "data_blocks": [
         {
             "category": 20,
@@ -309,7 +322,48 @@ INFO    : {
                             true,
                             false,
                             false
-                        ]
+                        ],
+                        "REF": {
+                            "PA": {
+                                "DOP": {
+                                    "DOP-x": 4.5,
+                                    "DOP-xy": -3.75,
+                                    "DOP-y": 3.75
+                                },
+                                "SDC": {
+                                    "COV-XY (Covariance Component)": -30.5,
+                                    "SDC (X-Component)": 34.25,
+                                    "SDC (Y-Component)": 31.0
+                                },
+                                "SDW": {
+                                    "COV-WGS (Lat/Long Covariance Component)": -0.00033795783,
+                                    "SDW (Latitude Component)": 0.00028431372999999997,
+                                    "SDW (Longitude Component)": 0.00044524603
+                                },
+                                "available": [
+                                    true,
+                                    true,
+                                    false,
+                                    true,
+                                    false,
+                                    false,
+                                    false,
+                                    false
+                                ]
+                            },
+                            "REF_FSPEC": [
+                                true,
+                                false,
+                                false,
+                                false,
+                                false,
+                                false,
+                                false,
+                                false
+                            ]
+                        },
+                        "index": 3,
+                        "length": 98
                     }
                 ]
             },
@@ -317,15 +371,231 @@ INFO    : {
         }
     ]
 }
-INFO    : jASTERIX client: decoded 0 frames, 1 records in 0h 0m 0s 1ms: 0 fr/s, 1000 rec/s
-INFO    : jASTERIX: shutdown
 ```
 
 Decoded JSON can also be written to a text or ZIP file using the appropriate arguments.
 
+### Analysis
+
+In the 'analyze' folder, example Python scripts are given which can be used to analyse decoded JSON in a simple but powerful manner. Using the decoder and the print function, JSON data is piped into a Python script, where it can be analysed. A user could simply write the own scripts for deep data analysis.
+
+#### Data Item Analysis
+
+The Python script 'analyze/data_items.py' allows for the following options:
+
+```
+python3 analyze/data_items.py --help
+usage: data_items.py [-h] --framing FRAMING [--cats CATS]
+
+ASTERIX data item analysis
+
+optional arguments:
+  -h, --help         show this help message and exit
+  --framing FRAMING  Framing True or False
+  --cats CATS        ASTERIX categories to be analyzed as CSV
+```
+
+To analyze the data items in a recording, start the jASTERIX decoder and pipe the output in the the script with the appropriate arguments.
+
+The following example analyzes the CAT048 content in the first 100000 frames:
+```
+./jASTERIX_Client-x86_64.AppImage --definition_path definitions/ --filename example.ff --framing ioss --print --print_indent -1 --frame_limit 100000 | python3 analyze/data_items.py --framing True --cats 48
+framing True
+cats [48]
+blocks 1 time 0.28s records 73 filtered 652 rate 2601 rec/s
+...
+blocks 10 time 2.24s records 813 filtered 7718 rate 3813 rec/s
+num records 813
+data items
+
+'048' count 813
+'048.010' count 813 (100%)
+'048.010.SAC' count 813 (100%) min '0' max '1'
+'048.010.SIC' count 813 (100%) min '0' max '2'
+'048.020' count 813 (100%)
+'048.020.FX' count 813 (100%) min '0' max '0'
+'048.020.RAB' count 813 (100%) min '0' max '0'
+'048.020.RDP' count 813 (100%) min '0' max '0'
+'048.020.SIM' count 813 (100%) min '0' max '0'
+'048.020.SPI' count 813 (100%) min '0' max '0'
+'048.020.TYP' count 813 (100%) min '2' max '3'
+'048.040' count 813 (100%)
+'048.040.RHO' count 813 (100%) min '9.703125' max '249.6875'
+'048.040.THETA' count 813 (100%) min '0.03295898436' max '359.54956038323996'
+'048.042' count 60 (7%)
+'048.042.X-Component' count 60 (100%) min '-159.71875' max '163.96875'
+'048.042.Y-Component' count 60 (100%) min '-169.078125' max '72.125'
+'048.070' count 813 (100%)
+'048.070.G' count 813 (100%) min '0' max '0'
+'048.070.L' count 813 (100%) min '0' max '0'
+'048.070.Mode-3/A reply' count 813 (100%) min '21' max '6732'
+'048.070.V' count 813 (100%) min '0' max '1'
+'048.090' count 807 (99%)
+'048.090.Flight Level' count 807 (100%) min '18.0' max '410.0'
+'048.090.G' count 807 (100%) min '0' max '0'
+'048.090.V' count 807 (100%) min '0' max '0'
+'048.140' count 813 (100%)
+'048.140.Time-of-Day' count 813 (100%) min '71.8046875' max '1578.484375'
+'048.161' count 60 (7%)
+'048.161.TRACK NUMBER' count 60 (100%) min '1802' max '1847'
+'048.170' count 60 (7%)
+'048.170.CDM' count 60 (100%) min '0' max '2'
+'048.170.CNF' count 60 (100%) min '0' max '0'
+'048.170.DOU' count 60 (100%) min '0' max '0'
+'048.170.FX' count 60 (100%) min '1' max '1'
+'048.170.GHO' count 60 (100%) min '0' max '0'
+'048.170.MAH' count 60 (100%) min '0' max '1'
+'048.170.RAD' count 60 (100%) min '0' max '2'
+'048.170.SUP' count 60 (100%) min '0' max '0'
+'048.170.TCC' count 60 (100%) min '1' max '1'
+'048.170.TRE' count 60 (100%) min '0' max '0'
+'048.200' count 60 (7%)
+'048.200.CALCULATED GROUNDSPEED' count 60 (100%) min '325.41500602113604' max '567.553653310327'
+'048.200.CALCULATED HEADING' count 60 (100%) min '81.48559566604' max '348.71704085692'
+'048.SPF' count 60 (7%) min '400101ba00' max '44d3006e0004'
+'048.index' count 813 (100%) min '34' max '3301579'
+'048.length' count 813 (100%) min '13' max '37'
+```
+
+#### ADS-B Quality Indicators Analysis
+
+The Python script 'analyze/adsb_quality.py' allows for the following options:
+
+```
+usage: adsb_quality.py [-h] --framing FRAMING
+
+ASTERIX data item analysis
+
+optional arguments:
+  -h, --help         show this help message and exit
+  --framing FRAMING  Framing True or False
+```
+
+The following target report counters are calculated:
+- MOPS Version is supported by the GS: Counters of supported by the ADS-B ground station
+- MOPS Version Number: Counters of MOPS versions
+- Emitter Category: Counters of emitter category (aircraft type)
+- Navigation Accuracy Category - Position: Counter of NACp values of DO-260A/B transponders
+- MOPS Version for ECAT: Counters of MOPS versions, split up for different emitter category values
+- NACp for ECAT: Counters of NACp values, split up for different emitter category values
+
+To analyze the data items in a recording, start the jASTERIX decoder and pipe the output in the the script with the appropriate arguments.
+
+The following example analyzes the CAT021 content in the first 100000 frames:
+```
+./jASTERIX_Client-x86_64.AppImage --definition_path definitions/ --filename example.ff --framing ioss --print --print_indent -1 --frame_limit 100000 | python3 analyze/adsb_quality.py --framing True
+blocks 1 time 0.91s records 6461 rate 7104 rec/s
+...
+blocks 10 time 8.13s records 65751 rate 8087 rec/s
+num ads-b records 65751
+
+MOPS Version is supported by the GS:
+	none: 0 (0.00%)
+	MOPS Version is supported by the GS: 65751 (100.00%)
+--------------------------------------------------------------------------------
+
+MOPS Version Number:
+	none: 0 (0.00%)
+	ED102/DO-260: 21515 (32.72%)
+	DO-260A: 1481 (2.25%)
+	ED102A/DO-260B: 42755 (65.03%)
+--------------------------------------------------------------------------------
+
+Emitter Category:
+	none: 23576 (35.86%)
+	light aircraft <= 15500 lbs: 1624 (3.85%)
+	75000 lbs < medium a/c < 300000 lbs: 31672 (75.10%)
+	300000 lbs <= heavy aircraft: 8561 (20.30%)
+	rotocraft: 318 (0.75%)
+--------------------------------------------------------------------------------
+
+Navigation Accuracy Category - Position:
+	none: 21515 (32.72%)
+	EPU < 10 m, VEPU < 15 m: 13395 (30.28%)
+	EPU < 30 m, VEPU < 45 m: 14951 (33.80%)
+	EPU < 0.05 NM (93 m): 14688 (33.20%)
+	EPU < 0.1 NM (185 m): 682 (1.54%)
+	EPU < 1.0 NM (1852 m): 1 (0.00%)
+	EPU < 4 NM (7408 m): 1 (0.00%)
+	EPU > 10 NM or Unknown: 518 (1.17%)
+--------------------------------------------------------------------------------
+
+MOPS Version for ECAT:
+
+MOPS Version for ECAT: '300000 lbs <= heavy aircraft' records 8561 (13.02%):
+	none: 0 (0.00%)
+	DO-260A: 129 (1.51%)
+	ED102A/DO-260B: 8432 (98.49%)
+
+MOPS Version for ECAT: '75000 lbs < medium a/c < 300000 lbs' records 31672 (48.17%):
+	none: 0 (0.00%)
+	ED102/DO-260: 79 (0.25%)
+	DO-260A: 1281 (4.04%)
+	ED102A/DO-260B: 30312 (95.71%)
+
+MOPS Version for ECAT: 'None' records 23576 (35.86%):
+	none: 0 (0.00%)
+	ED102/DO-260: 21433 (90.91%)
+	DO-260A: 66 (0.28%)
+	ED102A/DO-260B: 2077 (8.81%)
+
+MOPS Version for ECAT: 'light aircraft <= 15500 lbs' records 1624 (2.47%):
+	none: 0 (0.00%)
+	ED102/DO-260: 3 (0.18%)
+	DO-260A: 5 (0.31%)
+	ED102A/DO-260B: 1616 (99.51%)
+
+MOPS Version for ECAT: 'rotocraft' records 318 (0.48%):
+	none: 0 (0.00%)
+	ED102A/DO-260B: 318 (100.00%)
+--------------------------------------------------------------------------------
+
+NACp for ECAT:
+
+NACp for ECAT: '300000 lbs <= heavy aircraft' records 8561 (13.02%):
+	none: 0 (0.00%)
+	EPU < 10 m, VEPU < 15 m: 2249 (26.27%)
+	EPU < 30 m, VEPU < 45 m: 4988 (58.26%)
+	EPU < 0.05 NM (93 m): 1274 (14.88%)
+	EPU < 0.1 NM (185 m): 15 (0.18%)
+	EPU > 10 NM or Unknown: 35 (0.41%)
+
+NACp for ECAT: '75000 lbs < medium a/c < 300000 lbs' records 31672 (48.17%):
+	none: 79 (0.25%)
+	EPU < 10 m, VEPU < 15 m: 8799 (27.85%)
+	EPU < 30 m, VEPU < 45 m: 9115 (28.85%)
+	EPU < 0.05 NM (93 m): 12860 (40.71%)
+	EPU < 0.1 NM (185 m): 598 (1.89%)
+	EPU < 1.0 NM (1852 m): 1 (0.00%)
+	EPU < 4 NM (7408 m): 1 (0.00%)
+	EPU > 10 NM or Unknown: 219 (0.69%)
+
+NACp for ECAT: 'None' records 23576 (35.86%):
+	none: 21433 (90.91%)
+	EPU < 10 m, VEPU < 15 m: 707 (32.99%)
+	EPU < 30 m, VEPU < 45 m: 669 (31.22%)
+	EPU < 0.05 NM (93 m): 536 (25.01%)
+	EPU < 0.1 NM (185 m): 19 (0.89%)
+	EPU > 10 NM or Unknown: 212 (9.89%)
+
+NACp for ECAT: 'light aircraft <= 15500 lbs' records 1624 (2.47%):
+	none: 3 (0.18%)
+	EPU < 10 m, VEPU < 15 m: 1360 (83.90%)
+	EPU < 30 m, VEPU < 45 m: 179 (11.04%)
+	EPU < 0.05 NM (93 m): 18 (1.11%)
+	EPU < 0.1 NM (185 m): 50 (3.08%)
+	EPU > 10 NM or Unknown: 14 (0.86%)
+
+NACp for ECAT: 'rotocraft' records 318 (0.48%):
+	none: 0 (0.00%)
+	EPU < 10 m, VEPU < 15 m: 280 (88.05%)
+	EPU > 10 NM or Unknown: 38 (11.95%)
+--------------------------------------------------------------------------------
+```
+
 ## Questions & Request
 
-For additional information or request for additional categories / editions please contact the author.
+For additional information or request for additional categories / editions / analysis scripts please contact the author.
 
 ## Author
 Helmut Puhr

@@ -1,7 +1,7 @@
 #ifndef HASHCHECKER_H
 #define HASHCHECKER_H
 
-#include "utils/json.hpp"
+#include "json.hpp"
 
 #include <map>
 

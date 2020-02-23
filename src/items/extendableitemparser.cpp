@@ -66,7 +66,8 @@ size_t ExtendableItemParser::parseItem (const char* data, size_t index, size_t s
     unsigned int cnt = 0;
 
     assert (!target.contains(name_));
-    json j_data = json::array();
+    target[name_] = json::array();
+    json& j_data = target.at(name_);
 
     while (extend)
     {
@@ -89,8 +90,6 @@ size_t ExtendableItemParser::parseItem (const char* data, size_t index, size_t s
             ++cnt;
         }
     }
-
-    target.emplace(name_, std::move(j_data));
 
     return parsed_bytes;
 }

@@ -73,6 +73,9 @@ size_t FixedBytesItemParser::parseItem (const char* data, size_t index, size_t s
     {
         std::string data_str (reinterpret_cast<char const*>(current_data), length_-1); // -1 to account for end 0
 
+        if (!isASCII(data_str))
+            throw runtime_error ("fixed bytes item '"+name_+"' string contains non-ascii chars");
+
         if (debug)
             loginf << "fixed bytes item '"+name_+"' parsing index " << index << " length " << length_
                    << " data type " << data_type_ << " value '" << data_str << "'" << logendl;
@@ -207,7 +210,6 @@ size_t FixedBytesItemParser::parseItem (const char* data, size_t index, size_t s
         }
 
         assert (!target.contains(name_));
-        //target[name_] = data_str;
         target.emplace(name_, std::move(data_str));
 
         return length_;

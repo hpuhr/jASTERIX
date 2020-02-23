@@ -53,7 +53,7 @@ public:
             std::unique_ptr<nlohmann::json> data_chunk {new nlohmann::json()};
 
             if (frame_parser_.hasFileHeaderItems())
-                data_chunk = header_; // copy header
+                *data_chunk = header_; // copy header
 
             assert (index_ < size_);
 
@@ -75,6 +75,7 @@ public:
                 throw std::runtime_error ("jASTERIX scoped frames information is not array");
 
             jasterix_.addDataChunk(std::move(data_chunk), done_);
+            assert (data_chunk == nullptr);
         }
 
         if (force_stop_)

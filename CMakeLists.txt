@@ -2,14 +2,12 @@ set(ATSDB_PATH "${CMAKE_CURRENT_SOURCE_DIR}")
 message("  Path: ${ATSDB_PATH}")
 
 cmake_minimum_required(VERSION 3.1)
-#set ( CMAKE_BUILD_TYPE Debug )
-#set(CMAKE_CXX_FLAGS_MYREL "-O3")
-set ( CMAKE_BUILD_TYPE Release )
+set ( CMAKE_BUILD_TYPE RelWithDebInfo ) #Debug RelWithDebInfo Release
 
 project( jASTERIX )
 SET(CPACK_PACKAGE_VERSION_MAJOR "0")
 SET(CPACK_PACKAGE_VERSION_MINOR "0")
-SET(CPACK_PACKAGE_VERSION_PATCH "3")
+SET(CPACK_PACKAGE_VERSION_PATCH "5")
 
 message("  System: ${CMAKE_SYSTEM}")
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
@@ -17,7 +15,7 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 message("  Platform: Linux")
-add_definitions ( -Wall -std=c++11 -Wno-int-in-bool-context)
+add_definitions ( -Wall -UNDEBUG -std=c++11) # -Wno-int-in-bool-context
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 # Instruct CMake to run moc automatically when needed.
@@ -28,15 +26,11 @@ add_library(jasterix "")
 set (USE_LOG4CPP true)
 message("USE_LOG4CPP: ${USE_LOG4CPP}")
 
-set (USE_BOOST true)
-message("USE_BOOST: ${USE_BOOST}")
-
 set (USE_OPENSSL true)
 message("USE_OPENSSL: ${USE_OPENSSL}")
 
 configure_file(include/jasterix/global.h.in include/jasterix/global.h)
 
-IF (USE_BOOST)
 find_package ( Boost REQUIRED COMPONENTS system program_options filesystem iostreams)
 message("  Boost_INCLUDE_DIR: ${Boost_INCLUDE_DIR}")
 message("  Boost_LIBRARY_DIR: ${Boost_LIBRARY_DIR}")
@@ -53,8 +47,6 @@ link_directories(
 target_link_libraries ( jasterix
     ${Boost_LIBRARIES}
     )
-
-ENDIF()
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH};${ATSDB_PATH}/cmake_modules)
 message("  CMAKE_MODULE_PATH: ${CMAKE_MODULE_PATH}") 
@@ -89,6 +81,7 @@ message("  LibArchive_LIBRARIES: ${LibArchive_LIBRARIES}")
 
 message("Install path: ${CMAKE_INSTALL_PREFIX}")
 
+include(lib/CMakeLists.txt)
 include(include/jasterix/CMakeLists.txt)
 include(src/CMakeLists.txt)
 
@@ -104,6 +97,12 @@ target_link_libraries ( jasterix
     ${LibArchive_LIBRARIES}
     )
 
+target_sources(jasterix
+    PUBLIC
+        "${LIB_DIR}/json.hpp"
+    PRIVATE
+)    
+    
 message("Installing using prefix: ${CMAKE_INSTALL_PREFIX}")
 #install(DIRECTORY "specifications" DESTINATION jasterix)
 

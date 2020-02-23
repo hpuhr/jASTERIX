@@ -81,7 +81,8 @@ size_t RepetetiveItemParser::parseItem (const char* data, size_t index, size_t s
     unsigned int rep = target.at("REP");
 
     assert (!target.contains(name_));
-    json j_data = json::array();
+    target[name_] = json::array();
+    json& j_data = target.at(name_);
 
     if (debug)
         loginf << "parsing repetitive item '"+name_+"' items " << rep << " times" << logendl;
@@ -98,8 +99,6 @@ size_t RepetetiveItemParser::parseItem (const char* data, size_t index, size_t s
                                                     j_data[cnt], debug);
         }
     }
-
-    target.emplace(name_, std::move(j_data));
 
     return parsed_bytes;
 }

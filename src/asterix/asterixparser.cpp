@@ -123,7 +123,8 @@ std::tuple<size_t, size_t, bool, bool> ASTERIXParser::findDataBlocks (const char
 
     //    loginf << "UGA AP index " << index << " length " << length << logendl;
 
-    bool record_limit_hit {false};
+    bool hit_data_block_limit {false};
+    bool hit_data_block_chunk_limit {false};
     size_t current_index {index};
 
     try
@@ -132,14 +133,23 @@ std::tuple<size_t, size_t, bool, bool> ASTERIXParser::findDataBlocks (const char
         {
             //        loginf << "UGA AP1 parsed sum " << parsed_bytes_sum << " length " << length << " block " << num_blocks << logendl;
 
-            if (record_chunk_size > 0 && num_blocks >= static_cast<size_t> (record_chunk_size))
+            if (data_block_limit > 0 && num_blocks >= static_cast<unsigned>(data_block_limit))
             {
-                record_limit_hit = true;
+                 // hit data block limit
+                if(debug)
+                    loginf << "frame parser hit data block limit at " << num_blocks <<", setting done" << logendl;
+
+                hit_data_block_limit = true;
+                break;
+            }
+
+            if (data_block_chunk_size > 0 && num_blocks >= static_cast<size_t> (data_block_chunk_size))
+            {
+                hit_data_block_chunk_limit = true;
                 break;
             }
 
             parsed_data_block_bytes = 0;
-
 
             for (auto& r_item : data_block_items_)
             {
@@ -192,12 +202,15 @@ std::tuple<size_t, size_t, bool, bool> ASTERIXParser::findDataBlocks (const char
 
     if (debug)
         loginf << "ASTERIXParser: findDataBlocks done parsed bytes " << parsed_bytes_sum
-               << " num blocks " << num_blocks << " error " << error << " limit hit " << record_limit_hit << logendl;
+               << " num blocks " << num_blocks << " error " << error
+               << " data block limit hit " << hit_data_block_limit
+               << " data block chunk limit hit " << hit_data_block_chunk_limit << logendl;
 
     if (error)
         return std::make_tuple (parsed_bytes_sum, num_blocks, true, true); // error and done
     else
-        return std::make_tuple (parsed_bytes_sum, num_blocks, false, !record_limit_hit);
+        return std::make_tuple (parsed_bytes_sum, num_blocks, false,
+                                hit_data_block_limit ? true : !hit_data_block_chunk_limit);
 }
 
 std::pair<size_t, size_t> ASTERIXParser::decodeDataBlocks (const char* data, nlohmann::json& data_blocks, bool debug)
@@ -262,7 +275,6 @@ std::pair<size_t, size_t> ASTERIXParser::decodeDataBlock (const char* data, nloh
     if (debug)
         loginf << "ASTERIXParser: decodeDataBlock" << logendl;
 
-    //size_t parsed_bytes {0}; // TODO unsure if used
     std::pair<size_t, size_t> ret {0,0}; // num records, num errors
 
     // check record information
@@ -332,6 +344,7 @@ std::pair<size_t, size_t> ASTERIXParser::decodeDataBlock (const char* data, nloh
                        << " length " << data_block_length << logendl;
 
             data_block_content.emplace("records", json::array());
+            json& records = data_block_content.at("records");
 
             // create records until end of content
             while (data_block_parsed_bytes < data_block_length)
@@ -341,7 +354,7 @@ std::pair<size_t, size_t> ASTERIXParser::decodeDataBlock (const char* data, nloh
 
                 record_parsed_bytes = records_.at(cat)->parseItem(
                             data, data_block_index+data_block_parsed_bytes, data_block_length-data_block_parsed_bytes,
-                            data_block_parsed_bytes, data_block_content.at("records")[ret.first], debug);
+                            data_block_parsed_bytes, records[ret.first], debug);
 
                 if (debug)
                     loginf << "record with cat " << cat << " index " << data_block_index+data_block_parsed_bytes
@@ -351,20 +364,20 @@ std::pair<size_t, size_t> ASTERIXParser::decodeDataBlock (const char* data, nloh
 
                 if (debug)
                     loginf << "asterix parser decoding record with cat " << cat << " index " << data_block_index
-                           << ": " << data_block_content.at("records")[ret.first].dump(4) << "'" << logendl;
+                           << ": " << records[ret.first].dump(4) << "'" << logendl;
 
 #if USE_OPENSSL
                 if (add_artas_md5_hash)
                     calculateARTASMD5Hash (&data[data_block_index+data_block_parsed_bytes], record_parsed_bytes,
-                            data_block_content.at("records")[ret.first]);
+                            records[ret.first]);
 #endif
                 if (add_record_data)
                     data_block_content.at("records")[ret.first]["record_data"] = binary2hex(
                                 (const unsigned char*)&data[data_block_index+data_block_parsed_bytes],
                             record_parsed_bytes);
 
-                data_block_content.at("records")[ret.first]["index"] = data_block_index+data_block_parsed_bytes;
-                data_block_content.at("records")[ret.first]["length"] = record_parsed_bytes;
+                records[ret.first]["index"] = data_block_index+data_block_parsed_bytes;
+                records[ret.first]["length"] = record_parsed_bytes;
 
                 data_block_parsed_bytes += record_parsed_bytes;
 
@@ -412,10 +425,8 @@ void ASTERIXParser::calculateARTASMD5Hash (const char* data, size_t length, nloh
     // unsigned char *md5_hash =
     MD5((const unsigned char*)data, length, digest);
 
-//    The target report identifier is the result of the concatenation of the 1st, 5th, 9th, and 13th byte of the
-//    MD5 message digest algorithm of the input target report.
-
-    //un signed char artas_md5[4];
+    // The target report identifier is the result of the concatenation of the 1st, 5th, 9th, and 13th byte of the
+    // MD5 message digest algorithm of the input target report.
 
     //target["org"] = binary2hex((const unsigned char*)data, length);
     //target["md5"] = binary2hex(digest, MD5_DIGEST_LENGTH);
@@ -428,7 +439,7 @@ void ASTERIXParser::calculateARTASMD5Hash (const char* data, size_t length, nloh
 
     //loginf << "ASTERIXParser: calculateARTASMD5Hash: md5 " << binary2hex(digest, 4) << logendl;
 
-    target["artas_md5"] = binary2hex(digest, 4);
+    target.emplace("artas_md5", binary2hex(digest, 4));
 }
 
 }

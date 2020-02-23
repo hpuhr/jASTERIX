@@ -20,14 +20,12 @@
 
 #include <string>
 #include <map>
+#include <deque>
+#include <mutex>
+
 #include <jasterix/global.h>
 
-#if USE_BOOST
 #include <boost/iostreams/device/mapped_file.hpp>
-#endif
-
-//#include "tbb/task_scheduler_init.h"
-#include "tbb/concurrent_queue.h"
 
 #include "json.hpp"
 #include <jasterix/frameparser.h>
@@ -40,7 +38,8 @@ namespace jASTERIX {
 extern int print_dump_indent;
 extern int frame_limit;
 extern int frame_chunk_size;
-extern int record_chunk_size;
+extern int data_block_limit;
+extern int data_block_chunk_size;
 extern int data_write_size;
 
 extern bool single_thread;
@@ -71,9 +70,6 @@ public:
     void decodeFile (const std::string& filename,
                      std::function<void(std::unique_ptr<nlohmann::json>, size_t, size_t, size_t)> data_callback=nullptr);
 
-    void decodeASTERIX (const char* data, size_t size,
-                 std::function<void(std::unique_ptr<nlohmann::json>, size_t, size_t, size_t)> data_callback=nullptr);
-
     size_t numFrames() const;
     size_t numRecords() const;
     size_t numErrors() const;
@@ -91,8 +87,6 @@ public:
 
 
 private:
-    //tbb::task_scheduler_init init_;
-
     std::string definition_path_;
     bool print_ {false};
     bool debug_ {false};
@@ -109,16 +103,14 @@ private:
 
     std::map<unsigned int, std::shared_ptr<Category>> category_definitions_;
 
-#if USE_BOOST
     boost::iostreams::mapped_file_source file_;
-#else
-    char* file_buffer_{nullptr};
-#endif
 
-    tbb::concurrent_queue<std::unique_ptr<nlohmann::json>> data_block_chunks_;
+    std::deque<std::unique_ptr<nlohmann::json>> data_block_chunks_;
+    std::mutex data_block_chunks_mutex_;
     bool data_block_processing_done_ {false};
 
-    tbb::concurrent_queue<std::unique_ptr<nlohmann::json>> data_chunks_;
+    std::deque<std::unique_ptr<nlohmann::json>> data_chunks_;
+    std::mutex data_chunks_mutex_;
     bool data_processing_done_ {false};
 
     size_t num_frames_{0};

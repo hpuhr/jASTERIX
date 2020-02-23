@@ -27,8 +27,8 @@
 
 #include <vector>
 
-class archive;
-class archive_entry;
+struct archive;
+struct archive_entry;
 
 namespace jASTERIX
 {
