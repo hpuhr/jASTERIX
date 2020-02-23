@@ -11,7 +11,7 @@ class RecordExtractor:
 
         if self.__framing:
             if 'frames' not in json_data:
-                print("error: no frames in given data")
+                print("warn: no frames in given data")
                 return
 
             frames = json_data['frames']
@@ -19,32 +19,32 @@ class RecordExtractor:
             for frame in frames:
 
                 if 'content' not in frame:
-                    print("error: no content in data_block")
+                    print("warn: no content in data_block")
                     return
 
                 frame_content = frame['content']
 
                 if 'data_blocks' not in frame_content:
-                    print("error: no data_blocks in frame_content")
+                    print("warn: no data_blocks in frame_content")
                     return
 
                 data_blocks = frame_content['data_blocks']
 
                 for data_block in data_blocks:
                     if 'category' not in data_block:
-                        print("error: no category in data_block")
+                        print("warn: no category in data_block")
                         return
 
                     cat = data_block['category']
 
                     if 'content' not in data_block:
-                        print("error: no content in data_block")
+                        print("warn: no content in data_block")
                         return
 
                     content = data_block['content']
 
                     if 'records' not in content:
-                        print("error: no records in content")
+                        print("warn: no records in content")
                         return
 
                     records = content['records']
@@ -59,26 +59,26 @@ class RecordExtractor:
                             self.__callback(cat, record)
         else:
             if 'data_blocks' not in json_data:
-                print("error: no data_blocks in frame_content")
+                print("warn: no data_blocks in frame_content")
                 return
 
             data_blocks = json_data['data_blocks']
 
             for data_block in data_blocks:
                 if 'category' not in data_block:
-                    print("error: no category in data_block")
+                    print("warn: no category in data_block")
                     return
 
                 cat = data_block['category']
 
                 if 'content' not in data_block:
-                    print("error: no content in data_block")
+                    print("warn: no content in data_block")
                     return
 
                 content = data_block['content']
 
                 if 'records' not in content:
-                    print("error: no records in content")
+                    print("warn: no records in content")
                     return
 
                 records = content['records']
