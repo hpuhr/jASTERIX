@@ -81,6 +81,7 @@ message("  LibArchive_LIBRARIES: ${LibArchive_LIBRARIES}")
 
 message("Install path: ${CMAKE_INSTALL_PREFIX}")
 
+include(lib/CMakeLists.txt)
 include(include/jasterix/CMakeLists.txt)
 include(src/CMakeLists.txt)
 
@@ -96,6 +97,12 @@ target_link_libraries ( jasterix
     ${LibArchive_LIBRARIES}
     )
 
+target_sources(jasterix
+    PUBLIC
+        "${LIB_DIR}/json.hpp"
+    PRIVATE
+)    
+    
 message("Installing using prefix: ${CMAKE_INSTALL_PREFIX}")
 #install(DIRECTORY "specifications" DESTINATION jasterix)
 

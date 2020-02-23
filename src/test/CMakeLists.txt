@@ -10,7 +10,7 @@ add_executable ( test_performance "${CMAKE_CURRENT_LIST_DIR}/test_performance.cp
 
 target_sources( test_categories
     PUBLIC
-        "${CMAKE_CURRENT_LIST_DIR}/catch.hpp"
+        "${LIB_DIR}/catch.hpp"
         "${CMAKE_CURRENT_LIST_DIR}/test_jasterix.h"
     PRIVATE
         "${CMAKE_CURRENT_LIST_DIR}/test_cat001_1.1.cpp"
@@ -28,14 +28,14 @@ target_sources( test_categories
 
 target_sources( test_limits
     PUBLIC
-        "${CMAKE_CURRENT_LIST_DIR}/catch.hpp"
+        "${LIB_DIR}/catch.hpp"
         "${CMAKE_CURRENT_LIST_DIR}/test_jasterix.h"
 )
 
 
 target_sources( test_performance
     PUBLIC
-        "${CMAKE_CURRENT_LIST_DIR}/catch.hpp"
+        "${LIB_DIR}/catch.hpp"
         "${CMAKE_CURRENT_LIST_DIR}/test_jasterix.h"
 )
 
