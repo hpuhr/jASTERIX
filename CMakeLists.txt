@@ -26,15 +26,11 @@ add_library(jasterix "")
 set (USE_LOG4CPP true)
 message("USE_LOG4CPP: ${USE_LOG4CPP}")
 
-set (USE_BOOST true)
-message("USE_BOOST: ${USE_BOOST}")
-
 set (USE_OPENSSL true)
 message("USE_OPENSSL: ${USE_OPENSSL}")
 
 configure_file(include/jasterix/global.h.in include/jasterix/global.h)
 
-IF (USE_BOOST)
 find_package ( Boost REQUIRED COMPONENTS system program_options filesystem iostreams)
 message("  Boost_INCLUDE_DIR: ${Boost_INCLUDE_DIR}")
 message("  Boost_LIBRARY_DIR: ${Boost_LIBRARY_DIR}")
@@ -51,8 +47,6 @@ link_directories(
 target_link_libraries ( jasterix
     ${Boost_LIBRARIES}
     )
-
-ENDIF()
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH};${ATSDB_PATH}/cmake_modules)
 message("  CMAKE_MODULE_PATH: ${CMAKE_MODULE_PATH}") 

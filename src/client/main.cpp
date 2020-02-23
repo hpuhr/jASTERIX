@@ -26,16 +26,10 @@
 #include "utils/hashchecker.h"
 #endif
 
-#if USE_BOOST
 #include <boost/program_options.hpp>
 #include "boost/date_time/posix_time/posix_time.hpp"
 
 namespace po = boost::program_options;
-#else
-#include <vector>
-#include <algorithm>
-#include <chrono>
-#endif
 
 #include <iostream>
 #include <cstdlib>
@@ -93,8 +87,8 @@ int main (int argc, char **argv)
     bool print {false};
     std::string write_type;
     std::string write_filename;
+    bool log_performance {false};
 
-#if USE_BOOST
     po::options_description desc("Allowed options");
     desc.add_options()
         ("help", "produce help message")
@@ -114,6 +108,7 @@ int main (int argc, char **argv)
         ("debug_include_framing", po::bool_switch(&debug_include_framing),
          "print debug output including framing, debug still has to be set, disable per default")
         ("single_thread", po::bool_switch(&jASTERIX::single_thread), "process data in single thread")
+        ("log_perf", po::bool_switch(&log_performance), "enable performance log after processing")
 #if USE_OPENSSL
         ("add_artas_md5", po::bool_switch(&jASTERIX::add_artas_md5_hash), "add ARTAS MD5 hashes")
         ("check_artas_md5", po::value<std::string>(&check_artas_md5_hash),
@@ -144,90 +139,6 @@ int main (int argc, char **argv)
         logerr << "jASTERIX client: unable to parse command line parameters: \n" << e.what() << logendl;
         return -1;
     }
-#else
-    std::vector<std::string> arguments;
-    arguments.assign(argv, argv+argc);
-
-    if (arguments.size() == 1 || find(arguments.begin(), arguments.end(), "--help") != arguments.end())
-    {
-        loginf << "help:" << logendl;
-        loginf << "filename (value): input filename." << logendl;
-        loginf << "definition_path (value): path to jASTERIX definition files." << logendl;
-        loginf << "framing (value): input framine format, as specified in the framing definitions."
-                  " raw/netto is default" << logendl;
-        loginf << "frame_limit: number of frames to process, default -1, use -1 to disable." << logendl;
-        loginf << "frame_chunk_size: number of frames to process in one chunk, default 1000, use -1 to disable." << logendl;
-        loginf << "data_block_limit: number of data blocks to process, default -1, use -1 to disable." << logendl;
-        loginf << "data_write_size: number of frame chunks to write in one file write, default 100, use -1 to disable." << logendl;
-        loginf << "debug: print debug output" << logendl;
-        loginf << "debug_include_framing: print debug excluding framing, debug still has to be set, disabled by default" << logendl;
-        loginf << "single_thread: process data in single thread" << logendl;
-#if USE_OPENSSL
-        loginf << "add_artas_md5: add ARTAS MD5 hashes" << logendl;
-        loginf << "add and check ARTAS MD5 hashes (with record data), stating which categories to check, e.g. 1,20,21,48" << logendl;
-#endif
-        loginf << "add_record_data: add original record data in hex" << logendl;
-        loginf << "print: print JSON output" << logendl;
-        loginf << "print_indent: intendation of json print, use -1 to disable." << logendl;
-        loginf << "write_type (value): optional write type, e.g. text,zip. needs write_filename." << logendl;
-        loginf << "write_filename (value): optional write filename, e.g. test.zip." << logendl;
-
-        return 0;
-    }
-
-    if (find(arguments.begin(), arguments.end(), "--filename") != arguments.end())
-        filename = *(find(arguments.begin(), arguments.end(), "--filename")+1);
-
-    if (find(arguments.begin(), arguments.end(), "--definition_path") != arguments.end())
-        definition_path = *(find(arguments.begin(), arguments.end(), "--definition_path")+1);
-
-    if (find(arguments.begin(), arguments.end(), "--framing") != arguments.end())
-        framing = *(find(arguments.begin(), arguments.end(), "--framing")+1);
-
-    if (find(arguments.begin(), arguments.end(), "--frame_limit") != arguments.end())
-        frame_limit = std::atoi ((find(arguments.begin(), arguments.end(), "--frame_limit")+1)->c_str());
-
-    if (find(arguments.begin(), arguments.end(), "--frame_chunk_size") != arguments.end())
-        frame_chunk_size = std::atoi ((find(arguments.begin(), arguments.end(), "--frame_chunk_size")+1)->c_str());
-
-    if (find(arguments.begin(), arguments.end(), "--data_block_limit") != arguments.end())
-        data_block_limit = std::atoi ((find(arguments.begin(), arguments.end(), "--data_block_limit")+1)->c_str());
-
-    if (find(arguments.begin(), arguments.end(), "--data_write_size") != arguments.end())
-        data_write_size = std::atoi ((find(arguments.begin(), arguments.end(), "--data_write_size")+1)->c_str());
-
-    if (find(arguments.begin(), arguments.end(), "--debug") != arguments.end())
-        debug = true;
-
-    if (find(arguments.begin(), arguments.end(), "--debug_include_framing") != arguments.end())
-        debug_include_framing = true;
-
-    if (find(arguments.begin(), arguments.end(), "--single_thread") != arguments.end())
-        jASTERIX::single_thread = true;
-
-#if USE_OPENSSL
-    if (find(arguments.begin(), arguments.end(), "--add_artas_md5") != arguments.end())
-        jASTERIX::add_artas_md5_hash = true;
-
-    if (find(arguments.begin(), arguments.end(), "--check_artas_md5") != arguments.end())
-        check_artas_md5_hash = *(find(arguments.begin(), arguments.end(), "--check_artas_md5")+1);
-#endif
-    if (find(arguments.begin(), arguments.end(), "--add_record_data") != arguments.end())
-        jASTERIX::add_record_data = true;
-
-    if (find(arguments.begin(), arguments.end(), "--print") != arguments.end())
-        print = true;
-
-    if (find(arguments.begin(), arguments.end(), "--print_indent") != arguments.end())
-        print_dump_indent = std::atoi ((find(arguments.begin(), arguments.end(), "--print_indent")+1)->c_str());
-
-    if (find(arguments.begin(), arguments.end(), "--write_type") != arguments.end())
-        write_type = *(find(arguments.begin(), arguments.end(), "--write_type")+1);
-
-    if (find(arguments.begin(), arguments.end(), "--write_filename") != arguments.end())
-        write_filename = *(find(arguments.begin(), arguments.end(), "--write_filename")+1);
-
-#endif
 
 #if USE_OPENSSL
     if (check_artas_md5_hash.size())
@@ -294,11 +205,7 @@ int main (int argc, char **argv)
 
         jASTERIX::jASTERIX asterix (definition_path, print, debug, !debug_include_framing);
 
-#if USE_BOOST
         boost::posix_time::ptime start_time = boost::posix_time::microsec_clock::local_time();
-#else
-        auto start_time = chrono::steady_clock::now();
-#endif
 
         if (framing == "netto" || framing == "")
         {
@@ -341,7 +248,6 @@ int main (int argc, char **argv)
         size_t num_frames = asterix.numFrames();
         size_t num_records = asterix.numRecords();
 
-#if USE_BOOST
         boost::posix_time::time_duration diff = boost::posix_time::microsec_clock::local_time() - start_time;
 
         string time_str = to_string(diff.hours())+"h "+to_string(diff.minutes())+"m "+to_string(diff.seconds())+"s "+
@@ -349,24 +255,10 @@ int main (int argc, char **argv)
 
         double seconds = diff.total_milliseconds()/1000.0;
 
-        //if (debug)
-//            loginf << "jASTERIX client: decoded " << num_frames << " frames, "
-//                   << num_records << " records in " << time_str << ": "
-//                   << num_frames/seconds << " fr/s, " << num_records/seconds << " rec/s" << logendl;
-#else
-        auto end_time = chrono::steady_clock::now();
-        double full_seconds = chrono::duration_cast<chrono::milliseconds>(end_time - start_time).count()/1000.0;
-
-        unsigned int hours = full_seconds/3600;
-        unsigned int minutes = (full_seconds-hours*3600)/60;
-        double seconds = full_seconds-hours*3600-minutes*60;
-
-        string time_str = to_string(hours)+"h "+to_string(minutes)+"m "+to_string(seconds)+"s";
-
-        loginf << "jASTERIX client: decoded " << num_frames << " frames, "
-               << num_records << " records in " << time_str << ": "
-               << num_frames/full_seconds << " fr/s, " << num_records/full_seconds << " rec/s" << logendl;
-#endif
+        if (log_performance)
+            loginf << "jASTERIX client: decoded " << num_frames << " frames, "
+                   << num_records << " records in " << time_str << ": "
+                   << num_frames/seconds << " fr/s, " << num_records/seconds << " rec/s" << logendl;
     }
     catch (exception &ex)
     {
@@ -402,8 +294,5 @@ int main (int argc, char **argv)
     if (debug)
         loginf << "jASTERIX client: shutdown" << logendl;
 
-//#if USE_BOOST
-//    std::this_thread::sleep_for(std::chrono::seconds(15));
-//#endif
     return 0;
 }

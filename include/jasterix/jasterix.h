@@ -25,9 +25,7 @@
 
 #include <jasterix/global.h>
 
-#if USE_BOOST
 #include <boost/iostreams/device/mapped_file.hpp>
-#endif
 
 #include "json.hpp"
 #include <jasterix/frameparser.h>
@@ -105,11 +103,7 @@ private:
 
     std::map<unsigned int, std::shared_ptr<Category>> category_definitions_;
 
-#if USE_BOOST
     boost::iostreams::mapped_file_source file_;
-#else
-    char* file_buffer_{nullptr};
-#endif
 
     std::deque<std::unique_ptr<nlohmann::json>> data_block_chunks_;
     std::mutex data_block_chunks_mutex_;

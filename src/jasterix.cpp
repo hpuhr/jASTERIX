@@ -162,16 +162,8 @@ namespace jASTERIX {
 
     jASTERIX::~jASTERIX()
     {
-#if USE_BOOST
         if(file_.is_open())
             file_.close();
-#else
-        if (file_buffer_)
-        {
-            delete file_buffer_;
-            file_buffer_ = nullptr;
-        }
-#endif
     }
 
     bool jASTERIX::hasCategory(unsigned int cat)
@@ -218,7 +210,6 @@ namespace jASTERIX {
         if (debug_)
             loginf << "jASTERIX: file " << filename << " size " << file_size << logendl;
 
-#if USE_BOOST
         assert (!file_.is_open());
 
         file_.open(filename, file_size);
@@ -227,19 +218,6 @@ namespace jASTERIX {
             throw runtime_error ("jASTERIX unable to map file '"+filename+"'");
 
         const char* data = file_.data();
-#else
-        ifstream file (filename, ios::in | ios::binary);
-        file_buffer_ = new char[file_size];
-        file.read (file_buffer_, file_size);
-        if (!file)
-        {
-            // An error occurred!
-            throw runtime_error ("jASTERIX unable to read file '"+filename+"'");
-        }
-        file.close();
-
-        char* data = file_buffer_;
-#endif
 
         // check framing
         if (!fileExists(definition_path_+"/framings/"+framing+".json"))
@@ -355,9 +333,7 @@ namespace jASTERIX {
         if (debug_)
             loginf << "jASTERIX decode file done" << logendl;
 
-#if USE_BOOST
         file_.close();
-#endif
     }
 
     void jASTERIX::decodeFile (
@@ -376,7 +352,6 @@ namespace jASTERIX {
         if (debug_)
             loginf << "jASTERIX: file " << filename << " size " << file_size << logendl;
 
-#if USE_BOOST
         assert (!file_.is_open());
         file_.open(filename, file_size);
 
@@ -384,19 +359,6 @@ namespace jASTERIX {
             throw runtime_error ("jASTERIX unable to map file '"+filename+"'");
 
         const char* data = file_.data();
-#else
-        ifstream file (filename, ios::in | ios::binary);
-        file_buffer_ = new char[file_size];
-        file.read (file_buffer_, file_size);
-        if (!file)
-        {
-            // An error occurred!
-            throw runtime_error ("jASTERIX unable to read file '"+filename+"'");
-        }
-        file.close();
-
-        char* data = file_buffer_;
-#endif
 
         // create ASTERIX parser
         ASTERIXParser asterix_parser (data_block_definition_, category_definitions_, debug_);
@@ -480,9 +442,7 @@ namespace jASTERIX {
         if (debug_)
             loginf << "jASTERIX decode file done" << logendl;
 
-#if USE_BOOST
         file_.close();
-#endif
     }
 
     size_t jASTERIX::numFrames() const

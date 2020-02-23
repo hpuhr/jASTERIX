@@ -53,10 +53,10 @@ Currently supported ASTERIX categories & editions, reserved expansion fields and
 ## Requirements / Used Libraries
 
 The following libraries are mandatory:
+- Boost
 - Intel Thread Building Blocks
 
 The following libaries are optional (can be deactivated in CMakeList.txt):
-- Boost
 - Log4Cpp
 - OpenSSL
 

@@ -28,10 +28,6 @@
 #include "log4cpp/SimpleLayout.hh"
 #endif
 
-#if USE_BOOST
-#include "boost/date_time/posix_time/posix_time.hpp"
-#endif
-
 #define CATCH_CONFIG_RUNNER
 #include "catch.hpp"
 
