@@ -184,9 +184,12 @@ class TrackStatisticsCalculator:
 
                 #if find_value(["290", "SSR", "Age"], record) <= 4.0:
                 if find_value(["290", "MLT", "Age"], record) is not None:
-
                     # age not 63.75
                     mlat_age = find_value(["290", "MLT", "Age"], record)
+
+                    if mlat_age <= 12.0:
+                        return 3
+
                 #
                 #     mda_age = find_value(["295", "MDA", "Age"], record)
                 #     mda_age_found = mda_age is not None
@@ -194,10 +197,8 @@ class TrackStatisticsCalculator:
                 #     mdc_age = find_value(["295", "MFL", "Age"], record)
                 #     mdc_age_found = mdc_age is not None
                 #
-                    if mlat_age <= 4.0:
                 #         if mda_age_found and mda_age <= 26.0 \
                 #                 and mdc_age_found and mdc_age <= 26.0:
-                        return 3
                 #
                 #         if not mda_age_found and mdc_age_found and mdc_age <= 8.0:
                 #             return 3
