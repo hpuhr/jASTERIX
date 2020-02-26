@@ -6,90 +6,181 @@ import time
 from typing import Dict
 import argparse
 
+import mysql.connector
+
 from util.record_extractor import RecordExtractor
 from util.common import find_value
 
+detection_type_strings = {
+    0: "no detection",
+    1: "psr only",
+    2: "ssr only",
+    3: "combined",
+    4: "mode s all-call",
+    5: "mode s role-call",
+    6: "mode s all-call combined",
+    7: "mode s role-call combined"
+}
 
 class TrackStatisticsCalculator:
     def __init__(self):
         self.__num_records = 0
         self.__num_psr_records = 0
 
+        self._rec_num_cnt = 0
+        self._diff_det_cnt_sum = 0
+        self._diff_det_cnt = {}  # type: Dict[(int,int),int]  # (sdl_det, db_det) -> cnt
+
+        self._mydb = mysql.connector.connect(
+            host="localhost",
+            user="sassc",
+            passwd="sassc",
+            database="PR_v8_24102019"
+        )
+
+        self._mycursor = self._mydb.cursor()
+
+        #print ('sd_track columns')
+        #self._mycursor.execute("SHOW COLUMNS FROM sd_track")
+        #for x in self._mycursor:
+        #    print(x)
+
+        self._mycursor.execute("SELECT count(*) FROM sd_track")
+        self.__num_db_records = self._mycursor.fetchone()[0]
+
+        #self._mycursor.execute("SELECT count(*) FROM sd_track WHERE detection_type=1 AND multiple_sources=\"N\"")
+        #print ('tmp {}'.format(self._mycursor.fetchone()[0]))
+
+        #self.print_distinct("report_type", "sd_track")
+        self.print_distinct("detection_type", "sd_track")
+        #self.print_distinct("multiple_sources", "sd_track")
+
+        self._mycursor.execute("SELECT rec_num, tod, track_num, detection_type FROM sd_track") #  WHERE track_num=4227 LIMIT 0,10000
+
     @property
     def num_records(self):
         return self.__num_records
 
     @property
-    def um_psr_records(self):
+    def num_psr_records(self):
         return self.__num_psr_records
+
+    @property
+    def diff_det_cnt_sum(self):
+        return self._diff_det_cnt_sum
+
+    def get_detection_type(self, record):
+
+        #if find_value(["080", "TSB"], record) != 0:  # first track message
+        #    return False
+
+        #if find_value(["080", "TSE"], record) != 0:  # end track
+        #    return False
+
+        if find_value(["080", "CST"], record) == 1:
+            return 0  # no detection
+
+        #if find_value(["080", "MON"], record) == 0:
+        #    return 0  # no single radar detection
+
+        if find_value(["080", "ADS"], record) == 0:
+            return 0  # no single radar detection
+
+        #if find_value(["080", "PSR"], record) == 1 \
+        #        and find_value(["080", "SSR"], record) == 1:
+        #    print ('no radar detection')
+        #    return 0  # no radar detection
+
+        if find_value(["080", "MDS"], record) == 1:
+            if find_value(["080", "PSR"], record) == 0 \
+                    and find_value(["080", "SSR"], record) == 1:
+                return 1  # single psr, no mode-s
+
+            if find_value(["080", "PSR"], record) == 1 \
+                    and find_value(["080", "SSR"], record) == 0:
+                return 2  # single ssr, no mode-s
+
+            if find_value(["080", "PSR"], record) == 0 \
+                    and find_value(["080", "SSR"], record) == 0:
+                return 3  # cmb, no mode-s
+
+        elif find_value(["080", "MDS"], record) == 0:
+            if find_value(["080", "PSR"], record) == 1:
+                return 5  # ssr, mode-s
+
+            if find_value(["080", "PSR"], record) == 0:
+                return 7  # cmb, mode-s
+
+
+
+        #print('unknown')
+        return 5  # unknown
+
 
     def process_record(self, cat, record):
 
         self.__num_records += 1
 
-        if self.is_psr_track_update(record):
+        sdl_detection_type = self.get_detection_type(record)
+
+        if sdl_detection_type == 1:
             self.__num_psr_records += 1
 
-    def is_psr_track_update (self, record):
-        # '062.080' count 1214471 (100%)
-        # '062.080.AAC' count 1214471 (100%) min '0' max '0'
-        # '062.080.ADS' count 1214471 (100%) min '1' max '1'
-        # '062.080.AFF' count 1214471 (100%) min '0' max '0'
-        # '062.080.AMA' count 1214471 (100%) min '0' max '0'
-        # '062.080.CNF' count 1214471 (100%) min '0' max '1'
-        # '062.080.CST' count 1214471 (100%) min '0' max '1'
-        # '062.080.FPC' count 1214471 (100%) min '0' max '0'
-        # '062.080.FX' count 1214471 (100%) min '1' max '1'
-        # '062.080.FX2' count 1214471 (100%) min '1' max '1'
-        # '062.080.FX3' count 1214471 (100%) min '1' max '1'
-        # '062.080.FX4' count 1214471 (100%) min '0' max '0'
-        # '062.080.KOS' count 1214471 (100%) min '0' max '1'
-        # '062.080.MD4' count 1214471 (100%) min '0' max '0'
-        # '062.080.MD5' count 1214471 (100%) min '0' max '0'
-        # '062.080.MDS' count 1214471 (100%) min '0' max '1'
-        # '062.080.ME' count 1214471 (100%) min '0' max '0'
-        # '062.080.MI' count 1214471 (100%) min '0' max '0'
-        # '062.080.MON' count 1214471 (100%) min '0' max '1'
-        # '062.080.MRH' count 1214471 (100%) min '0' max '1'
-        # '062.080.PSR' count 1214471 (100%) min '0' max '1'
-        # '062.080.SIM' count 1214471 (100%) min '0' max '0'
-        # '062.080.SPI' count 1214471 (100%) min '0' max '1'
-        # '062.080.SRC' count 1214471 (100%) min '3' max '6'
-        # '062.080.SSR' count 1214471 (100%) min '0' max '1'
-        # '062.080.STP' count 1214471 (100%) min '0' max '0'
-        # '062.080.SUC' count 1214471 (100%) min '0' max '0'
-        # '062.080.TSB' count 1214471 (100%) min '0' max '1'
-        # '062.080.TSE' count 1214471 (100%) min '0' max '1'
+        tod = find_value(["070", "Time Of Track Information"], record)
+        assert tod is not None
 
-        if find_value(["080", "TSB"], record) != 0:  # first track message
-            return False
+        track_num = find_value(["040", "Track Number"], record)
+        assert track_num is not None
 
-        if find_value(["080", "TSE"], record) != 0:  # end track
-            return False
+        db_rec_num, db_tod, db_track_num, db_detection_type = self._mycursor.fetchone()
+        db_tod /= 128.0
 
-        if find_value(["080", "MON"], record) != 1:
-            return False
+        if tod != db_tod or track_num != db_track_num:
+            print('cnt {} json tod {} db {} tn {} db {}'.format(
+                self.__num_records, tod, db_tod, track_num, db_track_num))
 
-        # if find_value(["080", "CST"], record) != 0:
-        #    return False
+        if sdl_detection_type != db_detection_type:
 
-        if find_value(["080", "PSR"], record) != 0:
-            return False
+            self._diff_det_cnt_sum += 1
 
-        if find_value(["080", "SSR"], record) != 1:
-            return False
+            key = (sdl_detection_type, db_detection_type)
 
-        if find_value(["080", "MDS"], record) != 1:
-            return False
+            if key not in self._diff_det_cnt:
+                print('rec_num {} sdl_det {} v7_det {} json \'{}\''.format(
+                    db_rec_num, detection_type_strings[sdl_detection_type], detection_type_strings[db_detection_type],
+                    json.dumps(record, indent=4)))
+                self._diff_det_cnt[key] = 1
+            else:
+                #print('rec_num {} sdl_det {} v7_det {}'.format(
+                #    db_rec_num, sdl_detection_type, db_detection_type))
+                self._diff_det_cnt[key] += 1
 
-        if find_value(["080", "ADS"], record) != 1:
-            return False
-
-        return True
+        assert tod == db_tod
+        assert track_num == db_track_num
 
     def print(self):
         print('num cat062 records {}'.format(self.__num_records))
         print('num psr track update records {}'.format(self.__num_psr_records))
+
+        print('rec num cnt {}'.format(self._rec_num_cnt))
+
+        print('diff det cnt sum {}'.format(self._diff_det_cnt_sum))
+
+        for key, cnt in self._diff_det_cnt.items():
+            sdl_det_type, db_det_type = key
+            print('diff det ({}, {}) cnt {}'.format(detection_type_strings[sdl_det_type], detection_type_strings[db_det_type], cnt))
+
+    def print_distinct(self, variable, table):
+
+        self._mycursor.execute("SELECT {},COUNT(*) from {} GROUP BY {}".format(variable, table, variable))
+
+        print('table {} variable {}, count:'.format(table, variable))
+        for x in self._mycursor:
+            if variable == "detection_type":
+                value, cnt = x
+                print('({}, {})'.format(detection_type_strings[value], cnt))
+            else:
+                print (x)
 
 
 # filter functions return True if record should be skipped
@@ -127,10 +218,10 @@ def main(argv):
         num_blocks += 1
 
         end_time = time.time()
-        print('blocks {0} time {1:.2f}s unfiltered records {2} filtered {3} rate {4} rec/s'.format(
+        print('blocks {0} time {1:.2f}s unfiltered records {2} filtered {3} rate {4} rec/s diff det {5}'.format(
             num_blocks, end_time-start_time, statistics_calc.num_records,
             record_extractor.num_filtered,
-            int((record_extractor.num_records)/(end_time-start_time))))
+            int((record_extractor.num_records)/(end_time-start_time)), statistics_calc.diff_det_cnt_sum))
 
     statistics_calc.print()
 

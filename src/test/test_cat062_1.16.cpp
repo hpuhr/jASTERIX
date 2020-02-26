@@ -594,9 +594,10 @@ void test_cat062_116_callback (std::unique_ptr<nlohmann::json> json_data, size_t
     REQUIRE (record.at("080").at("FX3") == 1);
 
     // 01011000
+    // PSR, SSR, MDS, ADS listed if 0
     REQUIRE (record.at("080").at("CST") == 0);
     REQUIRE (record.at("080").at("PSR") == 1);
-    REQUIRE (record.at("080").at("SSR") == 0);
+    REQUIRE (record.at("080").at("SSR") == 0); // SSR
     REQUIRE (record.at("080").at("MDS") == 1);
     REQUIRE (record.at("080").at("ADS") == 1);
     REQUIRE (record.at("080").at("SUC") == 0);
