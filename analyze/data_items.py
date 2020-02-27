@@ -78,7 +78,7 @@ class DataItemStatistic:
 class DataItemStatisticsCalculator:
     def __init__(self):
         self.__num_records = 0
-        self.__statistics = {} # type: Dict[str, DataItemStatistic]
+        self.__statistics = {}  # type: Dict[str, DataItemStatistic]
 
     @property
     def num_records(self):
@@ -108,7 +108,7 @@ class DataItemStatisticsCalculator:
 def filter_example(cat, record):
     if cat != 21:
         return True
-    return find_value(["090", "NACp"], record) is None
+    return find_value("090.NACp", record) is None
 
 
 cat_list = None

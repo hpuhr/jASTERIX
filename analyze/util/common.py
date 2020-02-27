@@ -1,10 +1,11 @@
-from typing import List
+from typing import List, Dict
 
-def find_value(key_location, json_data):
-    assert isinstance(key_location, List)
+def find_value(key_location_str, json_data):
+
+    assert isinstance(key_location_str, str)
 
     current_json = json_data
-    for key in key_location:
+    for key in key_location_str.split('.'):
         if key not in current_json:
             return None
         else:
@@ -15,9 +16,14 @@ def find_value(key_location, json_data):
 
 
 class ValueStatistic:
-    def __init__(self, name, key_location, value_descriptions):
+    def __init__(self, name, key_location_str, value_descriptions):
+
+        assert isinstance(name, str)
+        assert isinstance(key_location_str, str)
+        assert isinstance(value_descriptions, dict)
+
         self.__name = name
-        self.__key_location = key_location  # type: List[str]
+        self.__key_location_str = key_location_str  # type: str
         self.__value_descriptions = value_descriptions  # type: Dict[str, str]
 
         self.__num_records = 0
@@ -33,7 +39,7 @@ class ValueStatistic:
     def process_record(self, record):
 
         self.__num_records += 1
-        value = find_value(self.__key_location, record)
+        value = find_value(self.__key_location_str, record)
 
         if value is None:
             self.__num_value_none += 1
@@ -79,11 +85,18 @@ class ValueStatistic:
 
 
 class ValueStatisticList:
-    def __init__(self, name, list_key_location, list_value_descriptions, key_location, value_descriptions):
+    def __init__(self, name, list_key_location_str, list_value_descriptions, key_location_str, value_descriptions):
+
+        assert isinstance(name, str)
+        assert isinstance(list_key_location_str, str)
+        assert isinstance(list_value_descriptions, dict)
+        assert isinstance(key_location_str, str)
+        assert isinstance(value_descriptions, dict)
+
         self.__name = name
-        self.__list_key_location = list_key_location  # type: List[str]
+        self.__list_key_location_str = list_key_location_str
         self.__list_value_descriptions = list_value_descriptions  # type: Dict[str, str] # cam be empty
-        self.__key_location = key_location  # type: List[str]
+        self.__key_location_str = key_location_str
         self.__value_descriptions = value_descriptions  # type: Dict[str, str]
 
         self.__num_records = 0
@@ -94,7 +107,7 @@ class ValueStatisticList:
 
     def process_record(self, record):
         self.__num_records += 1
-        list_key = find_value(self.__list_key_location, record)
+        list_key = find_value(self.__list_key_location_str, record)
 
         list_key_str = 'None'
 
@@ -109,7 +122,7 @@ class ValueStatisticList:
 
         if list_key_str not in self.__value_statistics:
             self.__value_statistics[list_key_str] = ValueStatistic(self.__name+': \''+list_key_str+'\'',
-                                                                   self.__key_location,
+                                                                   self.__key_location_str,
                                                                    self.__value_descriptions)
 
         self.__value_statistics[list_key_str].process_record(record)

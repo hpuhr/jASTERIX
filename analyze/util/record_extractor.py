@@ -5,6 +5,7 @@ class RecordExtractor:
         self.__framing = framing
         self.__callback = callback
         self.__record_filter = record_filter
+        self.num_records = 0
         self.num_filtered = 0
 
     def find_records(self, json_data):
@@ -50,6 +51,8 @@ class RecordExtractor:
                     records = content['records']
 
                     for record in records:
+                        self.num_records += 1
+
                         if self.__record_filter is not None:
                             if not self.__record_filter(cat, record):
                                 self.__callback(cat, record)
@@ -84,6 +87,8 @@ class RecordExtractor:
                 records = content['records']
 
                 for record in records:
+                    self.num_records += 1
+
                     if self.__record_filter is not None:
                         if not self.__record_filter(cat, record):
                             self.__callback(cat, record)

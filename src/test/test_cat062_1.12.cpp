@@ -591,21 +591,21 @@ void test_cat062_callback (std::unique_ptr<nlohmann::json> json_data, size_t num
     //    ;   SSR MDS
     loginf << "cat062 1.12 test: 080" << logendl;
     // 00001101
-    REQUIRE (record.at("080").at("MON") == 0);
+    REQUIRE (record.at("080").at("MON") == 0); // MUL
     REQUIRE (record.at("080").at("SPI") == 0);
-    REQUIRE (record.at("080").at("MRH") == 0);
+    REQUIRE (record.at("080").at("MRH") == 0); // MRH
     REQUIRE (record.at("080").at("SRC") == 3);
-    REQUIRE (record.at("080").at("CNF") == 0);
+    REQUIRE (record.at("080").at("CNF") == 0); // CNF
     REQUIRE (record.at("080").at("FX") == 1);
 
     // 00010011
     REQUIRE (record.at("080").at("SIM") == 0);
     REQUIRE (record.at("080").at("TSE") == 0);
     REQUIRE (record.at("080").at("TSB") == 0);
-    REQUIRE (record.at("080").at("FPC") == 1);
+    REQUIRE (record.at("080").at("FPC") == 1); // FPC
     REQUIRE (record.at("080").at("AFF") == 0);
     REQUIRE (record.at("080").at("STP") == 0);
-    REQUIRE (record.at("080").at("KOS") == 1);
+    REQUIRE (record.at("080").at("KOS") == 1); // COS
     REQUIRE (record.at("080").at("FX2") == 1);
 
     // 00000001
@@ -617,10 +617,11 @@ void test_cat062_callback (std::unique_ptr<nlohmann::json> json_data, size_t num
     REQUIRE (record.at("080").at("FX3") == 1);
 
     // 01001000
+    // PSR, SSR, MDS, ADS listed if 0
     REQUIRE (record.at("080").at("CST") == 0);
     REQUIRE (record.at("080").at("PSR") == 1);
-    REQUIRE (record.at("080").at("SSR") == 0);
-    REQUIRE (record.at("080").at("MDS") == 0); //TODO ????
+    REQUIRE (record.at("080").at("SSR") == 0); // SSR
+    REQUIRE (record.at("080").at("MDS") == 0); // MDS
     REQUIRE (record.at("080").at("ADS") == 1);
     REQUIRE (record.at("080").at("SUC") == 0);
     REQUIRE (record.at("080").at("AAC") == 0);
