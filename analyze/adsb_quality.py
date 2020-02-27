@@ -17,19 +17,20 @@ class ADSBQualityStatisticsCalculator:
 
         # (VNS) : Version Not Supported
         self.__value_statistics.append(ValueStatistic('MOPS Version is supported by the GS',
-                                                      ["210", "VNS"],
+                                                      "210.VNS",
                                                       {"0": "MOPS Version is supported by the GS",
                                                        "1": "MOPS Version is not supported by the GS"}))
 
         # (VN) : Version Number
-        mops_vn_key = ["210", "VN"]
+        mops_vn_key_str = "210.VN"
         mops_vn_value_descriptions = {"0": "ED102/DO-260",
                                       "1": "DO-260A",
                                       "2": "ED102A/DO-260B"}
-        self.__value_statistics.append(ValueStatistic('MOPS Version Number', mops_vn_key, mops_vn_value_descriptions))
+        self.__value_statistics.append(ValueStatistic('MOPS Version Number',
+                                                      mops_vn_key_str, mops_vn_value_descriptions))
 
         # Emitter Category
-        ecat_key = ["020", "ECAT"]
+        ecat_key_str = "020.ECAT"
         ecat_value_descriptions = {"0": "No ADS-B Emitter Category Information",
                                    "1": "light aircraft <= 15500 lbs",
                                    "2": "15500 lbs < small aircraft <75000 lbs",
@@ -56,9 +57,9 @@ class ADSBQualityStatisticsCalculator:
                                    "23": "cluster obstacle",
                                    "24": "line obstacle"}
 
-        self.__value_statistics.append(ValueStatistic('Emitter Category', ecat_key, ecat_value_descriptions))
+        self.__value_statistics.append(ValueStatistic('Emitter Category', ecat_key_str, ecat_value_descriptions))
 
-        nacp_key = ["090", "NACp"]
+        nacp_key_str = "090.NACp"
         nacp_value_descriptions = {"11": "EPU < 3 m, VEPU < 4 m",
                                    "10": "EPU < 10 m, VEPU < 15 m",
                                    "9": "EPU < 30 m, VEPU < 45 m",
@@ -73,19 +74,19 @@ class ADSBQualityStatisticsCalculator:
                                    "0": "EPU > 10 NM or Unknown"}
 
         self.__value_statistics.append(ValueStatistic('Navigation Accuracy Category - Position',
-                                                      nacp_key, nacp_value_descriptions))
+                                                      nacp_key_str, nacp_value_descriptions))
 
         self.__value_statistics_lists = []  # type: List[ValueStatisticList]
         self.__value_statistics_lists.append(ValueStatisticList("MOPS Version for ECAT",
-                                                                ecat_key, ecat_value_descriptions,
-                                                                mops_vn_key, mops_vn_value_descriptions))
+                                                                ecat_key_str, ecat_value_descriptions,
+                                                                mops_vn_key_str, mops_vn_value_descriptions))
 
         self.__value_statistics_lists.append(ValueStatisticList("NACp for ECAT",
-                                                                ecat_key, ecat_value_descriptions,
-                                                                nacp_key, nacp_value_descriptions))
+                                                                ecat_key_str, ecat_value_descriptions,
+                                                                nacp_key_str, nacp_value_descriptions))
 
         #self.__value_statistics_lists.append(ValueStatisticList("NACp for Mode S Address",
-        #                                                        ["080", "Target Address"], [],
+        #                                                        "080.Target Address", [],
         #                                                        nacp_key, nacp_value_descriptions))
 
 

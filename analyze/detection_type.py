@@ -71,20 +71,20 @@ class TrackStatisticsCalculator:
 
     def get_detection_type(self, record):
 
-        if find_value(["080", "CST"], record) == 1:
+        if find_value("080.CST", record) == 1:
             return 0  # no detection
 
-        psr_updated = find_value(["080", "PSR"], record) == 0
-        ssr_updated = find_value(["080", "SSR"], record) == 0
-        mds_updated = find_value(["080", "MDS"], record) == 0
-        ads_updated = find_value(["080", "ADS"], record) == 0
+        psr_updated = find_value("080.PSR", record) == 0
+        ssr_updated = find_value("080.SSR", record) == 0
+        mds_updated = find_value("080.MDS", record) == 0
+        ads_updated = find_value("080.ADS", record) == 0
 
         if not mds_updated:
             if psr_updated and not ssr_updated:
 
-                if find_value(["290", "MLT", "Age"], record) is not None:
+                if find_value("290.MLT.Age", record) is not None:
                     # age not 63.75
-                    mlat_age = find_value(["290", "MLT", "Age"], record)
+                    mlat_age = find_value("290.MLT.Age", record)
 
                     if mlat_age <= 12.0:
                         return 3
@@ -103,11 +103,11 @@ class TrackStatisticsCalculator:
             else:
                 return 7  # cmb, mode-s
 
-        if find_value(["380", "ADR", "Target Address"], record) is not None:
+        if find_value("380.ADR.Target Address", record) is not None:
             return 5
 
-        if find_value(["060", "Mode-3/A reply"], record) is not None \
-                or find_value(["136", "Measured Flight Level"], record) is not None:
+        if find_value("060.Mode-3/A reply", record) is not None \
+                or find_value("136.Measured Flight Level", record) is not None:
             return 2
 
         return 0  # unknown
@@ -121,10 +121,10 @@ class TrackStatisticsCalculator:
         if sdl_detection_type == 1:
             self.__num_psr_records += 1
 
-        tod = find_value(["070", "Time Of Track Information"], record)
+        tod = find_value("070.Time Of Track Information", record)
         assert tod is not None
 
-        track_num = find_value(["040", "Track Number"], record)
+        track_num = find_value("040.Track Number", record)
         assert track_num is not None
 
         db_rec_num, db_tod, db_track_num, db_detection_type = self._mycursor.fetchone()
@@ -142,13 +142,13 @@ class TrackStatisticsCalculator:
 
             print('\tdifference det {} verif {} ages PSR {} SSR {} MDS {} MLT {} ADS {} MA {} MF {}'.format(
                 sdl_detection_type, db_detection_type,
-                find_value(["290", "PSR", "Age"], record),
-                find_value(["290", "SSR", "Age"], record),
-                find_value(["290", "MDS", "Age"], record),
-                find_value(["290", "MLT", "Age"], record),
-                find_value(["290", "ADS", "Age"], record),
-                find_value(["295", "MDA", "Age"], record),
-                find_value(["295", "MFL", "Age"], record)
+                find_value("290.PSR.Age", record),
+                find_value("290.SSR.Age", record),
+                find_value("290.MDS.Age", record),
+                find_value("290.MLT.Age", record),
+                find_value("290.ADS.Age", record),
+                find_value("295.MDA.Age", record),
+                find_value("295.MFL.Age", record)
             ))
 
             #print('rec_num {} det {} ({})  v7_det {} ({}) json \'{}\''.format(
