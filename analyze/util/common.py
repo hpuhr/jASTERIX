@@ -1,5 +1,6 @@
 from typing import List, Dict
 
+
 def find_value(key_location_str, json_data):
 
     assert isinstance(key_location_str, str)
@@ -13,6 +14,37 @@ def find_value(key_location_str, json_data):
             continue
 
     return current_json
+
+
+def get_as_verif_flag(key_str, record, invert):
+
+    value = find_value(key_str, record)
+
+    if value is None:
+        return None
+
+    if invert:
+        if value == 0:
+            return 'Y'
+        else:
+            return 'N'
+    else:
+        if value == 1:
+            return 'Y'
+        else:
+            return 'N'
+
+
+def oct_to_dec (value):
+    if value is None:
+        return None
+    return int(str(value), 8)
+
+
+def multiply(value, factor):
+    if value is None:
+        return None
+    return value * factor
 
 
 class ValueStatistic:

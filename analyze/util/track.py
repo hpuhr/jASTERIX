@@ -43,25 +43,3 @@ def get_detection_type(record):
     return 0  # unknown
 
 
-def get_as_verif_flag(key_str, record, invert):
-
-    value = find_value(key_str, record)
-    if invert:
-        # None if find_value("340.MDC.V", record) is None else ('N' if find_value("340.MDC.V", record) == 1 else 'Y')
-        if value is None:
-            return None
-
-        if value == 0:
-            return 'Y'
-        else:
-            return 'N'
-
-    else:
-        # None if find_value("340.MDC.G", record) is None else ('Y' if find_value("340.MDC.G", record) == 1 else 'N')
-        if value is None:
-            return None
-
-        if value == 1:
-            return 'Y'
-        else:
-            return 'N'

@@ -7,7 +7,7 @@ from typing import Dict
 import argparse
 
 from util.record_extractor import RecordExtractor
-from util.common import find_value
+from util.common import *
 import util.track
 
 class TrackStatisticsCalculator:
@@ -28,14 +28,55 @@ class TrackStatisticsCalculator:
         #ds_id different
         #groundspeed_kt TODO
         #heading_deg TODO
-        self._check_getters["tod"] = lambda record: float(find_value("070.Time Of Track Information", record))*128.0
-        self._check_getters["track_num"] = lambda record: find_value("040.Track Number", record)
         self._check_getters["lm_alt_baro_ft"] = lambda record: find_value("340.MDC.Last Measured Mode C Code", record)
-        self._check_getters["lm_alt_baro_g"] = lambda record: util.track.get_as_verif_flag("340.MDC.G", record, False)
-        self._check_getters["lm_alt_baro_v"] = lambda record: util.track.get_as_verif_flag("340.MDC.V", record, True)
+        self._check_getters["lm_alt_baro_g"] = lambda record: get_as_verif_flag("340.MDC.G", record, False)
+        self._check_getters["lm_alt_baro_v"] = lambda record: get_as_verif_flag("340.MDC.V", record, True)
+
+        self._check_getters["lm_mode3a_code"] = lambda record: oct_to_dec(find_value("340.MDA.Mode-3/A reply", record))
+        self._check_getters["lm_mode3a_g"] = lambda record: get_as_verif_flag("340.MDA.G", record, False)
+        self._check_getters["lm_mode3a_s"] = lambda record: get_as_verif_flag("340.MDA.L", record, False)
+        self._check_getters["lm_mode3a_v"] = lambda record: get_as_verif_flag("340.MDA.V", record, True)
+
+        self._check_getters["measured_mode3a_age_s"] = lambda record: find_value("295.MDA.Age", record)
+
+        self._check_getters["mil_emergency"] = lambda record: get_as_verif_flag("080.ME", record, False)
+
+        self._check_getters["mode3a_code"] = lambda record: oct_to_dec(find_value("060.Mode-3/A reply", record))
+        # mode3a_g not in cat?
+        # mode3a_v not in cat?
+
+        self._check_getters["modec_age"] = lambda record: find_value("295.MFL.Age", record)
+        self._check_getters["modec_code_ft"] = lambda record: multiply(find_value("136.Measured Flight Level", record), 100.0)
+
+        self._check_getters["mof_long"] = lambda record: find_value("200.LONG", record)
+        self._check_getters["mof_trans"] = lambda record: find_value("200.TRANS", record)
+        self._check_getters["mof_vert"] = lambda record: find_value("200.VERT", record)
+
+        self._check_getters["multiple_sources"] = lambda record: get_as_verif_flag("080.MON", record, True)
+
+        self._check_getters["pos_lat_deg"] = lambda record: find_value("105.Latitude", record)
+        self._check_getters["pos_long_deg"] = lambda record: find_value("105.Longitude", record)
+
+        self._check_getters["report_type"] = lambda record: find_value("340.TYP.TYP", record)
+        self._check_getters["sac"] = lambda record: find_value("010.SAC", record)
+        self._check_getters["sic"] = lambda record: find_value("010.SIC", record)
+
+        self._check_getters["simulated_target"] = lambda record: get_as_verif_flag("080.SIM", record, False)
+        self._check_getters["spi"] = lambda record: get_as_verif_flag("080.SPI", record, False)
+        self._check_getters["target_addr"] = lambda record: find_value("380.ADR.Target Address", record)
+        self._check_getters["tod"] = lambda record: multiply(find_value("070.Time Of Track Information", record), 128.0)
+
+        self._check_getters["track_amalgamated"] = lambda record: get_as_verif_flag("080.AMA", record, False)
+        self._check_getters["track_coasted"] = lambda record: get_as_verif_flag("080.CST", record, False)
+        self._check_getters["track_confirmed"] = lambda record: get_as_verif_flag("080.CNF", record, True)
+        self._check_getters["track_created"] = lambda record: get_as_verif_flag("080.TSB", record, False)
+        self._check_getters["track_end"] = lambda record: get_as_verif_flag("080.TSE", record, False)
+
+        self._check_getters["track_num"] = lambda record: find_value("040.Track Number", record)
+
 
         self._check_counts = {}
-        selected_variables = ','.join(self._check_getters.keys())
+        selected_variables = 'rec_num,'+','.join(self._check_getters.keys())
 
         for var_name, get_lambda in self._check_getters.items():
             self._check_counts[var_name] = [0, 0] # passed, failed
@@ -58,16 +99,24 @@ class TrackStatisticsCalculator:
 
         any_check_failed = False
 
+        rec_num = row["rec_num"]
+
         for var_name, get_lambda in self._check_getters.items():
             record_value = get_lambda(record)
             db_value = row[var_name]
 
             if record_value != db_value:  # failed
-                print('record {} variable {} difference value record {} db {}'.format(
-                    self.__num_records, var_name, record_value, db_value))
+                self._check_counts[var_name][1] += 1
+
+                if self._check_counts[var_name][1] < 10:
+                    print('record {} rec_num {} variable {} difference value record {} db {}'.format(
+                        self.__num_records, rec_num, var_name, record_value, db_value))
+
+                    if self._check_counts[var_name][1] == 9:
+                        print('further variable {} differences will be omitted'.format(var_name))
+
                 any_check_failed = True
 
-                self._check_counts[var_name][1] += 1
             else:  # passed
                 self._check_counts[var_name][0] += 1
 
@@ -82,7 +131,16 @@ class TrackStatisticsCalculator:
         print('diff cnt sum {}'.format(self._diff_cnt_sum))
 
         for var_name, counts in self._check_counts.items():
-            print('variable {} checks passed {} failed {}'.format(var_name, counts[0], counts[1]))
+            count_sum = counts[0] + counts[1]
+            if count_sum:
+                if counts[1]:  # some have failed
+                    print('variable \'{0}\': checks passed {1} ({2:.3f}%) failed {3} ({4:.3f}%)'.format(
+                        var_name, counts[0], 100.0*counts[0]/count_sum, counts[1], 100.0*counts[1]/count_sum))
+                else:
+                    print('variable \'{}\': {} checks passed'.format(var_name, counts[0]))
+
+            else:
+                print('variable \'{}\': no data')
 
 
 # filter functions return True if record should be skipped
