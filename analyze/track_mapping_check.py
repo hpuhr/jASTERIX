@@ -20,7 +20,27 @@ class TrackStatisticsCalculator:
         self._mysql_wrapper = mysql_wrapper  # can be None
         assert self._mysql_wrapper is not None
 
-        self._mysql_wrapper.prepare_read('*', 'sd_track')
+        self._check_getters = {}
+        #self._check_getters["alt_baro_more_reliable"] = lambda record: find_value("080.MRH", record) # not set in db?
+        self._check_getters["calc_alt_geo_ft"] = lambda record: find_value("130.Altitude", record)
+        self._check_getters["calc_vertical_rate_ftm"] = lambda record: find_value("220.Rate of Climb/Descent", record)
+        self._check_getters["callsign"] = lambda record: find_value("380.ID.Target Identification", record)
+        #ds_id different
+        #groundspeed_kt TODO
+        #heading_deg TODO
+        self._check_getters["tod"] = lambda record: float(find_value("070.Time Of Track Information", record))*128.0
+        self._check_getters["track_num"] = lambda record: find_value("040.Track Number", record)
+        self._check_getters["lm_alt_baro_ft"] = lambda record: find_value("340.MDC.Last Measured Mode C Code", record)
+        self._check_getters["lm_alt_baro_g"] = lambda record: util.track.get_as_verif_flag("340.MDC.G", record, False)
+        self._check_getters["lm_alt_baro_v"] = lambda record: util.track.get_as_verif_flag("340.MDC.V", record, True)
+
+        self._check_counts = {}
+        selected_variables = ','.join(self._check_getters.keys())
+
+        for var_name, get_lambda in self._check_getters.items():
+            self._check_counts[var_name] = [0, 0] # passed, failed
+
+        self._mysql_wrapper.prepare_read(selected_variables, 'sd_track')
 
     @property
     def num_records(self):
@@ -34,22 +54,25 @@ class TrackStatisticsCalculator:
 
         self.__num_records += 1
 
-        tod = find_value("070.Time Of Track Information", record)
-        assert tod is not None
-
-        track_num = find_value("040.Track Number", record)
-        assert track_num is not None
-
         row = self._mysql_wrapper.fetch_one()
 
-        db_rec_num = row['rec_num']
-        db_tod = row['tod']
-        db_track_num = row['track_num']
-        db_detection_type = row['detection_type']
-        db_tod /= 128.0
+        any_check_failed = False
 
-        assert tod == db_tod
-        assert track_num == db_track_num
+        for var_name, get_lambda in self._check_getters.items():
+            record_value = get_lambda(record)
+            db_value = row[var_name]
+
+            if record_value != db_value:  # failed
+                print('record {} variable {} difference value record {} db {}'.format(
+                    self.__num_records, var_name, record_value, db_value))
+                any_check_failed = True
+
+                self._check_counts[var_name][1] += 1
+            else:  # passed
+                self._check_counts[var_name][0] += 1
+
+        if any_check_failed:
+            self._diff_cnt_sum += 1
 
     def print(self):
         print('num cat062 records {}'.format(self.__num_records))
@@ -57,6 +80,9 @@ class TrackStatisticsCalculator:
         print('rec num cnt {}'.format(self._rec_num_cnt))
 
         print('diff cnt sum {}'.format(self._diff_cnt_sum))
+
+        for var_name, counts in self._check_counts.items():
+            print('variable {} checks passed {} failed {}'.format(var_name, counts[0], counts[1]))
 
 
 # filter functions return True if record should be skipped
