@@ -109,11 +109,11 @@ class TrackStatisticsCalculator:
                 self._check_counts[var_name][1] += 1
 
                 if self._check_counts[var_name][1] < 10:
-                    print('record {} rec_num {} variable {} difference value record {} db {}'.format(
+                    print('\trecord {} rec_num {} variable \'{}\' difference value record {} db {}'.format(
                         self.__num_records, rec_num, var_name, record_value, db_value))
 
                     if self._check_counts[var_name][1] == 9:
-                        print('further variable {} differences will be omitted'.format(var_name))
+                        print('\tfurther variable \'{}\' differences will be omitted'.format(var_name))
 
                 any_check_failed = True
 
@@ -192,7 +192,7 @@ def main(argv):
         num_blocks += 1
 
         end_time = time.time()
-        print('blocks {0} time {1:.2f}s unfiltered records {2} filtered {3} rate {4} rec/s diff det {5}'.format(
+        print('blocks {0} time {1:.2f}s unfiltered records {2} filtered {3} rate {4} rec/s diff {5}'.format(
             num_blocks, end_time-start_time, statistics_calc.num_records, record_extractor.num_filtered,
             int(record_extractor.num_records/(end_time-start_time)), statistics_calc.diff_cnt_sum))
 
