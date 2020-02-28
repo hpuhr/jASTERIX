@@ -8,7 +8,7 @@ import argparse
 
 from util.record_extractor import RecordExtractor
 from util.common import *
-import util.track
+from util.track import *
 
 class TrackStatisticsCalculator:
     def __init__(self, mysql_wrapper):
@@ -20,23 +20,35 @@ class TrackStatisticsCalculator:
         self._mysql_wrapper = mysql_wrapper  # can be None
         assert self._mysql_wrapper is not None
 
+        self._check_accuracy = {}
+
         self._check_getters = {}
         #self._check_getters["alt_baro_more_reliable"] = lambda record: find_value("080.MRH", record) # not set in db?
         self._check_getters["calc_alt_geo_ft"] = lambda record: find_value("130.Altitude", record)
         self._check_getters["calc_vertical_rate_ftm"] = lambda record: find_value("220.Rate of Climb/Descent", record)
         self._check_getters["callsign"] = lambda record: find_value("380.ID.Target Identification", record)
+        self._check_getters["cat"] = lambda record: 62
+        self._check_getters["civil_emergency"] = lambda record: find_value("080.EMS", record)
+        self._check_getters["detection_type"] = lambda record: get_detection_type(record)
         #ds_id different
-        #groundspeed_kt TODO
-        #heading_deg TODO
+        self._check_getters["fpl_callsign"] = lambda record: find_value("390.CSN.Callsign", record)
+        self._check_getters["groundspeed_kt"] = lambda record: get_speed(record)
+        self._check_accuracy["groundspeed_kt"] = 10e-2 # weird that so different
+        self._check_getters["heading_deg"] = lambda record: get_track_angle(record)
+        self._check_accuracy["heading_deg"] = 10e-2
+
         self._check_getters["lm_alt_baro_ft"] = lambda record: find_value("340.MDC.Last Measured Mode C Code", record)
         self._check_getters["lm_alt_baro_g"] = lambda record: get_as_verif_flag("340.MDC.G", record, False)
         self._check_getters["lm_alt_baro_v"] = lambda record: get_as_verif_flag("340.MDC.V", record, True)
+        self._check_getters["lm_alt_geo_ft"] = lambda record: find_value("380.GAL.Geometric Altitude", record)
 
         self._check_getters["lm_mode3a_code"] = lambda record: oct_to_dec(find_value("340.MDA.Mode-3/A reply", record))
         self._check_getters["lm_mode3a_g"] = lambda record: get_as_verif_flag("340.MDA.G", record, False)
         self._check_getters["lm_mode3a_s"] = lambda record: get_as_verif_flag("340.MDA.L", record, False)
         self._check_getters["lm_mode3a_v"] = lambda record: get_as_verif_flag("340.MDA.V", record, True)
 
+        self._check_getters["measured_alt_baro_age_s"] = lambda record: find_value("295.MDA.Age", record)
+        self._check_getters["measured_alt_baro_ft"] = lambda record: find_value("136.Measured Flight Level", record) # not feet but FL
         self._check_getters["measured_mode3a_age_s"] = lambda record: find_value("295.MDA.Age", record)
 
         self._check_getters["mil_emergency"] = lambda record: get_as_verif_flag("080.ME", record, False)
@@ -54,10 +66,22 @@ class TrackStatisticsCalculator:
 
         self._check_getters["multiple_sources"] = lambda record: get_as_verif_flag("080.MON", record, True)
 
-        self._check_getters["pos_lat_deg"] = lambda record: find_value("105.Latitude", record)
-        self._check_getters["pos_long_deg"] = lambda record: find_value("105.Longitude", record)
+        self._check_getters["pos_local_x_nm"] = lambda record: multiply(find_value("100.X", record), M2NM)
+        self._check_accuracy["pos_local_x_nm"] = 10e-9
+        self._check_getters["pos_local_y_nm"] = lambda record: multiply(find_value("100.Y", record), M2NM)
+        self._check_accuracy["pos_local_y_nm"] = 10e-9
 
-        self._check_getters["report_type"] = lambda record: find_value("340.TYP.TYP", record)
+        self._check_getters["pos_sys_x_nm"] = lambda record: multiply(find_value("100.X", record), M2NM)
+        self._check_accuracy["pos_sys_x_nm"] = 10e-9
+        self._check_getters["pos_sys_y_nm"] = lambda record: multiply(find_value("100.Y", record), M2NM)
+        self._check_accuracy["pos_sys_y_nm"] = 10e-9
+
+        self._check_getters["pos_lat_deg"] = lambda record: find_value("105.Latitude", record)
+        self._check_accuracy["pos_lat_deg"] = 10e-9
+        self._check_getters["pos_long_deg"] = lambda record: find_value("105.Longitude", record)
+        self._check_accuracy["pos_long_deg"] = 10e-9
+
+        self._check_getters["report_type"] = lambda record: 2
         self._check_getters["sac"] = lambda record: find_value("010.SAC", record)
         self._check_getters["sic"] = lambda record: find_value("010.SIC", record)
 
@@ -74,8 +98,9 @@ class TrackStatisticsCalculator:
 
         self._check_getters["track_num"] = lambda record: find_value("040.Track Number", record)
 
-
         self._check_counts = {}
+        self._check_differences = {}
+
         selected_variables = 'rec_num,'+','.join(self._check_getters.keys())
 
         for var_name, get_lambda in self._check_getters.items():
@@ -105,15 +130,19 @@ class TrackStatisticsCalculator:
             record_value = get_lambda(record)
             db_value = row[var_name]
 
-            if record_value != db_value:  # failed
+            if record_value is not None and db_value is not None and var_name in self._check_accuracy:
+                check = math.fabs(record_value-db_value) < self._check_accuracy[var_name]
+            else:
+                check = record_value == db_value
+
+            if not check:  # failed
                 self._check_counts[var_name][1] += 1
 
-                if self._check_counts[var_name][1] < 10:
-                    print('\trecord {} rec_num {} variable \'{}\' difference value record {} db {}'.format(
-                        self.__num_records, rec_num, var_name, record_value, db_value))
+                if var_name not in self._check_differences:
+                    self._check_differences[var_name] = []
 
-                    if self._check_counts[var_name][1] == 9:
-                        print('\tfurther variable \'{}\' differences will be omitted'.format(var_name))
+                if len(self._check_differences[var_name]) < 10:
+                    self._check_differences[var_name].append('value record {} db {}'.format(record_value, db_value))
 
                 any_check_failed = True
 
@@ -136,6 +165,11 @@ class TrackStatisticsCalculator:
                 if counts[1]:  # some have failed
                     print('variable \'{0}\': checks passed {1} ({2:.3f}%) failed {3} ({4:.3f}%)'.format(
                         var_name, counts[0], 100.0*counts[0]/count_sum, counts[1], 100.0*counts[1]/count_sum))
+
+                    assert var_name in self._check_differences
+
+                    for msg in self._check_differences[var_name]:
+                        print('\t'+msg)
                 else:
                     print('variable \'{}\': {} checks passed'.format(var_name, counts[0]))
 
