@@ -83,12 +83,18 @@ class TrackStatisticsCalculator:
 
         self._check_getters["report_type"] = lambda record: 2
         self._check_getters["sac"] = lambda record: find_value("010.SAC", record)
+        self._check_getters["selected_alt_baro_ft"] = lambda record: find_value("380.SAL.Selected Altitude", record)
+        self._check_accuracy["selected_alt_baro_ft"] = 10e-9
+
         self._check_getters["sic"] = lambda record: find_value("010.SIC", record)
 
         self._check_getters["simulated_target"] = lambda record: get_as_verif_flag("080.SIM", record, False)
         self._check_getters["spi"] = lambda record: get_as_verif_flag("080.SPI", record, False)
         self._check_getters["target_addr"] = lambda record: find_value("380.ADR.Target Address", record)
         self._check_getters["tod"] = lambda record: multiply(find_value("070.Time Of Track Information", record), 128.0)
+
+        self._check_getters["tracked_alt_baro_ft"] = lambda record: find_value("135.Calculated Track Barometric Altitude", record)
+        self._check_getters["tracked_mode3a_code"] = lambda record: oct_to_dec(find_value("60.Mode 3/A reply", record))
 
         self._check_getters["track_amalgamated"] = lambda record: get_as_verif_flag("080.AMA", record, False)
         self._check_getters["track_coasted"] = lambda record: get_as_verif_flag("080.CST", record, False)
@@ -97,6 +103,9 @@ class TrackStatisticsCalculator:
         self._check_getters["track_end"] = lambda record: get_as_verif_flag("080.TSE", record, False)
 
         self._check_getters["track_num"] = lambda record: find_value("040.Track Number", record)
+
+        self._check_getters["track_psr_age"] = lambda record: find_value("290.PSR.Age", record)
+        self._check_getters["turnrate_degps"] = lambda record: find_value("380.TAR.Track Angle Rate", record)
 
         self._check_counts = {}
         self._check_differences = {}
