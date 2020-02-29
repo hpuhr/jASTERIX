@@ -38,7 +38,7 @@ Currently supported ASTERIX categories & editions, reserved expansion fields and
 |  023|             1.2|     |           |
 |  034|            1.26|     |           |
 |  048|            1.15|     |           |
-|  062|      1.12, 1.16|     | ARTAS TRIs|
+|  062|1.12, 1.16, 1.18|  1.2| ARTAS TRIs|
 |  063|             1.0|     |           |
 |  063|             1.1|     |           |
 |  065|        1.2, 1.3|     |           |
