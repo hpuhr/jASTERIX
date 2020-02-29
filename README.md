@@ -107,12 +107,12 @@ INFO    : Allowed options:
   --definition_path arg    path to jASTERIX definition files
   --framing arg            input framine format, as specified in the framing 
                            definitions. raw/netto is default
-  --frame_limit arg        number of frames to process, default -1, use -1 to 
-                           disable.
+  --frame_limit arg        number of frames to process with framing, default 
+                           -1, use -1 to disable.
   --frame_chunk_size arg   number of frames to process in one chunk, default 
                            1000, use -1 to disable.
-  --data_block_limit arg   number of data blocks to process, default -1, use -1
-                           to disable.
+  --data_block_limit arg   number of data blocks to process without framing, 
+                           default -1, use -1 to disable.
   --data_write_size arg    number of frame chunks to write in one file write, 
                            default 100, use -1 to disable.
   --debug                  print debug output
