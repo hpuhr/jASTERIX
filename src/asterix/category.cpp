@@ -89,7 +89,7 @@ Category::Category(const std::string& number, const nlohmann::json& definition, 
                     std::make_shared<REFEdition> (ed_def_it.key(), ed_def_it.value(), definition_path);
         }
 
-        if (ref_editions_.count(default_ref_edition_) != 1)
+        if (default_ref_edition_.size() && ref_editions_.count(default_ref_edition_) != 1)
             throw invalid_argument ("category '"+number_+"' default REF edition '"+default_ref_edition_
                                     +"' not defined");
     }

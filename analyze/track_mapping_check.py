@@ -57,8 +57,8 @@ class TrackStatisticsCalculator:
         self._check_getters["mil_emergency"] = lambda record: get_as_verif_flag("080.ME", record, False)
 
         self._check_getters["mode3a_code"] = lambda record: oct_to_dec(find_value("060.Mode-3/A reply", record))
-        # mode3a_g not in cat?
-        # mode3a_v not in cat?
+        self._check_getters["mode3a_g"] = lambda record: get_as_verif_flag("060.G", record, False)
+        self._check_getters["mode3a_v"] = lambda record: get_as_verif_flag("060.V", record, True)
 
         self._check_getters["modec_age"] = lambda record: find_value("295.MFL.Age", record)
         self._check_getters["modec_code_ft"] = lambda record: multiply(find_value("136.Measured Flight Level", record), 100.0)
