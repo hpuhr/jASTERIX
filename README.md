@@ -119,6 +119,7 @@ INFO    : Allowed options:
   --debug_include_framing  print debug output including framing, debug still 
                            has to be set, disable per default
   --single_thread          process data in single thread
+  --only_cats arg          restricts categories to be decoded, e.g. 20,21.
   --log_perf               enable performance log after processing
   --add_artas_md5          add ARTAS MD5 hashes
   --check_artas_md5 arg    add and check ARTAS MD5 hashes (with record data), 
@@ -130,6 +131,15 @@ INFO    : Allowed options:
                            write_filename.
   --write_filename arg     optional write filename, e.g. test.zip.
 ```
+### Decoding Test & Performance
+
+To test decode and measure performance, use:
+```
+./jASTERIX_client-x86_64.AppImage --definition_path definitions/ --filename example.ff --framing ioss --log_perf
+INFO    : jASTERIX client: decoded 674150 frames, 1073956 records in 0h 0m 8s 936ms: 75442 fr/s, 120183 rec/s
+```
+
+Performance depends on the used hardware, frame_chunk_size and ASTERIX data content. On the author's workstation (Intel i7 4790k) the performance varies between 50k-150k rec/s.
 
 ### Decode & Print
 
@@ -399,7 +409,7 @@ To analyze the data items in a recording, start the jASTERIX decoder and pipe th
 
 The following example analyzes the CAT048 content in the first 100000 frames:
 ```
-./jASTERIX_Client-x86_64.AppImage --definition_path definitions/ --filename example.ff --framing ioss --print --print_indent -1 --frame_limit 100000 | python3 analyze/data_items.py --framing True --cats 48
+./jASTERIX_Client-x86_64.AppImage --definition_path definitions/ --filename example.ff --framing ioss --print --print_indent -1 --only_cats 48 --frame_limit 100000 | python3 analyze/data_items.py --framing True
 framing True
 cats [48]
 blocks 1 time 0.28s records 73 filtered 652 rate 2601 rec/s

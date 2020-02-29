@@ -21,32 +21,32 @@ class RecordExtractor:
 
                 if 'content' not in frame:
                     print("warn: no content in data_block")
-                    return
+                    continue
 
                 frame_content = frame['content']
 
                 if 'data_blocks' not in frame_content:
                     print("warn: no data_blocks in frame_content")
-                    return
+                    continue
 
                 data_blocks = frame_content['data_blocks']
 
                 for data_block in data_blocks:
                     if 'category' not in data_block:
                         print("warn: no category in data_block")
-                        return
+                        continue
 
                     cat = data_block['category']
 
                     if 'content' not in data_block:
                         print("warn: no content in data_block")
-                        return
+                        continue
 
                     content = data_block['content']
 
                     if 'records' not in content:
-                        print("warn: no records in content")
-                        return
+                        # print("warn: no records in content") # happens when filtering
+                        continue
 
                     records = content['records']
 
@@ -70,19 +70,19 @@ class RecordExtractor:
             for data_block in data_blocks:
                 if 'category' not in data_block:
                     print("warn: no category in data_block")
-                    return
+                    continue
 
                 cat = data_block['category']
 
                 if 'content' not in data_block:
                     print("warn: no content in data_block")
-                    return
+                    continue
 
                 content = data_block['content']
 
                 if 'records' not in content:
-                    print("warn: no records in content")
-                    return
+                    # print("warn: no records in content") # happens when filtering
+                    continue
 
                 records = content['records']
 
