@@ -111,7 +111,7 @@ class TrackStatisticsCalculator:
         self._check_getters["turnrate_degps"] = lambda record: find_value("380.TAR.Track Angle Rate", record)
 
         self._check_counts = {}
-        self._check_differences = {}
+        self._check_differences = {}  # type: Dict[str:Dict[str:int]]  # var -> (msg -> cnt)
 
         selected_variables = 'rec_num,'+','.join(self._check_getters.keys())
 
@@ -151,10 +151,14 @@ class TrackStatisticsCalculator:
                 self._check_counts[var_name][1] += 1
 
                 if var_name not in self._check_differences:
-                    self._check_differences[var_name] = []
+                    self._check_differences[var_name] = {}
 
-                if len(self._check_differences[var_name]) < 10:
-                    self._check_differences[var_name].append('value record \'{}\' db \'{}\''.format(record_value, db_value))
+                diff_msg = 'value record \'{}\' db \'{}\''.format(record_value, db_value)
+
+                if diff_msg in self._check_differences[var_name]:
+                    self._check_differences[var_name][diff_msg] += 1
+                elif len(self._check_differences[var_name]) < 10:
+                    self._check_differences[var_name][diff_msg] = 1
 
                 any_check_failed = True
 
@@ -180,8 +184,8 @@ class TrackStatisticsCalculator:
 
                     assert var_name in self._check_differences
 
-                    for msg in self._check_differences[var_name]:
-                        print('\t'+msg)
+                    for msg, cnt in self._check_differences[var_name].items():
+                        print('\t{}: {}'.format(msg, cnt))
                 else:
                     print('variable \'{}\': {} checks passed'.format(var_name, counts[0]))
 
