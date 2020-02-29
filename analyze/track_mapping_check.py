@@ -23,7 +23,10 @@ class TrackStatisticsCalculator:
         self._check_accuracy = {}
 
         self._check_getters = {}
-        #self._check_getters["alt_baro_more_reliable"] = lambda record: find_value("080.MRH", record) # not set in db?
+        self._check_getters["alt_baro_ft"] = lambda record: find_value("135.Calculated Track Barometric Altitude", record)
+        self._check_getters["alt_baro_more_reliable"] = lambda record: invert(find_value("080.MRH", record)) # not set in db?, invert
+
+        self._check_getters["alt_geo_ft"] = lambda record: find_value("130.Altitude", record)
         self._check_getters["calc_alt_geo_ft"] = lambda record: find_value("130.Altitude", record)
         self._check_getters["calc_vertical_rate_ftm"] = lambda record: find_value("220.Rate of Climb/Descent", record)
         self._check_getters["callsign"] = lambda record: find_value("380.ID.Target Identification", record)
@@ -33,9 +36,9 @@ class TrackStatisticsCalculator:
         #ds_id different
         self._check_getters["fpl_callsign"] = lambda record: find_value("390.CSN.Callsign", record)
         self._check_getters["groundspeed_kt"] = lambda record: get_speed(record)
-        self._check_accuracy["groundspeed_kt"] = 10e-2 # weird that so different
+        self._check_accuracy["groundspeed_kt"] = 10e-2  # weird that so different, depends on reference point, not system center
         self._check_getters["heading_deg"] = lambda record: get_track_angle(record)
-        self._check_accuracy["heading_deg"] = 10e-2
+        self._check_accuracy["heading_deg"] = 10e-2  # depends on reference point, not system center
 
         self._check_getters["lm_alt_baro_ft"] = lambda record: find_value("340.MDC.Last Measured Mode C Code", record)
         self._check_getters["lm_alt_baro_g"] = lambda record: get_as_verif_flag("340.MDC.G", record, False)
@@ -151,7 +154,7 @@ class TrackStatisticsCalculator:
                     self._check_differences[var_name] = []
 
                 if len(self._check_differences[var_name]) < 10:
-                    self._check_differences[var_name].append('value record {} db {}'.format(record_value, db_value))
+                    self._check_differences[var_name].append('value record \'{}\' db \'{}\''.format(record_value, db_value))
 
                 any_check_failed = True
 

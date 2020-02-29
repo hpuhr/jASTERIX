@@ -10,6 +10,7 @@ NM2M = 1852.0  # NM to meters
 M2NM = 1.0/1852.0  # meters to NM
 M_S2KNOTS = 3600.0 / 1852.0  # metres per second to knots
 
+
 def get_detection_type(record):
     if find_value("080.CST", record) == 1:
         return 0  # no detection

@@ -16,6 +16,13 @@ def find_value(key_location_str, json_data):
     return current_json
 
 
+def invert(value):
+    if value is None:
+        return None
+
+    return not value
+
+
 def get_as_verif_flag(key_str, record, invert):
 
     value = find_value(key_str, record)
