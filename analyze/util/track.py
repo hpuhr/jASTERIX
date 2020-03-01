@@ -38,20 +38,23 @@ def get_detection_type(record):
         if psr_updated and ssr_updated:
             return 3  # cmb, no mode-s
 
+        # not psr_updated and not ssr_updated:
+        if find_value("380.ADR.Target Address", record) is not None:
+            return 5
+
+        if find_value("060.Mode-3/A reply", record) is not None \
+                or find_value("136.Measured Flight Level", record) is not None:
+            return 2
+
+        return 0  # unknown
+
     else:
         if not psr_updated:
             return 5  # ssr, mode-s
         else:
             return 7  # cmb, mode-s
 
-    if find_value("380.ADR.Target Address", record) is not None:
-        return 5
 
-    if find_value("060.Mode-3/A reply", record) is not None \
-            or find_value("136.Measured Flight Level", record) is not None:
-        return 2
-
-    return 0  # unknown
 
 
 def get_track_angle(record):

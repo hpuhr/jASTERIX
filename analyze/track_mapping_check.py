@@ -50,8 +50,8 @@ class TrackStatisticsCalculator:
         self._check_getters["lm_mode3a_s"] = lambda record: get_as_verif_flag("340.MDA.L", record, False)
         self._check_getters["lm_mode3a_v"] = lambda record: get_as_verif_flag("340.MDA.V", record, True)
 
-        self._check_getters["measured_alt_baro_age_s"] = lambda record: find_value("295.MDA.Age", record)
-        self._check_getters["measured_alt_baro_ft"] = lambda record: find_value("136.Measured Flight Level", record) # not feet but FL
+        self._check_getters["measured_alt_baro_age_s"] = lambda record: find_value("295.MFL.Age", record)
+        self._check_getters["measured_alt_baro_ft"] = lambda record: find_value("136.Measured Flight Level", record) # not feet but FL in db
         self._check_getters["measured_mode3a_age_s"] = lambda record: find_value("295.MDA.Age", record)
 
         self._check_getters["mil_emergency"] = lambda record: get_as_verif_flag("080.ME", record, False)
@@ -86,7 +86,7 @@ class TrackStatisticsCalculator:
 
         self._check_getters["report_type"] = lambda record: 2
         self._check_getters["sac"] = lambda record: find_value("010.SAC", record)
-        self._check_getters["selected_alt_baro_ft"] = lambda record: find_value("380.SAL.Selected Altitude", record)
+        self._check_getters["selected_alt_baro_ft"] = lambda record: find_value("380.SAL.Altitude", record)
         self._check_accuracy["selected_alt_baro_ft"] = 10e-9
 
         self._check_getters["sic"] = lambda record: find_value("010.SIC", record)
@@ -108,7 +108,8 @@ class TrackStatisticsCalculator:
         self._check_getters["track_num"] = lambda record: find_value("040.Track Number", record)
 
         self._check_getters["track_psr_age"] = lambda record: find_value("290.PSR.Age", record)
-        self._check_getters["turnrate_degps"] = lambda record: find_value("380.TAR.Track Angle Rate", record)
+        self._check_getters["turnrate_degps"] = lambda record: find_value("380.TAR.Rate of Turn", record)
+        #self._check_getters["turnrate_degps"] = lambda record: find_value("380.TAR.TI", record)
 
         self._check_counts = {}
         self._check_differences = {}  # type: Dict[str:Dict[str:int]]  # var -> (msg -> cnt)
