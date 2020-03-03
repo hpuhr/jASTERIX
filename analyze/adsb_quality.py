@@ -120,7 +120,7 @@ class ADSBQualityStatisticsCalculator:
 
 def main(argv):
 
-    parser = argparse.ArgumentParser(description='ASTERIX data item analysis')
+    parser = argparse.ArgumentParser(description='ASTERIX CAT021 quality indicators analysis')
     parser.add_argument('--framing', help='Framing True or False', required=True)
 
     args = parser.parse_args()

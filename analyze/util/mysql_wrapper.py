@@ -11,7 +11,7 @@ class MySQLWrapper:
             database=database
         )
 
-        self._mycursor = self._mydb.cursor()
+        self._mycursor = self._mydb.cursor(dictionary=True)
 
         #print ('sd_track columns')
         #self._mycursor.execute("SHOW COLUMNS FROM sd_track")
@@ -19,7 +19,8 @@ class MySQLWrapper:
         #    print(x)
 
         self._mycursor.execute("SELECT count(*) FROM sd_track")
-        self.__num_db_records = self._mycursor.fetchone()[0]
+
+        self.__num_db_records = self._mycursor.fetchone()["count(*)"]
 
         #self._mycursor.execute("SELECT count(*) FROM sd_track WHERE detection_type=1 AND multiple_sources=\"N\"")
         #print ('tmp {}'.format(self._mycursor.fetchone()[0]))
@@ -37,8 +38,8 @@ class MySQLWrapper:
 
     def print_distinct(self, variable, table):
 
-        self._mycursor.execute("SELECT {},COUNT(*) from {} GROUP BY {}".format(variable, table, variable))
+        self._mycursor.execute("SELECT {},count(*) from {} GROUP BY {}".format(variable, table, variable))
 
         print('table {} variable {}, count:'.format(table, variable))
         for x in self._mycursor:
-            print(x)
+            print('{}: {}'.format(x[variable], x["count(*)"]))

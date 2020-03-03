@@ -82,6 +82,7 @@ int main (int argc, char **argv)
     std::string filename;
     std::string framing {""};
     std::string definition_path;
+    std::string only_cats;
     bool debug {false};
     bool debug_include_framing {false};
     bool print {false};
@@ -97,17 +98,18 @@ int main (int argc, char **argv)
         ("framing", po::value<std::string>(&framing), "input framine format, as specified in the framing definitions."
                                                       " raw/netto is default")
         ("frame_limit", po::value<int>(&jASTERIX::frame_limit),
-         "number of frames to process, default -1, use -1 to disable.")
+         "number of frames to process with framing, default -1, use -1 to disable.")
         ("frame_chunk_size", po::value<int>(&jASTERIX::frame_chunk_size),
          "number of frames to process in one chunk, default 1000, use -1 to disable.")
         ("data_block_limit", po::value<int>(&jASTERIX::data_block_limit),
-        "number of data blocks to process, default -1, use -1 to disable.")
+        "number of data blocks to process without framing, default -1, use -1 to disable.")
         ("data_write_size", po::value<int>(&jASTERIX::data_write_size),
          "number of frame chunks to write in one file write, default 100, use -1 to disable.")
         ("debug", po::bool_switch(&debug), "print debug output")
         ("debug_include_framing", po::bool_switch(&debug_include_framing),
          "print debug output including framing, debug still has to be set, disable per default")
         ("single_thread", po::bool_switch(&jASTERIX::single_thread), "process data in single thread")
+        ("only_cats", po::value<std::string>(&only_cats), "restricts categories to be decoded, e.g. 20,21.")
         ("log_perf", po::bool_switch(&log_performance), "enable performance log after processing")
 #if USE_OPENSSL
         ("add_artas_md5", po::bool_switch(&jASTERIX::add_artas_md5_hash), "add ARTAS MD5 hashes")
@@ -196,6 +198,26 @@ int main (int argc, char **argv)
             json_writer = new jASTERIX::JSONWriter(jASTERIX::JSON_ZIP_TEXT, write_filename);
     }
 
+    std::vector<unsigned int> cat_list;
+    if (only_cats.size())
+    {
+        std::vector<std::string> cat_strings;
+        split(only_cats, ',', cat_strings);
+
+        int cat;
+
+        for (auto& cat_it : cat_strings)
+        {
+            cat = std::atoi(cat_it.c_str());
+            if (cat < 1 || cat > 255)
+            {
+                logerr << "jASTERIX client: impossible cat value '" << cat_it << "'" << logendl;
+                return -1;
+            }
+            cat_list.push_back(static_cast<unsigned int>(cat));
+        }
+    }
+
     // check if basic configuration works
     try
     {
@@ -204,6 +226,19 @@ int main (int argc, char **argv)
                    << "' definition_path '" << definition_path << "' debug " << debug << logendl;
 
         jASTERIX::jASTERIX asterix (definition_path, print, debug, !debug_include_framing);
+
+        if (cat_list.size())
+        {
+            asterix.decodeNoCategories();
+
+            for (auto cat_it : cat_list)
+            {
+                asterix.setDecodeCategory(cat_it, true);
+
+                if (debug)
+                    loginf << "jASTERIX client: decoding category " << cat_it << logendl;
+            }
+        }
 
         boost::posix_time::ptime start_time = boost::posix_time::microsec_clock::local_time();
 

@@ -25,6 +25,8 @@
 using namespace std;
 using namespace nlohmann;
 
+//#define debug_ name_=="Last Measured Mode C Code"
+
 namespace jASTERIX
 {
 
@@ -59,7 +61,8 @@ FixedBitsItemParser::FixedBitsItemParser (const nlohmann::json& item_definition,
         lsb_ = item_definition.at("lsb");
     }
 
-    negative_bit_pos_ = start_bit_+bit_length_;
+    if (data_type_ == "int")
+        negative_bit_pos_ = start_bit_+bit_length_-1;
 
     if (data_type_ == "uint" || data_type_ == "int")
     {
@@ -311,7 +314,12 @@ size_t FixedBitsItemParser::parseItem (const char* data, size_t index, size_t si
                 data_int = tmp1;
 
             if (has_lsb_)
+            {
+                loginf << "parsing fixed bits item '" << name_ << "' with start bit " << start_bit_
+                       << " length " << bit_length_ << " value " << (size_t) tmp1 << " parsed " << data_int << logendl;
+
                 target.emplace(name_, lsb_*data_int);
+            }
             else
                 target.emplace(name_, data_int);
         }
@@ -396,17 +404,29 @@ size_t FixedBitsItemParser::parseItem (const char* data, size_t index, size_t si
 
             if (debug)
                 loginf << "parsing fixed bits item '" << name_ << "' with start bit " << start_bit_
-                       << " length " << bit_length_ << " value " << (size_t) tmp4 << logendl;
+                       << " length " << bit_length_ << " value " << (size_t) tmp4
+                       << " neg bit pos " << negative_bit_pos_
+                       << " set " << (tmp4 & (1 << negative_bit_pos_)) << logendl;
 
             int data_int;
 
             if ((tmp4 & (1 << negative_bit_pos_)) != 0)
+            {
+                if (debug)
+                    loginf << "parsing fixed bits item '" << name_ << "' negative bit " << (size_t) tmp4 << logendl;
+
                 data_int = tmp4 | ~((1 << negative_bit_pos_) - 1);
+            }
             else
                 data_int = tmp4;
 
             if (has_lsb_)
+            {
+                if (debug)
+                    loginf << "parsing fixed bits item '" << name_ << "' with start bit " << start_bit_
+                           << " length " << bit_length_ << " final value " << lsb_*data_int << logendl;
                 target.emplace(name_, lsb_*data_int);
+            }
             else
                 target.emplace(name_, data_int);
         }
