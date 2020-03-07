@@ -11,15 +11,15 @@ from util.record_extractor import RecordExtractor
 from util.common import find_value, time_str_from_seconds
 import util.track
 
-
 def print_warn(message, end='\n'):
     sys.stderr.write('\x1b[1;33m' + message.strip() + '\x1b[0m' + end)
 
 # filter functions return True if record should be skipped
-def filter_psr_tracks(cat, record):
+def filter_tracks(cat, record):
     if cat != 62:
         return True
 
+    return False
 
 global_first_tod = None
 global_last_tod = None
@@ -60,6 +60,11 @@ class TrackStatistic:
 
         if tod > self._last_tod:
             self._last_tod = tod
+        elif tod < self._last_tod:
+            print('warn: utn {} track_num {} record {} time jump from {} to {} diff {}'.format(
+                self._utn, self._track_num, self._num_records,
+                time_str_from_seconds(self._last_tod), time_str_from_seconds(tod),
+                time_str_from_seconds(self._last_tod-tod)))
 
         # process track number
         track_num = find_value("040.Track Number", record)
@@ -252,7 +257,7 @@ def main(argv):
     statistics_calc = TrackStatisticsCalculator()  # type: TrackStatisticsCalculator
 
     record_extractor = RecordExtractor(
-        framing, statistics_calc.process_record, filter_psr_tracks)  # type: RecordExtractor
+        framing, statistics_calc.process_record, filter_tracks)  # type: RecordExtractor
 
     start_time = time.time()
 
