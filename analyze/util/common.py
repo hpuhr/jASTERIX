@@ -54,6 +54,13 @@ def multiply(value, factor):
     return value * factor
 
 
+def time_str_from_seconds(seconds):
+    hours = int(seconds / 3600)
+    minutes = int((seconds-(hours*3600))/60)
+    seconds_remain = seconds-(hours*3600)-minutes*60
+
+    return "{0}:{1}:{2:06.3f}".format(str(int(hours)).zfill(2), str(int(minutes)).zfill(2), round(seconds_remain,3))
+
 class ValueStatistic:
     def __init__(self, name, key_location_str, value_descriptions):
 
