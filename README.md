@@ -85,6 +85,7 @@ After this, the jASTERIX client can be run from the console (see Usage section).
 Download the source code from this page, then execute the following commands in the check-out folder:
 ```
 mkdir build
+cd build
 cmake ..
 make
 ```
