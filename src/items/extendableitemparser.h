@@ -28,7 +28,7 @@ namespace jASTERIX
 // parses item into array, extend into next has to signified by bool extend
 class ExtendableItemParser : public ItemParserBase
 {
-   public:
+  public:
     ExtendableItemParser(const nlohmann::json& item_definition);
     virtual ~ExtendableItemParser() {}
 
@@ -36,7 +36,7 @@ class ExtendableItemParser : public ItemParserBase
                              size_t current_parsed_bytes, nlohmann::json& target,
                              bool debug) override;
 
-   protected:
+  protected:
     std::vector<std::unique_ptr<ItemParserBase>> items_;
 };
 

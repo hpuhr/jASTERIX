@@ -1738,7 +1738,7 @@ caught.,exception}
 */
 class exception : public std::exception
 {
-   public:
+  public:
     /// returns the explanatory string
     JSON_HEDLEY_RETURNS_NON_NULL
     const char* what() const noexcept override { return m.what(); }
@@ -1746,7 +1746,7 @@ class exception : public std::exception
     /// the id of the exception
     const int id;
 
-   protected:
+  protected:
     JSON_HEDLEY_NON_NULL(3)
     exception(int id_, const char* what_arg) : id(id_), m(what_arg) {}
 
@@ -1755,7 +1755,7 @@ class exception : public std::exception
         return "[json.exception." + ename + "." + std::to_string(id_) + "] ";
     }
 
-   private:
+  private:
     /// an exception object as storage for error messages
     std::runtime_error m;
 };
@@ -1822,7 +1822,7 @@ caught.,parse_error}
 */
 class parse_error : public exception
 {
-   public:
+  public:
     /*!
     @brief create a parse error exception
     @param[in] id_       the id of the exception
@@ -1857,7 +1857,7 @@ class parse_error : public exception
     */
     const std::size_t byte;
 
-   private:
+  private:
     parse_error(int id_, std::size_t byte_, const char* what_arg)
         : exception(id_, what_arg), byte(byte_)
     {
@@ -1930,14 +1930,14 @@ caught.,invalid_iterator}
 */
 class invalid_iterator : public exception
 {
-   public:
+  public:
     static invalid_iterator create(int id_, const std::string& what_arg)
     {
         std::string w = exception::name("invalid_iterator", id_) + what_arg;
         return invalid_iterator(id_, w.c_str());
     }
 
-   private:
+  private:
     JSON_HEDLEY_NON_NULL(3)
     invalid_iterator(int id_, const char* what_arg) : exception(id_, what_arg) {}
 };
@@ -2001,14 +2001,14 @@ caught.,type_error}
 */
 class type_error : public exception
 {
-   public:
+  public:
     static type_error create(int id_, const std::string& what_arg)
     {
         std::string w = exception::name("type_error", id_) + what_arg;
         return type_error(id_, w.c_str());
     }
 
-   private:
+  private:
     JSON_HEDLEY_NON_NULL(3)
     type_error(int id_, const char* what_arg) : exception(id_, what_arg) {}
 };
@@ -2055,14 +2055,14 @@ caught.,out_of_range}
 */
 class out_of_range : public exception
 {
-   public:
+  public:
     static out_of_range create(int id_, const std::string& what_arg)
     {
         std::string w = exception::name("out_of_range", id_) + what_arg;
         return out_of_range(id_, w.c_str());
     }
 
-   private:
+  private:
     JSON_HEDLEY_NON_NULL(3)
     out_of_range(int id_, const char* what_arg) : exception(id_, what_arg) {}
 };
@@ -2094,14 +2094,14 @@ caught.,other_error}
 */
 class other_error : public exception
 {
-   public:
+  public:
     static other_error create(int id_, const std::string& what_arg)
     {
         std::string w = exception::name("other_error", id_) + what_arg;
         return other_error(id_, w.c_str());
     }
 
-   private:
+  private:
     JSON_HEDLEY_NON_NULL(3)
     other_error(int id_, const char* what_arg) : exception(id_, what_arg) {}
 };
@@ -2514,10 +2514,10 @@ struct is_iterator_traits : std::false_type
 template <typename T>
 struct is_iterator_traits<iterator_traits<T>>
 {
-   private:
+  private:
     using traits = iterator_traits<T>;
 
-   public:
+  public:
     static constexpr auto value =
         is_detected<value_type_t, traits>::value && is_detected<difference_type_t, traits>::value &&
         is_detected<pointer_t, traits>::value && is_detected<iterator_category_t, traits>::value &&
@@ -3239,14 +3239,14 @@ namespace detail
 template <typename IteratorType>
 class iteration_proxy_value
 {
-   public:
+  public:
     using difference_type = std::ptrdiff_t;
     using value_type = iteration_proxy_value;
     using pointer = value_type*;
     using reference = value_type&;
     using iterator_category = std::input_iterator_tag;
 
-   private:
+  private:
     /// the iterator
     IteratorType anchor;
     /// an index for arrays (used to create key names)
@@ -3258,7 +3258,7 @@ class iteration_proxy_value
     /// an empty string (to return a reference for primitive values)
     const std::string empty_str = "";
 
-   public:
+  public:
     explicit iteration_proxy_value(IteratorType it) noexcept : anchor(it) {}
 
     /// dereference operator (needed for range-based for)
@@ -3315,11 +3315,11 @@ class iteration_proxy_value
 template <typename IteratorType>
 class iteration_proxy
 {
-   private:
+  private:
     /// the container to iterate
     typename IteratorType::reference container;
 
-   public:
+  public:
     /// construct iteration proxy from a container
     explicit iteration_proxy(typename IteratorType::reference cont) noexcept : container(cont) {}
 
@@ -3374,7 +3374,7 @@ class tuple_size<::nlohmann::detail::iteration_proxy_value<IteratorType>>
 template <std::size_t N, typename IteratorType>
 class tuple_element<N, ::nlohmann::detail::iteration_proxy_value<IteratorType>>
 {
-   public:
+  public:
     using type =
         decltype(get<N>(std::declval<::nlohmann::detail::iteration_proxy_value<IteratorType>>()));
 };
@@ -3864,7 +3864,7 @@ Input adapter for stdio file access. This adapter read only 1 byte and do not us
 */
 class file_input_adapter : public input_adapter_protocol
 {
-   public:
+  public:
     JSON_HEDLEY_NON_NULL(2)
     explicit file_input_adapter(std::FILE* f) noexcept : m_file(f) {}
 
@@ -3880,7 +3880,7 @@ class file_input_adapter : public input_adapter_protocol
         return std::fgetc(m_file);
     }
 
-   private:
+  private:
     /// the file pointer to read from
     std::FILE* m_file;
 };
@@ -3896,7 +3896,7 @@ subsequent call for input from the std::istream.
 */
 class input_stream_adapter : public input_adapter_protocol
 {
-   public:
+  public:
     ~input_stream_adapter() override
     {
         // clear stream flags; we use underlying streambuf I/O, do not
@@ -3926,7 +3926,7 @@ class input_stream_adapter : public input_adapter_protocol
         return res;
     }
 
-   private:
+  private:
     /// the associated input stream
     std::istream& is;
     std::streambuf& sb;
@@ -3935,7 +3935,7 @@ class input_stream_adapter : public input_adapter_protocol
 /// input adapter for buffer input
 class input_buffer_adapter : public input_adapter_protocol
 {
-   public:
+  public:
     JSON_HEDLEY_NON_NULL(2)
     input_buffer_adapter(const char* b, const std::size_t l) noexcept : cursor(b), limit(b + l) {}
 
@@ -3956,7 +3956,7 @@ class input_buffer_adapter : public input_adapter_protocol
         return std::char_traits<char>::eof();
     }
 
-   private:
+  private:
     /// pointer to the current character
     const char* cursor;
     /// pointer past the last character
@@ -4098,7 +4098,7 @@ struct wide_string_input_helper<WideStringType, 2>
 template <typename WideStringType>
 class wide_string_input_adapter : public input_adapter_protocol
 {
-   public:
+  public:
     explicit wide_string_input_adapter(const WideStringType& w) noexcept : str(w) {}
 
     std::char_traits<char>::int_type get_character() noexcept override
@@ -4118,7 +4118,7 @@ class wide_string_input_adapter : public input_adapter_protocol
         return utf8_bytes[utf8_bytes_index++];
     }
 
-   private:
+  private:
     template <size_t T>
     void fill_buffer()
     {
@@ -4143,7 +4143,7 @@ class wide_string_input_adapter : public input_adapter_protocol
 
 class input_adapter
 {
-   public:
+  public:
     // native support
     JSON_HEDLEY_NON_NULL(2)
     input_adapter(std::FILE* file) : ia(std::make_shared<file_input_adapter>(file)) {}
@@ -4256,7 +4256,7 @@ class input_adapter
 
     operator input_adapter_t() { return ia; }
 
-   private:
+  private:
     /// the actual adapter
     input_adapter_t ia = nullptr;
 };
@@ -4407,7 +4407,7 @@ constructor contains the parsed value.
 template <typename BasicJsonType>
 class json_sax_dom_parser
 {
-   public:
+  public:
     using number_integer_t = typename BasicJsonType::number_integer_t;
     using number_unsigned_t = typename BasicJsonType::number_unsigned_t;
     using number_float_t = typename BasicJsonType::number_float_t;
@@ -4539,7 +4539,7 @@ class json_sax_dom_parser
 
     constexpr bool is_errored() const { return errored; }
 
-   private:
+  private:
     /*!
     @invariant If the ref stack is empty, then the passed value will be the new
                root.
@@ -4584,7 +4584,7 @@ class json_sax_dom_parser
 template <typename BasicJsonType>
 class json_sax_dom_callback_parser
 {
-   public:
+  public:
     using number_integer_t = typename BasicJsonType::number_integer_t;
     using number_unsigned_t = typename BasicJsonType::number_unsigned_t;
     using number_float_t = typename BasicJsonType::number_float_t;
@@ -4787,7 +4787,7 @@ class json_sax_dom_callback_parser
 
     constexpr bool is_errored() const { return errored; }
 
-   private:
+  private:
     /*!
     @param[in] v  value to add to the JSON value we build during parsing
     @param[in] skip_callback  whether we should skip calling the callback
@@ -4891,7 +4891,7 @@ class json_sax_dom_callback_parser
 template <typename BasicJsonType>
 class json_sax_acceptor
 {
-   public:
+  public:
     using number_integer_t = typename BasicJsonType::number_integer_t;
     using number_unsigned_t = typename BasicJsonType::number_unsigned_t;
     using number_float_t = typename BasicJsonType::number_float_t;
@@ -4991,7 +4991,7 @@ using parse_error_function_t = decltype(
 template <typename SAX, typename BasicJsonType>
 struct is_sax
 {
-   private:
+  private:
     static_assert(is_basic_json<BasicJsonType>::value,
                   "BasicJsonType must be of type basic_json<...>");
 
@@ -5001,7 +5001,7 @@ struct is_sax
     using string_t = typename BasicJsonType::string_t;
     using exception_t = typename BasicJsonType::exception;
 
-   public:
+  public:
     static constexpr bool value =
         is_detected_exact<bool, null_function_t, SAX>::value &&
         is_detected_exact<bool, boolean_function_t, SAX>::value &&
@@ -5020,7 +5020,7 @@ struct is_sax
 template <typename SAX, typename BasicJsonType>
 struct is_sax_static_asserts
 {
-   private:
+  private:
     static_assert(is_basic_json<BasicJsonType>::value,
                   "BasicJsonType must be of type basic_json<...>");
 
@@ -5030,7 +5030,7 @@ struct is_sax_static_asserts
     using string_t = typename BasicJsonType::string_t;
     using exception_t = typename BasicJsonType::exception;
 
-   public:
+  public:
     static_assert(is_detected_exact<bool, null_function_t, SAX>::value,
                   "Missing/invalid function: bool null()");
     static_assert(is_detected_exact<bool, boolean_function_t, SAX>::value,
@@ -5086,7 +5086,7 @@ class binary_reader
     using string_t = typename BasicJsonType::string_t;
     using json_sax_t = SAX;
 
-   public:
+  public:
     /*!
     @brief create a binary reader
 
@@ -5179,7 +5179,7 @@ class binary_reader
         return *reinterpret_cast<char*>(&num) == 1;
     }
 
-   private:
+  private:
     //////////
     // BSON //
     //////////
@@ -7124,7 +7124,7 @@ class binary_reader
         return error_msg + " " + context + ": " + detail;
     }
 
-   private:
+  private:
     /// input adapter
     input_adapter_t ia = nullptr;
 
@@ -7184,7 +7184,7 @@ class lexer
     using number_float_t = typename BasicJsonType::number_float_t;
     using string_t = typename BasicJsonType::string_t;
 
-   public:
+  public:
     /// token types for the parser
     enum class token_type
     {
@@ -7265,7 +7265,7 @@ class lexer
     lexer& operator=(lexer&&) = delete;
     ~lexer() = default;
 
-   private:
+  private:
     /////////////////////
     // locales
     /////////////////////
@@ -8527,7 +8527,7 @@ class lexer
     /// add a character to token_buffer
     void add(int c) { token_buffer.push_back(std::char_traits<char>::to_char_type(c)); }
 
-   public:
+  public:
     /////////////////////
     // value getters
     /////////////////////
@@ -8673,7 +8673,7 @@ class lexer
         }
     }
 
-   private:
+  private:
     /// input adapter
     detail::input_adapter_t ia = nullptr;
 
@@ -8753,7 +8753,7 @@ class parser
     using lexer_t = lexer<BasicJsonType>;
     using token_type = typename lexer_t::token_type;
 
-   public:
+  public:
     enum class parse_event_t : uint8_t
     {
         /// the parser read `{` and started to process a JSON object
@@ -8878,7 +8878,7 @@ class parser
         return result;
     }
 
-   private:
+  private:
     template <typename SAX>
     JSON_HEDLEY_NON_NULL(2)
     bool sax_parse_internal(SAX* sax)
@@ -9203,7 +9203,7 @@ class parser
         return error_msg;
     }
 
-   private:
+  private:
     /// callback function
     const parser_callback_t callback = nullptr;
     /// the type of the last read token
@@ -9238,7 +9238,7 @@ end_value (`1`) models past the end.
 */
 class primitive_iterator_t
 {
-   private:
+  private:
     using difference_type = std::ptrdiff_t;
     static constexpr difference_type begin_value = 0;
     static constexpr difference_type end_value = begin_value + 1;
@@ -9246,7 +9246,7 @@ class primitive_iterator_t
     /// iterator as signed integer type
     difference_type m_it = (std::numeric_limits<std::ptrdiff_t>::min)();
 
-   public:
+  public:
     constexpr difference_type get_value() const noexcept { return m_it; }
 
     /// set iterator to a defined beginning
@@ -9411,7 +9411,7 @@ class iter_impl
     static_assert(is_basic_json<typename std::remove_const<BasicJsonType>::type>::value,
                   "iter_impl only accepts (const) basic_json");
 
-   public:
+  public:
     /// The std::iterator class template (used as a base class to provide typedefs) is deprecated in
     /// C++17. The C++ Standard has never required user-defined iterators to derive from
     /// std::iterator. A user-defined iterator should provide publicly accessible typedefs named
@@ -9525,7 +9525,7 @@ class iter_impl
         return *this;
     }
 
-   private:
+  private:
     /*!
     @brief set the iterator to the first value
     @pre The iterator is initialized; i.e. `m_object != nullptr`.
@@ -9593,7 +9593,7 @@ class iter_impl
         }
     }
 
-   public:
+  public:
     /*!
     @brief return a reference to the value pointed to by the iterator
     @pre The iterator is initialized; i.e. `m_object != nullptr`.
@@ -9977,7 +9977,7 @@ class iter_impl
     */
     reference value() const { return operator*(); }
 
-   private:
+  private:
     /// associated JSON instance
     pointer m_object = nullptr;
     /// the actual iterator of the associated instance
@@ -10023,7 +10023,7 @@ create @ref const_reverse_iterator).
 template <typename Base>
 class json_reverse_iterator : public std::reverse_iterator<Base>
 {
-   public:
+  public:
     using difference_type = std::ptrdiff_t;
     /// shortcut to the reverse iterator adapter
     using base_iterator = std::reverse_iterator<Base>;
@@ -10134,7 +10134,7 @@ class json_pointer
     NLOHMANN_BASIC_JSON_TPL_DECLARATION
     friend class basic_json;
 
-   public:
+  public:
     /*!
     @brief create JSON pointer
 
@@ -10415,7 +10415,7 @@ class json_pointer
     */
     bool empty() const noexcept { return reference_tokens.empty(); }
 
-   private:
+  private:
     /*!
     @param[in] s  reference token to be converted into an array index
 
@@ -11129,7 +11129,7 @@ namespace detail
 template <typename BasicJsonType>
 class json_ref
 {
-   public:
+  public:
     using value_type = BasicJsonType;
 
     json_ref(value_type&& value)
@@ -11173,7 +11173,7 @@ class json_ref
 
     value_type const* operator->() const { return static_cast<value_type const*>(value_ref); }
 
-   private:
+  private:
     mutable value_type owned_value = nullptr;
     value_type* value_ref = nullptr;
     const bool is_rvalue;
@@ -11233,7 +11233,7 @@ using output_adapter_t = std::shared_ptr<output_adapter_protocol<CharType>>;
 template <typename CharType>
 class output_vector_adapter : public output_adapter_protocol<CharType>
 {
-   public:
+  public:
     explicit output_vector_adapter(std::vector<CharType>& vec) noexcept : v(vec) {}
 
     void write_character(CharType c) override { v.push_back(c); }
@@ -11244,7 +11244,7 @@ class output_vector_adapter : public output_adapter_protocol<CharType>
         std::copy(s, s + length, std::back_inserter(v));
     }
 
-   private:
+  private:
     std::vector<CharType>& v;
 };
 
@@ -11252,7 +11252,7 @@ class output_vector_adapter : public output_adapter_protocol<CharType>
 template <typename CharType>
 class output_stream_adapter : public output_adapter_protocol<CharType>
 {
-   public:
+  public:
     explicit output_stream_adapter(std::basic_ostream<CharType>& s) noexcept : stream(s) {}
 
     void write_character(CharType c) override { stream.put(c); }
@@ -11263,7 +11263,7 @@ class output_stream_adapter : public output_adapter_protocol<CharType>
         stream.write(s, static_cast<std::streamsize>(length));
     }
 
-   private:
+  private:
     std::basic_ostream<CharType>& stream;
 };
 
@@ -11271,7 +11271,7 @@ class output_stream_adapter : public output_adapter_protocol<CharType>
 template <typename CharType, typename StringType = std::basic_string<CharType>>
 class output_string_adapter : public output_adapter_protocol<CharType>
 {
-   public:
+  public:
     explicit output_string_adapter(StringType& s) noexcept : str(s) {}
 
     void write_character(CharType c) override { str.push_back(c); }
@@ -11279,14 +11279,14 @@ class output_string_adapter : public output_adapter_protocol<CharType>
     JSON_HEDLEY_NON_NULL(2)
     void write_characters(const CharType* s, std::size_t length) override { str.append(s, length); }
 
-   private:
+  private:
     StringType& str;
 };
 
 template <typename CharType, typename StringType = std::basic_string<CharType>>
 class output_adapter
 {
-   public:
+  public:
     output_adapter(std::vector<CharType>& vec)
         : oa(std::make_shared<output_vector_adapter<CharType>>(vec))
     {
@@ -11304,7 +11304,7 @@ class output_adapter
 
     operator output_adapter_t<CharType>() { return oa; }
 
-   private:
+  private:
     output_adapter_t<CharType> oa = nullptr;
 };
 }  // namespace detail
@@ -11326,7 +11326,7 @@ class binary_writer
 {
     using string_t = typename BasicJsonType::string_t;
 
-   public:
+  public:
     /*!
     @brief create a binary writer
 
@@ -11999,7 +11999,7 @@ class binary_writer
         }
     }
 
-   private:
+  private:
     //////////
     // BSON //
     //////////
@@ -12584,7 +12584,7 @@ class binary_writer
         oa->write_characters(vec.data(), sizeof(NumberType));
     }
 
-   public:
+  public:
     // The following to_char_type functions are implement the conversion
     // between uint8_t and CharType. In case CharType is not unsigned,
     // such a conversion is required to allow values greater than 128.
@@ -12624,7 +12624,7 @@ class binary_writer
         return x;
     }
 
-   private:
+  private:
     /// whether we can assume little endianess
     const bool is_little_endian = binary_reader<BasicJsonType>::little_endianess();
 
@@ -13755,7 +13755,7 @@ class serializer
     static constexpr std::uint8_t UTF8_ACCEPT = 0;
     static constexpr std::uint8_t UTF8_REJECT = 1;
 
-   public:
+  public:
     /*!
     @param[in] s  output stream to serialize to
     @param[in] ichar  indentation character to use
@@ -13991,7 +13991,7 @@ class serializer
         }
     }
 
-   private:
+  private:
     /*!
     @brief dump escaped string
 
@@ -14559,7 +14559,7 @@ class serializer
         return state;
     }
 
-   private:
+  private:
     /// the output of the serializer
     output_adapter_t<char> o = nullptr;
 
@@ -14682,7 +14682,7 @@ Format](http://rfc7159.net/rfc7159)
 NLOHMANN_BASIC_JSON_TPL_DECLARATION
 class basic_json
 {
-   private:
+  private:
     template <detail::value_t>
     friend struct detail::external_constructor;
     friend ::nlohmann::json_pointer<basic_json>;
@@ -14725,7 +14725,7 @@ class basic_json
 
     using serializer = ::nlohmann::detail::serializer<basic_json>;
 
-   public:
+  public:
     using value_t = detail::value_t;
     /// JSON Pointer, see @ref nlohmann::json_pointer
     using json_pointer = ::nlohmann::json_pointer<basic_json>;
@@ -15337,7 +15337,7 @@ class basic_json
 
     /// @}
 
-   private:
+  private:
     /// helper for exception-safe object creation
     template <typename T, typename... Args>
     JSON_HEDLEY_RETURNS_NON_NULL static T* create(Args&&... args)
@@ -15543,7 +15543,7 @@ class basic_json
         assert(m_type != value_t::string or m_value.string != nullptr);
     }
 
-   public:
+  public:
     //////////////////////////
     // JSON parser callback //
     //////////////////////////
@@ -16413,7 +16413,7 @@ class basic_json
 
     /// @}
 
-   public:
+  public:
     ///////////////////////
     // object inspection //
     ///////////////////////
@@ -16823,7 +16823,7 @@ class basic_json
 
     /// @}
 
-   private:
+  private:
     //////////////////
     // value access //
     //////////////////
@@ -16953,7 +16953,7 @@ class basic_json
                                         std::string(obj.type_name())));
     }
 
-   public:
+  public:
     /// @name value access
     /// Direct access to the stored value of a JSON value.
     /// @{
@@ -18767,7 +18767,7 @@ class basic_json
     */
     const_reverse_iterator crend() const noexcept { return const_reverse_iterator(cbegin()); }
 
-   public:
+  public:
     /*!
     @brief wrapper to access iterator member functions in range-based for
 
@@ -20017,7 +20017,7 @@ class basic_json
 
     /// @}
 
-   public:
+  public:
     //////////////////////////////////////////
     // lexicographical comparison operators //
     //////////////////////////////////////////
@@ -20867,7 +20867,7 @@ class basic_json
         }
     }
 
-   private:
+  private:
     //////////////////////
     // member variables //
     //////////////////////
@@ -20885,7 +20885,7 @@ class basic_json
     /// @name binary serialization/deserialization support
     /// @{
 
-   public:
+  public:
     /*!
     @brief create a CBOR serialization of a given JSON value
 

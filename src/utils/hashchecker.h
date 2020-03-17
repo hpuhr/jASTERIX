@@ -20,13 +20,13 @@ struct RecordInfo
 
 class HashChecker
 {
-   public:
+  public:
     HashChecker(bool framing_used);
 
     void process(std::unique_ptr<nlohmann::json> data);
     void printCollisions();
 
-   private:
+  private:
     bool framing_used_{false};
 
     std::map<std::string, std::vector<RecordInfo>> hash_map_;  // hash -> [RecordInfo]

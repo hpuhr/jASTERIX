@@ -25,7 +25,7 @@ namespace jASTERIX
 // skips fixed number of bytes
 class SkipBytesItemParser : public ItemParserBase
 {
-   public:
+  public:
     SkipBytesItemParser(const nlohmann::json& item_definition);
     virtual ~SkipBytesItemParser() {}
 
@@ -33,7 +33,7 @@ class SkipBytesItemParser : public ItemParserBase
                              size_t current_parsed_bytes, nlohmann::json& target,
                              bool debug) override;
 
-   protected:
+  protected:
     unsigned int length_{0};
 };
 

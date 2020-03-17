@@ -40,7 +40,7 @@ class JSONFileWriteTask;
 
 class JSONWriter
 {
-   public:
+  public:
     JSONWriter(JSON_OUTPUT_TYPE json_output_type, const std::string& json_path);
     ~JSONWriter();
 
@@ -49,7 +49,7 @@ class JSONWriter
 
     void fileWritingDone();
 
-   private:
+  private:
     JSON_OUTPUT_TYPE json_output_type_;
     std::string json_path_;
 

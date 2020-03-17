@@ -51,7 +51,7 @@ extern bool add_record_data;
 
 class jASTERIX
 {
-   public:
+  public:
     jASTERIX(const std::string& definition_path, bool print, bool debug,
              bool debug_exclude_framing);
     virtual ~jASTERIX();
@@ -90,7 +90,7 @@ class jASTERIX
 
     void setDebug(bool debug);
 
-   private:
+  private:
     std::string definition_path_;
     bool print_{false};
     bool debug_{false};

@@ -26,7 +26,7 @@ namespace jASTERIX
 // next byte
 class ExtendableBitsItemParser : public ItemParserBase
 {
-   public:
+  public:
     ExtendableBitsItemParser(const nlohmann::json& item_definition);
     virtual ~ExtendableBitsItemParser() {}
 
@@ -34,7 +34,7 @@ class ExtendableBitsItemParser : public ItemParserBase
                              size_t current_parsed_bytes, nlohmann::json& target,
                              bool debug) override;
 
-   protected:
+  protected:
     std::string data_type_;
     bool reverse_bits_{false};
     bool reverse_order_{false};

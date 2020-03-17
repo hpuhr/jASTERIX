@@ -25,7 +25,7 @@ namespace jASTERIX
 // calculates the index and length based on other decoded variable
 class DynamicBytesItemParser : public ItemParserBase
 {
-   public:
+  public:
     DynamicBytesItemParser(const nlohmann::json& item_definition);
     virtual ~DynamicBytesItemParser() {}
 
@@ -33,7 +33,7 @@ class DynamicBytesItemParser : public ItemParserBase
                              size_t current_parsed_bytes, nlohmann::json& target,
                              bool debug) override;
 
-   protected:
+  protected:
     std::string length_variable_name_;
     bool substract_previous_{false};
 

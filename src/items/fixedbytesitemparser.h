@@ -24,7 +24,7 @@ namespace jASTERIX
 {
 class FixedBytesItemParser : public ItemParserBase
 {
-   public:
+  public:
     FixedBytesItemParser(const nlohmann::json& item_definition);
     virtual ~FixedBytesItemParser() {}
 
@@ -32,7 +32,7 @@ class FixedBytesItemParser : public ItemParserBase
                              size_t current_parsed_bytes, nlohmann::json& target,
                              bool debug) override;
 
-   protected:
+  protected:
     size_t length_{0};
     std::string data_type_;
     bool reverse_bits_{false};

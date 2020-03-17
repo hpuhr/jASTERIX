@@ -28,7 +28,7 @@ namespace jASTERIX
 // decodes a field specification/availablity field (ending with extend bit), and list of items
 class CompoundItemParser : public ItemParserBase
 {
-   public:
+  public:
     CompoundItemParser(const nlohmann::json& item_definition);
     virtual ~CompoundItemParser() {}
 
@@ -36,7 +36,7 @@ class CompoundItemParser : public ItemParserBase
                              size_t current_parsed_bytes, nlohmann::json& target,
                              bool debug) override;
 
-   protected:
+  protected:
     // std::string field_specification_name_;
     std::unique_ptr<ItemParserBase> field_specification_;
     std::vector<std::unique_ptr<ItemParserBase>> items_;

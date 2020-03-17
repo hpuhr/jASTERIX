@@ -30,7 +30,7 @@ namespace jASTERIX
 // decodes a field specification/availablity field (ending with extend bit), and list of items
 class Record : public ItemParserBase
 {
-   public:
+  public:
     Record(const nlohmann::json& item_definition);
     virtual ~Record() override {}
 
@@ -46,7 +46,7 @@ class Record : public ItemParserBase
     std::shared_ptr<SpecialPurposeField> spf() const;
     void setSpf(const std::shared_ptr<SpecialPurposeField>& spf);
 
-   protected:
+  protected:
     std::unique_ptr<ItemParserBase> field_specification_;
     std::vector<std::string> uap_names_;
 

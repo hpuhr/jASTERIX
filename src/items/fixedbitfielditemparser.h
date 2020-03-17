@@ -28,7 +28,7 @@ namespace jASTERIX
 {
 class FixedBitFieldItemParser : public ItemParserBase
 {
-   public:
+  public:
     FixedBitFieldItemParser(const nlohmann::json& item_definition);
     virtual ~FixedBitFieldItemParser() {}
 
@@ -36,7 +36,7 @@ class FixedBitFieldItemParser : public ItemParserBase
                              size_t current_parsed_bytes, nlohmann::json& target,
                              bool debug) override;
 
-   protected:
+  protected:
     bool optional_{false};
     std::string optional_variable_name_;
     std::vector<std::string> optional_variable_name_parts_;

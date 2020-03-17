@@ -30,7 +30,7 @@ class Record;
 
 class Edition
 {
-   public:
+  public:
     Edition(const std::string& number, const nlohmann::json& definition,
             const std::string& definition_path);
     virtual ~Edition();
@@ -43,7 +43,7 @@ class Edition
     std::shared_ptr<Record> record() const;
     std::string definitionPath() const;
 
-   protected:
+  protected:
     std::string number_;
     std::string document_;
     std::string date_;

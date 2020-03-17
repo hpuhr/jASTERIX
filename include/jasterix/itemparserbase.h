@@ -33,7 +33,7 @@ namespace jASTERIX
 {
 class ItemParserBase
 {
-   public:
+  public:
     ItemParserBase(const nlohmann::json& item_definition);
     virtual ~ItemParserBase() {}
 
@@ -45,7 +45,7 @@ class ItemParserBase
     std::string name() const;
     std::string type() const;
 
-   protected:
+  protected:
     const nlohmann::json& item_definition_;
     std::string name_;
     std::string type_;

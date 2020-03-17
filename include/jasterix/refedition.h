@@ -30,7 +30,7 @@ class Record;
 
 class REFEdition
 {
-   public:
+  public:
     REFEdition(const std::string& number, const nlohmann::json& definition,
                const std::string& definition_path);
     virtual ~REFEdition();
@@ -43,7 +43,7 @@ class REFEdition
     std::shared_ptr<ReservedExpansionField> reservedExpansionField() const;
     std::string definitionPath() const;
 
-   protected:
+  protected:
     std::string number_;
     std::string document_;
     std::string date_;

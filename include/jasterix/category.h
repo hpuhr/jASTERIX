@@ -31,7 +31,7 @@ namespace jASTERIX
 {
 class Category
 {
-   public:
+  public:
     Category(const std::string& number, const nlohmann::json& definition,
              const std::string& definition_path);
     virtual ~Category();
@@ -85,7 +85,7 @@ class Category
     bool decode() const;
     void decode(bool value);
 
-   protected:
+  protected:
     std::string number_;
     std::string comment_;
 

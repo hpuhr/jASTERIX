@@ -11,7 +11,7 @@ namespace jASTERIX
 // decodes a field specification/availablity field (ending with extend bit), and list of items
 class SpecialPurposeField : public ItemParserBase
 {
-   public:
+  public:
     SpecialPurposeField(const nlohmann::json& item_definition);
     virtual ~SpecialPurposeField() override;
 
@@ -19,7 +19,7 @@ class SpecialPurposeField : public ItemParserBase
                              size_t current_parsed_bytes, nlohmann::json& target,
                              bool debug) override;
 
-   protected:
+  protected:
     std::unique_ptr<ItemParserBase> complex_field_specification_;
     std::vector<std::string> complex_items_names_;
     std::map<std::string, std::unique_ptr<ItemParserBase>> complex_items_;

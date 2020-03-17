@@ -26,7 +26,7 @@ namespace jASTERIX
 {
 class Mapping
 {
-   public:
+  public:
     Mapping(const std::string& name, const nlohmann::json& definition,
             const std::string& definition_path);
     virtual ~Mapping() {}
@@ -39,7 +39,7 @@ class Mapping
 
     std::string definitionPath() const;
 
-   protected:
+  protected:
     std::string name_;
     std::string comment_;
     std::string file_;

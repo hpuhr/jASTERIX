@@ -13,7 +13,7 @@ namespace jASTERIX
 {
 class DataBlockFinderTask : public tbb::task
 {
-   public:
+  public:
     DataBlockFinderTask(jASTERIX& jasterix, ASTERIXParser& asterix_parser, const char* data,
                         size_t index, size_t size, bool debug)
         : jasterix_(jasterix),
@@ -64,7 +64,7 @@ class DataBlockFinderTask : public tbb::task
 
     bool error() const;
 
-   private:
+  private:
     jASTERIX& jasterix_;
     ASTERIXParser& asterix_parser_;
     const char* data_;

@@ -24,7 +24,7 @@ namespace jASTERIX
 {
 class RepetetiveItemParser : public ItemParserBase
 {
-   public:
+  public:
     RepetetiveItemParser(const nlohmann::json& item_definition);
     virtual ~RepetetiveItemParser() {}
 
@@ -32,7 +32,7 @@ class RepetetiveItemParser : public ItemParserBase
                              size_t current_parsed_bytes, nlohmann::json& target,
                              bool debug) override;
 
-   protected:
+  protected:
     std::unique_ptr<ItemParserBase> repetition_item_;
     std::vector<std::unique_ptr<ItemParserBase>> items_;
 };

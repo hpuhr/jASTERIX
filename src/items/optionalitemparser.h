@@ -24,7 +24,7 @@ namespace jASTERIX
 {
 class OptionalItemParser : public ItemParserBase
 {
-   public:
+  public:
     OptionalItemParser(const nlohmann::json& item_definition);
     virtual ~OptionalItemParser() {}
 
@@ -32,7 +32,7 @@ class OptionalItemParser : public ItemParserBase
                              size_t current_parsed_bytes, nlohmann::json& target,
                              bool debug) override;
 
-   protected:
+  protected:
     std::string bitfield_name_;
     unsigned int bitfield_index_{0};
     std::vector<std::unique_ptr<ItemParserBase>> data_fields_;

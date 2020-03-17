@@ -33,7 +33,7 @@ namespace jASTERIX
 {
 class JSONTextFileWriteTask : public tbb::task
 {
-   public:
+  public:
     JSONTextFileWriteTask(std::ofstream& json_file, std::vector<std::string>&& text,
                           JSONWriter& json_writer)
         : json_file_(json_file), text_(text), json_writer_(json_writer)
@@ -55,7 +55,7 @@ class JSONTextFileWriteTask : public tbb::task
         return nullptr;  // or a pointer to a new task to be executed immediately
     }
 
-   private:
+  private:
     std::ofstream& json_file_;
     std::vector<std::string> text_;
     JSONWriter& json_writer_;
@@ -63,7 +63,7 @@ class JSONTextFileWriteTask : public tbb::task
 
 class JSONBinaryFileWriteTask : public tbb::task
 {
-   public:
+  public:
     JSONBinaryFileWriteTask(std::ofstream& json_file, std::vector<std::vector<std::uint8_t>>&& data,
                             JSONWriter& json_writer)
         : json_file_(json_file), data_(data), json_writer_(json_writer)
@@ -80,7 +80,7 @@ class JSONBinaryFileWriteTask : public tbb::task
         return nullptr;  // or a pointer to a new task to be executed immediately
     }
 
-   private:
+  private:
     std::ofstream& json_file_;
     std::vector<std::vector<std::uint8_t>> data_;
     JSONWriter& json_writer_;
@@ -88,7 +88,7 @@ class JSONBinaryFileWriteTask : public tbb::task
 
 class JSONTextZipFileWriteTask : public tbb::task
 {
-   public:
+  public:
     JSONTextZipFileWriteTask(struct archive* json_zip_file, std::vector<std::string>&& text,
                              JSONWriter& json_writer)
         : json_zip_file_(json_zip_file), text_(text), json_writer_(json_writer)
@@ -110,7 +110,7 @@ class JSONTextZipFileWriteTask : public tbb::task
         return nullptr;  // or a pointer to a new task to be executed immediately
     }
 
-   private:
+  private:
     struct archive* json_zip_file_;
     struct archive_entry* json_zip_file_entry_{nullptr};
 
@@ -144,7 +144,7 @@ class JSONTextZipFileWriteTask : public tbb::task
 
 class JSONBinaryZipFileWriteTask : public tbb::task
 {
-   public:
+  public:
     JSONBinaryZipFileWriteTask(struct archive* json_zip_file,
                                std::vector<std::vector<std::uint8_t>>&& data,
                                JSONWriter& json_writer)
@@ -163,7 +163,7 @@ class JSONBinaryZipFileWriteTask : public tbb::task
         return nullptr;  // or a pointer to a new task to be executed immediately
     }
 
-   private:
+  private:
     struct archive* json_zip_file_;
     std::vector<std::vector<std::uint8_t>> data_;
     JSONWriter& json_writer_;

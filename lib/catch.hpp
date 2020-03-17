@@ -504,7 +504,7 @@ class NonCopyable
     NonCopyable& operator=(NonCopyable const&) = delete;
     NonCopyable& operator=(NonCopyable&&) = delete;
 
-   protected:
+  protected:
     NonCopyable();
     virtual ~NonCopyable();
 };
@@ -622,17 +622,17 @@ namespace Catch
 /// it may not be null terminated.
 class StringRef
 {
-   public:
+  public:
     using size_type = std::size_t;
     using const_iterator = const char*;
 
-   private:
+  private:
     static constexpr char const* const s_empty = "";
 
     char const* m_start = s_empty;
     size_type m_size = 0;
 
-   public:  // construction
+  public:  // construction
     constexpr StringRef() noexcept = default;
 
     StringRef(char const* rawChars) noexcept;
@@ -649,7 +649,7 @@ class StringRef
 
     explicit operator std::string() const { return std::string(m_start, m_size); }
 
-   public:  // operators
+  public:  // operators
     auto operator==(StringRef const& other) const noexcept -> bool;
     auto operator!=(StringRef const& other) const noexcept -> bool { return !(*this == other); }
 
@@ -659,7 +659,7 @@ class StringRef
         return m_start[index];
     }
 
-   public:  // named queries
+  public:  // named queries
     constexpr auto empty() const noexcept -> bool { return m_size == 0; }
     constexpr auto size() const noexcept -> size_type { return m_size; }
 
@@ -667,7 +667,7 @@ class StringRef
     // null-terminated, throws std::domain_exception
     auto c_str() const -> char const*;
 
-   public:  // substrings and searches
+  public:  // substrings and searches
     // Returns a substring of [start, start + length).
     // If start + length > size(), then the substring is [start, size()).
     // If start > size(), then the substring is empty.
@@ -678,7 +678,7 @@ class StringRef
 
     constexpr auto isNullTerminated() const noexcept -> bool { return m_start[m_size] == '\0'; }
 
-   public:  // iterators
+  public:  // iterators
     constexpr const_iterator begin() const { return m_start; }
     constexpr const_iterator end() const { return m_start + m_size; }
 };
@@ -1219,7 +1219,7 @@ class TestInvokerAsMethod : public ITestInvoker
 {
     void (C::*m_testAsMethod)();
 
-   public:
+  public:
     TestInvokerAsMethod(void (C::*testAsMethod)()) noexcept : m_testAsMethod(testAsMethod) {}
 
     void invoke() const override
@@ -1910,7 +1910,7 @@ class ReusableStringStream : NonCopyable
     std::size_t m_index;
     std::ostream* m_oss;
 
-   public:
+  public:
     ReusableStringStream();
     ~ReusableStringStream();
 
@@ -2050,7 +2050,7 @@ class IsStreamInsertable
     template <typename, typename>
     static auto test(...) -> std::false_type;
 
-   public:
+  public:
     static const bool value = decltype(test<std::ostream, const T&>(0))::value;
 };
 
@@ -2804,7 +2804,7 @@ class BinaryExpr : public ITransientExpression
                                       Catch::Detail::stringify(m_rhs));
     }
 
-   public:
+  public:
     BinaryExpr(bool comparisonResult, LhsT lhs, StringRef op, RhsT rhs)
         : ITransientExpression{true, comparisonResult}, m_lhs(lhs), m_op(op), m_rhs(rhs)
     {
@@ -2885,7 +2885,7 @@ class UnaryExpr : public ITransientExpression
         os << Catch::Detail::stringify(m_lhs);
     }
 
-   public:
+  public:
     explicit UnaryExpr(LhsT lhs) : ITransientExpression{false, static_cast<bool>(lhs)}, m_lhs(lhs)
     {
     }
@@ -2950,7 +2950,7 @@ class ExprLhs
 {
     LhsT m_lhs;
 
-   public:
+  public:
     explicit ExprLhs(LhsT lhs) : m_lhs(lhs) {}
 
     template <typename RhsT>
@@ -3133,7 +3133,7 @@ class LazyExpression
     ITransientExpression const* m_transientExpression = nullptr;
     bool m_isNegated;
 
-   public:
+  public:
     LazyExpression(bool isNegated);
     LazyExpression(LazyExpression const& other);
     LazyExpression& operator=(LazyExpression const&) = delete;
@@ -3156,7 +3156,7 @@ class AssertionHandler
     bool m_completed = false;
     IResultCapture& m_resultCapture;
 
-   public:
+  public:
     AssertionHandler(StringRef const& macroName, SourceLineInfo const& lineInfo,
                      StringRef capturedExpression, ResultDisposition::Flags resultDisposition);
     ~AssertionHandler()
@@ -3216,7 +3216,7 @@ struct MessageInfo
     bool operator==(MessageInfo const& other) const;
     bool operator<(MessageInfo const& other) const;
 
-   private:
+  private:
     static unsigned int globalCount;
 };
 
@@ -3249,7 +3249,7 @@ struct MessageBuilder : MessageStream
 
 class ScopedMessage
 {
-   public:
+  public:
     explicit ScopedMessage(MessageBuilder const& builder);
     ScopedMessage(ScopedMessage& duplicate) = delete;
     ScopedMessage(ScopedMessage&& old);
@@ -3265,7 +3265,7 @@ class Capturer
     IResultCapture& m_resultCapture = getResultCapture();
     size_t m_captured = 0;
 
-   public:
+  public:
     Capturer(StringRef macroName, SourceLineInfo const& lineInfo, ResultWas::OfType resultType,
              StringRef names);
     ~Capturer();
@@ -3556,7 +3556,7 @@ class Timer
 {
     uint64_t m_nanoseconds = 0;
 
-   public:
+  public:
     void start();
     auto getElapsedNanoseconds() const -> uint64_t;
     auto getElapsedMicroseconds() const -> uint64_t;
@@ -3573,14 +3573,14 @@ namespace Catch
 {
 class Section : NonCopyable
 {
-   public:
+  public:
     Section(SectionInfo const& info);
     ~Section();
 
     // This indicates whether the section should be executed or not
     explicit operator bool() const;
 
-   private:
+  private:
     SectionInfo m_info;
 
     std::string m_name;
@@ -3697,7 +3697,7 @@ class ExceptionTranslatorRegistrar
     template <typename T>
     class ExceptionTranslator : public IExceptionTranslator
     {
-       public:
+      public:
         ExceptionTranslator(std::string (*translateFunction)(T&))
             : m_translateFunction(translateFunction)
         {
@@ -3719,11 +3719,11 @@ class ExceptionTranslatorRegistrar
             }
         }
 
-       protected:
+      protected:
         std::string (*m_translateFunction)(T&);
     };
 
-   public:
+  public:
     template <typename T>
     ExceptionTranslatorRegistrar(std::string (*translateFunction)(T&))
     {
@@ -3760,7 +3760,7 @@ namespace Detail
 {
 class Approx
 {
-   private:
+  private:
     bool equalityComparisonImpl(double other) const;
     // Validates the new margin (margin >= 0)
     // out-of-line to avoid including stdexcept in the header
@@ -3769,7 +3769,7 @@ class Approx
     // out-of-line to avoid including stdexcept in the header
     void setEpsilon(double epsilon);
 
-   public:
+  public:
     explicit Approx(double value);
 
     static Approx custom();
@@ -3878,7 +3878,7 @@ class Approx
 
     std::string toString() const;
 
-   private:
+  private:
     double m_epsilon;
     double m_margin;
     double m_scale;
@@ -3960,13 +3960,13 @@ struct MatchNotOf;
 
 class MatcherUntypedBase
 {
-   public:
+  public:
     MatcherUntypedBase() = default;
     MatcherUntypedBase(MatcherUntypedBase const&) = default;
     MatcherUntypedBase& operator=(MatcherUntypedBase const&) = delete;
     std::string toString() const;
 
-   protected:
+  protected:
     virtual ~MatcherUntypedBase();
     virtual std::string describe() const = 0;
     mutable std::string m_cachedToString;
@@ -4134,7 +4134,7 @@ class ExceptionMessageMatcher : public MatcherBase<std::exception>
 {
     std::string m_message;
 
-   public:
+  public:
     ExceptionMessageMatcher(std::string const& message) : m_message(message) {}
 
     bool match(std::exception const& ex) const override;
@@ -4166,7 +4166,7 @@ struct WithinAbsMatcher : MatcherBase<double>
     bool match(double const& matchee) const override;
     std::string describe() const override;
 
-   private:
+  private:
     double m_target;
     double m_margin;
 };
@@ -4177,7 +4177,7 @@ struct WithinUlpsMatcher : MatcherBase<double>
     bool match(double const& matchee) const override;
     std::string describe() const override;
 
-   private:
+  private:
     double m_target;
     uint64_t m_ulps;
     FloatingPointKind m_type;
@@ -4195,7 +4195,7 @@ struct WithinRelMatcher : MatcherBase<double>
     bool match(double const& matchee) const override;
     std::string describe() const override;
 
-   private:
+  private:
     double m_target;
     double m_epsilon;
 };
@@ -4240,7 +4240,7 @@ class PredicateMatcher : public MatcherBase<T>
     std::function<bool(T const&)> m_predicate;
     std::string m_description;
 
-   public:
+  public:
     PredicateMatcher(std::function<bool(T const&)> const& elem, std::string const& descr)
         : m_predicate(std::move(elem)), m_description(Detail::finalizeDescription(descr))
     {
@@ -4324,7 +4324,7 @@ struct RegexMatcher : MatcherBase<std::string>
     bool match(std::string const& matchee) const override;
     std::string describe() const override;
 
-   private:
+  private:
     std::string m_regex;
     CaseSensitive::Choice m_caseSensitivity;
 };
@@ -4506,7 +4506,7 @@ struct UnorderedEqualsMatcher : MatcherBase<std::vector<T>>
         return "UnorderedEquals: " + ::Catch::Detail::stringify(m_target);
     }
 
-   private:
+  private:
     std::vector<T> const& m_target;
 };
 
@@ -4558,7 +4558,7 @@ class MatchExpr : public ITransientExpression
     MatcherT m_matcher;
     StringRef m_matcherString;
 
-   public:
+  public:
     MatchExpr(ArgT const& arg, MatcherT const& matcher, StringRef const& matcherString)
         : ITransientExpression{true, matcher.match(arg)},
           m_arg(arg),
@@ -4652,7 +4652,7 @@ namespace Generators
 {
 class GeneratorUntypedBase
 {
-   public:
+  public:
     GeneratorUntypedBase() = default;
     virtual ~GeneratorUntypedBase();
     // Attempts to move the generator to the next element
@@ -4728,7 +4728,7 @@ class GeneratorException : public std::exception
 {
     const char* const m_msg = "";
 
-   public:
+  public:
     GeneratorException(const char* msg) : m_msg(msg) {}
 
     const char* what() const noexcept override final;
@@ -4764,7 +4764,7 @@ class SingleValueGenerator final : public IGenerator<T>
 {
     T m_value;
 
-   public:
+  public:
     SingleValueGenerator(T&& value) : m_value(std::move(value)) {}
 
     T const& get() const override { return m_value; }
@@ -4780,7 +4780,7 @@ class FixedValuesGenerator final : public IGenerator<T>
     std::vector<T> m_values;
     size_t m_idx = 0;
 
-   public:
+  public:
     FixedValuesGenerator(std::initializer_list<T> values) : m_values(values) {}
 
     T const& get() const override { return m_values[m_idx]; }
@@ -4796,7 +4796,7 @@ class GeneratorWrapper final
 {
     std::unique_ptr<IGenerator<T>> m_generator;
 
-   public:
+  public:
     GeneratorWrapper(std::unique_ptr<IGenerator<T>> generator) : m_generator(std::move(generator))
     {
     }
@@ -4838,7 +4838,7 @@ class Generators : public IGenerator<T>
         populate(std::forward<Gs>(moreGenerators)...);
     }
 
-   public:
+  public:
     template <typename... Gs>
     Generators(Gs&&... moreGenerators)
     {
@@ -4951,7 +4951,7 @@ class TakeGenerator : public IGenerator<T>
     size_t m_returned = 0;
     size_t m_target;
 
-   public:
+  public:
     TakeGenerator(size_t target, GeneratorWrapper<T>&& generator)
         : m_generator(std::move(generator)), m_target(target)
     {
@@ -4989,7 +4989,7 @@ class FilterGenerator : public IGenerator<T>
     GeneratorWrapper<T> m_generator;
     Predicate m_predicate;
 
-   public:
+  public:
     template <typename P = Predicate>
     FilterGenerator(P&& pred, GeneratorWrapper<T>&& generator)
         : m_generator(std::move(generator)), m_predicate(std::forward<P>(pred))
@@ -5042,7 +5042,7 @@ class RepeatGenerator : public IGenerator<T>
     size_t m_current_repeat = 0;
     size_t m_repeat_index = 0;
 
-   public:
+  public:
     RepeatGenerator(size_t repeats, GeneratorWrapper<T>&& generator)
         : m_generator(std::move(generator)), m_target_repeats(repeats)
     {
@@ -5105,7 +5105,7 @@ class MapGenerator : public IGenerator<T>
     // To avoid returning dangling reference, we have to save the values
     T m_cache;
 
-   public:
+  public:
     template <typename F2 = Func>
     MapGenerator(F2&& function, GeneratorWrapper<U>&& generator)
         : m_generator(std::move(generator)),
@@ -5148,7 +5148,7 @@ class ChunkGenerator final : public IGenerator<std::vector<T>>
     GeneratorWrapper<T> m_generator;
     bool m_used_up = false;
 
-   public:
+  public:
     ChunkGenerator(size_t size, GeneratorWrapper<T> generator)
         : m_chunk_size(size), m_generator(std::move(generator))
     {
@@ -5225,7 +5225,7 @@ struct IMutableContext : IContext
     virtual void setRunner(IRunner* runner) = 0;
     virtual void setConfig(IConfigPtr const& config) = 0;
 
-   private:
+  private:
     static IMutableContext* currentContext;
     friend IMutableContext& getCurrentMutableContext();
     friend void cleanUpContext();
@@ -5259,7 +5259,7 @@ namespace Catch
 template <typename T>
 class Option
 {
-   public:
+  public:
     Option() : nullableValue(nullptr) {}
     Option(T const& _value) : nullableValue(new (storage) T(_value)) {}
     Option(Option const& _other) : nullableValue(_other ? new (storage) T(*_other) : nullptr) {}
@@ -5303,7 +5303,7 @@ class Option
     bool operator!() const { return nullableValue == nullptr; }
     explicit operator bool() const { return some(); }
 
-   private:
+  private:
     T* nullableValue;
     alignas(alignof(T)) char storage[sizeof(T)];
 };
@@ -5423,7 +5423,7 @@ class SimplePcg32
 {
     using state_type = std::uint64_t;
 
-   public:
+  public:
     using result_type = std::uint32_t;
     static constexpr result_type(min)() { return 0; }
     static constexpr result_type(max)() { return static_cast<result_type>(-1); }
@@ -5438,7 +5438,7 @@ class SimplePcg32
 
     result_type operator()();
 
-   private:
+  private:
     friend bool operator==(SimplePcg32 const& lhs, SimplePcg32 const& rhs);
     friend bool operator!=(SimplePcg32 const& lhs, SimplePcg32 const& rhs);
 
@@ -5469,7 +5469,7 @@ class RandomFloatingGenerator final : public IGenerator<Float>
     std::uniform_real_distribution<Float> m_dist;
     Float m_current_number;
 
-   public:
+  public:
     RandomFloatingGenerator(Float a, Float b) : m_rng(rng()), m_dist(a, b)
     {
         static_cast<void>(next());
@@ -5490,7 +5490,7 @@ class RandomIntegerGenerator final : public IGenerator<Integer>
     std::uniform_int_distribution<Integer> m_dist;
     Integer m_current_number;
 
-   public:
+  public:
     RandomIntegerGenerator(Integer a, Integer b) : m_rng(rng()), m_dist(a, b)
     {
         static_cast<void>(next());
@@ -5529,7 +5529,7 @@ class RangeGenerator final : public IGenerator<T>
     T m_step;
     bool m_positive;
 
-   public:
+  public:
     RangeGenerator(T const& start, T const& end, T const& step)
         : m_current(start), m_end(end), m_step(step), m_positive(m_step > T(0))
     {
@@ -5579,7 +5579,7 @@ class IteratorGenerator final : public IGenerator<T>
     std::vector<T> m_elems;
     size_t m_current = 0;
 
-   public:
+  public:
     template <typename InputIterator, typename InputSentinel>
     IteratorGenerator(InputIterator first, InputSentinel last) : m_elems(first, last)
     {
@@ -5672,7 +5672,7 @@ struct TestCaseInfo
 
 class TestCase : public TestCaseInfo
 {
-   public:
+  public:
     TestCase(ITestInvoker* testCase, TestCaseInfo&& info);
 
     TestCase withName(std::string const& _newName) const;
@@ -5684,7 +5684,7 @@ class TestCase : public TestCaseInfo
     bool operator==(TestCase const& other) const;
     bool operator<(TestCase const& other) const;
 
-   private:
+  private:
     std::shared_ptr<ITestInvoker> test;
 };
 
@@ -5737,7 +5737,7 @@ namespace Catch
 {
 class OcMethod : public ITestInvoker
 {
-   public:
+  public:
     OcMethod(Class cls, SEL sel) : m_cls(cls), m_sel(sel) {}
 
     virtual void invoke() const
@@ -5751,7 +5751,7 @@ class OcMethod : public ITestInvoker
         arcSafeRelease(obj);
     }
 
-   private:
+  private:
     virtual ~OcMethod() {}
 
     Class m_cls;
@@ -5972,12 +5972,12 @@ class WildcardPattern
         WildcardAtBothEnds = WildcardAtStart | WildcardAtEnd
     };
 
-   public:
+  public:
     WildcardPattern(std::string const& pattern, CaseSensitive::Choice caseSensitivity);
     virtual ~WildcardPattern() = default;
     virtual bool matches(std::string const& str) const;
 
-   private:
+  private:
     std::string normaliseString(std::string const& str) const;
     CaseSensitive::Choice m_caseSensitivity;
     WildcardPosition m_wildcard = NoWildcard;
@@ -5998,44 +5998,44 @@ class TestSpec
 {
     class Pattern
     {
-       public:
+      public:
         explicit Pattern(std::string const& name);
         virtual ~Pattern();
         virtual bool matches(TestCaseInfo const& testCase) const = 0;
         std::string const& name() const;
 
-       private:
+      private:
         std::string const m_name;
     };
     using PatternPtr = std::shared_ptr<Pattern>;
 
     class NamePattern : public Pattern
     {
-       public:
+      public:
         explicit NamePattern(std::string const& name, std::string const& filterString);
         bool matches(TestCaseInfo const& testCase) const override;
 
-       private:
+      private:
         WildcardPattern m_wildcardPattern;
     };
 
     class TagPattern : public Pattern
     {
-       public:
+      public:
         explicit TagPattern(std::string const& tag, std::string const& filterString);
         bool matches(TestCaseInfo const& testCase) const override;
 
-       private:
+      private:
         std::string m_tag;
     };
 
     class ExcludedPattern : public Pattern
     {
-       public:
+      public:
         explicit ExcludedPattern(PatternPtr const& underlyingPattern);
         bool matches(TestCaseInfo const& testCase) const override;
 
-       private:
+      private:
         PatternPtr m_underlyingPattern;
     };
 
@@ -6047,7 +6047,7 @@ class TestSpec
         std::string name() const;
     };
 
-   public:
+  public:
     struct FilterMatch
     {
         std::string name;
@@ -6061,7 +6061,7 @@ class TestSpec
     Matches matchesByFilter(std::vector<TestCase> const& testCases, IConfig const& config) const;
     const vectorStrings& getInvalidArgs() const;
 
-   private:
+  private:
     std::vector<Filter> m_filters;
     std::vector<std::string> m_invalidArgs;
     friend class TestSpecParser;
@@ -6119,13 +6119,13 @@ class TestSpecParser
     TestSpec m_testSpec;
     ITagAliasRegistry const* m_tagAliases = nullptr;
 
-   public:
+  public:
     TestSpecParser(ITagAliasRegistry const& tagAliases);
 
     TestSpecParser& parse(std::string const& arg);
     TestSpec testSpec();
 
-   private:
+  private:
     bool visitChar(char c);
     void startNewMode(Mode mode);
     bool processNoneChar(char c);
@@ -6221,7 +6221,7 @@ struct ConfigData
 
 class Config : public IConfig
 {
-   public:
+  public:
     Config() = default;
     Config(ConfigData const& data);
     virtual ~Config() = default;
@@ -6264,7 +6264,7 @@ class Config : public IConfig
     double benchmarkConfidenceInterval() const override;
     unsigned int benchmarkResamples() const override;
 
-   private:
+  private:
     IStream const* openStream();
     ConfigData m_data;
 
@@ -6298,7 +6298,7 @@ struct AssertionResultData
 
 class AssertionResult
 {
-   public:
+  public:
     AssertionResult() = delete;
     AssertionResult(AssertionInfo const& info, AssertionResultData const& data);
 
@@ -6392,7 +6392,7 @@ struct ReporterConfig
     std::ostream& stream() const;
     IConfigPtr fullConfig() const;
 
-   private:
+  private:
     std::ostream* m_stream;
     IConfigPtr m_fullConfig;
 };
@@ -6758,7 +6758,7 @@ struct CumulativeReporterBase : IStreamingReporter
         }
         void operator=(BySectionInfo const&) = delete;
 
-       private:
+      private:
         SectionInfo const& m_other;
     };
 
@@ -6954,7 +6954,7 @@ struct Colour
     // Use static method for one-shot changes
     static void use(Code _colourCode);
 
-   private:
+  private:
     bool m_moved = false;
 };
 
@@ -6980,7 +6980,7 @@ class ReporterRegistrar
         std::string getDescription() const override { return T::getDescription(); }
     };
 
-   public:
+  public:
     explicit ReporterRegistrar(std::string const& name)
     {
         getMutableRegistryHub().registerReporter(name, std::make_shared<ReporterFactory>());
@@ -6999,7 +6999,7 @@ class ListenerRegistrar
         std::string getDescription() const override { return std::string(); }
     };
 
-   public:
+  public:
     ListenerRegistrar()
     {
         getMutableRegistryHub().registerListener(std::make_shared<ListenerFactory>());
@@ -7109,7 +7109,7 @@ struct ConsoleReporter : StreamingReporterBase<ConsoleReporter>
     void testRunEnded(TestRunStats const& _testRunStats) override;
     void testRunStarting(TestRunInfo const& _testRunInfo) override;
 
-   private:
+  private:
     void lazyPrint();
 
     void lazyPrintWithoutClosingBenchmarkTable();
@@ -7132,7 +7132,7 @@ struct ConsoleReporter : StreamingReporterBase<ConsoleReporter>
     void printSummaryDivider();
     void printTestFilters();
 
-   private:
+  private:
     bool m_headerPrinted = false;
 };
 
@@ -7163,7 +7163,7 @@ XmlFormatting operator&(XmlFormatting lhs, XmlFormatting rhs);
 
 class XmlEncode
 {
-   public:
+  public:
     enum ForWhat
     {
         ForTextNodes,
@@ -7176,17 +7176,17 @@ class XmlEncode
 
     friend std::ostream& operator<<(std::ostream& os, XmlEncode const& xmlEncode);
 
-   private:
+  private:
     std::string m_str;
     ForWhat m_forWhat;
 };
 
 class XmlWriter
 {
-   public:
+  public:
     class ScopedElement
     {
-       public:
+      public:
         ScopedElement(XmlWriter* writer, XmlFormatting fmt);
 
         ScopedElement(ScopedElement&& other) noexcept;
@@ -7205,7 +7205,7 @@ class XmlWriter
             return *this;
         }
 
-       private:
+      private:
         mutable XmlWriter* m_writer = nullptr;
         XmlFormatting m_fmt;
     };
@@ -7248,7 +7248,7 @@ class XmlWriter
 
     void ensureTagClosed();
 
-   private:
+  private:
     void applyFormatting(XmlFormatting fmt);
 
     void writeDeclaration();
@@ -7269,7 +7269,7 @@ namespace Catch
 {
 class JunitReporter : public CumulativeReporterBase<JunitReporter>
 {
-   public:
+  public:
     JunitReporter(ReporterConfig const& _config);
 
     ~JunitReporter() override;
@@ -7318,7 +7318,7 @@ namespace Catch
 {
 class XmlReporter : public StreamingReporterBase<XmlReporter>
 {
-   public:
+  public:
     XmlReporter(ReporterConfig const& _config);
 
     ~XmlReporter() override;
@@ -7329,7 +7329,7 @@ class XmlReporter : public StreamingReporterBase<XmlReporter>
 
     void writeSourceInfo(SourceLineInfo const& sourceInfo);
 
-   public:  // StreamingReporterBase
+  public:  // StreamingReporterBase
     void noMatchingTestCases(std::string const& s) override;
 
     void testRunStarting(TestRunInfo const& testInfo) override;
@@ -7359,7 +7359,7 @@ class XmlReporter : public StreamingReporterBase<XmlReporter>
     void benchmarkFailed(std::string const&) override;
 #endif  // CATCH_CONFIG_ENABLE_BENCHMARKING
 
-   private:
+  private:
     Timer m_testCaseTimer;
     XmlWriter m_xml;
     int m_sectionDepth = 0;
@@ -7588,7 +7588,7 @@ struct ChronometerModel final : public ChronometerConcept
 
 struct Chronometer
 {
-   public:
+  public:
     template <typename Fun>
     void measure(Fun&& fun)
     {
@@ -7599,7 +7599,7 @@ struct Chronometer
 
     Chronometer(Detail::ChronometerConcept& meter, int k) : impl(&meter), k(k) {}
 
-   private:
+  private:
     template <typename Fun>
     void measure(Fun&& fun, std::false_type)
     {
@@ -7690,7 +7690,7 @@ struct is_related : std::is_same<Decay<T>, Decay<U>>
 /// it may be slow, but it is consistently slow.
 struct BenchmarkFunction
 {
-   private:
+  private:
     struct callable
     {
         virtual void call(Chronometer meter) const = 0;
@@ -7725,7 +7725,7 @@ struct BenchmarkFunction
     {
     }
 
-   public:
+  public:
     BenchmarkFunction() : f(new model<do_nothing>{{}}) {}
 
     template <typename Fun,
@@ -7753,7 +7753,7 @@ struct BenchmarkFunction
 
     void operator()(Chronometer meter) const { f->call(meter); }
 
-   private:
+  private:
     std::unique_ptr<callable> f;
 };
 }  // namespace Detail
@@ -8438,7 +8438,7 @@ struct Benchmark
 
     explicit operator bool() { return true; }
 
-   private:
+  private:
     Detail::BenchmarkFunction fun;
     std::string name;
 };
@@ -8494,7 +8494,7 @@ struct ObjectStorage
         stored_object().~T();
     }
 
-   private:
+  private:
     // If this is a constructor benchmark, destruct the underlying object
     template <typename U>
     void destruct_on_exit(typename std::enable_if<Destruct, U>::type* = 0)
@@ -8602,7 +8602,7 @@ class TrackerContext
     ITracker* m_currentTracker = nullptr;
     RunState m_runState = NotStarted;
 
-   public:
+  public:
     ITracker& startRun();
     void endRun();
 
@@ -8616,7 +8616,7 @@ class TrackerContext
 
 class TrackerBase : public ITracker
 {
-   protected:
+  protected:
     enum CycleState
     {
         NotStarted,
@@ -8634,7 +8634,7 @@ class TrackerBase : public ITracker
     Children m_children;
     CycleState m_runState = NotStarted;
 
-   public:
+  public:
     TrackerBase(NameAndLocation const& nameAndLocation, TrackerContext& ctx, ITracker* parent);
 
     NameAndLocation const& nameAndLocation() const override;
@@ -8659,7 +8659,7 @@ class TrackerBase : public ITracker
     void fail() override;
     void markAsNeedingAnotherRun() override;
 
-   private:
+  private:
     void moveToParent();
     void moveToThis();
 };
@@ -8669,7 +8669,7 @@ class SectionTracker : public TrackerBase
     std::vector<std::string> m_filters;
     std::string m_trimmed_name;
 
-   public:
+  public:
     SectionTracker(NameAndLocation const& nameAndLocation, TrackerContext& ctx, ITracker* parent);
 
     bool isSectionTracker() const override;
@@ -9123,7 +9123,7 @@ struct FatalConditionHandler
     static void reset();
     ~FatalConditionHandler();
 
-   private:
+  private:
     static bool isSet;
     static ULONG guaranteeSize;
     static PVOID exceptionHandlerHandle;
@@ -9176,7 +9176,7 @@ struct IMutableContext;
 
 class RunContext : public IResultCapture, public IRunner
 {
-   public:
+  public:
     RunContext(RunContext const&) = delete;
     RunContext& operator=(RunContext const&) = delete;
 
@@ -9194,7 +9194,7 @@ class RunContext : public IResultCapture, public IRunner
     IConfigPtr config() const;
     IStreamingReporter& reporter() const;
 
-   public:  // IResultCapture
+  public:  // IResultCapture
     // Assertion handlers
     void handleExpr(AssertionInfo const& info, ITransientExpression const& expr,
                     AssertionReaction& reaction) override;
@@ -9239,11 +9239,11 @@ class RunContext : public IResultCapture, public IRunner
 
     void assertionPassed() override;
 
-   public:
+  public:
     // !TBD We need to do this another way!
     bool aborting() const final;
 
-   private:
+  private:
     void runCurrentTest(std::string& redirectedCout, std::string& redirectedCerr);
     void invokeActiveTestCase();
 
@@ -9256,7 +9256,7 @@ class RunContext : public IResultCapture, public IRunner
 
     void populateReaction(AssertionReaction& reaction);
 
-   private:
+  private:
     void handleUnfinishedSections();
 
     TestRunInfo m_runInfo;
@@ -9611,7 +9611,7 @@ class Column
     size_t m_indent = 0;
     size_t m_initialIndent = std::string::npos;
 
-   public:
+  public:
     class iterator
     {
         friend Column;
@@ -9691,7 +9691,7 @@ class Column
             return std::string(indent(), ' ') + (m_suffix ? plain + "-" : plain);
         }
 
-       public:
+      public:
         using difference_type = std::ptrdiff_t;
         using value_type = std::string;
         using pointer = value_type*;
@@ -9798,7 +9798,7 @@ class Column
 
 class Spacer : public Column
 {
-   public:
+  public:
     explicit Spacer(size_t spaceWidth) : Column("") { width(spaceWidth); }
 };
 
@@ -9806,7 +9806,7 @@ class Columns
 {
     std::vector<Column> m_columns;
 
-   public:
+  public:
     class iterator
     {
         friend Columns;
@@ -9827,7 +9827,7 @@ class Columns
                 m_iterators.push_back(col.end());
         }
 
-       public:
+      public:
         using difference_type = std::ptrdiff_t;
         using value_type = std::string;
         using pointer = value_type*;
@@ -9990,7 +9990,7 @@ class Args
     std::string m_exeName;
     std::vector<std::string> m_args;
 
-   public:
+  public:
     Args(int argc, char const* const* argv) : m_exeName(argv[0]), m_args(argv + 1, argv + argc) {}
 
     Args(std::initializer_list<std::string> args)
@@ -10074,7 +10074,7 @@ class TokenStream
         }
     }
 
-   public:
+  public:
     explicit TokenStream(Args const& args) : TokenStream(args.m_args.begin(), args.m_args.end()) {}
 
     TokenStream(Iterator it, Iterator itEnd) : it(it), itEnd(itEnd) { loadBuffer(); }
@@ -10113,7 +10113,7 @@ class TokenStream
 
 class ResultBase
 {
-   public:
+  public:
     enum Type
     {
         Ok,
@@ -10121,7 +10121,7 @@ class ResultBase
         RuntimeError
     };
 
-   protected:
+  protected:
     ResultBase(Type type) : m_type(type) {}
     virtual ~ResultBase() = default;
 
@@ -10133,14 +10133,14 @@ class ResultBase
 template <typename T>
 class ResultValueBase : public ResultBase
 {
-   public:
+  public:
     auto value() const -> T const&
     {
         enforceOk();
         return m_value;
     }
 
-   protected:
+  protected:
     ResultValueBase(Type type) : ResultBase(type) {}
 
     ResultValueBase(ResultValueBase const& other) : ResultBase(other)
@@ -10175,14 +10175,14 @@ class ResultValueBase : public ResultBase
 template <>
 class ResultValueBase<void> : public ResultBase
 {
-   protected:
+  protected:
     using ResultBase::ResultBase;
 };
 
 template <typename T = void>
 class BasicResult : public ResultValueBase<T>
 {
-   public:
+  public:
     template <typename U>
     explicit BasicResult(BasicResult<U> const& other)
         : ResultValueBase<T>(other.type()), m_errorMessage(other.errorMessage())
@@ -10209,7 +10209,7 @@ class BasicResult : public ResultValueBase<T>
     auto type() const -> ResultBase::Type { return m_type; }
     auto errorMessage() const -> std::string { return m_errorMessage; }
 
-   protected:
+  protected:
     void enforceOk() const override
     {
         // Errors shouldn't reach this point, but if they do
@@ -10242,7 +10242,7 @@ enum class ParseResultType
 
 class ParseState
 {
-   public:
+  public:
     ParseState(ParseResultType type, TokenStream const& remainingTokens)
         : m_type(type), m_remainingTokens(remainingTokens)
     {
@@ -10251,7 +10251,7 @@ class ParseState
     auto type() const -> ParseResultType { return m_type; }
     auto remainingTokens() const -> TokenStream { return m_remainingTokens; }
 
-   private:
+  private:
     ParseResultType m_type;
     TokenStream m_remainingTokens;
 };
@@ -10453,7 +10453,7 @@ struct Parser;
 
 class ParserBase
 {
-   public:
+  public:
     virtual ~ParserBase() = default;
     virtual auto validate() const -> Result { return Result::ok(); }
     virtual auto parse(std::string const& exeName, TokenStream const& tokens) const
@@ -10469,7 +10469,7 @@ class ParserBase
 template <typename DerivedT>
 class ComposableParserImpl : public ParserBase
 {
-   public:
+  public:
     template <typename T>
     auto operator|(T const& other) const -> Parser;
 
@@ -10481,7 +10481,7 @@ class ComposableParserImpl : public ParserBase
 template <typename DerivedT>
 class ParserRefImpl : public ComposableParserImpl<DerivedT>
 {
-   protected:
+  protected:
     Optionality m_optionality = Optionality::Optional;
     std::shared_ptr<BoundRef> m_ref;
     std::string m_hint;
@@ -10489,7 +10489,7 @@ class ParserRefImpl : public ComposableParserImpl<DerivedT>
 
     explicit ParserRefImpl(std::shared_ptr<BoundRef> const& ref) : m_ref(ref) {}
 
-   public:
+  public:
     template <typename T>
     ParserRefImpl(T& ref, std::string const& hint)
         : m_ref(std::make_shared<BoundValueRef<T>>(ref)), m_hint(hint)
@@ -10544,7 +10544,7 @@ class ExeName : public ComposableParserImpl<ExeName>
         return std::make_shared<BoundLambda<LambdaT>>(lambda);
     }
 
-   public:
+  public:
     ExeName() : m_name(std::make_shared<std::string>("<executable>")) {}
 
     explicit ExeName(std::string& ref) : ExeName()
@@ -10580,7 +10580,7 @@ class ExeName : public ComposableParserImpl<ExeName>
 
 class Arg : public ParserRefImpl<Arg>
 {
-   public:
+  public:
     using ParserRefImpl::ParserRefImpl;
 
     auto parse(std::string const&, TokenStream const& tokens) const -> InternalParseResult override
@@ -10617,10 +10617,10 @@ inline auto normaliseOpt(std::string const& optName) -> std::string
 
 class Opt : public ParserRefImpl<Opt>
 {
-   protected:
+  protected:
     std::vector<std::string> m_optNames;
 
-   public:
+  public:
     template <typename LambdaT>
     explicit Opt(LambdaT const& ref)
         : ParserRefImpl(std::make_shared<BoundFlagLambda<LambdaT>>(ref))
@@ -11290,11 +11290,11 @@ namespace Catch
 {
 class ErrnoGuard
 {
-   public:
+  public:
     ErrnoGuard();
     ~ErrnoGuard();
 
-   private:
+  private:
     int m_oldErrno;
 };
 
@@ -11344,7 +11344,7 @@ namespace
 {
 class Win32ColourImpl : public IColourImpl
 {
-   public:
+  public:
     Win32ColourImpl() : stdoutHandle(GetStdHandle(STD_OUTPUT_HANDLE))
     {
         CONSOLE_SCREEN_BUFFER_INFO csbiInfo;
@@ -11398,7 +11398,7 @@ class Win32ColourImpl : public IColourImpl
         }
     }
 
-   private:
+  private:
     void setTextAttribute(WORD _textAttribute)
     {
         SetConsoleTextAttribute(stdoutHandle, _textAttribute | originalBackgroundAttributes);
@@ -11436,7 +11436,7 @@ namespace
 // https://github.com/philsquared/Catch/pull/131
 class PosixColourImpl : public IColourImpl
 {
-   public:
+  public:
     void use(Colour::Code _colourCode) override
     {
         switch (_colourCode)
@@ -11480,7 +11480,7 @@ class PosixColourImpl : public IColourImpl
         return &s_instance;
     }
 
-   private:
+  private:
     void setColour(const char* _escapeCode)
     {
         getCurrentContext().getConfig()->stream() << '\033' << _escapeCode;
@@ -11572,7 +11572,7 @@ namespace Catch
 {
 class Context : public IMutableContext, NonCopyable
 {
-   public:  // IContext
+  public:  // IContext
     IResultCapture* getResultCapture() override { return m_resultCapture; }
     IRunner* getRunner() override { return m_runner; }
 
@@ -11580,7 +11580,7 @@ class Context : public IMutableContext, NonCopyable
 
     ~Context() override;
 
-   public:  // IMutableContext
+  public:  // IMutableContext
     void setResultCapture(IResultCapture* resultCapture) override
     {
         m_resultCapture = resultCapture;
@@ -11590,7 +11590,7 @@ class Context : public IMutableContext, NonCopyable
 
     friend IMutableContext& getCurrentMutableContext();
 
-   private:
+  private:
     IConfigPtr m_config;
     IRunner* m_runner = nullptr;
     IResultCapture* m_resultCapture = nullptr;
@@ -11959,13 +11959,13 @@ namespace Catch
 {
 class ExceptionTranslatorRegistry : public IExceptionTranslatorRegistry
 {
-   public:
+  public:
     ~ExceptionTranslatorRegistry();
     virtual void registerTranslator(const IExceptionTranslator* translator);
     std::string translateActiveException() const override;
     std::string tryTranslators() const;
 
-   private:
+  private:
     std::vector<std::unique_ptr<IExceptionTranslator const>> m_translators;
 };
 }  // namespace Catch
@@ -12309,13 +12309,13 @@ class ListeningReporter : public IStreamingReporter
     IStreamingReporterPtr m_reporter = nullptr;
     ReporterPreferences m_preferences;
 
-   public:
+  public:
     ListeningReporter();
 
     void addListener(IStreamingReporterPtr&& listener);
     void addReporter(IStreamingReporterPtr&& reporter);
 
-   public:  // IStreamingReporter
+  public:  // IStreamingReporter
     ReporterPreferences getPreferences() const override;
 
     void noMatchingTestCases(std::string const& spec) override;
@@ -13346,7 +13346,7 @@ class RedirectedStream
     std::ostream& m_redirectionStream;
     std::streambuf* m_prevBuf;
 
-   public:
+  public:
     RedirectedStream(std::ostream& originalStream, std::ostream& redirectionStream);
     ~RedirectedStream();
 };
@@ -13356,7 +13356,7 @@ class RedirectedStdOut
     ReusableStringStream m_rss;
     RedirectedStream m_cout;
 
-   public:
+  public:
     RedirectedStdOut();
     auto str() const -> std::string;
 };
@@ -13370,14 +13370,14 @@ class RedirectedStdErr
     RedirectedStream m_cerr;
     RedirectedStream m_clog;
 
-   public:
+  public:
     RedirectedStdErr();
     auto str() const -> std::string;
 };
 
 class RedirectedStreams
 {
-   public:
+  public:
     RedirectedStreams(RedirectedStreams const&) = delete;
     RedirectedStreams& operator=(RedirectedStreams const&) = delete;
     RedirectedStreams(RedirectedStreams&&) = delete;
@@ -13386,7 +13386,7 @@ class RedirectedStreams
     RedirectedStreams(std::string& redirectedCout, std::string& redirectedCerr);
     ~RedirectedStreams();
 
-   private:
+  private:
     std::string& m_redirectedCout;
     std::string& m_redirectedCerr;
     RedirectedStdOut m_redirectedStdOut;
@@ -13401,7 +13401,7 @@ class RedirectedStreams
 // create the file ourselves there.
 class TempFile
 {
-   public:
+  public:
     TempFile(TempFile const&) = delete;
     TempFile& operator=(TempFile const&) = delete;
     TempFile(TempFile&&) = delete;
@@ -13413,7 +13413,7 @@ class TempFile
     std::FILE* getFile();
     std::string getContents();
 
-   private:
+  private:
     std::FILE* m_file = nullptr;
 #if defined(_MSC_VER)
     char m_buffer[L_tmpnam] = {0};
@@ -13422,7 +13422,7 @@ class TempFile
 
 class OutputRedirect
 {
-   public:
+  public:
     OutputRedirect(OutputRedirect const&) = delete;
     OutputRedirect& operator=(OutputRedirect const&) = delete;
     OutputRedirect(OutputRedirect&&) = delete;
@@ -13431,7 +13431,7 @@ class OutputRedirect
     OutputRedirect(std::string& stdout_dest, std::string& stderr_dest);
     ~OutputRedirect();
 
-   private:
+  private:
     int m_originalStdout = -1;
     int m_originalStderr = -1;
     TempFile m_stdoutFile;
@@ -13703,7 +13703,7 @@ std::vector<TestCase> const& getAllTestCasesSorted(IConfig const& config);
 
 class TestRegistry : public ITestCaseRegistry
 {
-   public:
+  public:
     virtual ~TestRegistry() = default;
 
     virtual void registerTest(TestCase const& testCase);
@@ -13711,7 +13711,7 @@ class TestRegistry : public ITestCaseRegistry
     std::vector<TestCase> const& getAllTests() const override;
     std::vector<TestCase> const& getAllTestsSorted(IConfig const& config) const override;
 
-   private:
+  private:
     std::vector<TestCase> m_functions;
     mutable RunTests::InWhatOrder m_currentSortOrder = RunTests::InDeclarationOrder;
     mutable std::vector<TestCase> m_sortedFunctions;
@@ -13725,7 +13725,7 @@ class TestInvokerAsFunction : public ITestInvoker
 {
     void (*m_testAsFunction)();
 
-   public:
+  public:
     TestInvokerAsFunction(void (*testAsFunction)()) noexcept;
 
     void invoke() const override;
@@ -13746,7 +13746,7 @@ namespace Catch
 {
 class ReporterRegistry : public IReporterRegistry
 {
-   public:
+  public:
     ~ReporterRegistry() override;
 
     IStreamingReporterPtr create(std::string const& name, IConfigPtr const& config) const override;
@@ -13757,7 +13757,7 @@ class ReporterRegistry : public IReporterRegistry
     FactoryMap const& getFactories() const override;
     Listeners const& getListeners() const override;
 
-   private:
+  private:
     FactoryMap m_factories;
     Listeners m_listeners;
 };
@@ -13789,13 +13789,13 @@ namespace Catch
 {
 class TagAliasRegistry : public ITagAliasRegistry
 {
-   public:
+  public:
     ~TagAliasRegistry() override;
     TagAlias const* find(std::string const& alias) const override;
     std::string expandAliases(std::string const& unexpandedTestSpec) const override;
     void add(std::string const& alias, std::string const& tag, SourceLineInfo const& lineInfo);
 
-   private:
+  private:
     std::map<std::string, TagAlias> m_registry;
 };
 
@@ -13811,11 +13811,11 @@ namespace Catch
 {
 class StartupExceptionRegistry
 {
-   public:
+  public:
     void add(std::exception_ptr const& exception) noexcept;
     std::vector<std::exception_ptr> const& getExceptions() const noexcept;
 
-   private:
+  private:
     std::vector<std::exception_ptr> m_exceptions;
 };
 
@@ -13849,7 +13849,7 @@ class Singleton : SingletonImplT, public ISingleton
         return s_instance;
     }
 
-   public:
+  public:
     static auto get() -> InterfaceT const& { return *getInternal(); }
     static auto getMutable() -> MutableInterfaceT& { return *getInternal(); }
 };
@@ -13863,7 +13863,7 @@ namespace
 {
 class RegistryHub : public IRegistryHub, public IMutableRegistryHub, private NonCopyable
 {
-   public:  // IRegistryHub
+  public:  // IRegistryHub
     RegistryHub() = default;
     IReporterRegistry const& getReporterRegistry() const override { return m_reporterRegistry; }
     ITestCaseRegistry const& getTestCaseRegistry() const override { return m_testCaseRegistry; }
@@ -13877,7 +13877,7 @@ class RegistryHub : public IRegistryHub, public IMutableRegistryHub, private Non
         return m_exceptionRegistry;
     }
 
-   public:  // IMutableRegistryHub
+  public:  // IMutableRegistryHub
     void registerReporter(std::string const& name, IReporterFactoryPtr const& factory) override
     {
         m_reporterRegistry.registerReporter(name, factory);
@@ -13908,7 +13908,7 @@ class RegistryHub : public IRegistryHub, public IMutableRegistryHub, private Non
         return m_enumValuesRegistry;
     }
 
-   private:
+  private:
     TestRegistry m_testCaseRegistry;
     ReporterRegistry m_reporterRegistry;
     ExceptionTranslatorRegistry m_exceptionTranslatorRegistry;
@@ -14571,7 +14571,7 @@ namespace Catch
 {
 class Session : NonCopyable
 {
-   public:
+  public:
     Session();
     ~Session() override;
 
@@ -14603,7 +14603,7 @@ class Session : NonCopyable
     ConfigData& configData();
     Config& config();
 
-   private:
+  private:
     int runInternal();
 
     clara::Parser m_cli;
@@ -14688,7 +14688,7 @@ IStreamingReporterPtr makeReporter(std::shared_ptr<Config> const& config)
 
 class TestGroup
 {
-   public:
+  public:
     explicit TestGroup(std::shared_ptr<Config> const& config)
         : m_config{config}, m_context{config, makeReporter(config)}
     {
@@ -14741,7 +14741,7 @@ class TestGroup
         return totals;
     }
 
-   private:
+  private:
     using Tests = std::set<TestCase const*>;
 
     std::shared_ptr<Config> m_config;
@@ -15039,12 +15039,12 @@ class StreamBufImpl : public std::streambuf
     char data[bufferSize];
     WriterF m_writer;
 
-   public:
+  public:
     StreamBufImpl() { setp(data, data + sizeof(data)); }
 
     ~StreamBufImpl() noexcept { StreamBufImpl::sync(); }
 
-   private:
+  private:
     int overflow(int c) override
     {
         sync();
@@ -15083,7 +15083,7 @@ class FileStream : public IStream
 {
     mutable std::ofstream m_ofs;
 
-   public:
+  public:
     FileStream(StringRef filename)
     {
         m_ofs.open(filename.c_str());
@@ -15091,7 +15091,7 @@ class FileStream : public IStream
     }
     ~FileStream() override = default;
 
-   public:  // IStream
+  public:  // IStream
     std::ostream& stream() const override { return m_ofs; }
 };
 
@@ -15101,13 +15101,13 @@ class CoutStream : public IStream
 {
     mutable std::ostream m_os;
 
-   public:
+  public:
     // Store the streambuf from cout up-front because
     // cout may get redirected when running tests
     CoutStream() : m_os(Catch::cout().rdbuf()) {}
     ~CoutStream() override = default;
 
-   public:  // IStream
+  public:  // IStream
     std::ostream& stream() const override { return m_os; }
 };
 
@@ -15118,14 +15118,14 @@ class DebugOutStream : public IStream
     std::unique_ptr<StreamBufImpl<OutputDebugWriter>> m_streamBuf;
     mutable std::ostream m_os;
 
-   public:
+  public:
     DebugOutStream() : m_streamBuf(new StreamBufImpl<OutputDebugWriter>()), m_os(m_streamBuf.get())
     {
     }
 
     ~DebugOutStream() override = default;
 
-   public:  // IStream
+  public:  // IStream
     std::ostream& stream() const override { return m_os; }
 };
 
@@ -17377,7 +17377,7 @@ void printTotals(std::ostream& out, const Totals& totals)
 // Implementation of CompactReporter formatting
 class AssertionPrinter
 {
-   public:
+  public:
     AssertionPrinter& operator=(AssertionPrinter const&) = delete;
     AssertionPrinter(AssertionPrinter const&) = delete;
     AssertionPrinter(std::ostream& _stream, AssertionStats const& _stats, bool _printInfoMessages)
@@ -17460,7 +17460,7 @@ class AssertionPrinter
         }
     }
 
-   private:
+  private:
     void printSourceInfo() const
     {
         Colour colourGuard(Colour::FileName);
@@ -17553,7 +17553,7 @@ class AssertionPrinter
         }
     }
 
-   private:
+  private:
     std::ostream& stream;
     AssertionResult const& result;
     std::vector<MessageInfo> messages;
@@ -17645,7 +17645,7 @@ namespace
 // Formatter impl for ConsoleReporter
 class ConsoleAssertionPrinter
 {
-   public:
+  public:
     ConsoleAssertionPrinter& operator=(ConsoleAssertionPrinter const&) = delete;
     ConsoleAssertionPrinter(ConsoleAssertionPrinter const&) = delete;
     ConsoleAssertionPrinter(std::ostream& _stream, AssertionStats const& _stats,
@@ -17744,7 +17744,7 @@ class ConsoleAssertionPrinter
         printMessage();
     }
 
-   private:
+  private:
     void printResultType() const
     {
         if (!passOrFail.empty())
@@ -17853,7 +17853,7 @@ class Duration
     uint64_t m_inNanoseconds;
     Unit m_units;
 
-   public:
+  public:
     explicit Duration(double inNanoseconds, Unit units = Unit::Auto)
         : Duration(static_cast<uint64_t>(inNanoseconds), units)
     {
@@ -17926,7 +17926,7 @@ class TablePrinter
     int m_currentColumn = -1;
     bool m_isOpen = false;
 
-   public:
+  public:
     TablePrinter(std::ostream& os, std::vector<ColumnInfo> columnInfos)
         : m_os(os), m_columnInfos(std::move(columnInfos))
     {

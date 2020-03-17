@@ -28,7 +28,7 @@ class ItemParserBase;
 
 class FrameParser
 {
-   public:
+  public:
     FrameParser(const nlohmann::json& framing_definition, ASTERIXParser& asterix_parser,
                 bool debug);
 
@@ -45,7 +45,7 @@ class FrameParser
 
     bool hasFileHeaderItems() const;
 
-   private:
+  private:
     ASTERIXParser& asterix_parser_;
 
     bool has_file_header_items_{false};

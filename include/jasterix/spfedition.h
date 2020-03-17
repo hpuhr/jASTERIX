@@ -30,7 +30,7 @@ class Record;
 
 class SPFEdition
 {
-   public:
+  public:
     SPFEdition(const std::string& number, const nlohmann::json& definition,
                const std::string& definition_path);
     virtual ~SPFEdition();
@@ -43,7 +43,7 @@ class SPFEdition
     std::shared_ptr<SpecialPurposeField> specialPurposeField() const;
     std::string definitionPath() const;
 
-   protected:
+  protected:
     std::string number_;
     std::string document_;
     std::string date_;

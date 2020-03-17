@@ -32,7 +32,7 @@ class ItemParserBase;
 
 class ASTERIXParser
 {
-   public:
+  public:
     ASTERIXParser(const nlohmann::json& data_block_definition,
                   std::map<unsigned int, std::shared_ptr<Category>>& category_definitions,
                   bool debug);
@@ -51,7 +51,7 @@ class ASTERIXParser
     //    nlohmann::json& target,
     //                            bool debug);
 
-   private:
+  private:
     std::string data_block_name_;
     std::vector<std::unique_ptr<ItemParserBase>> data_block_items_;
     std::map<unsigned int, std::shared_ptr<Record>> records_;

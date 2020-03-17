@@ -31,7 +31,7 @@ namespace jASTERIX
 {
 class FrameParserTask : public tbb::task
 {
-   public:
+  public:
     FrameParserTask(jASTERIX& jasterix, FrameParser& frame_parser, const nlohmann::json& header,
                     const char* data, size_t index, size_t size, bool debug)
         : jasterix_(jasterix),
@@ -92,7 +92,7 @@ class FrameParserTask : public tbb::task
     void forceStop();
     bool done() const;
 
-   private:
+  private:
     jASTERIX& jasterix_;
     FrameParser& frame_parser_;
     const nlohmann::json& header_;
