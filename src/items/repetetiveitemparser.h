@@ -15,7 +15,6 @@
  * along with ATSDB.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 #ifndef REPETETIVEITEMPARSER_H
 #define REPETETIVEITEMPARSER_H
 
@@ -23,20 +22,21 @@
 
 namespace jASTERIX
 {
-
 class RepetetiveItemParser : public ItemParserBase
 {
-public:
-    RepetetiveItemParser (const nlohmann::json& item_definition);
+   public:
+    RepetetiveItemParser(const nlohmann::json& item_definition);
     virtual ~RepetetiveItemParser() {}
 
-    virtual size_t parseItem (const char* data, size_t index, size_t size, size_t current_parsed_bytes,
-                              nlohmann::json& target, bool debug) override;
-protected:
+    virtual size_t parseItem(const char* data, size_t index, size_t size,
+                             size_t current_parsed_bytes, nlohmann::json& target,
+                             bool debug) override;
+
+   protected:
     std::unique_ptr<ItemParserBase> repetition_item_;
     std::vector<std::unique_ptr<ItemParserBase>> items_;
 };
 
-}
+}  // namespace jASTERIX
 
-#endif // REPETETIVEITEMPARSER_H
+#endif  // REPETETIVEITEMPARSER_H

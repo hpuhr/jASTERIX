@@ -15,25 +15,25 @@
  * along with ATSDB.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 #ifndef STRING_CONV_H
 #define STRING_CONV_H
 
-#include <vector>
 #include <string>
+#include <vector>
 
 #include "json.hpp"
 
 extern int char2int(char input);
 extern size_t hex2bin(const char* src, char* target);
-extern char getIcaoChar (unsigned char c);
+extern char getIcaoChar(unsigned char c);
 extern std::string binary2hex(const unsigned char* src, unsigned int length);
 
-extern std::vector<std::string> &split(const std::string &s, char delim, std::vector<std::string> &elems);
-//extern std::vector<std::string> split(const std::string &s, char delim);
+extern std::vector<std::string>& split(const std::string& s, char delim,
+                                       std::vector<std::string>& elems);
+// extern std::vector<std::string> split(const std::string &s, char delim);
 
 extern std::string toString(const nlohmann::json& j);
 
-extern bool isASCII (const std::string& s);
+extern bool isASCII(const std::string& s);
 
-#endif // STRING_CONV_H
+#endif  // STRING_CONV_H

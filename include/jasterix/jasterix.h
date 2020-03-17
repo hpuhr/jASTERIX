@@ -18,23 +18,22 @@
 #ifndef JASTERIX_H
 #define JASTERIX_H
 
-#include <string>
-#include <map>
-#include <deque>
-#include <mutex>
-
-#include <jasterix/global.h>
-
-#include <boost/iostreams/device/mapped_file.hpp>
-
-#include "json.hpp"
-#include <jasterix/frameparser.h>
 #include <jasterix/category.h>
 #include <jasterix/edition.h>
+#include <jasterix/frameparser.h>
+#include <jasterix/global.h>
 #include <jasterix/mapping.h>
 
-namespace jASTERIX {
+#include <boost/iostreams/device/mapped_file.hpp>
+#include <deque>
+#include <map>
+#include <mutex>
+#include <string>
 
+#include "json.hpp"
+
+namespace jASTERIX
+{
 extern int print_dump_indent;
 extern int frame_limit;
 extern int frame_chunk_size;
@@ -52,30 +51,36 @@ extern bool add_record_data;
 
 class jASTERIX
 {
-public:
-    jASTERIX(const std::string& definition_path, bool print, bool debug, bool debug_exclude_framing);
+   public:
+    jASTERIX(const std::string& definition_path, bool print, bool debug,
+             bool debug_exclude_framing);
     virtual ~jASTERIX();
 
     bool hasCategory(unsigned int cat);
     bool decodeCategory(unsigned int cat);
-    void setDecodeCategory (unsigned int cat, bool decode);
+    void setDecodeCategory(unsigned int cat, bool decode);
     void decodeNoCategories();
 
-    std::shared_ptr<Category> category (unsigned int cat);
-    const std::map<unsigned int, std::shared_ptr<Category>>& categories() { return category_definitions_; }
+    std::shared_ptr<Category> category(unsigned int cat);
+    const std::map<unsigned int, std::shared_ptr<Category>>& categories()
+    {
+        return category_definitions_;
+    }
 
-    void decodeFile (const std::string& filename, const std::string& framing_str,
-                     std::function<void(std::unique_ptr<nlohmann::json>, size_t, size_t, size_t)> data_callback=nullptr);
+    void decodeFile(const std::string& filename, const std::string& framing_str,
+                    std::function<void(std::unique_ptr<nlohmann::json>, size_t, size_t, size_t)>
+                        data_callback = nullptr);
     // callback gets moved chunk, accumulated number of frames, number of records, number of errors
-    void decodeFile (const std::string& filename,
-                     std::function<void(std::unique_ptr<nlohmann::json>, size_t, size_t, size_t)> data_callback=nullptr);
+    void decodeFile(const std::string& filename,
+                    std::function<void(std::unique_ptr<nlohmann::json>, size_t, size_t, size_t)>
+                        data_callback = nullptr);
 
     size_t numFrames() const;
     size_t numRecords() const;
     size_t numErrors() const;
 
-    void addDataBlockChunk (std::unique_ptr<nlohmann::json> data_block_chunk, bool error, bool done);
-    void addDataChunk (std::unique_ptr<nlohmann::json> data_chunk, bool done);
+    void addDataBlockChunk(std::unique_ptr<nlohmann::json> data_block_chunk, bool error, bool done);
+    void addDataChunk(std::unique_ptr<nlohmann::json> data_chunk, bool done);
 
     const std::vector<std::string>& framings() { return framings_; }
 
@@ -85,12 +90,11 @@ public:
 
     void setDebug(bool debug);
 
-
-private:
+   private:
     std::string definition_path_;
-    bool print_ {false};
-    bool debug_ {false};
-    bool debug_exclude_framing_ {false};
+    bool print_{false};
+    bool debug_{false};
+    bool debug_exclude_framing_{false};
 
     std::string framing_path_;
     std::vector<std::string> framings_;
@@ -107,16 +111,16 @@ private:
 
     std::deque<std::unique_ptr<nlohmann::json>> data_block_chunks_;
     std::mutex data_block_chunks_mutex_;
-    bool data_block_processing_done_ {false};
+    bool data_block_processing_done_{false};
 
     std::deque<std::unique_ptr<nlohmann::json>> data_chunks_;
     std::mutex data_chunks_mutex_;
-    bool data_processing_done_ {false};
+    bool data_processing_done_{false};
 
     size_t num_frames_{0};
     size_t num_records_{0};
     size_t num_errors_{0};
 };
-}
+}  // namespace jASTERIX
 
-#endif // JASTERIX_H
+#endif  // JASTERIX_H

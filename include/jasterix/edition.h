@@ -15,24 +15,24 @@
  * along with ATSDB.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 #ifndef EDITION_H
 #define EDITION_H
 
-#include "json.hpp"
 #include <jasterix/record.h>
 
 #include <string>
 
+#include "json.hpp"
+
 namespace jASTERIX
 {
-
 class Record;
 
 class Edition
 {
-public:
-    Edition(const std::string& number, const nlohmann::json& definition, const std::string& definition_path);
+   public:
+    Edition(const std::string& number, const nlohmann::json& definition,
+            const std::string& definition_path);
     virtual ~Edition();
 
     std::string number() const;
@@ -43,16 +43,16 @@ public:
     std::shared_ptr<Record> record() const;
     std::string definitionPath() const;
 
-protected:
+   protected:
     std::string number_;
     std::string document_;
     std::string date_;
     std::string file_;
 
     std::string edition_definition_path_;
-    nlohmann::json definition_; // from file
+    nlohmann::json definition_;  // from file
     std::shared_ptr<Record> record_;
 };
 
-}
-#endif // EDITION_H
+}  // namespace jASTERIX
+#endif  // EDITION_H

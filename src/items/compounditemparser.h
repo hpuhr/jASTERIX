@@ -15,32 +15,33 @@
  * along with ATSDB.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 #ifndef COMPOUNDITEMPARSER_H
 #define COMPOUNDITEMPARSER_H
 
-#include "itemparserbase.h"
-
-#include <vector>
 #include <memory>
+#include <vector>
+
+#include "itemparserbase.h"
 
 namespace jASTERIX
 {
 // decodes a field specification/availablity field (ending with extend bit), and list of items
 class CompoundItemParser : public ItemParserBase
 {
-public:
-    CompoundItemParser (const nlohmann::json& item_definition);
+   public:
+    CompoundItemParser(const nlohmann::json& item_definition);
     virtual ~CompoundItemParser() {}
 
-    virtual size_t parseItem (const char* data, size_t index, size_t size, size_t current_parsed_bytes,
-                              nlohmann::json& target, bool debug) override;
-protected:
-    //std::string field_specification_name_;
+    virtual size_t parseItem(const char* data, size_t index, size_t size,
+                             size_t current_parsed_bytes, nlohmann::json& target,
+                             bool debug) override;
+
+   protected:
+    // std::string field_specification_name_;
     std::unique_ptr<ItemParserBase> field_specification_;
     std::vector<std::unique_ptr<ItemParserBase>> items_;
 };
 
-}
+}  // namespace jASTERIX
 
-#endif // COMPOUNDITEMPARSER_H
+#endif  // COMPOUNDITEMPARSER_H

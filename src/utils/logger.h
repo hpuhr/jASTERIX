@@ -15,7 +15,6 @@
  * along with ATSDB.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 #ifndef LOGGER_H_
 #define LOGGER_H_
 
@@ -29,7 +28,6 @@
 
 namespace jASTERIX
 {
-
 #if USE_LOG4CPP
 #define logerr log4cpp::Category::getRoot().errorStream()
 //#define logwrn log4cpp::Category::getRoot().warnStream()
@@ -46,6 +44,6 @@ namespace jASTERIX
 
 #endif
 
-}
+}  // namespace jASTERIX
 
 #endif /* LOGGER_H_ */

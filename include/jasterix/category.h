@@ -15,66 +15,66 @@
  * along with ATSDB.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 #ifndef CATEGORY_H
 #define CATEGORY_H
 
-#include "json.hpp"
 #include <jasterix/edition.h>
+#include <jasterix/mapping.h>
 #include <jasterix/refedition.h>
 #include <jasterix/spfedition.h>
-#include <jasterix/mapping.h>
 
 #include <string>
 
+#include "json.hpp"
+
 namespace jASTERIX
 {
-
 class Category
 {
-public:
-    Category(const std::string& number, const nlohmann::json& definition, const std::string& definition_path);
+   public:
+    Category(const std::string& number, const nlohmann::json& definition,
+             const std::string& definition_path);
     virtual ~Category();
 
     std::string number() const;
     std::string comment() const;
 
     // edition stuff
-    bool hasEdition (const std::string& edition_str) const;
-    std::shared_ptr<Edition> edition (const std::string& edition_str);
-    std::string editionPath (const std::string& edition_str) const;
+    bool hasEdition(const std::string& edition_str) const;
+    std::shared_ptr<Edition> edition(const std::string& edition_str);
+    std::string editionPath(const std::string& edition_str) const;
 
     std::string defaultEdition() const;
-    void setCurrentEdition (const std::string& edition_str);
+    void setCurrentEdition(const std::string& edition_str);
     std::shared_ptr<Edition> getCurrentEdition();
 
     // ref stuff
-    bool hasREFEdition (const std::string& edition_str) const;
-    std::shared_ptr<REFEdition> refEdition (const std::string& edition_str);
-    std::string refEditionPath (const std::string& edition_str) const;
+    bool hasREFEdition(const std::string& edition_str) const;
+    std::shared_ptr<REFEdition> refEdition(const std::string& edition_str);
+    std::string refEditionPath(const std::string& edition_str) const;
 
-    std::string defaultREFEdition () const;
-    void setCurrentREFEdition (const std::string& edition_str);
+    std::string defaultREFEdition() const;
+    void setCurrentREFEdition(const std::string& edition_str);
     bool hasCurrentREFEdition();
-    std::shared_ptr<REFEdition> getCurrentREFEdition ();
+    std::shared_ptr<REFEdition> getCurrentREFEdition();
 
     // spf stuff
-    bool hasSPFEdition (const std::string& edition_str) const;
-    std::shared_ptr<SPFEdition> spfEdition (const std::string& edition_str);
-    std::string spfEditionPath (const std::string& edition_str) const;
+    bool hasSPFEdition(const std::string& edition_str) const;
+    std::shared_ptr<SPFEdition> spfEdition(const std::string& edition_str);
+    std::string spfEditionPath(const std::string& edition_str) const;
 
-    std::string defaultSPFEdition () const;
-    void setCurrentSPFEdition (const std::string& edition_str);
+    std::string defaultSPFEdition() const;
+    void setCurrentSPFEdition(const std::string& edition_str);
     bool hasCurrentSPFEdition();
-    std::shared_ptr<SPFEdition> getCurrentSPFEdition ();
+    std::shared_ptr<SPFEdition> getCurrentSPFEdition();
 
     // mapping stuff
-    bool hasMapping (const std::string& mapping_str);
-    std::shared_ptr<Mapping> mapping (const std::string& mapping_str);
+    bool hasMapping(const std::string& mapping_str);
+    std::shared_ptr<Mapping> mapping(const std::string& mapping_str);
 
     std::string defaultMapping() const;
     bool hasCurrentMapping();
-    void setCurrentMapping (const std::string& mapping_str);
+    void setCurrentMapping(const std::string& mapping_str);
     std::shared_ptr<Mapping> getCurrentMapping();
 
     const std::map<std::string, std::shared_ptr<Edition>>& editions() const;
@@ -83,9 +83,9 @@ public:
     const std::map<std::string, std::shared_ptr<Mapping>>& mappings() const;
 
     bool decode() const;
-    void decode (bool value);
+    void decode(bool value);
 
-protected:
+   protected:
     std::string number_;
     std::string comment_;
 
@@ -107,5 +107,5 @@ protected:
     std::map<std::string, std::shared_ptr<Mapping>> mappings_;
 };
 
-}
-#endif // CATEGORY_H
+}  // namespace jASTERIX
+#endif  // CATEGORY_H

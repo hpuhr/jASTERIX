@@ -15,7 +15,6 @@
  * along with ATSDB.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 #ifndef ITEMPARSING_H
 #define ITEMPARSING_H
 
@@ -25,58 +24,58 @@
 #include "json.hpp"
 //#include "logger.h"
 
-#include <string>
+#include <bitset>
 #include <cassert>
 #include <exception>
-#include <bitset>
+#include <string>
 
 namespace jASTERIX
 {
-
 class ItemParserBase
 {
-public:
-    ItemParserBase (const nlohmann::json& item_definition);
+   public:
+    ItemParserBase(const nlohmann::json& item_definition);
     virtual ~ItemParserBase() {}
 
-    static ItemParserBase* createItemParser (const nlohmann::json& item_definition);
+    static ItemParserBase* createItemParser(const nlohmann::json& item_definition);
 
     // always return number of parsed bytes
-    virtual size_t parseItem (const char* data, size_t index, size_t size, size_t current_parsed_bytes,
-                              nlohmann::json& target, bool debug) = 0;
+    virtual size_t parseItem(const char* data, size_t index, size_t size,
+                             size_t current_parsed_bytes, nlohmann::json& target, bool debug) = 0;
     std::string name() const;
     std::string type() const;
 
-protected:
+   protected:
     const nlohmann::json& item_definition_;
     std::string name_;
     std::string type_;
 };
 
-bool variableHasValue (const nlohmann::json& data, const std::vector <std::string>& variable_name_parts,
-                       const nlohmann::json& variable_value);
+bool variableHasValue(const nlohmann::json& data,
+                      const std::vector<std::string>& variable_name_parts,
+                      const nlohmann::json& variable_value);
 
 inline unsigned char reverseBits(unsigned char b)
 {
-   b = (b & 0xF0) >> 4 | (b & 0x0F) << 4;
-   b = (b & 0xCC) >> 2 | (b & 0x33) << 2;
-   b = (b & 0xAA) >> 1 | (b & 0x55) << 1;
+    b = (b & 0xF0) >> 4 | (b & 0x0F) << 4;
+    b = (b & 0xCC) >> 2 | (b & 0x33) << 2;
+    b = (b & 0xAA) >> 1 | (b & 0x55) << 1;
 
-   return b;
+    return b;
 }
 
-inline std::vector<std::string> split(const std::string &s, char delim)
+inline std::vector<std::string> split(const std::string& s, char delim)
 {
     std::vector<std::string> elems;
     std::stringstream ss(s);
     std::string item;
-    while(std::getline(ss, item, delim))
+    while (std::getline(ss, item, delim))
     {
         elems.push_back(item);
     }
     return elems;
 }
 
-}
+}  // namespace jASTERIX
 
-#endif // ITEMPARSING_H
+#endif  // ITEMPARSING_H

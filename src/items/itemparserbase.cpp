@@ -15,57 +15,53 @@
  * along with ATSDB.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <cassert>
+#include <exception>
+#include <iomanip>
+#include <iostream>
+#include <string>
 
-#include "itemparser.h"
-#include "logger.h"
-
-#include "itemparser.h"
 #include "compounditemparser.h"
 #include "dynamicbytesitemparser.h"
 #include "extendablebitsitemparser.h"
 #include "extendableitemparser.h"
 #include "fixedbitfielditemparser.h"
-#include "fixedbytesitemparser.h"
 #include "fixedbitsitemparser.h"
+#include "fixedbytesitemparser.h"
+#include "itemparser.h"
+#include "logger.h"
 #include "optionalitemparser.h"
 #include "repetetiveitemparser.h"
 #include "skipbytesitemparser.h"
-
-#include <iostream>
-#include <cassert>
-#include <string>
-#include <exception>
-#include <iomanip>
 
 using namespace std;
 using namespace nlohmann;
 
 namespace jASTERIX
 {
-
-ItemParserBase::ItemParserBase (const nlohmann::json& item_definition)
- : item_definition_(item_definition)
+ItemParserBase::ItemParserBase(const nlohmann::json& item_definition)
+    : item_definition_(item_definition)
 {
     if (!item_definition.contains("name"))
-        throw runtime_error ("item construction without JSON name definition");
+        throw runtime_error("item construction without JSON name definition");
 
     name_ = item_definition.at("name");
 
     if (!item_definition.contains("type"))
-        throw runtime_error ("item '"+name_+"' construction without data type definition");
+        throw runtime_error("item '" + name_ + "' construction without data type definition");
 
     type_ = item_definition.at("type");
 }
 
-ItemParserBase* ItemParserBase::createItemParser (const nlohmann::json& item_definition)
+ItemParserBase* ItemParserBase::createItemParser(const nlohmann::json& item_definition)
 {
     if (!item_definition.contains("name"))
-        throw runtime_error ("item creation without JSON name definition");
+        throw runtime_error("item creation without JSON name definition");
 
     std::string name = item_definition.at("name");
 
     if (!item_definition.contains("type"))
-        throw runtime_error ("item '"+name+"' creation without data type definition");
+        throw runtime_error("item '" + name + "' creation without data type definition");
 
     std::string type = item_definition.at("type");
 
@@ -110,23 +106,18 @@ ItemParserBase* ItemParserBase::createItemParser (const nlohmann::json& item_def
         return new RepetetiveItemParser(item_definition);
     }
     else
-        throw runtime_error ("item creation name '"+name+"' with unknown type '"+type+"'");
-
+        throw runtime_error("item creation name '" + name + "' with unknown type '" + type + "'");
 }
 
-std::string ItemParserBase::name() const
-{
-    return name_;
-}
+std::string ItemParserBase::name() const { return name_; }
 
-std::string ItemParserBase::type() const
-{
-    return type_;
-}
+std::string ItemParserBase::type() const { return type_; }
 
-//size_t parseFixedBitsItem (const std::string& name, const std::string& type, const nlohmann::json& item_definition,
-//                           const char* data, size_t index, size_t size, size_t current_parsed_bytes,
-//                           nlohmann::json& target, nlohmann::json& parent, bool debug)
+// size_t parseFixedBitsItem (const std::string& name, const std::string& type, const
+// nlohmann::json& item_definition,
+//                           const char* data, size_t index, size_t size, size_t
+//                           current_parsed_bytes, nlohmann::json& target, nlohmann::json& parent,
+//                           bool debug)
 //{
 //    if (debug)
 //    {
@@ -200,7 +191,7 @@ std::string ItemParserBase::type() const
 //    return 0;
 //}
 
-//bool variableHasValue (const nlohmann::json& data, const std::string& variable_name,
+// bool variableHasValue (const nlohmann::json& data, const std::string& variable_name,
 //                       const nlohmann::json& variable_value)
 //{
 //    const nlohmann::json* val_ptr = &data;
@@ -236,40 +227,41 @@ std::string ItemParserBase::type() const
 //        return *val_ptr == variable_value;
 //}
 
-bool variableHasValue (const nlohmann::json& data, const std::vector <std::string>& variable_name_parts,
-                       const nlohmann::json& variable_value)
+bool variableHasValue(const nlohmann::json& data,
+                      const std::vector<std::string>& variable_name_parts,
+                      const nlohmann::json& variable_value)
 {
     const nlohmann::json* val_ptr = &data;
-    //std::vector <std::string> sub_keys = split(variable_name, '.');
+    // std::vector <std::string> sub_keys = split(variable_name, '.');
     for (const std::string& sub_key : variable_name_parts)
     {
-        if (val_ptr->contains (sub_key))
+        if (val_ptr->contains(sub_key))
         {
-            if (sub_key == variable_name_parts.back()) // last found
+            if (sub_key == variable_name_parts.back())  // last found
             {
                 val_ptr = &val_ptr->at(sub_key);
                 break;
             }
 
-            if (val_ptr->at(sub_key).is_object()) // not last, step in
+            if (val_ptr->at(sub_key).is_object())  // not last, step in
                 val_ptr = &val_ptr->at(sub_key);
-            else // not last key, and not object
+            else  // not last key, and not object
             {
                 val_ptr = nullptr;
                 break;
             }
         }
-        else // not found
+        else  // not found
         {
             val_ptr = nullptr;
             break;
         }
     }
 
-    if (val_ptr == nullptr || *val_ptr == nullptr) // not found
+    if (val_ptr == nullptr || *val_ptr == nullptr)  // not found
         return false;
     else
         return *val_ptr == variable_value;
 }
 
-}
+}  // namespace jASTERIX

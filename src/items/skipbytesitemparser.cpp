@@ -15,36 +15,36 @@
  * along with ATSDB.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 #include "skipbytesitemparser.h"
+
 #include "logger.h"
 
 using namespace std;
 using namespace nlohmann;
 
-
 namespace jASTERIX
 {
-
-SkipBytesItemParser::SkipBytesItemParser (const nlohmann::json& item_definition)
- : ItemParserBase (item_definition)
+SkipBytesItemParser::SkipBytesItemParser(const nlohmann::json& item_definition)
+    : ItemParserBase(item_definition)
 {
-    assert (type_ == "skip_bytes");
+    assert(type_ == "skip_bytes");
 
     if (!item_definition.contains("length"))
-        throw runtime_error ("fixed bytes item '"+name_+"' parsing without length");
+        throw runtime_error("fixed bytes item '" + name_ + "' parsing without length");
 
     length_ = item_definition.at("length");
 }
 
-size_t SkipBytesItemParser::parseItem (const char* data, size_t index, size_t size, size_t current_parsed_bytes,
-                              nlohmann::json& target, bool debug)
+size_t SkipBytesItemParser::parseItem(const char* data, size_t index, size_t size,
+                                      size_t current_parsed_bytes, nlohmann::json& target,
+                                      bool debug)
 {
     if (debug)
-        loginf << "parsing skipped bytes item '"+name_+"' index " << index << " length " << length_ << " index "
-               << index << " size " << size << " current parsed bytes " << current_parsed_bytes << logendl;
+        loginf << "parsing skipped bytes item '" + name_ + "' index " << index << " length "
+               << length_ << " index " << index << " size " << size << " current parsed bytes "
+               << current_parsed_bytes << logendl;
 
     return length_;
 }
 
-}
+}  // namespace jASTERIX

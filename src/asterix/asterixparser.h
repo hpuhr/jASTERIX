@@ -18,46 +18,49 @@
 #ifndef ASTERIXPARSER_H
 #define ASTERIXPARSER_H
 
-#include "json.hpp"
+#include <tuple>
+
 #include "category.h"
 #include "edition.h"
 #include "jasterix/global.h"
-
+#include "json.hpp"
 #include "mapping.h"
 
-#include <tuple>
-
-namespace jASTERIX {
-
+namespace jASTERIX
+{
 class ItemParserBase;
 
 class ASTERIXParser
 {
-public:
+   public:
     ASTERIXParser(const nlohmann::json& data_block_definition,
-                  std::map<unsigned int, std::shared_ptr<Category>>& category_definitions, bool debug);
+                  std::map<unsigned int, std::shared_ptr<Category>>& category_definitions,
+                  bool debug);
 
     // parsed bytes, num data blocks, error flag, done flag
-    std::tuple<size_t, size_t, bool, bool> findDataBlocks (const char* data, size_t index, size_t length,
-                                                     nlohmann::json* target,bool debug);
+    std::tuple<size_t, size_t, bool, bool> findDataBlocks(const char* data, size_t index,
+                                                          size_t length, nlohmann::json* target,
+                                                          bool debug);
 
     // num recored, num errors
-    std::pair<size_t, size_t> decodeDataBlocks (const char* data, nlohmann::json& data_blocks, bool debug);
-    std::pair<size_t, size_t> decodeDataBlock (const char* data, nlohmann::json& data_block, bool debug);
-//    size_t decodeDataBlock (const char* data, unsigned int cat, size_t index, size_t size, nlohmann::json& target,
-//                            bool debug);
+    std::pair<size_t, size_t> decodeDataBlocks(const char* data, nlohmann::json& data_blocks,
+                                               bool debug);
+    std::pair<size_t, size_t> decodeDataBlock(const char* data, nlohmann::json& data_block,
+                                              bool debug);
+    //    size_t decodeDataBlock (const char* data, unsigned int cat, size_t index, size_t size,
+    //    nlohmann::json& target,
+    //                            bool debug);
 
-private:
+   private:
     std::string data_block_name_;
     std::vector<std::unique_ptr<ItemParserBase>> data_block_items_;
     std::map<unsigned int, std::shared_ptr<Record>> records_;
     std::map<unsigned int, std::shared_ptr<Mapping>> mappings_;
 
-
 #if USE_OPENSSL
-    void calculateARTASMD5Hash (const char* data, size_t length, nlohmann::json& target);
+    void calculateARTASMD5Hash(const char* data, size_t length, nlohmann::json& target);
 #endif
 };
 
-}
-#endif // ASTERIXPARSER_H
+}  // namespace jASTERIX
+#endif  // ASTERIXPARSER_H

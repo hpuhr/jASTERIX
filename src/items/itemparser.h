@@ -15,7 +15,6 @@
  * along with ATSDB.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 #ifndef ITEMPARSER_H
 #define ITEMPARSER_H
 
@@ -23,22 +22,22 @@
 
 namespace jASTERIX
 {
-
 class ItemParser : public ItemParserBase
 {
-public:
-    ItemParser (const nlohmann::json& item_definition);
+   public:
+    ItemParser(const nlohmann::json& item_definition);
     virtual ~ItemParser() {}
 
-    virtual size_t parseItem (const char* data, size_t index, size_t size, size_t current_parsed_bytes,
-                              nlohmann::json& target, bool debug) override;
+    virtual size_t parseItem(const char* data, size_t index, size_t size,
+                             size_t current_parsed_bytes, nlohmann::json& target,
+                             bool debug) override;
     std::string number() const;
 
-protected:
+   protected:
     std::string number_;
     std::vector<std::unique_ptr<ItemParserBase>> data_fields_;
 };
 
-}
+}  // namespace jASTERIX
 
-#endif // ITEMPARSER_H
+#endif  // ITEMPARSER_H

@@ -15,32 +15,32 @@
  * along with ATSDB.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 #ifndef RESERVEDEXPSIONFIELD_H
 #define RESERVEDEXPSIONFIELD_H
 
 #include <jasterix/itemparserbase.h>
 
-#include <vector>
 #include <memory>
+#include <vector>
 
 namespace jASTERIX
 {
 // decodes a field specification/availablity field (ending with extend bit), and list of items
 class ReservedExpansionField : public ItemParserBase
 {
-public:
-    ReservedExpansionField (const nlohmann::json& item_definition);
+   public:
+    ReservedExpansionField(const nlohmann::json& item_definition);
     virtual ~ReservedExpansionField() override;
 
-    virtual size_t parseItem (const char* data, size_t index, size_t size, size_t current_parsed_bytes,
-                              nlohmann::json& target, bool debug) override;
-protected:
+    virtual size_t parseItem(const char* data, size_t index, size_t size,
+                             size_t current_parsed_bytes, nlohmann::json& target,
+                             bool debug) override;
+
+   protected:
     std::unique_ptr<ItemParserBase> field_specification_;
     std::vector<std::string> items_names_;
     std::map<std::string, std::unique_ptr<ItemParserBase>> items_;
-
 };
 
-}
-#endif // RESERVEDEXPSIONFIELD_H
+}  // namespace jASTERIX
+#endif  // RESERVEDEXPSIONFIELD_H

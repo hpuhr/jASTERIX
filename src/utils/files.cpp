@@ -15,32 +15,26 @@
  * along with ATSDB.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 #include "files.h"
-#include "jasterix/global.h"
-
-#include <cassert>
-#include <stdexcept>
-#include <iostream>
 
 #include <boost/filesystem.hpp>
+#include <cassert>
+#include <iostream>
+#include <stdexcept>
+
+#include "jasterix/global.h"
 
 using namespace std;
 
 namespace jASTERIX
 {
-
 namespace Files
 {
-
-bool fileExists(const std::string& path)
-{
-    return boost::filesystem::exists(path);
-}
+bool fileExists(const std::string& path) { return boost::filesystem::exists(path); }
 
 size_t fileSize(const std::string& path)
 {
-    assert (fileExists(path));
+    assert(fileExists(path));
     return boost::filesystem::file_size(path);
 }
 
@@ -69,6 +63,6 @@ std::vector<std::string> getFilesInDirectory(const std::string& path)
     return tmp;
 }
 
-}
+}  // namespace Files
 
-}
+}  // namespace jASTERIX
