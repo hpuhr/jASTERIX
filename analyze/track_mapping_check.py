@@ -10,6 +10,9 @@ from util.record_extractor import RecordExtractor
 from util.common import *
 from util.track import *
 
+records_total = 0
+
+
 class TrackStatisticsCalculator:
     def __init__(self, mysql_wrapper):
         self.__num_records = 0
@@ -132,12 +135,16 @@ class TrackStatisticsCalculator:
     def process_record(self, cat, record):
 
         self.__num_records += 1
+        global records_total
 
         row = self._mysql_wrapper.fetch_one()
 
         any_check_failed = False
 
         rec_num = row["rec_num"]
+
+        print('cnt {} db {}'.format(records_total, row["rec_num"]))
+        assert rec_num == records_total
 
         for var_name, get_lambda in self._check_getters.items():
             record_value = get_lambda(record)
@@ -196,9 +203,11 @@ class TrackStatisticsCalculator:
 
 
 # filter functions return True if record should be skipped
-def filter_psr_tracks(cat, record):
-    if cat != 62:
-        return True
+def filter_system_tracks(cat, record):
+    global records_total
+    records_total += 1
+
+    return cat != 62
 
 
 def main(argv):
@@ -230,7 +239,7 @@ def main(argv):
     statistics_calc = TrackStatisticsCalculator(mysql_wrapper)  # type: TrackStatisticsCalculator
 
     record_extractor = RecordExtractor(
-        framing, statistics_calc.process_record, filter_psr_tracks)  # type: RecordExtractor
+        framing, statistics_calc.process_record, filter_system_tracks)  # type: RecordExtractor
 
     start_time = time.time()
 

@@ -1,15 +1,5 @@
-from util.common import find_value
+from util.common import *
 import math
-
-DEG2RAD = 2*math.pi/360.0
-RAD2DEG = 1.0/DEG2RAD
-FT2M = 0.3048
-
-FL2M = 30.48  # flight levels to metres
-NM2M = 1852.0  # NM to meters
-M2NM = 1.0/1852.0  # meters to NM
-M_S2KNOTS = 3600.0 / 1852.0  # metres per second to knots
-
 
 def get_detection_type(record):
     if find_value("080.CST", record) == 1:
