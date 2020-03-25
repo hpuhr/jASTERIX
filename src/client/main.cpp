@@ -102,9 +102,11 @@ int main(int argc, char** argv)
         "frame_limit", po::value<int>(&jASTERIX::frame_limit),
         "number of frames to process with framing, default -1, use -1 to disable.")(
         "frame_chunk_size", po::value<int>(&jASTERIX::frame_chunk_size),
-        "number of frames to process in one chunk, default 1000, use -1 to disable.")(
+        "number of frames to process in one chunk, default 10000, use -1 to disable.")(
         "data_block_limit", po::value<int>(&jASTERIX::data_block_limit),
         "number of data blocks to process without framing, default -1, use -1 to disable.")(
+        "data_block_chunk_size", po::value<int>(&jASTERIX::data_block_chunk_size),
+        "number of data blocks to process in one chunk, default 10000, use -1 to disable.")(
         "data_write_size", po::value<int>(&jASTERIX::data_write_size),
         "number of frame chunks to write in one file write, default 100, use -1 to disable.")(
         "debug", po::bool_switch(&debug), "print debug output")(

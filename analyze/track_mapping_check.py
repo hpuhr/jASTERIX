@@ -168,6 +168,7 @@ class TrackStatisticsCalculator:
 
         if any_check_failed:
             self._diff_cnt_sum += 1
+            #print (json.dumps(record))
 
     def print(self):
         print('num cat062 records {}'.format(self.__num_records))
