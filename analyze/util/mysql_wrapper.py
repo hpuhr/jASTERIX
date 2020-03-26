@@ -29,13 +29,18 @@ class MySQLWrapper:
         self.print_distinct("detection_type", "sd_track")
         #self.print_distinct("multiple_sources", "sd_track")
 
-    def prepare_read (self, variables_str, table_str, order_var_str=None):
+    def prepare_read (self, variables_str, table_str, filter_str=None, order_var_str=None):
         #rec_num, tod, track_num, detection_type
-        if order_var_str is None:
-            self._mycursor.execute("SELECT {} FROM {}".format(variables_str, table_str))
-        else:
-            self._mycursor.execute("SELECT {} FROM {} ORDER BY {}".format(variables_str, table_str, order_var_str))
-            # WHERE track_num=4227 LIMIT 0,10000
+
+        statement = "SELECT {} FROM {}".format(variables_str, table_str)
+
+        if filter_str is not None:
+            statement += " WHERE "+filter_str
+
+        if order_var_str is not None:
+            statement += " ORDER BY " + order_var_str
+
+        self._mycursor.execute(statement)
 
     def fetch_one (self):
         return self._mycursor.fetchone()

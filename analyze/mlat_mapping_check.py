@@ -160,6 +160,7 @@ class TrackStatisticsCalculator:
 
         self._check_getters["geo_alt_std_dev_m"] = lambda record: multiply(find_value("REF.PA.SDH.SDH", record), 1.0)
         self._check_getters["geo_alt_std_dev_ft"] = lambda record: multiply(find_value("REF.PA.SDH.SDH", record), M2FT)
+        self._check_getters["ground_bit"] = lambda record: get_as_verif_flag("020.GBS", record, False)
         self._check_getters["height_3d_ft"] = lambda record: find_value("105.Geometric Height", record)
 
         self._check_getters["mode3a_code"] = lambda record: oct_to_dec(find_value("070.Mode-3/A code", record))
