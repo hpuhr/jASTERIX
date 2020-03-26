@@ -10,3 +10,12 @@ def get_alt_cap_as_double(record):
         return None
 
 
+def get_rdp_chain(record):
+    if find_value("020.CHN", record) is None:
+        return None
+    else:
+        return find_value("020.CHN", record) + 1
+
+
+
+

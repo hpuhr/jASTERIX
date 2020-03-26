@@ -198,82 +198,36 @@ class TrackStatisticsCalculator:
         self._check_getters["pos_std_dev_y_m"] = lambda record: find_value("REF.PA.SDC.SDC (Y-Component)", record)
         self._check_accuracy["pos_std_dev_y_m"] = 10e-6
 
-        # self._check_getters["calc_alt_geo_ft"] = lambda record: find_value("130.Altitude", record)
-        # self._check_getters["calc_vertical_rate_ftm"] = lambda record: find_value("220.Rate of Climb/Descent", record)
-        # self._check_getters["callsign"] = lambda record: find_value("380.ID.Target Identification", record)
-        # self._check_getters["cat"] = lambda record: 62
-        # self._check_getters["civil_emergency"] = lambda record: find_value("080.EMS", record)
-        # self._check_getters["detection_type"] = lambda record: get_detection_type(record)
-        # #ds_id different
-        # self._check_getters["fpl_callsign"] = lambda record: find_value("390.CSN.Callsign", record)
-        # self._check_getters["groundspeed_kt"] = lambda record: get_speed(record)
-        # self._check_accuracy["groundspeed_kt"] = 10e-2  # weird that so different, depends on reference point, not system center
-        # self._check_getters["heading_deg"] = lambda record: get_track_angle(record)
-        # self._check_accuracy["heading_deg"] = 10e-2  # depends on reference point, not system center
-        #
-        # self._check_getters["lm_alt_baro_ft"] = lambda record: find_value("340.MDC.Last Measured Mode C Code", record)
-        # self._check_getters["lm_alt_baro_g"] = lambda record: get_as_verif_flag("340.MDC.G", record, False)
-        # self._check_getters["lm_alt_baro_v"] = lambda record: get_as_verif_flag("340.MDC.V", record, True)
-        # self._check_getters["lm_alt_geo_ft"] = lambda record: find_value("380.GAL.Geometric Altitude", record)
-        #
-        # self._check_getters["lm_mode3a_code"] = lambda record: oct_to_dec(find_value("340.MDA.Mode-3/A reply", record))
-        # self._check_getters["lm_mode3a_g"] = lambda record: get_as_verif_flag("340.MDA.G", record, False)
-        # self._check_getters["lm_mode3a_s"] = lambda record: get_as_verif_flag("340.MDA.L", record, False)
-        # self._check_getters["lm_mode3a_v"] = lambda record: get_as_verif_flag("340.MDA.V", record, True)
-        #
-        # self._check_getters["measured_alt_baro_age_s"] = lambda record: find_value("295.MFL.Age", record)
-        # self._check_getters["measured_alt_baro_ft"] = lambda record: find_value("136.Measured Flight Level", record) # not feet but FL in db
-        # self._check_getters["measured_mode3a_age_s"] = lambda record: find_value("295.MDA.Age", record)
-        #
-        # self._check_getters["mil_emergency"] = lambda record: get_as_verif_flag("080.ME", record, False)
-        #
+        self._check_getters["rdp_chain"] = lambda record: get_rdp_chain(record)
+        self._check_getters["sac"] = lambda record: find_value("010.SAC", record)
+        self._check_getters["sic"] = lambda record: find_value("010.SIC", record)
 
-        #
-        # self._check_getters["modec_age"] = lambda record: find_value("295.MFL.Age", record)
-        # self._check_getters["modec_code_ft"] = lambda record: multiply(find_value("136.Measured Flight Level", record), 100.0)
-        #
-        # self._check_getters["mof_long"] = lambda record: find_value("200.LONG", record)
-        # self._check_getters["mof_trans"] = lambda record: find_value("200.TRANS", record)
-        # self._check_getters["mof_vert"] = lambda record: find_value("200.VERT", record)
-        #
-        # self._check_getters["multiple_sources"] = lambda record: get_as_verif_flag("080.MON", record, True)
-        #
-        # self._check_getters["pos_local_x_nm"] = lambda record: multiply(find_value("100.X", record), M2NM)
-        # self._check_accuracy["pos_local_x_nm"] = 10e-9
-        # self._check_getters["pos_local_y_nm"] = lambda record: multiply(find_value("100.Y", record), M2NM)
-        # self._check_accuracy["pos_local_y_nm"] = 10e-9
-        #
-        # self._check_getters["pos_sys_x_nm"] = lambda record: multiply(find_value("100.X", record), M2NM)
-        # self._check_accuracy["pos_sys_x_nm"] = 10e-9
-        # self._check_getters["pos_sys_y_nm"] = lambda record: multiply(find_value("100.Y", record), M2NM)
-        # self._check_accuracy["pos_sys_y_nm"] = 10e-9
-        #
-        #
-        # self._check_getters["report_type"] = lambda record: 2
-        # self._check_getters["sac"] = lambda record: find_value("010.SAC", record)
-        # self._check_getters["selected_alt_baro_ft"] = lambda record: find_value("380.SAL.Altitude", record)
-        # self._check_accuracy["selected_alt_baro_ft"] = 10e-9
-        #
-        # self._check_getters["sic"] = lambda record: find_value("010.SIC", record)
-        #
-        # self._check_getters["simulated_target"] = lambda record: get_as_verif_flag("080.SIM", record, False)
-        # self._check_getters["spi"] = lambda record: get_as_verif_flag("080.SPI", record, False)
-        # self._check_getters["target_addr"] = lambda record: find_value("380.ADR.Target Address", record)
+        self._check_getters["simulated_target"] = lambda record: get_as_verif_flag("020.SIM", record, False)
+        self._check_getters["spi"] = lambda record: get_as_verif_flag("020.SPI", record, False)
+        self._check_getters["target_addr"] = lambda record: find_value("220.Target Address", record)
+        self._check_getters["test_target"] = lambda record: get_as_verif_flag("020.TST", record, False)
         self._check_getters["tod"] = lambda record: multiply(find_value("140.Time of Day", record), 128.0)
-        #
-        # self._check_getters["tracked_alt_baro_ft"] = lambda record: find_value("135.Calculated Track Barometric Altitude", record)
-        # self._check_getters["tracked_mode3a_code"] = lambda record: oct_to_dec(find_value("60.Mode 3/A reply", record))
-        #
-        # self._check_getters["track_amalgamated"] = lambda record: get_as_verif_flag("080.AMA", record, False)
-        # self._check_getters["track_coasted"] = lambda record: get_as_verif_flag("080.CST", record, False)
-        # self._check_getters["track_confirmed"] = lambda record: get_as_verif_flag("080.CNF", record, True)
-        # self._check_getters["track_created"] = lambda record: get_as_verif_flag("080.TSB", record, False)
-        # self._check_getters["track_end"] = lambda record: get_as_verif_flag("080.TSE", record, False)
-        #
+
+        self._check_getters["track_climb_desc_mode"] = lambda record: find_value("170.CDM", record)
+
+        self._check_getters["track_coasted"] = lambda record: get_as_verif_flag("170.CST", record, False)
+        self._check_getters["track_confirmed"] = lambda record: get_as_verif_flag("170.CNF", record, True)
+        self._check_getters["track_end"] = lambda record: get_as_verif_flag("170.CNF", record, False)
+        self._check_getters["track_ghost_target"] = lambda record: get_as_verif_flag("170.GHO", record, False)
+        self._check_getters["track_manoeuvre_hori"] = lambda record: get_as_verif_flag("170.MAH", record, False)
         self._check_getters["track_num"] = lambda record: find_value("161.Track Number", record)
-        #
-        # self._check_getters["track_psr_age"] = lambda record: find_value("290.PSR.Age", record)
-        # self._check_getters["turnrate_degps"] = lambda record: find_value("380.TAR.Rate of Turn", record)
+
+        self._check_getters["trd_dme"] = lambda record: get_as_verif_flag("020.DME", record, False)
+        self._check_getters["trd_hf"] = lambda record: get_as_verif_flag("020.HF", record, False)
+        self._check_getters["trd_ms"] = lambda record: get_as_verif_flag("020.MS", record, False)
+        self._check_getters["trd_ssr"] = lambda record: get_as_verif_flag("020.SSR", record, False)
+        self._check_getters["trd_uat"] = lambda record: get_as_verif_flag("020.UAT", record, False)
+        self._check_getters["trd_vdl4"] = lambda record: get_as_verif_flag("020.VDL4", record, False)
+
+        self._check_getters["velocity_vx_ms"] = lambda record: find_value("202.Vx", record)
+        self._check_accuracy["velocity_vx_ms"] = 10e-3
+        self._check_getters["velocity_vy_ms"] = lambda record: find_value("202.Vy", record)
+        self._check_accuracy["velocity_vy_ms"] = 10e-3
 
         self._check_counts = {}
         self._check_differences = {}  # type: Dict[str:Dict[str:int]]  # var -> (msg -> cnt)
@@ -281,7 +235,7 @@ class TrackStatisticsCalculator:
         selected_variables = 'rec_num,'+','.join(self._check_getters.keys())
 
         for var_name, get_lambda in self._check_getters.items():
-            self._check_counts[var_name] = [0, 0] # passed, failed
+            self._check_counts[var_name] = [0, 0]  # passed, failed
 
         self._mysql_wrapper.prepare_read(selected_variables, 'sd_mlat')
         self._current_row = None
