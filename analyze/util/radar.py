@@ -16,6 +16,19 @@ def get_rdp_chain(record):
     else:
         return str(find_value("020.RDP", record) + 1)
 
+def get_rdp_chain_rdpc(record):
+    if find_value("170.RDPC", record) is None:
+        return None
+    else:
+        return str(find_value("170.RDPC", record) + 1)
+
+
+def get_rdp_antenna(record):
+    if find_value("020.ANT", record) is None:
+        return None
+    else:
+        return str(find_value("020.ANT", record) + 1)
+
 
 def get_civil_emergency(record):
     if find_value("070.Mode-3/A reply", record) is None:

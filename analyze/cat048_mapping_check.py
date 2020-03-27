@@ -152,6 +152,10 @@ class TrackStatisticsCalculator:
         self._check_getters["mode3a_v"] = lambda record: get_as_verif_flag("070.V", record, True)
         self._check_getters["mode3a_smo"] = lambda record: get_as_verif_flag("070.L", record, False)
 
+        self._check_getters["modec_code_ft"] = lambda record: multiply(find_value("090.Flight Level", record), 100.0)
+        self._check_getters["modec_g"] = lambda record: get_as_verif_flag("090.G", record, False)
+        self._check_getters["modec_v"] = lambda record: get_as_verif_flag("090.V", record, True)
+
         self._check_getters["mode4_friendly"] = lambda record: get_mode4_friendly(record)
 
         self._check_getters["mssr_amplitude_dbm"] = lambda record: find_value("130.SAM.value", record)
