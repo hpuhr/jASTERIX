@@ -14,7 +14,7 @@ def get_rdp_chain(record):
     if find_value("020.RDP", record) is None:
         return None
     else:
-        return find_value("020.RDP", record) + 1
+        return str(find_value("020.RDP", record) + 1)
 
 
 def get_civil_emergency(record):
@@ -134,3 +134,24 @@ def get_mode4_friendly(record):
     # N = No Reply, 3 No reply
     if frifoe == 3:
         return 'N'
+
+
+def get_climb_descend_mode(record):
+    if find_value("170.CDM", record) is None:
+        return None
+    else:
+        cdm = find_value("170.CDM", record)
+
+        # value record '0' db 'M': 4117 M = Maintaining
+        if cdm == 0:
+            return 'M'
+        # value record '1' db 'C': 1133 C = Climbing
+        if cdm == 1:
+            return 'C'
+        # value record '2' db 'D': 330 D = Descending
+        if cdm == 2:
+            return 'D'
+        # value record '3' db 'I': 569 I = Invalid
+        if cdm == 3:
+            return 'I'
+        return None
