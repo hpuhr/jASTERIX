@@ -10,7 +10,7 @@ from util.record_extractor import RecordExtractor
 from util.common import *
 from util.track import *
 
-records_total = 0
+#records_total = 0
 
 
 class TrackStatisticsCalculator:
@@ -135,7 +135,7 @@ class TrackStatisticsCalculator:
     def process_record(self, cat, record):
 
         self.__num_records += 1
-        global records_total
+        #global records_total
 
         row = self._mysql_wrapper.fetch_one()
 
@@ -143,8 +143,8 @@ class TrackStatisticsCalculator:
 
         rec_num = row["rec_num"]
 
-        print('cnt {} db {}'.format(records_total, row["rec_num"]))
-        assert rec_num == records_total
+        #print('cnt {} db {}'.format(records_total, row["rec_num"]))
+        #assert rec_num == records_total
 
         for var_name, get_lambda in self._check_getters.items():
             record_value = get_lambda(record)
@@ -204,8 +204,8 @@ class TrackStatisticsCalculator:
 
 # filter functions return True if record should be skipped
 def filter_system_tracks(cat, record):
-    global records_total
-    records_total += 1
+    #global records_total
+    #records_total += 1
 
     return cat != 62
 
