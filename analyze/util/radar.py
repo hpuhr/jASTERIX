@@ -38,7 +38,7 @@ def get_civil_emergency(record):
 
         # 5 = code 7500 (unlawful interference)
         if mode3a_code == 7500:
-            return 5
+                return 5
         # 6 = code 7600 (radio comunnication failure)
         if mode3a_code == 7600:
             return 6

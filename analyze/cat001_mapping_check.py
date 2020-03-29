@@ -157,7 +157,7 @@ class TrackStatisticsCalculator:
         self._check_getters["track_end"] = lambda record: get_as_verif_flag("170.TRE", record, False)
         self._check_getters["track_ghost_target"] = lambda record: get_as_verif_flag("170.GHO", record, False)
 
-        self._check_getters["track_groundspeed_kt"] = lambda record: find_value("200.CALCULATED GROUNDSPEED", record)
+        self._check_getters["track_groundspeed_kt"] = lambda record: multiply(find_value("200.CALCULATED GROUNDSPEED", record), 3600)
         self._check_accuracy["track_groundspeed_kt"] = 10e-3
         self._check_getters["track_heading_deg"] = lambda record: find_value("200.CALCULATED HEADING", record)
         self._check_accuracy["track_heading_deg"] = 10e-3
