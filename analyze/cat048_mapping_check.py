@@ -131,10 +131,10 @@ class TrackStatisticsCalculator:
         self._check_getters["alt_baro_ft"] = lambda record: multiply(find_value("090.Flight Level", record), 100.0)
         self._check_getters["alt_baro_g"] = lambda record: get_as_verif_flag("090.G", record, False)
         self._check_getters["alt_baro_v"] = lambda record: get_as_verif_flag("090.V", record, True)
-        #
-        # self._check_getters["alt_geo_ft"] = lambda record: find_value("105.Geometric Height", record)
-        # self._check_getters["calc_alt_geo_ft"] = lambda record: find_value("110.Measured Height", record)
-        #
+
+        self._check_getters["antenna"] = lambda record: None
+        self._check_getters["calc_alt_geo_ft"] = lambda record: None
+
         self._check_getters["callsign"] = lambda record: find_value("240.Aircraft Identification", record)
         self._check_getters["cat"] = lambda record: 48
 
@@ -143,6 +143,7 @@ class TrackStatisticsCalculator:
         self._check_getters["detection_type"] = lambda record: find_value("020.TYP", record)
         self._check_getters["from_fft"] = lambda record: get_as_verif_flag("020.RAB", record, False)
         self._check_getters["ground_bit"] = lambda record: get_ground_bit(record)
+        self._check_getters["height_3d_ft"] = lambda record: None
 
         self._check_getters["mil_emergency"] = lambda record: get_as_verif_flag("020.ME", record, False)
         self._check_getters["mil_ident"] = lambda record: get_as_verif_flag("020.MI", record, False)

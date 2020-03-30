@@ -50,10 +50,10 @@ def get_civil_emergency(record):
 
 
 def get_ground_bit(record):
-    if find_value("020.STAT", record) is None:
+    if find_value("230.STAT", record) is None:
         return None
     else:
-        stat = find_value("020.STAT", record)
+        stat = find_value("230.STAT", record)
 
         # = 0 No alert, no SPI, aircraft airborne
         if stat == 0:
