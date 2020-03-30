@@ -105,7 +105,7 @@ class TrackStatisticsCalculator:
 
         self._check_getters["civil_emergency"] = lambda record: get_civil_emergency(record)
 
-        self._check_getters["detection_type"] = lambda record: find_value("020.TYP", record)
+        self._check_getters["detection_type"] = lambda record: find_value("020.SSR/PSR", record)
         self._check_getters["from_fft"] = lambda record: get_as_verif_flag("020.RAB", record, False)
         self._check_getters["ground_bit"] = lambda record: None
 
@@ -174,7 +174,7 @@ class TrackStatisticsCalculator:
 
         self._check_getters["track_slant_corr"] = lambda record: None
         self._check_getters["track_sup"] = lambda record: None
-        self._check_getters["track_type"] = lambda record: find_value("170.RAD", record)
+        self._check_getters["track_type"] = lambda record: None
 
         self._check_counts = {}
         self._check_differences = {}  # type: Dict[str:Dict[str:int]]  # var -> (msg -> cnt)

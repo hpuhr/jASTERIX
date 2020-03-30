@@ -128,6 +128,7 @@ def get_alert_bit(record):
         # 6 - 7 Not assigned
         return None
 
+
 def get_mode4_friendly(record):
     if find_value("020.FOE/FRI", record) is None:
         return None
@@ -168,3 +169,10 @@ def get_climb_descend_mode(record):
         if cdm == 3:
             return 'I'
         return None
+
+
+def get_plot_track(record):
+    if find_value("161.TRACK NUMBER", record) is None:
+        return 0
+    else:
+        return 1

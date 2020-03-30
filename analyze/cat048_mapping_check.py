@@ -173,7 +173,7 @@ class TrackStatisticsCalculator:
 
         self._check_getters["rdp_chain"] = lambda record: get_rdp_chain(record)
 
-        self._check_getters["report_type"] = lambda record: find_value("020.TYP", record)
+        self._check_getters["report_type"] = lambda record: get_plot_track(record)
         self._check_getters["sac"] = lambda record: find_value("010.SAC", record)
         self._check_getters["sic"] = lambda record: find_value("010.SIC", record)
 
@@ -207,7 +207,7 @@ class TrackStatisticsCalculator:
 
         self._check_getters["track_slant_corr"] = lambda record: get_as_verif_flag("170.TCC", record, False)
         self._check_getters["track_sup"] = lambda record: get_as_verif_flag("170.SUP", record, False)
-        self._check_getters["track_type"] = lambda record: find_value("170.RAD", record)
+        self._check_getters["track_type"] = lambda record: None
 
         # self._check_getters["trd_dme"] = lambda record: get_as_verif_flag("020.DME", record, False)
         # self._check_getters["trd_hf"] = lambda record: get_as_verif_flag("020.HF", record, False)
