@@ -11,8 +11,6 @@ from util.common import *
 from util.track import *
 from util.mlat import *
 
-records_total = 0
-
 
 class TrackStatisticsCalculator:
     def __init__(self, mysql_wrapper):
@@ -252,7 +250,6 @@ class TrackStatisticsCalculator:
     def process_record(self, cat, record):
 
         self.__num_records += 1
-        global records_total
 
         if self._current_row is None:
             self._current_row = self._mysql_wrapper.fetch_one()
@@ -346,7 +343,7 @@ def filter_mlat(cat, record):
 
 def main(argv):
 
-    parser = argparse.ArgumentParser(description='ASTERIX CAT062 mapping to sd_track analysis')
+    parser = argparse.ArgumentParser(description='ASTERIX CAT020 mapping to sd_mlat analysis')
     parser.add_argument('--framing', help='Framing True or False', required=True)
     parser.add_argument('--mysql_info', help='MySQL server info as CSV: host;user;passwd;database', required=True)
 
