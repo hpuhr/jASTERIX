@@ -236,7 +236,7 @@ class TrackStatisticsCalculator:
         for var_name, get_lambda in self._check_getters.items():
             self._check_counts[var_name] = [0, 0]  # passed, failed
 
-        self._mysql_wrapper.prepare_read(selected_variables, 'sd_mlat')
+        self._mysql_wrapper.prepare_read(selected_variables, 'sd_mlat', order_var_str='rec_num')
         self._current_row = None
 
     @property
@@ -259,8 +259,8 @@ class TrackStatisticsCalculator:
         #rec_num = self._current_row["rec_num"]
         tod_db = self._current_row["tod"]
 
-        if tod_db != tod_rec: # some mlat reports might be skipped since too fast updates for same track
-            #print('skipping record {}, waiting for tod_db {}'.format(self.__num_records, tod_db))
+        if tod_db != tod_rec:  # some mlat reports might be skipped since too fast updates for same track
+            print('skipping record {} time {}, waiting for tod_db {}'.format(self.__num_records, tod_rec, tod_db))
             #print(json.dumps(record, indent=4))
             return
         #else:
@@ -334,8 +334,6 @@ class TrackStatisticsCalculator:
 
 # filter functions return True if record should be skipped
 def filter_mlat(cat, record):
-    global records_total
-    records_total += 1
     if cat != 20:
         return True
     return False

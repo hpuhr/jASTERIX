@@ -25,89 +25,142 @@ class TrackStatisticsCalculator:
 
         self._check_accuracy = {}
 
-        # '021' count 803774
-        # '021.010' count 803774 (100%)
-        # '021.010.SAC' count 803774 (100%) min '50' max '50'
-        # '021.010.SIC' count 803774 (100%) min '80' max '80'
-        # '021.015' count 803774 (100%)
-        # '021.015.Service Identification' count 803774 (100%) min '0' max '0'
-        # '021.016' count 803774 (100%)
-        # '021.016.RP' count 803774 (100%) min '2.0' max '2.0'
-        # '021.020' count 360837 (44%)
-        # '021.020.ECAT' count 360837 (100%) min '1' max '15'
-        # '021.040' count 803774 (100%)
-        # '021.040.ARC' count 803774 (100%) min '0' max '2'
-        # '021.040.ATP' count 803774 (100%) min '0' max '0'
-        # '021.040.CL' count 778569 (96%) min '0' max '0'
-        # '021.040.DCR' count 778569 (96%) min '0' max '0'
-        # '021.040.FX' count 803774 (100%) min '0' max '1'
-        # '021.040.FX2' count 778569 (96%) min '0' max '0'
-        # '021.040.GBS' count 778569 (96%) min '0' max '1'
-        # '021.040.RAB' count 803774 (100%) min '0' max '0'
-        # '021.040.RC' count 803774 (100%) min '0' max '0'
-        # '021.040.SAA' count 778569 (96%) min '0' max '1'
-        # '021.040.SIM' count 778569 (96%) min '0' max '0'
-        # '021.040.TST' count 778569 (96%) min '0' max '0'
-        # '021.070' count 483867 (60%)
-        # '021.070.Mode-3/A' count 483867 (100%) min '20' max '7761'
-        # '021.073' count 803774 (100%)
-        # '021.073.Time of Message Reception for Position' count 803774 (100%) min '28798.953125' max '32398.09375'
-        # '021.075' count 779842 (97%)
-        # '021.075.Time of Message Reception of Velocity' count 779842 (100%) min '28793.0234375' max '32398.0625'
-        # '021.077' count 803774 (100%)
-        # '021.077.Time Of ASTERIX Report Transmission' count 803774 (100%) min '28801.0390625' max '32398.203125'
-        # '021.080' count 803774 (100%)
-        # '021.080.Target Address' count 803774 (100%) min '36852' max '12605630'
-        # '021.090' count 803774 (100%)
-        # '021.090.FX' count 803774 (100%) min '0' max '1'
-        # '021.090.FX2' count 377008 (46%) min '0' max '0'
-        # '021.090.NACp' count 377008 (46%) min '0' max '11'
-        # '021.090.NICbaro' count 377008 (46%) min '0' max '1'
-        # '021.090.NUCp or NIC' count 803774 (100%) min '0' max '11'
-        # '021.090.NUCr or NACv' count 803774 (100%) min '0' max '4'
-        # '021.090.SIL' count 377008 (46%) min '0' max '3'
-        # '021.130' count 803774 (100%)
-        # '021.130.Latitude' count 803774 (100%) min '42.3585134635' max '52.940277593320005'
-        # '021.130.Longitude' count 803774 (100%) min '3.5712000181000003' max '23.206706139370002'
-        # '021.140' count 739387 (91%)
-        # '021.140.Geometric Height' count 739387 (100%) min '600.0' max '204793.75'
-        # '021.145' count 781541 (97%)
-        # '021.145.Flight Level' count 781541 (100%) min '7.75' max '450.0'
-        # '021.150' count 1 (0%)
-        # '021.150.Air Speed' count 1 (100%) min '1288' max '1288'
-        # '021.150.IM' count 1 (100%) min '0' max '0'
-        # '021.151' count 6732 (0%)
-        # '021.151.RE' count 6732 (100%) min '0' max '0'
-        # '021.151.True Air Speed' count 6732 (100%) min '60.0' max '476.0'
-        # '021.155' count 299422 (37%)
-        # '021.155.Barometric Vertical Rate' count 299422 (100%) min '-6275.0' max '6850.0'
-        # '021.155.RE' count 299422 (100%) min '0' max '0'
-        # '021.157' count 476223 (59%)
-        # '021.157.Geometric Vertical Rate' count 476223 (100%) min '-32637.5' max '5762.5'
-        # '021.157.RE' count 476223 (100%) min '0' max '1'
-        # '021.160' count 777182 (96%)
-        # '021.160.Ground Speed' count 777182 (100%) min '0.0' max '0.16082762025'
-        # '021.160.RE' count 777182 (100%) min '0' max '0'
-        # '021.160.Track Angle' count 777182 (100%) min '0.0' max '359.8846433909'
-        # '021.161' count 803774 (100%)
-        # '021.161.Track Number' count 803774 (100%) min '3' max '4095'
-        # '021.170' count 769075 (95%)
-        # '021.170.Target Identification' count 769075 (100%) min '1758BK  ' max 'YUPZM   '
-        # '021.200' count 803774 (100%)
-        # '021.200.ICF' count 803774 (100%) min '0' max '0'
-        # '021.200.LNAV' count 803774 (100%) min '0' max '0'
-        # '021.200.PS' count 803774 (100%) min '0' max '0'
-        # '021.200.SS' count 803774 (100%) min '0' max '3'
-        # '021.210' count 803774 (100%)
-        # '021.210.LTT' count 803774 (100%) min '2' max '2'
-        # '021.210.VN' count 803774 (100%) min '0' max '2'
-        # '021.210.VNS' count 803774 (100%) min '0' max '0'
-        # '021.260' count 209 (0%)
-        # '021.260.MB DATA' count 209 (100%) min 'e2000000000000' max 'e2c20004f9af44'
-        # '021.index' count 803774 (100%) min '11' max '53324910'
-        # '021.length' count 803774 (100%) min '31' max '62'
+        # '021' count 343335
+        # '021.008' count 88245 (25%)
+        # '021.008.ARV' count 88245 (100%) min '0' max '1'
+        # '021.008.CDTI/A' count 88245 (100%) min '0' max '0'
+        # '021.008.Not TCAS' count 88245 (100%) min '0' max '1'
+        # '021.008.RA' count 88245 (100%) min '0' max '0'
+        # '021.008.SA' count 88245 (100%) min '0' max '1'
+        # '021.008.TC' count 88245 (100%) min '0' max '0'
+        # '021.008.TS' count 88245 (100%) min '0' max '1'
+        # '021.010' count 343335 (100%)
+        # '021.010.SAC' count 343335 (100%) min '104' max '104'
+        # '021.010.SIC' count 343335 (100%) min '38' max '80'
+        # '021.015' count 343335 (100%)
+        # '021.015.Service Identification' count 343335 (100%) min '0' max '1'
+        # '021.016' count 343335 (100%)
+        # '021.016.RP' count 343335 (100%) min '0.0' max '1.0'
+        # '021.020' count 235916 (68%)
+        # '021.020.ECAT' count 235916 (100%) min '0' max '21'
+        # '021.040' count 343335 (100%)
+        # '021.040.ARC' count 343335 (100%) min '0' max '2'
+        # '021.040.ATP' count 343335 (100%) min '0' max '1'
+        # '021.040.CL' count 303760 (88%) min '0' max '0'
+        # '021.040.DCR' count 303760 (88%) min '0' max '0'
+        # '021.040.FX' count 343335 (100%) min '0' max '1'
+        # '021.040.FX2' count 303760 (88%) min '0' max '0'
+        # '021.040.GBS' count 303760 (88%) min '0' max '1'
+        # '021.040.RAB' count 343335 (100%) min '0' max '0'
+        # '021.040.RC' count 343335 (100%) min '0' max '0'
+        # '021.040.SAA' count 303760 (88%) min '0' max '1'
+        # '021.040.SIM' count 303760 (88%) min '0' max '0'
+        # '021.040.TST' count 303760 (88%) min '0' max '0'
+        # '021.070' count 139042 (40%)
+        # '021.070.Mode-3/A' count 139042 (100%) min '0' max '7151'
+        # '021.073' count 343335 (100%)
+        # '021.073.Time of Message Reception for Position' count 343335 (100%) min '14414.109375' max '28801.0625'
+        # '021.074' count 117591 (34%)
+        # '021.074.FSI' count 117591 (100%) min '0' max '2'
+        # '021.074.Time of Message Reception of Position - high precision' count 117591 (100%) min '1.339428120174e-05' max '0.9999990329879529'
+        # '021.075' count 230792 (67%)
+        # '021.075.Time of Message Reception of Velocity' count 230792 (100%) min '14413.8984375' max '28800.890625'
+        # '021.076' count 49845 (14%)
+        # '021.076.FSI' count 49845 (100%) min '0' max '2'
+        # '021.076.Time of Message Reception of Velocity - high precision' count 49845 (100%) min '3.5450793627050004e-05' max '0.999962919092656'
+        # '021.077' count 343335 (100%)
+        # '021.077.Time Of ASTERIX Report Transmission' count 343335 (100%) min '14414.40625' max '28801.171875'
+        # '021.080' count 343335 (100%)
+        # '021.080.Target Address' count 343335 (100%) min '3416777' max '14979656'
+        # '021.090' count 343335 (100%)
+        # '021.090.FX' count 343335 (100%) min '0' max '1'
+        # '021.090.FX2' count 152295 (44%) min '0' max '1'
+        # '021.090.FX3' count 117591 (34%) min '0' max '1'
+        # '021.090.FX4' count 114029 (33%) min '0' max '0'
+        # '021.090.GVA' count 117591 (34%) min '0' max '2'
+        # '021.090.NACp' count 152295 (44%) min '0' max '11'
+        # '021.090.NICbaro' count 152295 (44%) min '0' max '1'
+        # '021.090.NUCp or NIC' count 343335 (100%) min '0' max '11'
+        # '021.090.NUCr or NACv' count 343335 (100%) min '0' max '2'
+        # '021.090.PIC' count 114029 (33%) min '6' max '14'
+        # '021.090.SDA' count 117591 (34%) min '0' max '3'
+        # '021.090.SIL' count 152295 (44%) min '0' max '3'
+        # '021.090.SIL-Supplement' count 117591 (34%) min '0' max '0'
+        # '021.130' count 343335 (100%)
+        # '021.130.Latitude' count 343335 (100%) min '28.19776018137' max '46.14574930316'
+        # '021.130.Longitude' count 343335 (100%) min '-22.90883076443' max '-1.11888874448'
+        # '021.132' count 117591 (34%)
+        # '021.132.MAM' count 117591 (100%) min '-95.0' max '-23.0'
+        # '021.140' count 209098 (60%)
+        # '021.140.Geometric Height' count 209098 (100%) min '175.0' max '43600.0'
+        # '021.145' count 240394 (70%)
+        # '021.145.Flight Level' count 240394 (100%) min '2.0' max '431.75'
+        # '021.146' count 39596 (11%)
+        # '021.146.Altitude' count 39596 (100%) min '3000.0' max '41000.0'
+        # '021.146.SAS' count 39596 (100%) min '1' max '1'
+        # '021.146.Source' count 39596 (100%) min '2' max '3'
+        # '021.155' count 37081 (10%)
+        # '021.155.Barometric Vertical Rate' count 37081 (100%) min '-4675.0' max '5312.5'
+        # '021.155.RE' count 37081 (100%) min '0' max '0'
+        # '021.157' count 12762 (3%)
+        # '021.157.Geometric Vertical Rate' count 12762 (100%) min '-6275.0' max '6081.25'
+        # '021.157.RE' count 12762 (100%) min '0' max '0'
+        # '021.160' count 49845 (14%)
+        # '021.160.Ground Speed' count 49845 (100%) min '0.0257568333' max '0.1474609224'
+        # '021.160.RE' count 49845 (100%) min '0' max '0'
+        # '021.160.Track Angle' count 49845 (100%) min '0.0' max '359.87365706278'
+        # '021.161' count 343335 (100%)
+        # '021.161.Track Number' count 343335 (100%) min '1' max '4063'
+        # '021.170' count 238248 (69%)
+        # '021.170.Target Identification' count 238248 (100%) min '????????' max 'VVV641  '
+        # '021.200' count 285627 (83%)
+        # '021.200.ICF' count 285627 (100%) min '0' max '1'
+        # '021.200.LNAV' count 285627 (100%) min '0' max '1'
+        # '021.200.PS' count 285627 (100%) min '0' max '0'
+        # '021.200.SS' count 285627 (100%) min '0' max '2'
+        # '021.210' count 343335 (100%)
+        # '021.210.LTT' count 343335 (100%) min '2' max '2'
+        # '021.210.VN' count 343335 (100%) min '0' max '2'
+        # '021.210.VNS' count 343335 (100%) min '0' max '1'
+        # '021.271' count 487 (0%)
+        # '021.271.B2 low' count 487 (100%) min '0' max '0'
+        # '021.271.CDTI/S' count 487 (100%) min '0' max '1'
+        # '021.271.FX' count 487 (100%) min '1' max '1'
+        # '021.271.IDENT' count 487 (100%) min '0' max '0'
+        # '021.271.L+W' count 487 (100%) min '1' max '11'
+        # '021.271.POA' count 487 (100%) min '0' max '0'
+        # '021.271.RAS' count 487 (100%) min '0' max '0'
+        # '021.295' count 65795 (19%)
+        # '021.295.Aircraft Operational Status' count 41255 (62%)
+        # '021.295.Aircraft Operational Status.Age' count 41255 (100%) min '0.0' max '16.7'
+        # '021.295.Barometric Vertical Rate' count 37081 (56%)
+        # '021.295.Barometric Vertical Rate.Age' count 37081 (100%) min '0.0' max '9.8'
+        # '021.295.Flight Level' count 59395 (90%)
+        # '021.295.Flight Level.age' count 59395 (100%) min '0.0' max '0.0'
+        # '021.295.Geometric Height' count 44565 (67%)
+        # '021.295.Geometric Height.Age' count 44565 (100%) min '0.0' max '9.9'
+        # '021.295.Geometric Vertical Rate' count 12762 (19%)
+        # '021.295.Geometric Vertical Rate.Age' count 12762 (100%) min '0.0' max '10.0'
+        # '021.295.Ground Vector' count 49845 (75%)
+        # '021.295.Ground Vector.Age' count 49845 (100%) min '0.0' max '10.0'
+        # '021.295.Intermediate State Selected Altitude' count 39597 (60%)
+        # '021.295.Intermediate State Selected Altitude.Age' count 39597 (100%) min '0.0' max '25.0'
+        # '021.295.Mode 3/A' count 41627 (63%)
+        # '021.295.Mode 3/A.Age' count 41627 (100%) min '0.0' max '25.5'
+        # '021.295.Quality Indicators' count 41724 (63%)
+        # '021.295.Quality Indicators.Age' count 41724 (100%) min '0.0' max '16.7'
+        # '021.295.Surface Capabilities and Characteristics' count 487 (0%)
+        # '021.295.Surface Capabilities and Characteristics.Age' count 487 (100%) min '0.0' max '25.5'
+        # '021.295.Target Identification' count 56204 (85%)
+        # '021.295.Target Identification.Age' count 56204 (100%) min '0.0' max '25.5'
+        # '021.295.Target Status' count 41767 (63%)
+        # '021.295.Target Status.Age' count 41767 (100%) min '0.0' max '25.5'
+        # '021.REF' count 79918 (23%) min '0400' max 'fc08280525108845f19000'
+        # '021.index' count 343335 (100%) min '11' max '31807354'
+        # '021.length' count 343335 (100%) min '31' max '91'
 
         self._check_getters = {}
+        self._check_getters["aircraft_leng_width"] = lambda record: find_value("271.L+W", record)
         self._check_getters["airspeed_kt"] = lambda record: get_airspeed_kt(record)
         self._check_getters["airspeed_mach"] = lambda record: get_airspeed_mach(record)
         self._check_getters["alt_baro_ft"] = lambda record: multiply(find_value("145.Flight Level", record), 100.0)
@@ -115,6 +168,7 @@ class TrackStatisticsCalculator:
         self._check_getters["alt_reporting_capability_ft"] = lambda record: get_adsb_alt_cap_as_double(record)
 
         self._check_getters["baro_vertical_rate_ftm"] = lambda record: find_value("155.Barometric Vertical Rate", record)
+        self._check_getters["baro_vertical_rate_re"] = lambda record: get_as_verif_flag("155.RE", record, False)
         self._check_getters["calc_alt_geo_ft"] = lambda record: None
 
         self._check_getters["callsign"] = lambda record: find_value("170.Target Identification", record)
@@ -123,7 +177,7 @@ class TrackStatisticsCalculator:
         self._check_getters["descriptor_atp"] = lambda record: find_value("040.ATP", record)
         self._check_getters["differential_correction"] = lambda record: find_value("040.DCR", record)
 
-        self._check_getters["emitter_category"] = lambda record: find_value("020.ECAT", record)
+        self._check_getters["emitter_category"] = lambda record: get_ecat_str(record)
 
         self._check_getters["figure_of_merit_acas"] = lambda record: None
         self._check_getters["figure_of_merit_differential"] = lambda record: None
@@ -134,6 +188,7 @@ class TrackStatisticsCalculator:
         self._check_getters["final_sel_altitude_vertical"] = lambda record: None
 
         self._check_getters["from_fft"] = lambda record: get_as_verif_flag("040.RAB", record, False)
+        self._check_getters["geo_height_accuracy"] = lambda record: find_value("090.GVA", record)
         self._check_getters["geo_vertical_rate_ftm"] = lambda record: find_value("157.Geometric Vertical Rate", record)
         self._check_getters["ground_bit"] = lambda record: get_as_verif_flag("040.GBS", record, False)
 
@@ -151,7 +206,18 @@ class TrackStatisticsCalculator:
 
         self._check_getters["mode3a_code"] = lambda record: oct_to_dec(find_value("070.Mode-3/A", record))
 
+        self._check_getters["mops_version"] = lambda record: find_value("210.VN", record)
+        self._check_getters["nac_p"] = lambda record: find_value("090.NACp", record)
+        self._check_getters["nic_baro"] = lambda record: get_as_verif_flag("090.NICbaro", record, False)
+        self._check_getters["nucp_nic"] = lambda record: find_value("090.NUCp or NIC", record)
+        self._check_getters["nucr_nacv"] = lambda record: find_value("090.NUCr or NACv", record)
         self._check_getters["position_accuracy"] = lambda record: find_value("090.NUCp or NIC", record)
+
+        self._check_getters["op_status_ra"] = lambda record: get_as_verif_flag("008.RA", record, False)
+        self._check_getters["op_status_sa"] = lambda record: get_as_verif_flag("008.SA", record, False)
+        self._check_getters["op_status_tcas"] = lambda record: get_as_verif_flag("008.Not TCAS", record, True)
+
+        self._check_getters["pic"] = lambda record: find_value("090.PIC", record)
 
         self._check_getters["pos_lat_deg"] = lambda record: find_value("130.Latitude", record)
         self._check_accuracy["pos_lat_deg"] = 10e-9
@@ -162,10 +228,16 @@ class TrackStatisticsCalculator:
         self._check_getters["roll_angle_deg"] = lambda record: find_value("230.Roll Angle", record)
 
         self._check_getters["sac"] = lambda record: find_value("010.SAC", record)
+        self._check_getters["sam"] = lambda record: find_value("132.MAM", record)
         self._check_getters["selected_alt_capability"] = lambda record: get_as_verif_flag("040.SAA", record, True)
+        self._check_getters["service_id"] = lambda record: find_value("015.Service Identification", record)
         self._check_getters["sic"] = lambda record: find_value("010.SIC", record)
+        self._check_getters["sil"] = lambda record: find_value("090.SIL", record)
+        self._check_getters["sils"] = lambda record: get_as_verif_flag("090.SIL-Supplement", record, False)
         self._check_getters["simulated_target"] = lambda record: get_as_verif_flag("040.SIM", record, False)
         self._check_getters["spi"] = lambda record: get_as_verif_flag("200.SS", record, False)
+
+        self._check_getters["surveillance_status"] = lambda record: get_surveillance_status_str(record)
 
         self._check_getters["target_addr"] = lambda record: find_value("080.Target Address", record)
         self._check_getters["target_status"] = lambda record: find_value("200.PS", record)
@@ -179,7 +251,15 @@ class TrackStatisticsCalculator:
         self._check_getters["tod_calculated"] = lambda record: None
 
         self._check_getters["torp"] = lambda record: multiply(find_value("073.Time of Message Reception for Position", record), 128.0)
+        self._check_getters["torp_fsi"] = lambda record: find_value("074.FSI", record)
+        self._check_getters["torp_precise"] = lambda record: find_value("074.Time of Message Reception of Position - high precision", record)
+        self._check_accuracy["torp_precise"] = 10e-6
+
         self._check_getters["torv"] = lambda record: multiply(find_value("075.Time of Message Reception of Velocity", record), 128.0)
+        self._check_getters["torv_fsi"] = lambda record: find_value("076.FSI", record)
+        self._check_getters["torv_precise"] = lambda record: find_value("076.Time of Message Reception of Velocity - high precision", record)
+        self._check_accuracy["torv_precise"] = 10e-6
+
 
         self._check_getters["track_angle_deg"] = lambda record: find_value("160.Track Angle", record)
         self._check_accuracy["track_angle_deg"] = 10e-3
@@ -197,8 +277,9 @@ class TrackStatisticsCalculator:
         for var_name, get_lambda in self._check_getters.items():
             self._check_counts[var_name] = [0, 0]  # passed, failed
 
-        self._mysql_wrapper.prepare_read(selected_variables, 'sd_ads')
+        self._mysql_wrapper.prepare_read(selected_variables, 'sd_ads', order_var_str='rec_num')
         self._current_row = None
+        self._data_done = False
 
     @property
     def num_records(self):
@@ -210,10 +291,30 @@ class TrackStatisticsCalculator:
 
     def process_record(self, cat, record):
 
+        if self._data_done:
+            return
+
         self.__num_records += 1
 
         if self._current_row is None:
             self._current_row = self._mysql_wrapper.fetch_one()
+
+            if self._current_row is None:
+                print('end of db data')
+                self._data_done = True
+                return
+
+        tod_rec = find_value("073.Time of Message Reception for Position", record)*128.0
+        target_addr = find_value("080.Target Address", record)
+
+        #rec_num = self._current_row["rec_num"]
+        tod_db = self._current_row["tod"]
+        target_addr_db = self._current_row["target_addr"]
+
+        if target_addr_db != target_addr or tod_db != tod_rec:  # some mlat reports might be skipped since too fast updates for same track
+            #print('skipping record {} time {}, waiting for tod_db {}'.format(self.__num_records, tod_rec, tod_db))
+            #print(json.dumps(record, indent=4))
+            return
 
         row = self._current_row
 
