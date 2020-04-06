@@ -15,48 +15,49 @@
  * along with ATSDB.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 #ifndef FRAMEPARSER_H
 #define FRAMEPARSER_H
 
 #include "json.hpp"
 //#include "itemparserbase.h"
 
-namespace jASTERIX {
-
+namespace jASTERIX
+{
 class ASTERIXParser;
 class ItemParserBase;
 
 class FrameParser
 {
-public:
-    FrameParser(const nlohmann::json& framing_definition, ASTERIXParser& asterix_parser, bool debug);
+  public:
+    FrameParser(const nlohmann::json& framing_definition, ASTERIXParser& asterix_parser,
+                bool debug);
 
     // return number of parsed bytes
-    size_t parseHeader (const char* data, size_t index, size_t size, nlohmann::json& target, bool debug);
+    size_t parseHeader(const char* data, size_t index, size_t size, nlohmann::json& target,
+                       bool debug);
 
     // parsed bytes, num frames, done flag
-    std::tuple<size_t, size_t, bool> findFrames (const char* data, size_t index, size_t size, nlohmann::json* target,
-                                                  bool debug);
+    std::tuple<size_t, size_t, bool> findFrames(const char* data, size_t index, size_t size,
+                                                nlohmann::json* target, bool debug);
 
     // num records, num errors
-    std::pair<size_t, size_t> decodeFrames (const char* data, nlohmann::json* target, bool debug);
+    std::pair<size_t, size_t> decodeFrames(const char* data, nlohmann::json* target, bool debug);
 
     bool hasFileHeaderItems() const;
 
-private:
+  private:
     ASTERIXParser& asterix_parser_;
 
-    bool has_file_header_items_ {false};
+    bool has_file_header_items_{false};
     std::vector<std::unique_ptr<ItemParserBase>> file_header_items_;
     std::vector<std::unique_ptr<ItemParserBase>> frame_items_;
 
-    size_t sum_frames_cnt_ {0};
+    size_t sum_frames_cnt_{0};
 
     // returns number of records, num errors
-    std::pair<size_t, size_t> decodeFrame (const char* data, nlohmann::json& json_frame, bool debug);
+    std::pair<size_t, size_t> decodeFrame(const char* data, nlohmann::json& json_frame, bool debug);
 };
 
-}
+}  // namespace jASTERIX
 
-#endif // FRAMEPARSER_H
+#endif  // FRAMEPARSER_H

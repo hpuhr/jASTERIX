@@ -16,82 +16,63 @@
  */
 
 #include "edition.h"
-#include "files.h"
-#include "record.h"
 
 #include <fstream>
 
+#include "files.h"
+#include "record.h"
+
 namespace jASTERIX
 {
-
 using namespace Files;
 using namespace std;
 using namespace nlohmann;
 
-Edition::Edition(const std::string& number, const nlohmann::json& definition, const std::string& definition_path)
-  : number_(number)
+Edition::Edition(const std::string& number, const nlohmann::json& definition,
+                 const std::string& definition_path)
+    : number_(number)
 {
     //    "document": "SUR.ET1.ST05.2000-STD-04-01",
     if (!definition.contains("document"))
-        throw runtime_error ("edition '"+number_+"' has no document reference");
+        throw runtime_error("edition '" + number_ + "' has no document reference");
 
     document_ = definition.at("document");
 
     //    "date": "April 2007",
     if (!definition.contains("date"))
-        throw runtime_error ("edition '"+number_+"' has no date");
+        throw runtime_error("edition '" + number_ + "' has no date");
 
     date_ = definition.at("date");
 
     //    "file": "048/cat048_1.15.json"
     if (!definition.contains("file"))
-        throw runtime_error ("edition '"+number_+"' has no file");
+        throw runtime_error("edition '" + number_ + "' has no file");
 
     file_ = definition.at("file");
 
-    edition_definition_path_ = definition_path+"/categories/"+file_;
+    edition_definition_path_ = definition_path + "/categories/" + file_;
 
     if (!fileExists(edition_definition_path_))
-        throw invalid_argument ("edition "+number_+" file '"+edition_definition_path_+"' not found");
+        throw invalid_argument("edition " + number_ + " file '" + edition_definition_path_ +
+                               "' not found");
 
     definition_ = json::parse(ifstream(edition_definition_path_));
 
     record_.reset(new Record(definition_));
 }
 
-Edition::~Edition()
-{
+Edition::~Edition() {}
 
-}
+std::string Edition::document() const { return document_; }
 
-std::string Edition::document() const
-{
-    return document_;
-}
+std::string Edition::date() const { return date_; }
 
-std::string Edition::date() const
-{
-    return date_;
-}
+std::string Edition::file() const { return file_; }
 
-std::string Edition::file() const
-{
-    return file_;
-}
+std::shared_ptr<Record> Edition::record() const { return record_; }
 
-std::shared_ptr<Record> Edition::record() const
-{
-    return record_;
-}
+std::string Edition::definitionPath() const { return edition_definition_path_; }
 
-std::string Edition::definitionPath() const
-{
-    return edition_definition_path_;
-}
+std::string Edition::number() const { return number_; }
 
-std::string Edition::number() const
-{
-    return number_;
-}
-
-}
+}  // namespace jASTERIX

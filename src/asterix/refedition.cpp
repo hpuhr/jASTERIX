@@ -16,82 +16,63 @@
  */
 
 #include "refedition.h"
-#include "files.h"
-#include "ref.h"
 
 #include <fstream>
 
+#include "files.h"
+#include "ref.h"
+
 namespace jASTERIX
 {
-
 using namespace Files;
 using namespace std;
 using namespace nlohmann;
 
-REFEdition::REFEdition(const std::string& number, const nlohmann::json& definition, const std::string& definition_path)
-  : number_(number)
+REFEdition::REFEdition(const std::string& number, const nlohmann::json& definition,
+                       const std::string& definition_path)
+    : number_(number)
 {
     //    "document": "SUR.ET1.ST05.2000-STD-04-01",
     if (!definition.contains("document"))
-        throw runtime_error ("REFEdition '"+number_+"' has no document reference");
+        throw runtime_error("REFEdition '" + number_ + "' has no document reference");
 
     document_ = definition.at("document");
 
     //    "date": "April 2007",
     if (!definition.contains("date"))
-        throw runtime_error ("REFEdition '"+number_+"' has no date");
+        throw runtime_error("REFEdition '" + number_ + "' has no date");
 
     date_ = definition.at("date");
 
     //    "file": "048/cat048_1.15.json"
     if (!definition.contains("file"))
-        throw runtime_error ("REFEdition '"+number_+"' has no file");
+        throw runtime_error("REFEdition '" + number_ + "' has no file");
 
     file_ = definition.at("file");
 
-    edition_definition_path_ = definition_path+"/categories/"+file_;
+    edition_definition_path_ = definition_path + "/categories/" + file_;
 
     if (!fileExists(edition_definition_path_))
-        throw invalid_argument ("REFEdition "+number_+" file '"+edition_definition_path_+"' not found");
+        throw invalid_argument("REFEdition " + number_ + " file '" + edition_definition_path_ +
+                               "' not found");
 
     definition_ = json::parse(ifstream(edition_definition_path_));
 
     ref_.reset(new ReservedExpansionField(definition_));
 }
 
-REFEdition::~REFEdition()
-{
+REFEdition::~REFEdition() {}
 
-}
+std::string REFEdition::document() const { return document_; }
 
-std::string REFEdition::document() const
-{
-    return document_;
-}
+std::string REFEdition::date() const { return date_; }
 
-std::string REFEdition::date() const
-{
-    return date_;
-}
+std::string REFEdition::file() const { return file_; }
 
-std::string REFEdition::file() const
-{
-    return file_;
-}
+std::shared_ptr<ReservedExpansionField> REFEdition::reservedExpansionField() const { return ref_; }
 
-std::shared_ptr<ReservedExpansionField> REFEdition::reservedExpansionField() const
-{
-    return ref_;
-}
+std::string REFEdition::definitionPath() const { return edition_definition_path_; }
 
-std::string REFEdition::definitionPath() const
-{
-    return edition_definition_path_;
-}
+std::string REFEdition::number() const { return number_; }
 
-std::string REFEdition::number() const
-{
-    return number_;
-}
-
-}
+}  // namespace jASTERIX

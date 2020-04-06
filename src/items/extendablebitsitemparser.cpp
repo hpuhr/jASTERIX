@@ -15,9 +15,10 @@
  * along with ATSDB.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "extendablebitsitemparser.h"
+
 #include <algorithm>
 
-#include "extendablebitsitemparser.h"
 #include "logger.h"
 
 using namespace std;
@@ -25,42 +26,44 @@ using namespace nlohmann;
 
 namespace jASTERIX
 {
-
-ExtendableBitsItemParser::ExtendableBitsItemParser (const nlohmann::json& item_definition)
-    : ItemParserBase (item_definition)
+ExtendableBitsItemParser::ExtendableBitsItemParser(const nlohmann::json& item_definition)
+    : ItemParserBase(item_definition)
 {
-    assert (type_ == "extendable_bits");
+    assert(type_ == "extendable_bits");
 
     if (!item_definition.contains("data_type"))
-        throw runtime_error ("extendable bits item '"+name_+"' parsing without data type");
+        throw runtime_error("extendable bits item '" + name_ + "' parsing without data type");
 
     data_type_ = item_definition.at("data_type");
 
-    reverse_bits_ = (item_definition.contains("reverse_bits") && item_definition.at("reverse_bits") == true);
+    reverse_bits_ =
+        (item_definition.contains("reverse_bits") && item_definition.at("reverse_bits") == true);
 
-    reverse_order_ = (item_definition.contains("reverse_order") && item_definition.at("reverse_order") == true);
+    reverse_order_ =
+        (item_definition.contains("reverse_order") && item_definition.at("reverse_order") == true);
 }
 
-size_t ExtendableBitsItemParser::parseItem (const char* data, size_t index, size_t size, size_t current_parsed_bytes,
-                                            nlohmann::json& target, bool debug)
+size_t ExtendableBitsItemParser::parseItem(const char* data, size_t index, size_t size,
+                                           size_t current_parsed_bytes, nlohmann::json& target,
+                                           bool debug)
 {
     if (debug)
-        loginf << "parsing extendable bits item '" << name_ << "' index " << index << " size " << size
-               << " current parsed bytes " << current_parsed_bytes << logendl;
+        loginf << "parsing extendable bits item '" << name_ << "' index " << index << " size "
+               << size << " current parsed bytes " << current_parsed_bytes << logendl;
 
     const char* current_data = &data[index];
 
     if (data_type_ == "bitfield")
     {
         unsigned int bitmask;
-        std::vector <bool> bitfield;
+        std::vector<bool> bitfield;
         bool value = true;
-        size_t parsed_bytes {0};
+        size_t parsed_bytes{0};
 
-        while (value != false) // last value is extension bit
+        while (value != false)  // last value is extension bit
         {
             const unsigned char current_byte =
-                    *reinterpret_cast<const unsigned char*> (&current_data[parsed_bytes]);
+                *reinterpret_cast<const unsigned char*>(&current_data[parsed_bytes]);
 
             if (reverse_bits_)
             {
@@ -73,10 +76,11 @@ size_t ExtendableBitsItemParser::parseItem (const char* data, size_t index, size
                     bitfield.push_back(value);
 
                     if (debug)
-                        loginf << "extendable bits item '" << name_ << "' index " << index+parsed_bytes
-                               << " current byte " << static_cast<unsigned int>(current_byte)
-                               << " reverse true "
-                               << " bit field index " << cnt << " bitmask " << bitmask << " value " << value << logendl;
+                        loginf << "extendable bits item '" << name_ << "' index "
+                               << index + parsed_bytes << " current byte "
+                               << static_cast<unsigned int>(current_byte) << " reverse true "
+                               << " bit field index " << cnt << " bitmask " << bitmask << " value "
+                               << value << logendl;
 
                     bitmask >>= 1;
                 }
@@ -91,10 +95,11 @@ size_t ExtendableBitsItemParser::parseItem (const char* data, size_t index, size
                     bitfield.push_back(value);
 
                     if (debug)
-                        loginf << "extendable bits item '" << name_ << "' index " << index+parsed_bytes
-                               << " current byte " << static_cast<unsigned int>(current_byte)
-                               << " reverse false "
-                               << " bit field index " << cnt << " bitmask " << bitmask << " value " << value << logendl;
+                        loginf << "extendable bits item '" << name_ << "' index "
+                               << index + parsed_bytes << " current byte "
+                               << static_cast<unsigned int>(current_byte) << " reverse false "
+                               << " bit field index " << cnt << " bitmask " << bitmask << " value "
+                               << value << logendl;
 
                     bitmask = bitmask << 1;
                 }
@@ -108,13 +113,14 @@ size_t ExtendableBitsItemParser::parseItem (const char* data, size_t index, size
         target.emplace(name_, bitfield);
 
         if (debug)
-            loginf << "extendable bits item '"+name_+"'" << " index " << index
-                   << " parsed " << parsed_bytes << " bytes" << logendl;
+            loginf << "extendable bits item '" + name_ + "'"
+                   << " index " << index << " parsed " << parsed_bytes << " bytes" << logendl;
 
         return parsed_bytes;
     }
     else
-        throw runtime_error ("extentable bits item '"+name_+"' parsing with unknown data type '"+data_type_+"'");
+        throw runtime_error("extentable bits item '" + name_ +
+                            "' parsing with unknown data type '" + data_type_ + "'");
 }
 
-}
+}  // namespace jASTERIX

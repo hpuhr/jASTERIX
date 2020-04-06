@@ -15,32 +15,31 @@
  * along with ATSDB.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 #ifndef EXTENDABLEITEMPARSER_H
 #define EXTENDABLEITEMPARSER_H
 
-#include "itemparserbase.h"
-
-#include <vector>
 #include <memory>
+#include <vector>
+
+#include "itemparserbase.h"
 
 namespace jASTERIX
 {
-
 // parses item into array, extend into next has to signified by bool extend
 class ExtendableItemParser : public ItemParserBase
 {
-public:
-    ExtendableItemParser (const nlohmann::json& item_definition);
+  public:
+    ExtendableItemParser(const nlohmann::json& item_definition);
     virtual ~ExtendableItemParser() {}
 
-    virtual size_t parseItem (const char* data, size_t index, size_t size, size_t current_parsed_bytes,
-                              nlohmann::json& target, bool debug) override;
-protected:
+    virtual size_t parseItem(const char* data, size_t index, size_t size,
+                             size_t current_parsed_bytes, nlohmann::json& target,
+                             bool debug) override;
+
+  protected:
     std::vector<std::unique_ptr<ItemParserBase>> items_;
 };
 
-}
+}  // namespace jASTERIX
 
-
-#endif // EXTENDABLEITEMPARSER_H
+#endif  // EXTENDABLEITEMPARSER_H

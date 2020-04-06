@@ -15,7 +15,6 @@
  * along with ATSDB.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 #ifndef JASTERIX_FILES_H
 #define JASTERIX_FILES_H
 
@@ -24,16 +23,14 @@
 
 namespace jASTERIX
 {
-
 namespace Files
 {
-
 bool fileExists(const std::string& path);
 size_t fileSize(const std::string& path);
 bool directoryExists(const std::string& path);
-std::vector<std::string> getFilesInDirectory (const std::string& path);
+std::vector<std::string> getFilesInDirectory(const std::string& path);
 
-}
-}
+}  // namespace Files
+}  // namespace jASTERIX
 
-#endif // JASTERIX_FILES_H
+#endif  // JASTERIX_FILES_H

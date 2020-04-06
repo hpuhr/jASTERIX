@@ -15,24 +15,24 @@
  * along with ATSDB.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 #ifndef SPFEDITION_H
 #define SPFEDITION_H
 
-#include "json.hpp"
 #include <jasterix/spf.h>
 
 #include <string>
 
+#include "json.hpp"
+
 namespace jASTERIX
 {
-
 class Record;
 
 class SPFEdition
 {
-public:
-    SPFEdition(const std::string& number, const nlohmann::json& definition, const std::string& definition_path);
+  public:
+    SPFEdition(const std::string& number, const nlohmann::json& definition,
+               const std::string& definition_path);
     virtual ~SPFEdition();
 
     std::string number() const;
@@ -43,16 +43,16 @@ public:
     std::shared_ptr<SpecialPurposeField> specialPurposeField() const;
     std::string definitionPath() const;
 
-protected:
+  protected:
     std::string number_;
     std::string document_;
     std::string date_;
     std::string file_;
 
     std::string edition_definition_path_;
-    nlohmann::json definition_; // from file
+    nlohmann::json definition_;  // from file
     std::shared_ptr<SpecialPurposeField> spf_;
 };
 
-}
-#endif // SPFEDITION_H
+}  // namespace jASTERIX
+#endif  // SPFEDITION_H

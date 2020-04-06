@@ -15,42 +15,42 @@
  * along with ATSDB.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 #ifndef MAPPING_H
 #define MAPPING_H
 
-#include "json.hpp"
-
 #include <string>
+
+#include "json.hpp"
 
 namespace jASTERIX
 {
-
 class Mapping
 {
-public:
-    Mapping(const std::string& name, const nlohmann::json& definition, const std::string& definition_path);
+  public:
+    Mapping(const std::string& name, const nlohmann::json& definition,
+            const std::string& definition_path);
     virtual ~Mapping() {}
 
     std::string name() const;
     std::string comment() const;
     std::string file() const;
 
-    void map (nlohmann::json& src, nlohmann::json& dest);
+    void map(nlohmann::json& src, nlohmann::json& dest);
 
     std::string definitionPath() const;
 
-protected:
+  protected:
     std::string name_;
     std::string comment_;
     std::string file_;
 
     std::string mapping_definition_path_;
-    nlohmann::json definition_; // from file
+    nlohmann::json definition_;  // from file
 
-    void mapObject (nlohmann::json& object_definition, const nlohmann::json& src, nlohmann::json& dest);
-    void mapKey (std::string& key_definition, const nlohmann::json& src_value, nlohmann::json& dest);
+    void mapObject(nlohmann::json& object_definition, const nlohmann::json& src,
+                   nlohmann::json& dest);
+    void mapKey(std::string& key_definition, const nlohmann::json& src_value, nlohmann::json& dest);
 };
 
-}
-#endif // MAPPING_H
+}  // namespace jASTERIX
+#endif  // MAPPING_H

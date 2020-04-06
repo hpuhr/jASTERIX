@@ -15,39 +15,40 @@
  * along with ATSDB.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 #include "fixedbytesitemparser.h"
-#include "logger.h"
-#include "string_conv.h"
 
 #include <iostream>
+
+#include "logger.h"
+#include "string_conv.h"
 
 using namespace std;
 using namespace nlohmann;
 
 namespace jASTERIX
 {
-
-FixedBytesItemParser::FixedBytesItemParser (const nlohmann::json& item_definition)
- : ItemParserBase (item_definition)
+FixedBytesItemParser::FixedBytesItemParser(const nlohmann::json& item_definition)
+    : ItemParserBase(item_definition)
 {
-    assert (type_ == "fixed_bytes");
+    assert(type_ == "fixed_bytes");
 
     if (!item_definition.contains("length"))
-        throw runtime_error ("fixed bytes item '"+name_+"' parsing without length");
+        throw runtime_error("fixed bytes item '" + name_ + "' parsing without length");
 
     length_ = item_definition.at("length");
 
     if (!item_definition.contains("data_type"))
-        throw runtime_error ("fixed bytes item '"+name_+"' parsing without data type");
+        throw runtime_error("fixed bytes item '" + name_ + "' parsing without data type");
 
     data_type_ = item_definition.at("data_type");
 
-    reverse_bits_ = (item_definition.contains("reverse_bits") && item_definition.at("reverse_bits") == true);
+    reverse_bits_ =
+        (item_definition.contains("reverse_bits") && item_definition.at("reverse_bits") == true);
 
-    reverse_bytes_ = (item_definition.contains("reverse_bytes") && item_definition.at("reverse_bytes") == true);
+    reverse_bytes_ =
+        (item_definition.contains("reverse_bytes") && item_definition.at("reverse_bytes") == true);
 
-    negative_bit_pos_ = length_*8-1;
+    negative_bit_pos_ = length_ * 8 - 1;
 
     if (item_definition.contains("lsb"))
     {
@@ -56,12 +57,13 @@ FixedBytesItemParser::FixedBytesItemParser (const nlohmann::json& item_definitio
     }
 }
 
-size_t FixedBytesItemParser::parseItem (const char* data, size_t index, size_t size, size_t current_parsed_bytes,
-                              nlohmann::json& target, bool debug)
+size_t FixedBytesItemParser::parseItem(const char* data, size_t index, size_t size,
+                                       size_t current_parsed_bytes, nlohmann::json& target,
+                                       bool debug)
 {
     if (debug)
-        loginf << "parsing fixed bytes item '" << name_ << "' index "
-               << index << " size " << size << " current parsed bytes " << current_parsed_bytes << logendl;
+        loginf << "parsing fixed bytes item '" << name_ << "' index " << index << " size " << size
+               << " current parsed bytes " << current_parsed_bytes << logendl;
 
     unsigned char tmp{0};
     size_t data_uint{0};
@@ -71,16 +73,18 @@ size_t FixedBytesItemParser::parseItem (const char* data, size_t index, size_t s
 
     if (data_type_ == "string")
     {
-        std::string data_str (reinterpret_cast<char const*>(current_data), length_-1); // -1 to account for end 0
+        std::string data_str(reinterpret_cast<char const*>(current_data),
+                             length_ - 1);  // -1 to account for end 0
 
         if (!isASCII(data_str))
-            throw runtime_error ("fixed bytes item '"+name_+"' string contains non-ascii chars");
+            throw runtime_error("fixed bytes item '" + name_ + "' string contains non-ascii chars");
 
         if (debug)
-            loginf << "fixed bytes item '"+name_+"' parsing index " << index << " length " << length_
-                   << " data type " << data_type_ << " value '" << data_str << "'" << logendl;
+            loginf << "fixed bytes item '" + name_ + "' parsing index " << index << " length "
+                   << length_ << " data type " << data_type_ << " value '" << data_str << "'"
+                   << logendl;
 
-        assert (!target.contains(name_));
+        assert(!target.contains(name_));
         target.emplace(name_, std::move(data_str));
 
         return length_;
@@ -88,17 +92,18 @@ size_t FixedBytesItemParser::parseItem (const char* data, size_t index, size_t s
     else if (data_type_ == "uint")
     {
         if (length_ > sizeof(size_t))
-            throw runtime_error ("fixed bytes item '"+name_+"' length larger than "+to_string(sizeof(size_t)));
+            throw runtime_error("fixed bytes item '" + name_ + "' length larger than " +
+                                to_string(sizeof(size_t)));
 
         if (reverse_bytes_)
         {
-            for (int cnt = length_-1; cnt >= 0; --cnt)
+            for (int cnt = length_ - 1; cnt >= 0; --cnt)
             {
-                tmp = *reinterpret_cast<const unsigned char*> (&current_data[cnt]);
+                tmp = *reinterpret_cast<const unsigned char*>(&current_data[cnt]);
 
                 if (debug)
-                    loginf << "fixed bytes item '"+name_+"' cnt " << cnt << " byte "
-                           << std::hex << static_cast<unsigned int> (tmp) << " reverse bytes false bits "
+                    loginf << "fixed bytes item '" + name_ + "' cnt " << cnt << " byte " << std::hex
+                           << static_cast<unsigned int>(tmp) << " reverse bytes false bits "
                            << reverse_bits_ << " data " << data_uint << logendl;
 
                 if (reverse_bits_)
@@ -111,11 +116,11 @@ size_t FixedBytesItemParser::parseItem (const char* data, size_t index, size_t s
         {
             for (size_t cnt = 0; cnt < length_; ++cnt)
             {
-                tmp = *reinterpret_cast<const unsigned char*> (&current_data[cnt]);
+                tmp = *reinterpret_cast<const unsigned char*>(&current_data[cnt]);
 
                 if (debug)
-                    loginf << "fixed bytes item '"+name_+"' cnt " << cnt << " byte "
-                           << std::hex << static_cast<unsigned int> (tmp) << " reverse bytes true bits "
+                    loginf << "fixed bytes item '" + name_ + "' cnt " << cnt << " byte " << std::hex
+                           << static_cast<unsigned int>(tmp) << " reverse bytes true bits "
                            << reverse_bits_ << " data " << data_uint << logendl;
 
                 if (reverse_bits_)
@@ -125,16 +130,15 @@ size_t FixedBytesItemParser::parseItem (const char* data, size_t index, size_t s
             }
         }
 
-
         if (debug)
-            loginf << "parsing fixed bytes item '"+name_+"' index " << index << " length " << length_
-                   << " data type " << data_type_ << " value '" << data_uint << "'"
-                   << (has_lsb_ ? " lsb "+to_string(lsb_) : "") << logendl;
+            loginf << "parsing fixed bytes item '" + name_ + "' index " << index << " length "
+                   << length_ << " data type " << data_type_ << " value '" << data_uint << "'"
+                   << (has_lsb_ ? " lsb " + to_string(lsb_) : "") << logendl;
 
-        assert (!target.contains(name_));
+        assert(!target.contains(name_));
 
         if (has_lsb_)
-            target.emplace(name_, lsb_*data_uint);
+            target.emplace(name_, lsb_ * data_uint);
         else
             target.emplace(name_, data_uint);
 
@@ -143,17 +147,18 @@ size_t FixedBytesItemParser::parseItem (const char* data, size_t index, size_t s
     else if (data_type_ == "int")
     {
         if (length_ > sizeof(size_t))
-            throw runtime_error ("fixed bytes item '"+name_+"' length larger than "+to_string(sizeof(size_t)));
+            throw runtime_error("fixed bytes item '" + name_ + "' length larger than " +
+                                to_string(sizeof(size_t)));
 
         if (reverse_bytes_)
         {
-            for (int cnt = length_-1; cnt >= 0; --cnt)
+            for (int cnt = length_ - 1; cnt >= 0; --cnt)
             {
-                tmp = *reinterpret_cast<const unsigned char*> (&current_data[cnt]);
+                tmp = *reinterpret_cast<const unsigned char*>(&current_data[cnt]);
 
                 if (debug)
-                    loginf << "fixed bytes item '"+name_+"' cnt " << cnt << " byte "
-                           << std::hex << static_cast<unsigned int> (tmp) << " reverse bytes false bits "
+                    loginf << "fixed bytes item '" + name_ + "' cnt " << cnt << " byte " << std::hex
+                           << static_cast<unsigned int>(tmp) << " reverse bytes false bits "
                            << reverse_bits_ << " data " << data_uint << logendl;
 
                 if (reverse_bits_)
@@ -166,11 +171,11 @@ size_t FixedBytesItemParser::parseItem (const char* data, size_t index, size_t s
         {
             for (size_t cnt = 0; cnt < length_; ++cnt)
             {
-                tmp = *reinterpret_cast<const unsigned char*> (&current_data[cnt]);
+                tmp = *reinterpret_cast<const unsigned char*>(&current_data[cnt]);
 
                 if (debug)
-                    loginf << "fixed bytes item '"+name_+"' cnt " << cnt << " byte "
-                           << std::hex << static_cast<unsigned int> (tmp) << " reverse bytes true bits "
+                    loginf << "fixed bytes item '" + name_ + "' cnt " << cnt << " byte " << std::hex
+                           << static_cast<unsigned int>(tmp) << " reverse bytes true bits "
                            << reverse_bits_ << " data " << data_uint << logendl;
 
                 if (reverse_bits_)
@@ -180,20 +185,20 @@ size_t FixedBytesItemParser::parseItem (const char* data, size_t index, size_t s
             }
         }
 
-        if ( (data_uint & (1 << negative_bit_pos_)) != 0)
+        if ((data_uint & (1 << negative_bit_pos_)) != 0)
             data_int = data_uint | ~((1 << negative_bit_pos_) - 1);
         else
             data_int = data_uint;
 
         if (debug)
-            loginf << "parsing fixed bytes item '"+name_+"' index " << index << " length " << length_
-                   << " data type " << data_type_ << " value '" << data_int << "'"
-                   << (has_lsb_ ? " lsb "+to_string(lsb_) : "") << logendl;
+            loginf << "parsing fixed bytes item '" + name_ + "' index " << index << " length "
+                   << length_ << " data type " << data_type_ << " value '" << data_int << "'"
+                   << (has_lsb_ ? " lsb " + to_string(lsb_) : "") << logendl;
 
-        assert (!target.contains(name_));
+        assert(!target.contains(name_));
 
         if (has_lsb_)
-            target.emplace(name_, lsb_*data_int);
+            target.emplace(name_, lsb_ * data_int);
         else
             target.emplace(name_, data_int);
 
@@ -201,21 +206,24 @@ size_t FixedBytesItemParser::parseItem (const char* data, size_t index, size_t s
     }
     else if (data_type_ == "bin")
     {
-        std::string data_str = binary2hex(reinterpret_cast<const unsigned char*>(current_data), length_);
+        std::string data_str =
+            binary2hex(reinterpret_cast<const unsigned char*>(current_data), length_);
 
         if (debug)
         {
-            loginf << "fixed bytes item '"+name_+"' parsing index " << index << " length " << length_
-                   << " data type " << data_type_ << " value '" << data_str << "'" << logendl;
+            loginf << "fixed bytes item '" + name_ + "' parsing index " << index << " length "
+                   << length_ << " data type " << data_type_ << " value '" << data_str << "'"
+                   << logendl;
         }
 
-        assert (!target.contains(name_));
+        assert(!target.contains(name_));
         target.emplace(name_, std::move(data_str));
 
         return length_;
     }
     else
-        throw runtime_error ("fixed bytes item '"+name_+"' parsing with unknown data type '"+data_type_+"'");
+        throw runtime_error("fixed bytes item '" + name_ + "' parsing with unknown data type '" +
+                            data_type_ + "'");
 }
 
-}
+}  // namespace jASTERIX

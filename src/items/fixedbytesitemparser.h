@@ -15,7 +15,6 @@
  * along with ATSDB.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 #ifndef FIXEDBYTESITEMPARSER_H
 #define FIXEDBYTESITEMPARSER_H
 
@@ -23,26 +22,26 @@
 
 namespace jASTERIX
 {
-
 class FixedBytesItemParser : public ItemParserBase
 {
-public:
-    FixedBytesItemParser (const nlohmann::json& item_definition);
+  public:
+    FixedBytesItemParser(const nlohmann::json& item_definition);
     virtual ~FixedBytesItemParser() {}
 
-    virtual size_t parseItem (const char* data, size_t index, size_t size, size_t current_parsed_bytes,
-                              nlohmann::json& target, bool debug) override;
+    virtual size_t parseItem(const char* data, size_t index, size_t size,
+                             size_t current_parsed_bytes, nlohmann::json& target,
+                             bool debug) override;
 
-protected:
+  protected:
     size_t length_{0};
     std::string data_type_;
     bool reverse_bits_{false};
     bool reverse_bytes_{false};
-    unsigned int negative_bit_pos_ {0};
+    unsigned int negative_bit_pos_{0};
     bool has_lsb_{false};
     double lsb_{1.0};
 };
 
-}
+}  // namespace jASTERIX
 
-#endif // FIXEDBYTESITEMPARSER_H
+#endif  // FIXEDBYTESITEMPARSER_H

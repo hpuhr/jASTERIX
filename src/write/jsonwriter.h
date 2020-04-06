@@ -15,24 +15,21 @@
  * along with ATSDB.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 #ifndef JSONWRITER_H
 #define JSONWRITER_H
 
-#include "json.hpp"
-
-#include <string>
-#include <iostream>
 #include <fstream>
-
+#include <iostream>
+#include <string>
 #include <vector>
+
+#include "json.hpp"
 
 struct archive;
 struct archive_entry;
 
 namespace jASTERIX
 {
-
 typedef enum
 {
     JSON_TEXT = 0,
@@ -43,47 +40,46 @@ class JSONFileWriteTask;
 
 class JSONWriter
 {
-public:
+  public:
     JSONWriter(JSON_OUTPUT_TYPE json_output_type, const std::string& json_path);
-    ~JSONWriter ();
+    ~JSONWriter();
 
     // will move the data
     void write(std::unique_ptr<nlohmann::json> data);
 
-    void fileWritingDone ();
+    void fileWritingDone();
 
-private:
+  private:
     JSON_OUTPUT_TYPE json_output_type_;
     std::string json_path_;
 
-    bool json_file_open_ {false};
+    bool json_file_open_{false};
     std::ofstream json_file_;
 
-    bool json_zip_file_open_ {false};
-    struct archive* json_zip_file_ {nullptr};
+    bool json_zip_file_open_{false};
+    struct archive* json_zip_file_{nullptr};
 
+    size_t rec_num_cnt_{0};
+    std::vector<std::unique_ptr<nlohmann::json>> json_data_;
+    std::vector<std::string> text_data_;
+    std::vector<std::vector<std::uint8_t>> binary_data_;
 
-    size_t rec_num_cnt_ {0};
-    std::vector <std::unique_ptr<nlohmann::json>> json_data_;
-    std::vector <std::string> text_data_;
-    std::vector <std::vector<std::uint8_t>> binary_data_;
-
-    bool file_write_in_progress_ {false};
+    bool file_write_in_progress_{false};
 
     void writeData();
 
-    void convertJSON2Text ();
+    void convertJSON2Text();
 
-    void openJsonFile ();
-    void writeTextToFile ();
-    void writeBinaryToFile ();
-    void closeJsonFile ();
+    void openJsonFile();
+    void writeTextToFile();
+    void writeBinaryToFile();
+    void closeJsonFile();
 
-    void openJsonZipFile ();
-    void writeTextToZipFile ();
-    void writeBinaryToZipFile ();
-    void closeJsonZipFile ();
+    void openJsonZipFile();
+    void writeTextToZipFile();
+    void writeBinaryToZipFile();
+    void closeJsonZipFile();
 };
 
-}
-#endif // JSONWRITER_H
+}  // namespace jASTERIX
+#endif  // JSONWRITER_H
