@@ -128,7 +128,8 @@ def main(argv):
     args = parser.parse_args()
 
     assert args.framing is not None
-    framing = args.framing
+    assert args.framing == 'True' or args.framing == 'False'
+    framing = args.framing == 'True'
 
     global cat_list
     if args.cats is not None:
