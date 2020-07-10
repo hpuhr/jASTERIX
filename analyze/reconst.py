@@ -7,7 +7,10 @@ import argparse
 
 from util.record_extractor import RecordExtractor
 from util.common import find_value, time_str_from_seconds
-import util.track
+from reconst_util.geo_position import GeoPosition
+from reconst_util.target_report import TargetReport
+
+#import util.track
 
 def filter_records(cat, record):
     if cat != 21 and cat != 62:
@@ -28,25 +31,23 @@ class ModeSChain:
         self._first_tod = None
         self._last_tod = None
 
-        #self._mode_a_codes = {}
-        #self._target_addresses = {}
-        #self._target_identifications = {}
-
 
 class ADSBModeSChain(ModeSChain):
     def __init__(self, utn, target_address):
         ModeSChain.__init__(self, utn, target_address)
 
-        self._target_reports = {}  # type: Dict[float,obj]  # tod -> json
+        self._target_reports = {}  # type: Dict[float, TargetReport]  # tod -> TargetReport wrapping json
 
-    def process_record(self, record):
+    def process_record(self, cat, record):
+
+        assert cat == 21
 
         self._num_records += 1
 
         # process time
         tod = find_value("073.Time of Message Reception for Position", record) * 128.0
 
-        self._target_reports[tod] = record
+        self._target_reports[tod] = TargetReport(cat, record)
 
         # tod = find_value("070.Time Of Track Information", record)
         # assert tod is not None
@@ -85,11 +86,11 @@ class ChainCalculator:
         self.__num_records += 1
 
         if cat == 21:
-            self.process_adsb_record(record)
+            self.process_adsb_record(cat, record)
         else:
             assert False
 
-    def process_adsb_record(self, record):
+    def process_adsb_record(self, cat, record):
 
         target_addr = find_value("080.Target Address", record)
         assert target_addr is not None
@@ -109,7 +110,7 @@ class ChainCalculator:
         chain = self._adsb_chains[utn]
         assert isinstance(chain, ADSBModeSChain)
 
-        chain.process_record(record)
+        chain.process_record(cat, record)
 
         # tod = find_value("070.Time Of Track Information", record)
         # assert tod is not None
