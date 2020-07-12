@@ -7,62 +7,14 @@ import argparse
 
 from util.record_extractor import RecordExtractor
 from util.common import find_value, time_str_from_seconds
-from reconst_util.geo_position import GeoPosition
-from reconst_util.target_report import TargetReport
-
-#import util.track
+from reconst_util.chain import ADSBModeSChain
+from reconst_util.umkalman2d import UMKalmanFilter2D
 
 def filter_records(cat, record):
     if cat != 21 and cat != 62:
         return True
 
     return False
-
-global_first_tod = None
-global_last_tod = None
-
-
-class ModeSChain:
-    def __init__(self, utn, target_address):
-        self._utn = utn
-        self._target_address = target_address
-        self._num_records = 0
-
-        self._first_tod = None
-        self._last_tod = None
-
-
-class ADSBModeSChain(ModeSChain):
-    def __init__(self, utn, target_address):
-        ModeSChain.__init__(self, utn, target_address)
-
-        self._target_reports = {}  # type: Dict[float, TargetReport]  # tod -> TargetReport wrapping json
-
-    def process_record(self, cat, record):
-
-        assert cat == 21
-
-        self._num_records += 1
-
-        # process time
-        tod = find_value("073.Time of Message Reception for Position", record) * 128.0
-
-        self._target_reports[tod] = TargetReport(cat, record)
-
-        # tod = find_value("070.Time Of Track Information", record)
-        # assert tod is not None
-        #
-        if self._first_tod is None:
-            self._first_tod = tod
-            self._last_tod = tod
-
-        if tod > self._last_tod:
-            self._last_tod = tod
-        elif tod < self._last_tod:
-            print('warn: utn {} ta {} record {} time jump from {} to {} diff {}'.format(
-                self._utn, hex(self._target_address), self._num_records,
-                time_str_from_seconds(self._last_tod), time_str_from_seconds(tod),
-                time_str_from_seconds(self._last_tod-tod)))
 
 
 class ChainCalculator:
@@ -72,7 +24,7 @@ class ChainCalculator:
         self._utn_cnt = 0
         self._ta2utn = {}  # type: Dict[int,int]  # ta -> utn
 
-        self._adsb_chains = {}  # type: Dict[int,ModeSChain]  # utn -> chain
+        self._adsb_chains = {}  # type: Dict[int,ADSBModeSChain]  # utn -> chain
         #self._adsb_getters = {}
         #self._adsb_getters["target_addr"] = lambda record: find_value("080.Target Address", record)
 
@@ -80,6 +32,10 @@ class ChainCalculator:
     @property
     def num_records(self):
         return self.__num_records
+
+    @property
+    def adsb_chains(self):
+        return self._adsb_chains
 
     def process_record(self, cat, record):
 
@@ -112,46 +68,6 @@ class ChainCalculator:
 
         chain.process_record(cat, record)
 
-        # tod = find_value("070.Time Of Track Information", record)
-        # assert tod is not None
-        #
-        # global global_first_tod
-        # global global_last_tod
-        #
-        # if global_first_tod is None:
-        #     global_first_tod = tod
-        #     global_last_tod = tod
-        #
-        # if tod > global_last_tod:
-        #     global_last_tod = tod
-        #
-        # track_num = find_value("040.Track Number", record)
-        # assert track_num is not None
-        #
-        # track_begin = find_value("080.TSB", record)
-        # assert track_begin is not None
-        #
-        # track_end = find_value("080.TSE", record)
-        # assert track_end is not None
-        #
-        # if track_num not in self._tn2utn_map:  # does not exist yet
-        #     current_utn = self._utn_cnt  # create new utn
-        #     self._utn_cnt += 1
-        #
-        #     self._tn2utn_map[track_num] = current_utn  # put in mapping
-        #
-        #     self._active_targets[current_utn] = ModeSChain(current_utn, track_num)
-        #
-        # utn = self._tn2utn_map[track_num]
-        # assert utn in self._active_targets
-        #
-        # self._active_targets[utn].process_record(cat, record)
-        #
-        # if track_end == 1:
-        #     self._finalized_targets[utn] = self._active_targets[utn]
-        #     del self._active_targets[utn]
-        #     del self._tn2utn_map[track_num]
-
 
 def main(argv):
 
@@ -179,7 +95,7 @@ def main(argv):
 
         json_data = json.loads(line)
 
-        record_extractor.find_records (json_data)
+        record_extractor.find_records(json_data)
 
         num_blocks += 1
 
@@ -188,8 +104,13 @@ def main(argv):
             num_blocks, end_time-start_time, chain_calc.num_records, record_extractor.num_filtered,
             int(record_extractor.num_records/(end_time-start_time))))
 
-    #chain_calc.finalize()
-    #chain_calc.print()
+    print('got {} ads-b chains'.format(len(chain_calc.adsb_chains)))
+
+    reconst_filter = UMKalmanFilter2D('UMKalmanFilter2D')
+
+    for ta, adsb_chain in chain_calc.adsb_chains.items():  # type: int,ADSBModeSChain
+        if len(adsb_chain.target_reports) > 1000:
+            reconst_filter.filter(adsb_chain, smooth=False)
 
 
 if __name__ == "__main__":
