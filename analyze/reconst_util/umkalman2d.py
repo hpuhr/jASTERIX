@@ -1,6 +1,8 @@
 from reconst_util.chain import ADSBModeSChain
-from reconst_util.target_report import TargetReport
+from reconst_util.reconstructed_chain import ReconstructedADSBModeSChain
+from reconst_util.target_report import ADSBTargetReport
 from reconst_util.geo_position import GeoPosition
+from reconst_util.reference_update import ReferenceUpdate
 
 import numpy as np
 import nvector as nv
@@ -44,10 +46,8 @@ class UMKalmanFilter2D:
         #measurement noise
         self.f.R = np.eye(2) * self.R_std ** 2
 
-    def filter(self, chain, smooth=False):
+    def filter(self, chain):
         assert isinstance(chain, ADSBModeSChain)
-
-        #trajectory = chain.getTrajectory()
 
         print('UMKalmanFilter2D: filtering chain utn {} ta {}'.format(chain.utn, hex(chain.target_address)))
 
@@ -57,7 +57,7 @@ class UMKalmanFilter2D:
         center_lat = 0
         center_long = 0
 
-        for tod, target_report in chain.target_reports.items():  # type: TargetReport
+        for tod, target_report in chain.target_reports.items():  # type: ADSBTargetReport
             center_lat += target_report.get("pos_lat_deg")
             center_long += target_report.get("pos_long_deg")
 
@@ -77,10 +77,14 @@ class UMKalmanFilter2D:
         Qs = []
 
         # process
-        for tod, target_report in chain.target_reports.items():  # type: TargetReport
+        for tod, target_report in chain.target_reports.items():  # type: ADSBTargetReport
             #data_point 0: time, 1: x, 2: y, 3: fl, 4: date
 
-            x, y, z = target_report.position.getENU(center_pos) # east, north, up
+            x, y, z = target_report.position.getENU(center_pos)  # east, north, up
+
+            #tmp = GeoPosition()
+            #tmp.setENU(x, y, z, center_pos)
+            #print('org {} tmp {}'.format(target_report.position.getGeoPosStr(), tmp.getGeoPosStr()))
 
             #print('point tod {} x {} y {} z {}'.format(tod, x, y, z))
 
@@ -115,8 +119,7 @@ class UMKalmanFilter2D:
             #self.f.Q = Q_discrete_white_noise(dim=4, dt=dt, var=self.Q_std ** 2)
             Qs.append(Q_continuous_white_noise(dim=2, dt=dt, spectral_density=self.Q_std ** 2, block_size=2))
 
-            zs.append (np.array([x, y]))
-
+            zs.append(np.array([x, y]))  # TODO veloctities
 
             #print target_report
 
@@ -127,14 +130,53 @@ class UMKalmanFilter2D:
         #print('ts {} zs {} mu {} cov {}'.format(len(ts), len(zs), len(mu), len(cov)))
         assert len(ts) == len(zs) == len(mu) == len(cov)
 
-        if smooth:
-            (x, P, K, Pp) = rts_smoother(mu, cov, Fs, Qs)
-            mu = x
-            cov = P
+        (mu_smoothed, cov_smoothed, K, Pp) = rts_smoother(mu, cov, Fs, Qs)
 
-        # filtered_chain = TargetReportChain (chain.key, chain.subkey_lambda)
-        # filtered_chain.addNoisyData(trajectory)
-        #
+        reconstructed = ReconstructedADSBModeSChain(chain.utn, chain.target_address)
+        reconstructed.target_reports = chain.target_reports
+
+        for cnt in range(0, len(mu)):  # until len(mu)-1
+            tod = ts[cnt]
+            assert tod in chain.target_reports
+
+            target_report = chain.target_reports[tod]  # type: ADSBTargetReport
+
+            ref_fil = ReferenceUpdate(chain.utn, tod)
+            ref_fil.fromADSBTargetReport(target_report)
+            ref_fil.sac = 0
+            ref_fil.sic = 0
+
+            #print('\ntod {}'.format(tod))
+
+            #print('org x {} y {}'.format(zs[cnt][0], zs[cnt][1]))
+            # x mu[cnt][0][0], y mu[cnt][2][0]
+            ref_fil_pos = GeoPosition()
+            #print('fil x {} y {}'.format(mu[cnt][0][0], mu[cnt][2][0]))
+            ref_fil_pos.setENU(mu[cnt][0][0], mu[cnt][2][0], 0, center_pos)
+
+            ref_fil.pos_lat_deg, ref_fil.pos_long_deg, _ = ref_fil_pos.getGeoPos()
+
+            reconstructed.filtered_target_reports[tod] = ref_fil
+
+            ref_smo = ReferenceUpdate(chain.utn, tod)
+            ref_smo.fromADSBTargetReport(target_report)
+            ref_smo.sac = 0
+            ref_smo.sic = 1
+
+            ref_smo_pos = GeoPosition()
+            #print('smo x {} y {}'.format(mu_smoothed[cnt][0][0], mu_smoothed[cnt][2][0]))
+            ref_smo_pos.setENU(mu_smoothed[cnt][0][0], mu_smoothed[cnt][2][0], 0, center_pos)
+
+            ref_smo.pos_lat_deg, ref_fil.pos_long_deg, _ = ref_fil_pos.getGeoPos()
+
+            reconstructed.smoothed_target_reports[tod] = ref_smo
+
+            #print('org {}'.format(target_report.position.getGeoPosStr()))
+            #print('fil {}'.format(ref_fil_pos.getGeoPosStr()))
+            #print('smo {}'.format(ref_smo_pos.getGeoPosStr()))
+
+        return reconstructed
+
         # for i in range (0, len(zs)):
         #     target_report = TargetReport (new_sensor_id)
         #     target_report.sensor_id = new_sensor_id

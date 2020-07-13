@@ -14,7 +14,11 @@ def filter_records(cat, record):
     if cat != 21 and cat != 62:
         return True
 
-    return False
+    target_addr = find_value("080.Target Address", record)
+    assert target_addr is not None
+    return target_addr != 3957892
+
+    #return False
 
 
 class ChainCalculator:
@@ -109,8 +113,8 @@ def main(argv):
     reconst_filter = UMKalmanFilter2D('UMKalmanFilter2D')
 
     for ta, adsb_chain in chain_calc.adsb_chains.items():  # type: int,ADSBModeSChain
-        if len(adsb_chain.target_reports) > 1000:
-            reconst_filter.filter(adsb_chain, smooth=False)
+        reconstructed = reconst_filter.filter(adsb_chain)
+        reconstructed.plot()
 
 
 if __name__ == "__main__":

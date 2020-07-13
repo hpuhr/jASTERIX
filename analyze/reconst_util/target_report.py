@@ -56,6 +56,7 @@ class ADSBTargetReport(TargetReport):
         "geo_height_accuracy": lambda record: find_value("090.GVA", record),
         "geo_vertical_rate_ftm": lambda record: find_value("157.Geometric Vertical Rate", record),
         "ground_bit": lambda record: get_as_verif_flag("040.GBS", record, False),
+        "groundspeed_kt": lambda record: find_value("160.Ground Speed", record),
         "inter_sel_altitude_ft": lambda record: None, "inter_sel_altitude_info": lambda record: None,
         "inter_sel_altitude_source": lambda record: None, "link_technology_cdti": lambda record: 'N',
         "link_technology_mds": lambda record: get_link_technology_mds(record),
@@ -105,7 +106,8 @@ class ADSBTargetReport(TargetReport):
         "track_angle_deg": lambda record: find_value("160.Track Angle", record),
         "true_airspeed_kt": lambda record: find_value("151.True Air Speed", record),
         "turnrate_degps": lambda record: find_value("165.TAR", record),
-        "turnrate_indicator": lambda record: None, "velocity_accuracy": lambda record: None
+        "turnrate_indicator": lambda record: None,
+        "velocity_accuracy": lambda record: None
     }
 
     def __init__(self, json_data):

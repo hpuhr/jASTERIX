@@ -69,6 +69,23 @@ class GeoPosition(object):
         else:
             return self.__geopoint.latitude_deg[0], self.__geopoint.longitude_deg[0], -self.__geopoint.z[0]
 
+    def getGeoLatitude(self):
+        assert self.__geopoint
+        assert isinstance(self.__geopoint, nv.GeoPoint)
+
+        if np.isscalar(self.__geopoint.latitude_deg):
+            return self.__geopoint.latitude_deg
+        else:
+            return self.__geopoint.latitude_deg[0]
+
+    def getGeoLongitude(self):
+        assert self.__geopoint
+        assert isinstance(self.__geopoint, nv.GeoPoint)
+
+        if np.isscalar(self.__geopoint.latitude_deg):
+            return self.__geopoint.longitude_deg
+        else:
+            return self.__geopoint.longitude_deg[0]
 
     def setGeoPos(self, latitude, longitude, z=0):
         """
