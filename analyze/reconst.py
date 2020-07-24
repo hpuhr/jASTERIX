@@ -112,6 +112,8 @@ def main(argv):
 
     reconst_filter = UMKalmanFilter2D('UMKalmanFilter2D')
 
+    f = open("reconst.json", "a")
+
     for ta, adsb_chain in chain_calc.adsb_chains.items():  # type: int,ADSBModeSChain
         reconstructed = reconst_filter.filter(adsb_chain)
         reconstructed.plot()
