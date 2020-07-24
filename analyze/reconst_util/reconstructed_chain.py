@@ -1,5 +1,7 @@
 import matplotlib.pyplot as plt
 
+import json
+
 from reconst_util.target_report import ADSBTargetReport
 from reconst_util.reference_update import ReferenceUpdate
 
@@ -53,3 +55,7 @@ class ReconstructedADSBModeSChain:
         plt.grid()
         plt.legend(loc='upper right')
         plt.show()
+
+    def addAsJSON(self, json_data):
+        for tod, target_report in self._target_reports.items():  # type: float,ADSBTargetReport
+            json_data[tod] = target_report.json_data

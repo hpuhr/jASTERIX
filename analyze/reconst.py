@@ -8,7 +8,9 @@ import argparse
 from util.record_extractor import RecordExtractor
 from util.common import find_value, time_str_from_seconds
 from reconst_util.chain import ADSBModeSChain
+from reconst_util.reconstructed_chain import ReconstructedADSBModeSChain
 from reconst_util.umkalman2d import UMKalmanFilter2D
+from reconst_util.multidict import OrderedMultiDict
 
 def filter_records(cat, record):
     if cat != 21 and cat != 62:
@@ -112,12 +114,36 @@ def main(argv):
 
     reconst_filter = UMKalmanFilter2D('UMKalmanFilter2D')
 
-    f = open("reconst.json", "a")
+    json_data = {}
 
     for ta, adsb_chain in chain_calc.adsb_chains.items():  # type: int,ADSBModeSChain
-        reconstructed = reconst_filter.filter(adsb_chain)
-        reconstructed.plot()
+        reconstructed = reconst_filter.filter(adsb_chain)  # type: ReconstructedADSBModeSChain
+        #reconstructed.plot()
+        reconstructed.addAsJSON(json_data)
 
+    sorted_json_data = OrderedMultiDict(sorted(json_data.items(), key=lambda x: x[0]))
+
+    sorted_json = []
+
+    for tod, j_tr in sorted_json_data.allitems():
+        print('UGA tod {}, \'{}\''.format(tod, json.dumps(j_tr)))
+        sorted_json.append(j_tr)
+
+    export_json = {}
+    export_json['data_blocks'] = []
+
+    adsb_data_block = {}
+    adsb_data_block['category'] = 21
+    adsb_data_block['content'] = {}
+    adsb_data_block['content']['records'] = sorted_json
+
+    export_json['data_blocks'].append(adsb_data_block)
+
+    with open('reconst.json', 'w') as outfile:
+        json.dump(export_json, outfile, indent=4)
+
+    #text_file = open('reconst.json', 'w')
+    #text_file.write(sorted_json_strings)  # , "utf-8"
 
 if __name__ == "__main__":
     main(sys.argv[1:])
