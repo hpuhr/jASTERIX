@@ -56,6 +56,16 @@ class ReconstructedADSBModeSChain:
         plt.legend(loc='upper right')
         plt.show()
 
-    def addAsJSON(self, json_data):
+    def addOriginalAsJSON(self, json_data):
+        # original target reports
         for tod, target_report in self._target_reports.items():  # type: float,ADSBTargetReport
             json_data[tod] = target_report.json_data
+
+    def addFiltereddAsJSON(self, json_data):
+        for tod, target_report in self._filtered_target_reports.items():  # type: float,ReferenceUpdate
+            json_data[tod] = target_report.asJSON()
+
+    def addSmoothedAsJSON(self, json_data):
+        for tod, target_report in self._smoothed_target_reports.items():  # type: float,ReferenceUpdate
+            json_data[tod] = target_report.asJSON()
+

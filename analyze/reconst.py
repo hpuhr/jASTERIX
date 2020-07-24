@@ -99,9 +99,9 @@ def main(argv):
     for line in sys.stdin:
         #print(line)
 
-        json_data = json.loads(line)
+        input_json_data = json.loads(line)
 
-        record_extractor.find_records(json_data)
+        record_extractor.find_records(input_json_data)
 
         num_blocks += 1
 
@@ -114,20 +114,27 @@ def main(argv):
 
     reconst_filter = UMKalmanFilter2D('UMKalmanFilter2D')
 
-    json_data = {}
+    org_json_data = {}
+    smo_json_data = {}
 
     for ta, adsb_chain in chain_calc.adsb_chains.items():  # type: int,ADSBModeSChain
         reconstructed = reconst_filter.filter(adsb_chain)  # type: ReconstructedADSBModeSChain
         #reconstructed.plot()
-        reconstructed.addAsJSON(json_data)
+        reconstructed.addOriginalAsJSON(org_json_data)
+        reconstructed.addSmoothedAsJSON(smo_json_data)
 
-    sorted_json_data = OrderedMultiDict(sorted(json_data.items(), key=lambda x: x[0]))
+    org_sorted_json_data = OrderedMultiDict(sorted(org_json_data.items(), key=lambda x: x[0]))
+    org_sorted_json = []
+    for tod, j_tr in org_sorted_json_data.allitems():
+        #print('UGA tod {}, \'{}\''.format(tod, json.dumps(j_tr)))
+        org_sorted_json.append(j_tr)
 
-    sorted_json = []
+    smo_sorted_json_data = OrderedMultiDict(sorted(smo_json_data.items(), key=lambda x: x[0]))
+    smo_sorted_json = []
+    for tod, j_tr in smo_sorted_json_data.allitems():
+        #print('UGA tod {}, \'{}\''.format(tod, json.dumps(j_tr)))
+        smo_sorted_json.append(j_tr)
 
-    for tod, j_tr in sorted_json_data.allitems():
-        print('UGA tod {}, \'{}\''.format(tod, json.dumps(j_tr)))
-        sorted_json.append(j_tr)
 
     export_json = {}
     export_json['data_blocks'] = []
@@ -135,15 +142,20 @@ def main(argv):
     adsb_data_block = {}
     adsb_data_block['category'] = 21
     adsb_data_block['content'] = {}
-    adsb_data_block['content']['records'] = sorted_json
+    adsb_data_block['content']['records'] = org_sorted_json
 
     export_json['data_blocks'].append(adsb_data_block)
+
+    smo_data_block = {}
+    smo_data_block['category'] = 255
+    smo_data_block['content'] = {}
+    smo_data_block['content']['records'] = smo_sorted_json
+
+    export_json['data_blocks'].append(smo_data_block)
 
     with open('reconst.json', 'w') as outfile:
         json.dump(export_json, outfile, indent=4)
 
-    #text_file = open('reconst.json', 'w')
-    #text_file.write(sorted_json_strings)  # , "utf-8"
 
 if __name__ == "__main__":
     main(sys.argv[1:])

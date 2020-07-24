@@ -33,4 +33,22 @@ class ReferenceUpdate(object):
         self.groundspeed_kt = target_report.get("groundspeed_kt")
         self.heading_deg = target_report.get("track_angle_deg")
 
+    def asJSON (self):
+        data = {}
+
+        data['tod'] = self.tod
+        data['callsign'] = self.callsign
+        data['mode3a_code'] = self.mode3a_code
+        data['pos_lat_deg'] = self.pos_lat_deg
+        data['pos_long_deg'] = self.pos_long_deg
+        data['sac'] = self.sac
+        data['sic'] = self.sic
+        data['ds_id']  = self.sac * 255 + self.sic
+        data['target_addr'] = self.target_addr
+        data['modec_code_ft'] = self.modec_code_ft
+        data['groundspeed_kt'] = self.groundspeed_kt
+        data['heading_deg'] = self.heading_deg
+
+        return data
+
 
