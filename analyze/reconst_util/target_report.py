@@ -84,7 +84,7 @@ class ADSBTargetReport(TargetReport):
         "geo_height_accuracy": lambda record: find_value("090.GVA", record),
         "geo_vertical_rate_ftm": lambda record: find_value("157.Geometric Vertical Rate", record),
         "ground_bit": lambda record: get_as_verif_flag("040.GBS", record, False),
-        "groundspeed_kt": lambda record: find_value("160.Ground Speed", record),
+        "groundspeed_kt": lambda record: multiply(find_value("160.Ground Speed", record), 3600),  # nm/s to knots
         "inter_sel_altitude_ft": lambda record: None, "inter_sel_altitude_info": lambda record: None,
         "inter_sel_altitude_source": lambda record: None, "link_technology_cdti": lambda record: 'N',
         "link_technology_mds": lambda record: get_link_technology_mds(record),
@@ -144,27 +144,8 @@ class ADSBTargetReport(TargetReport):
         self._position = GeoPosition()
         self._position.setGeoPos(self.get("pos_lat_deg"), self.get("pos_long_deg"))
 
-        self._rs_2d = None
-
-        if self.get("mops_version") is not None:
-            vn = self.get("mops_version")
-            if vn == 0:
-                nucp_nic = self.get("nucp_nic")
-                if nucp_nic is not None and nucp_nic in v0_accuracies:
-                    self._rs_2d = np.eye(2) * v0_accuracies[nucp_nic] ** 2
-            elif vn == 1 or vn == 2:
-                nac_p = self.get("nac_p")
-                if nac_p in v12_accuracies:
-                    self._rs_2d = np.eye(2) * v12_accuracies[nac_p] ** 2
-
-        if self._rs_2d is None:
-            self._rs_2d = np.eye(2) * 50 ** 2  # m stddev default noise
-
         #print('pos {} rs {}'.format(self._position.getGeoPosStr(), self._rs_2d))
 
-    @property
-    def rs_2d(self):
-        return self._rs_2d
 
     def get(self, var_name):
         assert isinstance(var_name, str)

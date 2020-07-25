@@ -1,6 +1,6 @@
 from reconst_util.chain import ADSBModeSChain
 from reconst_util.reconstructed_chain import ReconstructedADSBModeSChain
-from reconst_util.target_report import ADSBTargetReport
+from reconst_util.target_report import ADSBTargetReport, v0_accuracies, v12_accuracies
 from reconst_util.geo_position import GeoPosition
 from reconst_util.reference_update import ReferenceUpdate
 
@@ -17,31 +17,33 @@ class UMKalmanFilter2D:
         # measurement noise stddev
         #self.R_std = 10
         # the process noise stddev
-        self.Q_std = 10
+        self.Q_std = 50
 
-        self.f = KalmanFilter(dim_x=4, dim_z=2)
+        self.f = KalmanFilter(dim_x=4, dim_z=4)
         #x = (x,y,x',y')
 
         # init state transition matrix
-        self.f.F = np.array([[1, 1, 0, 0],
-                             [0, 1, 0, 0],
-                             [0, 0, 1, 1],
-                             [0, 0, 0, 1]])
+        #self.f.F = np.array([[1, 1, 0, 0],
+        #                     [0, 1, 0, 0],
+        #                     [0, 0, 1, 1],
+        #                     [0, 0, 0, 1]])
 
         # init process noise matrix
-        self.f.Q = Q_continuous_white_noise(dim=2, dt=1, spectral_density=self.Q_std ** 2, block_size=2)
+        #self.f.Q = Q_continuous_white_noise(dim=4, dt=1, spectral_density=self.Q_std ** 2, block_size=2)
 
         #measurement function:
         self.f.H = np.array([[1, 0, 0, 0],
-                             [0, 0, 1, 0]])
+                             [0, 1, 0, 0],
+                             [0, 0, 1, 0],
+                             [0, 0, 0, 1]])
 
         #covariance matrix
-        self.P_std = 10
+        #self.P_std = 10
         #self.f.P = np.eye(4) * 100.
-        self.f.F = np.array([[self.P_std**2, 0, 0, 0],
-                             [0, self.P_std**3, 0, 0],
-                             [0, 0, self.P_std**2, 0],
-                             [0, 0, 0, self.P_std**3]])
+        #self.f.F = np.array([[self.P_std**2, 0, 0, 0],
+        #                     [0, self.P_std**3, 0, 0],
+        #                     [0, 0, self.P_std**2, 0],
+        #                     [0, 0, 0, self.P_std**3]])
 
         #measurement noise
         #self.f.R = np.eye(2) * self.R_std ** 2
@@ -89,8 +91,24 @@ class UMKalmanFilter2D:
 
             #print('point tod {} x {} y {} z {}'.format(tod, x, y, z))
 
+            groundspeed_kt = target_report.get('groundspeed_kt')
+            track_angle_deg = target_report.get('track_angle_deg')
+
+            got_speed = groundspeed_kt is not None and track_angle_deg is not None
+
+            if got_speed:
+                track_angle_rad = np.deg2rad(90 - track_angle_deg)  # convert to math angle and to rad
+                groundspeed_ms = groundspeed_kt * 0.514444
+                #print(' groundspeed kt {} ms {}'.format(groundspeed_kt, groundspeed_ms))
+
+                v_x = groundspeed_ms * np.cos(track_angle_rad)
+                v_y = groundspeed_ms * np.sin(track_angle_rad)
+            else:
+                v_x = 0
+                v_y = 0
+
             if first:
-                self.f.x = np.array([[x, 0., y, 0.]]).T
+                self.f.x = np.array([[x, v_x, y, v_y]]).T
                 time_last = tod
 
                 first = False
@@ -120,9 +138,37 @@ class UMKalmanFilter2D:
             #self.f.Q = Q_discrete_white_noise(dim=4, dt=dt, var=self.Q_std ** 2)
             Qs.append(Q_continuous_white_noise(dim=2, dt=dt, spectral_density=self.Q_std ** 2, block_size=2))
 
-            zs.append(np.array([x, y]))  # TODO veloctities
+            # measurement
+            zs.append(np.array([x, v_x, y, v_y]))
 
-            Rs.append(target_report.rs_2d)
+            # measurement noise
+            pos_acc_stddev_m = None
+
+            if target_report.get("mops_version") is not None:
+                vn = target_report.get("mops_version")
+                if vn == 0:
+                    nucp_nic = target_report.get("nucp_nic")
+                    if nucp_nic is not None and nucp_nic in v0_accuracies:
+                        pos_acc_stddev_m = v0_accuracies[nucp_nic]
+                elif vn == 1 or vn == 2:
+                    nac_p = target_report.get("nac_p")
+                    if nac_p in v12_accuracies:
+                        pos_acc_stddev_m = v12_accuracies[nac_p]
+
+            if pos_acc_stddev_m is None:
+                pos_acc_stddev_m = 50  # m stddev default noise
+
+            vel_acc_stddev_ms = 10
+            if not got_speed:  # velocities not set
+                vel_acc_stddev_ms = 500
+
+            #print('pos x {} y {}  v_x {} v_y {} pos_stddev {} v_stddev {}'.format(
+            #    x, y, v_x, v_y, pos_acc_stddev_m, vel_acc_stddev_ms))
+
+            Rs.append(np.array([[pos_acc_stddev_m ** 2, 0, 0, 0],
+                                [0, vel_acc_stddev_ms ** 2, 0, 0],
+                                [0, 0, pos_acc_stddev_m ** 2, 0],
+                                [0, 0, 0, vel_acc_stddev_ms ** 2]]))
 
             #print target_report
 
