@@ -31,7 +31,7 @@ class TargetReport(object):
 
 # stddev in meters
 
-v0_accuracies = {
+v0_pos_accuracies = {
     1: 9260,
     2: 4630,
     3: 926,
@@ -43,7 +43,13 @@ v0_accuracies = {
     9: 1.5
 }
 
-v12_accuracies = {
+v0_spd_accuracies = {
+    1: 5,
+    2: 1.5,
+    3: 0.5
+}
+
+v12_pos_accuracies = {
     1: 9260,
     2: 3704,
     3: 1852,
@@ -55,6 +61,13 @@ v12_accuracies = {
     9: 15,
     10: 5,
     11: 1.5
+}
+
+v12_spd_accuracies = {
+    1: 5,
+    2: 1.5,
+    3: 0.5,
+    4: 0.15
 }
 
 class ADSBTargetReport(TargetReport):

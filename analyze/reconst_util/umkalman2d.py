@@ -1,11 +1,12 @@
 from reconst_util.chain import ADSBModeSChain
 from reconst_util.reconstructed_chain import ReconstructedADSBModeSChain
-from reconst_util.target_report import ADSBTargetReport, v0_accuracies, v12_accuracies
+from reconst_util.target_report import ADSBTargetReport, v0_pos_accuracies, v0_spd_accuracies, v12_pos_accuracies, v12_spd_accuracies
 from reconst_util.geo_position import GeoPosition
 from reconst_util.reference_update import ReferenceUpdate
 
 import numpy as np
 import nvector as nv
+import math
 
 from filterpy.kalman import KalmanFilter, rts_smoother
 from filterpy.common import Q_continuous_white_noise
@@ -143,32 +144,45 @@ class UMKalmanFilter2D:
 
             # measurement noise
             pos_acc_stddev_m = None
+            spd_acc_stddev_ms = None
+
+            nucr_nacv = target_report.get('nucr_nacv')
+            got_spd_acc = nucr_nacv is not None
 
             if target_report.get("mops_version") is not None:
                 vn = target_report.get("mops_version")
+
                 if vn == 0:
                     nucp_nic = target_report.get("nucp_nic")
-                    if nucp_nic is not None and nucp_nic in v0_accuracies:
-                        pos_acc_stddev_m = v0_accuracies[nucp_nic]
+                    if nucp_nic is not None and nucp_nic in v0_pos_accuracies:
+                        pos_acc_stddev_m = v0_pos_accuracies[nucp_nic]
+
+                    if got_spd_acc and nucr_nacv in v0_spd_accuracies:
+                        spd_acc_stddev_ms = v0_spd_accuracies[nucr_nacv]
+
                 elif vn == 1 or vn == 2:
                     nac_p = target_report.get("nac_p")
-                    if nac_p in v12_accuracies:
-                        pos_acc_stddev_m = v12_accuracies[nac_p]
+                    if nac_p is not None and nac_p in v12_pos_accuracies:
+                        pos_acc_stddev_m = v12_pos_accuracies[nac_p]
+
+                    if got_spd_acc and nucr_nacv in v12_spd_accuracies:
+                        spd_acc_stddev_ms = v12_spd_accuracies[nucr_nacv]
 
             if pos_acc_stddev_m is None:
                 pos_acc_stddev_m = 50  # m stddev default noise
 
-            vel_acc_stddev_ms = 10
+            if spd_acc_stddev_ms is None:
+                spd_acc_stddev_ms = 20
             if not got_speed:  # velocities not set
-                vel_acc_stddev_ms = 500
+                spd_acc_stddev_ms = 500
 
             #print('pos x {} y {}  v_x {} v_y {} pos_stddev {} v_stddev {}'.format(
             #    x, y, v_x, v_y, pos_acc_stddev_m, vel_acc_stddev_ms))
 
             Rs.append(np.array([[pos_acc_stddev_m ** 2, 0, 0, 0],
-                                [0, vel_acc_stddev_ms ** 2, 0, 0],
+                                [0, spd_acc_stddev_ms ** 2, 0, 0],
                                 [0, 0, pos_acc_stddev_m ** 2, 0],
-                                [0, 0, 0, vel_acc_stddev_ms ** 2]]))
+                                [0, 0, 0, spd_acc_stddev_ms ** 2]]))
 
             #print target_report
 
@@ -190,6 +204,7 @@ class UMKalmanFilter2D:
 
             target_report = chain.target_reports[tod]  # type: ADSBTargetReport
 
+            # filterned
             ref_fil = ReferenceUpdate(chain.utn, tod)
             ref_fil.fromADSBTargetReport(target_report)
             ref_fil.sac = 0
@@ -205,8 +220,21 @@ class UMKalmanFilter2D:
 
             ref_fil.pos_lat_deg, ref_fil.pos_long_deg, _ = ref_fil_pos.getGeoPos()
 
+            v_x = mu[cnt][1][0]
+            v_y = mu[cnt][3][0]
+
+            heading_math_rad = math.atan2(v_y, v_x)
+            heading_deg = 90 - np.rad2deg(heading_math_rad)
+
+            groundspeed_ms = math.sqrt(v_x ** 2 + v_y ** 2)
+            groundspeed_kt = groundspeed_ms / 0.514444
+
+            ref_fil.heading_deg = heading_deg
+            ref_fil.groundspeed_kt = groundspeed_kt
+
             reconstructed.filtered_target_reports[tod] = ref_fil
 
+            # smoothed
             ref_smo = ReferenceUpdate(chain.utn, tod)
             ref_smo.fromADSBTargetReport(target_report)
             ref_smo.sac = 0
@@ -217,6 +245,18 @@ class UMKalmanFilter2D:
             ref_smo_pos.setENU(mu_smoothed[cnt][0][0], mu_smoothed[cnt][2][0], 0, center_pos)
 
             ref_smo.pos_lat_deg, ref_fil.pos_long_deg, _ = ref_fil_pos.getGeoPos()
+
+            v_x = mu_smoothed[cnt][1][0]
+            v_y = mu_smoothed[cnt][3][0]
+
+            heading_math_rad = math.atan2(v_y, v_x)
+            heading_deg = 90 - np.rad2deg(heading_math_rad)
+
+            groundspeed_ms = math.sqrt(v_x ** 2 + v_y ** 2)
+            groundspeed_kt = groundspeed_ms / 0.514444
+
+            ref_smo_pos.heading_deg = heading_deg
+            ref_smo_pos.groundspeed_kt = groundspeed_kt
 
             reconstructed.smoothed_target_reports[tod] = ref_smo
 
