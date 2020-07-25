@@ -15,7 +15,7 @@ class UMKalmanFilter2D:
         self.name = name
 
         # measurement noise stddev
-        self.R_std = 10
+        #self.R_std = 10
         # the process noise stddev
         self.Q_std = 10
 
@@ -44,7 +44,7 @@ class UMKalmanFilter2D:
                              [0, 0, 0, self.P_std**3]])
 
         #measurement noise
-        self.f.R = np.eye(2) * self.R_std ** 2
+        #self.f.R = np.eye(2) * self.R_std ** 2
 
     def filter(self, chain):
         assert isinstance(chain, ADSBModeSChain)
@@ -75,9 +75,10 @@ class UMKalmanFilter2D:
         zs = []
         Fs = []
         Qs = []
+        Rs = []
 
         # process
-        for tod, target_report in chain.target_reports.items():  # type: ADSBTargetReport
+        for tod, target_report in chain.target_reports.items():  # type: float,ADSBTargetReport
             #data_point 0: time, 1: x, 2: y, 3: fl, 4: date
 
             x, y, z = target_report.position.getENU(center_pos)  # east, north, up
@@ -121,11 +122,13 @@ class UMKalmanFilter2D:
 
             zs.append(np.array([x, y]))  # TODO veloctities
 
+            Rs.append(target_report.rs_2d)
+
             #print target_report
 
             time_last = time_current
 
-        (mu, cov, _, _) = self.f.batch_filter(zs=zs, Fs=Fs, Qs=Qs)  # TODO Rs
+        (mu, cov, _, _) = self.f.batch_filter(zs=zs, Fs=Fs, Qs=Qs, Rs=Rs)  # TODO Rs
 
         #print('ts {} zs {} mu {} cov {}'.format(len(ts), len(zs), len(mu), len(cov)))
         assert len(ts) == len(zs) == len(mu) == len(cov)

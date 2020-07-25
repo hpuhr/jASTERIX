@@ -6,6 +6,7 @@ from reconst_util.geo_position import GeoPosition
 from util.common import *
 from util.adsb import *
 
+import numpy as np
 
 class TargetReport(object):
     def __init__(self, cat, json_data):
@@ -28,6 +29,33 @@ class TargetReport(object):
     def position(self):
         return self._position
 
+# stddev in meters
+
+v0_accuracies = {
+    1: 9260,
+    2: 4630,
+    3: 926,
+    4: 463,
+    5: 231.5,
+    6: 92.5,
+    7: 46.5,
+    8: 5,
+    9: 1.5
+}
+
+v12_accuracies = {
+    1: 9260,
+    2: 3704,
+    3: 1852,
+    4: 926,
+    5: 463,
+    6: 278,
+    7: 92.5,
+    8: 46.5,
+    9: 15,
+    10: 5,
+    11: 1.5
+}
 
 class ADSBTargetReport(TargetReport):
     _getters = {
@@ -116,7 +144,27 @@ class ADSBTargetReport(TargetReport):
         self._position = GeoPosition()
         self._position.setGeoPos(self.get("pos_lat_deg"), self.get("pos_long_deg"))
 
-        #print(self._position.getGeoPosStr())
+        self._rs_2d = None
+
+        if self.get("mops_version") is not None:
+            vn = self.get("mops_version")
+            if vn == 0:
+                nucp_nic = self.get("nucp_nic")
+                if nucp_nic is not None and nucp_nic in v0_accuracies:
+                    self._rs_2d = np.eye(2) * v0_accuracies[nucp_nic] ** 2
+            elif vn == 1 or vn == 2:
+                nac_p = self.get("nac_p")
+                if nac_p in v12_accuracies:
+                    self._rs_2d = np.eye(2) * v12_accuracies[nac_p] ** 2
+
+        if self._rs_2d is None:
+            self._rs_2d = np.eye(2) * 50 ** 2  # m stddev default noise
+
+        #print('pos {} rs {}'.format(self._position.getGeoPosStr(), self._rs_2d))
+
+    @property
+    def rs_2d(self):
+        return self._rs_2d
 
     def get(self, var_name):
         assert isinstance(var_name, str)
