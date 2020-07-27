@@ -11,6 +11,9 @@ class ReferenceUpdate(object):
         self.mode3a_code = None
         self.pos_lat_deg = None
         self.pos_long_deg = None
+        self.pos_std_dev_lat_deg = None
+        self.pos_std_dev_latlong_corr_coeff = None
+        self.pos_std_dev_long_deg = None
         self.sac = None
         self.sic = None
         self.target_addr = None
@@ -41,6 +44,9 @@ class ReferenceUpdate(object):
         data['mode3a_code'] = self.mode3a_code
         data['pos_lat_deg'] = self.pos_lat_deg
         data['pos_long_deg'] = self.pos_long_deg
+        data['pos_std_dev_lat_deg'] = self.pos_std_dev_lat_deg
+        data['pos_std_dev_latlong_corr_coeff'] = self.pos_std_dev_latlong_corr_coeff
+        data['pos_std_dev_long_deg'] = self.pos_std_dev_long_deg
         data['sac'] = self.sac
         data['sic'] = self.sic
         data['ds_id']  = self.sac * 255 + self.sic

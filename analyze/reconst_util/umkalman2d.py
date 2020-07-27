@@ -18,7 +18,7 @@ class UMKalmanFilter2D:
         # measurement noise stddev
         #self.R_std = 10
         # the process noise stddev
-        self.Q_std = 50
+        self.Q_std = 10
 
         self.f = KalmanFilter(dim_x=4, dim_z=4)
         #x = (x,y,x',y')
@@ -127,7 +127,7 @@ class UMKalmanFilter2D:
             assert dt > 0
 
             #ts.append((data_point[4], time_current)) #date,time
-            ts.append(tod)
+            ts.append(tod)  # todo
 
             # state transition matrix:, set time dependent
             Fs.append(np.array([[1, dt, 0, 0],
@@ -172,7 +172,7 @@ class UMKalmanFilter2D:
                 pos_acc_stddev_m = 50  # m stddev default noise
 
             if spd_acc_stddev_ms is None:
-                spd_acc_stddev_ms = 20
+                spd_acc_stddev_ms = 10
             if not got_speed:  # velocities not set
                 spd_acc_stddev_ms = 500
 
@@ -188,7 +188,7 @@ class UMKalmanFilter2D:
 
             time_last = time_current
 
-        (mu, cov, _, _) = self.f.batch_filter(zs=zs, Fs=Fs, Qs=Qs, Rs=Rs)  # TODO Rs
+        (mu, cov, _, _) = self.f.batch_filter(zs=zs, Fs=Fs, Qs=Qs, Rs=Rs)
 
         #print('ts {} zs {} mu {} cov {}'.format(len(ts), len(zs), len(mu), len(cov)))
         assert len(ts) == len(zs) == len(mu) == len(cov)
@@ -204,7 +204,7 @@ class UMKalmanFilter2D:
 
             target_report = chain.target_reports[tod]  # type: ADSBTargetReport
 
-            # filterned
+            # filtered
             ref_fil = ReferenceUpdate(chain.utn, tod)
             ref_fil.fromADSBTargetReport(target_report)
             ref_fil.sac = 0
@@ -219,6 +219,22 @@ class UMKalmanFilter2D:
             ref_fil_pos.setENU(mu[cnt][0][0], mu[cnt][2][0], 0, center_pos)
 
             ref_fil.pos_lat_deg, ref_fil.pos_long_deg, _ = ref_fil_pos.getGeoPos()
+
+            #print('cov {}'.format(cov[cnt]))
+
+            stddev_x = math.sqrt(cov[cnt][0][0])
+            stddev_y = math.sqrt(cov[cnt][2][2])
+            cov_xy = cov[cnt][0][2]
+
+            #print('fil stddev_x {} stddev_y {} cov_xy {}'.format(stddev_x, stddev_y, cov_xy))
+
+            d_lat, d_long = ref_fil_pos.getLatLongDelta(stddev_y, stddev_x)
+            cov_latlong = cov_xy*(d_lat/stddev_x)*(d_long/stddev_y)
+            #print('d_lat {} d_long {} cov_latlong {}'.format(d_lat, d_long, cov_latlong))
+
+            ref_fil.pos_std_dev_lat_deg = d_lat
+            ref_fil.pos_std_dev_latlong_corr_coeff = cov_latlong
+            ref_fil.pos_std_dev_long_deg = d_long
 
             v_x = mu[cnt][1][0]
             v_y = mu[cnt][3][0]
@@ -245,6 +261,22 @@ class UMKalmanFilter2D:
             ref_smo_pos.setENU(mu_smoothed[cnt][0][0], mu_smoothed[cnt][2][0], 0, center_pos)
 
             ref_smo.pos_lat_deg, ref_fil.pos_long_deg, _ = ref_fil_pos.getGeoPos()
+
+            stddev_x = math.sqrt(cov_smoothed[cnt][0][0])
+            stddev_y = math.sqrt(cov_smoothed[cnt][2][2])
+            cov_xy = cov_smoothed[cnt][0][2]
+
+            #print('smo stddev_x {} stddev_y {} cov_xy {}'.format(stddev_x, stddev_y, cov_xy))
+
+            d_lat, d_long = ref_smo_pos.getLatLongDelta(stddev_y, stddev_x)
+            cov_latlong = cov_xy * (d_lat / stddev_x) * (d_long / stddev_y)
+            #print('\nrs_stddev_y {} rs_stddev_x {}'.format(math.sqrt(Rs[cnt][0][0]), math.sqrt(Rs[cnt][2][2])))
+            #print('stddev_y {} stddev_x {}'.format(stddev_y, stddev_x))
+            #print('d_lat {} d_long {} cov_latlong {}'.format(d_lat, d_long, cov_latlong))
+
+            ref_smo.pos_std_dev_lat_deg = d_lat
+            ref_smo.pos_std_dev_latlong_corr_coeff = cov_latlong
+            ref_smo.pos_std_dev_long_deg = d_long
 
             v_x = mu_smoothed[cnt][1][0]
             v_y = mu_smoothed[cnt][3][0]

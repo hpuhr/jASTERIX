@@ -274,6 +274,15 @@ class GeoPosition(object):
         self.__ecef_pos = self.__ecef_pos + local_p.to_ecef_vector()
         self.__geopoint = self.__ecef_pos.to_geo_point()
 
+    def getLatLongDelta(self, n, e):
+        local_frame = nv.FrameN(self.__geopoint)  # North-East-Down frame
+        local_p = local_frame.Pvector(np.r_[n, e, 0])
+        ecef_pos = self.__ecef_pos + local_p.to_ecef_vector()
+        local_geo = ecef_pos.to_geo_point()  # type: nv.GeoPoint
+
+        return abs(self.__geopoint.latitude_deg-local_geo.latitude_deg)[0], abs(self.__geopoint.longitude_deg-local_geo.longitude_deg)[0]
+
+
     def getNEDDelta(self, other_point):
         """
         Returns north-east-down Cartesian delta to other point, measured from this point (self as NED origin).
