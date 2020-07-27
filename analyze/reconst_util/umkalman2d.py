@@ -20,7 +20,7 @@ class UMKalmanFilter2D:
         # the process noise stddev
         self.Q_std = 10
 
-        self.f = KalmanFilter(dim_x=4, dim_z=4)
+        self.f = KalmanFilter(dim_x=6, dim_z=6)
         #x = (x,y,x',y')
 
         # init state transition matrix
@@ -33,10 +33,12 @@ class UMKalmanFilter2D:
         #self.f.Q = Q_continuous_white_noise(dim=4, dt=1, spectral_density=self.Q_std ** 2, block_size=2)
 
         #measurement function:
-        self.f.H = np.array([[1, 0, 0, 0],
-                             [0, 1, 0, 0],
-                             [0, 0, 1, 0],
-                             [0, 0, 0, 1]])
+        self.f.H = np.array([[1, 0, 0, 0, 0, 0],
+                             [0, 1, 0, 0, 0, 0],
+                             [0, 0, 1, 0, 0, 0],
+                             [0, 0, 0, 1, 0, 0],
+                             [0, 0, 0, 0, 1, 0],
+                             [0, 0, 0, 0, 0, 1]])
 
         #covariance matrix
         #self.P_std = 10
@@ -48,6 +50,8 @@ class UMKalmanFilter2D:
 
         #measurement noise
         #self.f.R = np.eye(2) * self.R_std ** 2
+
+        self.big_noise_stddev = 500
 
     def filter(self, chain):
         assert isinstance(chain, ADSBModeSChain)
@@ -73,6 +77,7 @@ class UMKalmanFilter2D:
 
         first = True
         time_last = None
+        z_last = None
 
         ts = []
         zs = []
@@ -112,8 +117,9 @@ class UMKalmanFilter2D:
                 v_y = 0
 
             if first:
-                self.f.x = np.array([[x, v_x, y, v_y]]).T
+                self.f.x = np.array([[x, v_x, y, v_y, z, 0]]).T
                 time_last = tod
+                z_last = z
 
                 first = False
                 #continue
@@ -121,7 +127,6 @@ class UMKalmanFilter2D:
             # z = get_sensor_reading()
             time_current = tod
             dt = time_current - time_last
-            zval.append(z)
 
             #if dt == 0:
             #    print('{}: skipping same-time point at {}'.format(self.name, time_current))
@@ -134,18 +139,20 @@ class UMKalmanFilter2D:
             ts.append(tod)
 
             # state transition matrix:, set time dependent
-            Fs.append(np.array([[1, dt, 0, 0],
-                                [0, 1, 0, 0],
-                                [0, 0, 1, dt],
-                                [0, 0, 0, 1]]))
+            Fs.append(np.array([[1, dt, 0, 0, 0, 0],
+                                [0, 1, 0, 0, 0, 0],
+                                [0, 0, 1, dt, 0, 0],
+                                [0, 0, 0, 1, 0, 0],
+                                [0, 0, 0, 0, 1, dt],
+                                [0, 0, 0, 0, 0, 1]]))
 
             # the process noise, set time dependent
             #self.f.Q = Q_discrete_white_noise(dim=4, dt=dt, var=self.Q_std ** 2)
             #Qs.append(Q_continuous_white_noise(dim=2, dt=dt, spectral_density=self.Q_std ** 2, block_size=2))
-            Qs.append(Q_discrete_white_noise(dim=2, dt=dt, var=self.Q_std ** 2, block_size=2))
+            Qs.append(Q_discrete_white_noise(dim=2, dt=dt, var=self.Q_std ** 2, block_size=3))
 
             # measurement
-            zs.append(np.array([x, v_x, y, v_y]))
+            zs.append(np.array([x, v_x, y, v_y, z, z_last-z]))
 
             # measurement noise
             pos_acc_stddev_m = None
@@ -179,15 +186,17 @@ class UMKalmanFilter2D:
             if spd_acc_stddev_ms is None:
                 spd_acc_stddev_ms = 10
             if not got_speed:  # velocities not set
-                spd_acc_stddev_ms = 500
+                spd_acc_stddev_ms = self.big_noise_stddev
 
             #print('pos x {} y {}  v_x {} v_y {} pos_stddev {} v_stddev {}'.format(
             #    x, y, v_x, v_y, pos_acc_stddev_m, vel_acc_stddev_ms))
 
-            Rs.append(np.array([[pos_acc_stddev_m ** 2, 0, 0, 0],
-                                [0, spd_acc_stddev_ms ** 2, 0, 0],
-                                [0, 0, pos_acc_stddev_m ** 2, 0],
-                                [0, 0, 0, spd_acc_stddev_ms ** 2]]))
+            Rs.append(np.array([[pos_acc_stddev_m ** 2, 0, 0, 0, 0, 0],
+                                [0, spd_acc_stddev_ms ** 2, 0, 0, 0, 0],
+                                [0, 0, pos_acc_stddev_m ** 2, 0, 0, 0],
+                                [0, 0, 0, spd_acc_stddev_ms ** 2, 0, 0],
+                                [0, 0, 0, 0, 1, 0],
+                                [0, 0, 0, 0, 0, 10 ** 2]]))
 
             #print target_report
 
@@ -221,7 +230,7 @@ class UMKalmanFilter2D:
             # x mu[cnt][0][0], y mu[cnt][2][0]
             ref_fil_pos = GeoPosition()
             #print('fil x {} y {}'.format(mu[cnt][0][0], mu[cnt][2][0]))
-            ref_fil_pos.setENU(mu[cnt][0][0], mu[cnt][2][0], zval[cnt], center_pos)
+            ref_fil_pos.setENU(mu[cnt][0][0], mu[cnt][2][0], mu[cnt][4][0], center_pos)
 
             ref_fil.pos_lat_deg, ref_fil.pos_long_deg, _ = ref_fil_pos.getGeoPos()
 
@@ -267,7 +276,7 @@ class UMKalmanFilter2D:
 
             ref_smo_pos = GeoPosition()
             #print('smo x {} y {}'.format(mu_smoothed[cnt][0][0], mu_smoothed[cnt][2][0]))
-            ref_smo_pos.setENU(mu_smoothed[cnt][0][0], mu_smoothed[cnt][2][0], zval[cnt], center_pos)
+            ref_smo_pos.setENU(mu_smoothed[cnt][0][0], mu_smoothed[cnt][2][0], mu_smoothed[cnt][4][0], center_pos)
 
             ref_smo.pos_lat_deg, ref_fil.pos_long_deg, _ = ref_fil_pos.getGeoPos()
 

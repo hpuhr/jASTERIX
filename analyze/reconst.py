@@ -17,12 +17,12 @@ def filter_records(cat, record):
     if cat != 21 and cat != 62:
         return True
 
-    target_addr = find_value("080.Target Address", record)
-    assert target_addr is not None
-    return target_addr != 3957892 and target_addr != 4344286 # first
+    #target_addr = find_value("080.Target Address", record)
+    #assert target_addr is not None
+    #return target_addr != 3957892 and target_addr != 4344286 # first
     #return target_addr != 4344286 # missing tr
 
-    #return False
+    return False
 
 
 class ChainCalculator:
@@ -179,6 +179,8 @@ def main(argv):
         # filter
         reconstructed = reconst_filter.filter(adsb_chain)  # type: ReconstructedADSBModeSChain
 
+        #reconstructed.plot()
+
         usable, not_usable_reasons = check_usable_reconstructed_chain(reconstructed)
 
         if not usable:
@@ -191,7 +193,6 @@ def main(argv):
             usable_chains_cnt += 1
             usable_tr_cnt += len(adsb_chain.target_reports)
 
-        #reconstructed.plot()
         #reconstructed.addOriginalAsJSON(org_json_data)
         #reconstructed.addFiltereddAsJSON(fil_json_data)
         reconstructed.addSmoothedAsJSON(smo_json_data)
