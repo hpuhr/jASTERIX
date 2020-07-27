@@ -9,7 +9,7 @@ import nvector as nv
 import math
 
 from filterpy.kalman import KalmanFilter, rts_smoother
-from filterpy.common import Q_continuous_white_noise
+from filterpy.common import Q_continuous_white_noise, Q_discrete_white_noise
 
 class UMKalmanFilter2D:
     def __init__(self, name):
@@ -69,7 +69,7 @@ class UMKalmanFilter2D:
 
         center_pos = nv.GeoPoint(center_lat, center_long, 0, degrees=True)
 
-        #print('UMKalmanFilter2D: center latitude {} longitude {}'.format(center_lat, center_long))
+        #print('UMKalmanFilter2D: center latitude {} longitude {} z {}'.format(center_pos.latitude_deg, center_pos.longitude_deg, center_pos.z))
 
         first = True
         time_last = None
@@ -79,10 +79,13 @@ class UMKalmanFilter2D:
         Fs = []
         Qs = []
         Rs = []
+        zval = []
 
         # process
         for tod, target_report in chain.target_reports.items():  # type: float,ADSBTargetReport
             #data_point 0: time, 1: x, 2: y, 3: fl, 4: date
+
+            #print('UMKalmanFilter2D: target_report {}'.format(target_report.position.getGeoPosStr()))
 
             x, y, z = target_report.position.getENU(center_pos)  # east, north, up
 
@@ -113,21 +116,22 @@ class UMKalmanFilter2D:
                 time_last = tod
 
                 first = False
-                continue
+                #continue
 
             # z = get_sensor_reading()
             time_current = tod
             dt = time_current - time_last
+            zval.append(z)
 
-            if dt == 0:
-                print('{}: skipping same-time point at {}'.format(self.name, time_current))
-                continue
+            #if dt == 0:
+            #    print('{}: skipping same-time point at {}'.format(self.name, time_current))
+            #    continue
 
             #print ('dt {}'.format(dt))
-            assert dt > 0
+            #assert dt > 0
 
             #ts.append((data_point[4], time_current)) #date,time
-            ts.append(tod)  # todo
+            ts.append(tod)
 
             # state transition matrix:, set time dependent
             Fs.append(np.array([[1, dt, 0, 0],
@@ -137,7 +141,8 @@ class UMKalmanFilter2D:
 
             # the process noise, set time dependent
             #self.f.Q = Q_discrete_white_noise(dim=4, dt=dt, var=self.Q_std ** 2)
-            Qs.append(Q_continuous_white_noise(dim=2, dt=dt, spectral_density=self.Q_std ** 2, block_size=2))
+            #Qs.append(Q_continuous_white_noise(dim=2, dt=dt, spectral_density=self.Q_std ** 2, block_size=2))
+            Qs.append(Q_discrete_white_noise(dim=2, dt=dt, var=self.Q_std ** 2, block_size=2))
 
             # measurement
             zs.append(np.array([x, v_x, y, v_y]))
@@ -216,7 +221,7 @@ class UMKalmanFilter2D:
             # x mu[cnt][0][0], y mu[cnt][2][0]
             ref_fil_pos = GeoPosition()
             #print('fil x {} y {}'.format(mu[cnt][0][0], mu[cnt][2][0]))
-            ref_fil_pos.setENU(mu[cnt][0][0], mu[cnt][2][0], 0, center_pos)
+            ref_fil_pos.setENU(mu[cnt][0][0], mu[cnt][2][0], zval[cnt], center_pos)
 
             ref_fil.pos_lat_deg, ref_fil.pos_long_deg, _ = ref_fil_pos.getGeoPos()
 
@@ -262,7 +267,7 @@ class UMKalmanFilter2D:
 
             ref_smo_pos = GeoPosition()
             #print('smo x {} y {}'.format(mu_smoothed[cnt][0][0], mu_smoothed[cnt][2][0]))
-            ref_smo_pos.setENU(mu_smoothed[cnt][0][0], mu_smoothed[cnt][2][0], 0, center_pos)
+            ref_smo_pos.setENU(mu_smoothed[cnt][0][0], mu_smoothed[cnt][2][0], zval[cnt], center_pos)
 
             ref_smo.pos_lat_deg, ref_fil.pos_long_deg, _ = ref_fil_pos.getGeoPos()
 

@@ -157,7 +157,7 @@ class ADSBTargetReport(TargetReport):
         self._position = GeoPosition()
         self._position.setGeoPos(self.get("pos_lat_deg"), self.get("pos_long_deg"))
 
-        #print('pos {} rs {}'.format(self._position.getGeoPosStr(), self._rs_2d))
+        #print('pos {}'.format(self._position.getGeoPosStr()))
 
 
     def get(self, var_name):

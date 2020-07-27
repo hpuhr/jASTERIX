@@ -17,12 +17,12 @@ def filter_records(cat, record):
     if cat != 21 and cat != 62:
         return True
 
-    #target_addr = find_value("080.Target Address", record)
-    #assert target_addr is not None
-    #return target_addr != 3957892 and target_addr != 4344286 # first
+    target_addr = find_value("080.Target Address", record)
+    assert target_addr is not None
+    return target_addr != 3957892 and target_addr != 4344286 # first
     #return target_addr != 4344286 # missing tr
 
-    return False
+    #return False
 
 
 class ChainCalculator:
@@ -241,7 +241,7 @@ def main(argv):
     with open('reconst.json', 'w') as outfile:
         json.dump(export_json, outfile, indent=4)
 
-    print('done after {} seconds'.format((time.time() - start_time)))
+    print('done after {}'.format(time_str_from_seconds(time.time() - start_time)))
 
 
 if __name__ == "__main__":
