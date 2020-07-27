@@ -53,3 +53,15 @@ class ADSBModeSChain(ModeSChain):
                 self._utn, hex(self._target_address), self._num_records,
                 time_str_from_seconds(self._last_tod), time_str_from_seconds(tod),
                 time_str_from_seconds(self._last_tod-tod)))
+
+    def getMOPSVersions(self):
+        mops_versions = []
+
+        for tod, target_report in self._target_reports.items():  # type: float, ADSBTargetReport
+            mops_vn = target_report.get('mops_version')
+
+            if mops_vn not in mops_versions:
+                mops_versions.append(mops_vn)
+
+        return mops_versions
+

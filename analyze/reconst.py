@@ -4,6 +4,7 @@ import time
 from typing import Dict
 from collections import defaultdict
 import argparse
+import time
 
 from util.record_extractor import RecordExtractor
 from util.common import find_value, time_str_from_seconds
@@ -75,8 +76,28 @@ class ChainCalculator:
 
         chain.process_record(cat, record)
 
+def check_usable_ADSB_chain (adsb_chain):
+    assert isinstance(adsb_chain, ADSBModeSChain)
+
+    usable = True
+    not_usable_reasons = []
+
+    mops_versions = adsb_chain.getMOPSVersions()
+
+    if len(mops_versions) == 0:
+        usable = False
+        not_usable_reasons.append('No MOPS version')
+
+    for unusable_mops_version in [None, 0, 1]:
+        if unusable_mops_version in mops_versions:
+            usable = False
+            not_usable_reasons.append('MOPS version {} found'.format(unusable_mops_version))
+
+    return usable, not_usable_reasons
+
 
 def main(argv):
+    start_time = time.time()
 
     parser = argparse.ArgumentParser(description='ASTERIX CAT062 dubious tracks')
     parser.add_argument('--framing', help='Framing True or False', required=True)
@@ -115,40 +136,65 @@ def main(argv):
 
     reconst_filter = UMKalmanFilter2D('UMKalmanFilter2D')
 
-    org_json_data = []
+    #org_json_data = []
     fil_json_data = []
     smo_json_data = []
 
+    usable_chains_cnt = 0
+    not_usable_chains_cnt = 0
+
+    usable_tr_cnt = 0
+    not_usable_tr_cnt = 0
+
     for ta, adsb_chain in chain_calc.adsb_chains.items():  # type: int,ADSBModeSChain
+        # check if usable
+
+        usable, not_usable_reasons = check_usable_ADSB_chain(adsb_chain)
+
+        if not usable:
+            print('chain utn {} ta {} not usable since {}'.format(adsb_chain.utn, hex(adsb_chain.target_address), not_usable_reasons))
+            not_usable_chains_cnt += 1
+            not_usable_tr_cnt += len(adsb_chain.target_reports)
+            continue
+        else:
+            usable_chains_cnt += 1
+            usable_tr_cnt += len(adsb_chain.target_reports)
+
+        # filter
         reconstructed = reconst_filter.filter(adsb_chain)  # type: ReconstructedADSBModeSChain
         #reconstructed.plot()
-        reconstructed.addOriginalAsJSON(org_json_data)
-        reconstructed.addFiltereddAsJSON(fil_json_data)
+        #reconstructed.addOriginalAsJSON(org_json_data)
+        #reconstructed.addFiltereddAsJSON(fil_json_data)
         reconstructed.addSmoothedAsJSON(smo_json_data)
 
-    org_json_data.sort(key=lambda x: x['073']['Time of Message Reception for Position'])
-    fil_json_data.sort(key=lambda x: x['tod'])
+    print('num chains {} usable {} unusable {}'.format(
+        len(chain_calc.adsb_chains), usable_chains_cnt, not_usable_chains_cnt))
+    print('num target reports {} usable {} unusable {}'.format(
+        usable_tr_cnt+not_usable_tr_cnt, usable_tr_cnt, not_usable_tr_cnt))
+
+    #org_json_data.sort(key=lambda x: x['073']['Time of Message Reception for Position'])
+    #fil_json_data.sort(key=lambda x: x['tod'])
     smo_json_data.sort(key=lambda x: x['tod'])
 
     #print('UGA len {} {} {} {}'.format(len(chain_calc.adsb_chains), len(org_json_data), len(fil_json_data), len(smo_json_data)))
-    assert len(org_json_data)-len(chain_calc.adsb_chains) == len(fil_json_data) == len(smo_json_data)
+    #assert len(org_json_data)-len(chain_calc.adsb_chains) == len(fil_json_data) == len(smo_json_data)
 
     export_json = {}
     export_json['data_blocks'] = []
 
-    adsb_data_block = {}
-    adsb_data_block['category'] = 21
-    adsb_data_block['content'] = {}
-    adsb_data_block['content']['records'] = org_json_data
+    #adsb_data_block = {}
+    #adsb_data_block['category'] = 21
+    #adsb_data_block['content'] = {}
+    #adsb_data_block['content']['records'] = org_json_data
 
-    export_json['data_blocks'].append(adsb_data_block)
+    #export_json['data_blocks'].append(adsb_data_block)
 
-    fil_data_block = {}
-    fil_data_block['category'] = 255
-    fil_data_block['content'] = {}
-    fil_data_block['content']['records'] = fil_json_data
+    #fil_data_block = {}
+    #fil_data_block['category'] = 255
+    #fil_data_block['content'] = {}
+    #fil_data_block['content']['records'] = fil_json_data
 
-    export_json['data_blocks'].append(fil_data_block)
+    #export_json['data_blocks'].append(fil_data_block)
 
     smo_data_block = {}
     smo_data_block['category'] = 255
@@ -159,6 +205,8 @@ def main(argv):
 
     with open('reconst.json', 'w') as outfile:
         json.dump(export_json, outfile, indent=4)
+
+    print('done after {} seconds'.format((time.time() - start_time)))
 
 
 if __name__ == "__main__":
