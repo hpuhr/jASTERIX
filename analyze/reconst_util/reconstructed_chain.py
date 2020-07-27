@@ -1,7 +1,5 @@
 import matplotlib.pyplot as plt
 
-import json
-
 from reconst_util.target_report import ADSBTargetReport
 from reconst_util.reference_update import ReferenceUpdate
 
@@ -68,4 +66,13 @@ class ReconstructedADSBModeSChain:
     def addSmoothedAsJSON(self, json_data):
         for tod, target_report in self._smoothed_target_reports.items():  # type: float,ReferenceUpdate
             json_data.append(target_report.asJSON())
+
+    def getMaxSmoothedStdDev (self):
+        max_stddev = -1
+
+        for tod, target_report in self._smoothed_target_reports.items():  # type: float,ReferenceUpdate
+            max_stddev = max(max_stddev, target_report.pos_std_dev_x_m)
+            max_stddev = max(max_stddev, target_report.pos_std_dev_y_m)
+
+        return max_stddev
 

@@ -95,6 +95,25 @@ def check_usable_ADSB_chain (adsb_chain):
 
     return usable, not_usable_reasons
 
+def check_usable_reconstructed_chain (rec_chain):
+    assert isinstance(rec_chain, ReconstructedADSBModeSChain)
+
+    usable = True
+    not_usable_reasons = []
+
+    max_stddev = rec_chain.getMaxSmoothedStdDev()
+
+    #print('chain utn {} ta {} max stddev {}'.format(rec_chain._utn, hex(rec_chain._target_address), max_stddev))
+
+    if max_stddev == -1:
+        usable = False
+        not_usable_reasons.append('No StdDev found')
+
+    if max_stddev > 25:
+        usable = False
+        not_usable_reasons.append('Max Smoothed StdDev {}'.format(max_stddev))
+
+    return usable, not_usable_reasons
 
 def main(argv):
     start_time = time.time()
@@ -156,21 +175,37 @@ def main(argv):
             not_usable_chains_cnt += 1
             not_usable_tr_cnt += len(adsb_chain.target_reports)
             continue
-        else:
-            usable_chains_cnt += 1
-            usable_tr_cnt += len(adsb_chain.target_reports)
 
         # filter
         reconstructed = reconst_filter.filter(adsb_chain)  # type: ReconstructedADSBModeSChain
+
+        usable, not_usable_reasons = check_usable_reconstructed_chain(reconstructed)
+
+        if not usable:
+            print('chain utn {} ta {} not usable since {}'.format(adsb_chain.utn, hex(adsb_chain.target_address), not_usable_reasons))
+            not_usable_chains_cnt += 1
+            not_usable_tr_cnt += len(adsb_chain.target_reports)
+            continue
+        else:
+            print('chain utn {} ta {} usable'.format(adsb_chain.utn, hex(adsb_chain.target_address)))
+            usable_chains_cnt += 1
+            usable_tr_cnt += len(adsb_chain.target_reports)
+
         #reconstructed.plot()
         #reconstructed.addOriginalAsJSON(org_json_data)
         #reconstructed.addFiltereddAsJSON(fil_json_data)
         reconstructed.addSmoothedAsJSON(smo_json_data)
 
-    print('num chains {} usable {} unusable {}'.format(
-        len(chain_calc.adsb_chains), usable_chains_cnt, not_usable_chains_cnt))
-    print('num target reports {} usable {} unusable {}'.format(
-        usable_tr_cnt+not_usable_tr_cnt, usable_tr_cnt, not_usable_tr_cnt))
+    chains_cnt = len(chain_calc.adsb_chains)
+
+    print('num chains {} usable {} ({:.2%}) unusable {} ({:.2%})'.format(
+        chains_cnt, usable_chains_cnt, usable_chains_cnt/chains_cnt,
+        not_usable_chains_cnt, not_usable_chains_cnt/chains_cnt))
+
+    tr_cnt = usable_tr_cnt+not_usable_tr_cnt
+    print('num target reports {} usable {} ({:.2%}) unusable {} ({:.2%})'.format(
+        tr_cnt, usable_tr_cnt, usable_tr_cnt/tr_cnt,
+        not_usable_tr_cnt, not_usable_tr_cnt/tr_cnt))
 
     #org_json_data.sort(key=lambda x: x['073']['Time of Message Reception for Position'])
     #fil_json_data.sort(key=lambda x: x['tod'])

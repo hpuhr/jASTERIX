@@ -52,7 +52,7 @@ class UMKalmanFilter2D:
     def filter(self, chain):
         assert isinstance(chain, ADSBModeSChain)
 
-        print('UMKalmanFilter2D: filtering chain utn {} ta {}'.format(chain.utn, hex(chain.target_address)))
+        #print('UMKalmanFilter2D: filtering chain utn {} ta {}'.format(chain.utn, hex(chain.target_address)))
 
         assert len(chain.target_reports)
 
@@ -226,6 +226,10 @@ class UMKalmanFilter2D:
             stddev_y = math.sqrt(cov[cnt][2][2])
             cov_xy = cov[cnt][0][2]
 
+            ref_fil.pos_std_dev_x_m = stddev_x
+            ref_fil.pos_std_dev_xy_corr_coeff = cov_xy
+            ref_fil.pos_std_dev_y_m = stddev_y
+
             #print('fil stddev_x {} stddev_y {} cov_xy {}'.format(stddev_x, stddev_y, cov_xy))
 
             d_lat, d_long = ref_fil_pos.getLatLongDelta(stddev_y, stddev_x)
@@ -265,6 +269,10 @@ class UMKalmanFilter2D:
             stddev_x = math.sqrt(cov_smoothed[cnt][0][0])
             stddev_y = math.sqrt(cov_smoothed[cnt][2][2])
             cov_xy = cov_smoothed[cnt][0][2]
+
+            ref_smo.pos_std_dev_x_m = stddev_x
+            ref_smo.pos_std_dev_xy_corr_coeff = cov_xy
+            ref_smo.pos_std_dev_y_m = stddev_y
 
             #print('smo stddev_x {} stddev_y {} cov_xy {}'.format(stddev_x, stddev_y, cov_xy))
 

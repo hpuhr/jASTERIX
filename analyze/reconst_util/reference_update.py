@@ -21,6 +21,11 @@ class ReferenceUpdate(object):
         self.groundspeed_kt = None
         self.heading_deg = None
 
+        self.pos_std_dev_x_m = None
+        self.pos_std_dev_xy_corr_coeff = None
+        self.pos_std_dev_y_m = None
+
+
     def fromADSBTargetReport (self, target_report):
         assert isinstance(target_report, ADSBTargetReport)
         assert self.tod == target_report.get("tod")
