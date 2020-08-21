@@ -144,11 +144,6 @@ void JSONWriter::convertJSON2Text()
         text_data_[cnt] = json_data_.at(cnt)->dump(print_dump_indent) + "\n";
     });
 
-    //    size_t cnt = 0;
-
-    //    for (nlohmann::json& j_it : json_data_)
-    //        text_data_[cnt++] = j_it.dump(4) + "\n";
-
     assert(text_data_.size() == json_data_.size());
     json_data_.clear();
 }
@@ -177,11 +172,6 @@ void JSONWriter::writeTextToFile()
 {
     assert(json_file_open_);
     assert(text_data_.size());
-
-    //    for (const std::string str_it : text_data_)
-    //        json_file_ << str_it;
-
-    //    text_data_.clear();
 
     while (file_write_in_progress_)
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
@@ -244,9 +234,6 @@ void JSONWriter::writeTextToZipFile()
 {
     assert(json_zip_file_open_);
     assert(text_data_.size());
-
-    //    for (const std::string str_it : text_data_)
-    //        archive_write_data (json_zip_file_, str_it.c_str(), str_it.size());
 
     while (file_write_in_progress_)
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
