@@ -43,7 +43,7 @@ int frame_limit = -1;
 int frame_chunk_size = 10000;
 int data_block_limit = -1;
 int data_block_chunk_size = 10000;
-int data_write_size = 100;
+int data_write_size = 1;
 bool single_thread = false;
 
 #if USE_OPENSSL
@@ -270,13 +270,21 @@ void jASTERIX::decodeFile(
     tbb::task::enqueue(*task);
 
     if (debug_)
+    {
+        //loginf << "jASTERIX: decodeFile: waiting on task to be finished";
+
         while (!task->done())
             std::this_thread::sleep_for(std::chrono::milliseconds(1));
+
+        //loginf << "jASTERIX: decodeFile: task done";
+    }
 
     std::unique_ptr<nlohmann::json> data_chunk;
 
     size_t num_callback_frames;
     std::pair<size_t, size_t> dec_ret{0, 0};
+
+    //loginf << "jASTERIX: decodeFile: processing";
 
     while (1)
     {
@@ -489,12 +497,14 @@ void jASTERIX::addDataBlockChunk(std::unique_ptr<nlohmann::json> data_block_chun
 
     data_block_chunks_mutex_.unlock();
 
-    while (data_block_chunks_.size() >= 2)
+    while (!debug_ && data_block_chunks_.size() >= 2) // debug forces decoding of all frames first
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
 }
 
 void jASTERIX::addDataChunk(std::unique_ptr<nlohmann::json> data_chunk, bool done)
 {
+    //loginf << "jASTERIX: addDataChunk";
+
     if (debug_)
     {
         loginf << "jASTERIX adding data chunk, done " << done << logendl;
@@ -511,8 +521,12 @@ void jASTERIX::addDataChunk(std::unique_ptr<nlohmann::json> data_chunk, bool don
     data_processing_done_ = done;
     data_chunks_mutex_.unlock();
 
-    while (data_chunks_.size() >= 2)
+    //loginf << "jASTERIX: addDataChunk: sleep";
+
+    while (!debug_ && data_chunks_.size() >= 2)  // debug forces decoding of all frames first
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
+
+    //loginf << "jASTERIX: addDataChunk: done";
 }
 
 const std::string& jASTERIX::dataBlockDefinitionPath() const { return data_block_definition_path_; }

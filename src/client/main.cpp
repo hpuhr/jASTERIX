@@ -108,8 +108,8 @@ int main(int argc, char** argv)
         "data_block_chunk_size", po::value<int>(&jASTERIX::data_block_chunk_size),
         "number of data blocks to process in one chunk, default 10000, use -1 to disable.")(
         "data_write_size", po::value<int>(&jASTERIX::data_write_size),
-        "number of frame chunks to write in one file write, default 100, use -1 to disable.")(
-        "debug", po::bool_switch(&debug), "print debug output")(
+        "number of frame chunks to write in one file write, default 1, use -1 to disable.")(
+        "debug", po::bool_switch(&debug), "print debug output (only for small files)")(
         "debug_include_framing", po::bool_switch(&debug_include_framing),
         "print debug output including framing, debug still has to be set, disable per default")(
         "single_thread", po::bool_switch(&jASTERIX::single_thread),

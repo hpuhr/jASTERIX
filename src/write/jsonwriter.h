@@ -62,7 +62,7 @@ class JSONWriter
     size_t rec_num_cnt_{0};
     std::vector<std::unique_ptr<nlohmann::json>> json_data_;
     std::vector<std::string> text_data_;
-    std::vector<std::vector<std::uint8_t>> binary_data_;
+    //std::vector<std::vector<std::uint8_t>> binary_data_;
 
     bool file_write_in_progress_{false};
 
@@ -72,12 +72,12 @@ class JSONWriter
 
     void openJsonFile();
     void writeTextToFile();
-    void writeBinaryToFile();
+    //void writeBinaryToFile();
     void closeJsonFile();
 
     void openJsonZipFile();
     void writeTextToZipFile();
-    void writeBinaryToZipFile();
+    //void writeBinaryToZipFile();
     void closeJsonZipFile();
 };
 
