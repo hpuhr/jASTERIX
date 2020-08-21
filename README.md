@@ -113,9 +113,9 @@ INFO    : Allowed options:
   --frame_chunk_size arg   number of frames to process in one chunk, default 
                            1000, use -1 to disable.
   --data_block_limit arg   number of data blocks to process without framing, 
-                           default 1, use -1 to disable.
+                           default 10000, use -1 to disable.
   --data_write_size arg    number of frame chunks to write in one file write, 
-                           default 100, use -1 to disable.
+                           default 1, use -1 to disable.
   --debug                  print debug output (only for small files)
   --debug_include_framing  print debug output including framing, debug still 
                            has to be set, disable per default
