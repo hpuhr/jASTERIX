@@ -43,7 +43,7 @@ int frame_limit = -1;
 int frame_chunk_size = 10000;
 int data_block_limit = -1;
 int data_block_chunk_size = 10000;
-int data_write_size = 100;
+int data_write_size = 1;
 bool single_thread = false;
 
 #if USE_OPENSSL
