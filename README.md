@@ -34,7 +34,7 @@ Currently supported ASTERIX categories & editions, reserved expansion fields and
 |  002|             1.0|     |           |
 |  019|             1.2|     |           |
 |  020|        1.5, 1.8|  1.3|           |
-|  021|             2.1|     |           |
+|  021|        2.1, 2.4|     |           |
 |  023|             1.2|     |           |
 |  034|            1.26|     |           |
 |  048|            1.15|     |           |
@@ -115,7 +115,7 @@ INFO    : Allowed options:
                            default -1, use -1 to disable.
   --data_write_size arg    number of frame chunks to write in one file write, 
                            default 100, use -1 to disable.
-  --debug                  print debug output
+  --debug                  print debug output (only for small files)
   --debug_include_framing  print debug output including framing, debug still 
                            has to be set, disable per default
   --single_thread          process data in single thread
