@@ -37,7 +37,7 @@ class ReferenceUpdate(object):
         #self.sac = target_report.get("sac")
         #self.sic = target_report.get("saic")
         self.target_addr = target_report.get("target_addr")
-        self.modec_code_ft = target_report.get("mode3a_code")
+        self.modec_code_ft = target_report.get("alt_baro_ft")
         self.groundspeed_kt = target_report.get("groundspeed_kt")
         self.heading_deg = target_report.get("track_angle_deg")
 
