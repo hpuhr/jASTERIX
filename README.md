@@ -1,6 +1,6 @@
 # jASTERIX
 
-jASTERIX is a C++ Library for EUROCONTROL's [ASTERIX](https://www.eurocontrol.int/services/asterix) to [JSON](https://www.json.org/) conversion. It is part of the [ATSDB project](https://github.com/hpuhr/ATSDB/), but released as a separate library to allow easy usage in other projects.
+jASTERIX is a C++ Library for EUROCONTROL's [ASTERIX](https://www.eurocontrol.int/services/asterix) to [JSON](https://www.json.org/) conversion. It is part of the [OpenATS COMPASS project](https://github.com/hpuhr/COMPASS/), but released as a separate library to allow easy usage in other projects.
 
 The library allows decoding of binary ASTERIX data into JSON. The ASTERIX definitions are configuration only, so additional or customized categories or editions can be added without having to recompile. Also, using the Intel TBB library allows for reasonable performance using multi-threading.
 
