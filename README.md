@@ -610,10 +610,12 @@ For additional information or request for additional categories / editions / ana
 
 ## Author
 Helmut Puhr
-Contact: atsdb@gmx.at
+Contact: compass@openats.at
 
 ## Licenses
 The source code is released under [GNU GPLv3](https://www.gnu.org/licenses/gpl-3.0.en.html)
+
+The binary is released under [Creative Commons Attribution 4.0 International (CC BY 4.0)](https://creativecommons.org/licenses/by/4.0/), [Legal Text](https://creativecommons.org/licenses/by/4.0/legalcode)
 
 Disclaimer
 ----------
