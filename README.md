@@ -4,45 +4,7 @@ jASTERIX is a C++ Library for EUROCONTROL's [ASTERIX](https://www.eurocontrol.in
 
 The library allows decoding of binary ASTERIX data into JSON. The ASTERIX definitions are configuration only, so additional or customized categories or editions can be added without having to recompile. Also, using the Intel TBB library allows for reasonable performance using multi-threading.
 
-## Features
-
-Many ASTERIX decoder libraries exist today, but none of them was suitable/available for the ATSDB project. For this reason, the author decided to implement one, with a strong focus on flexibility first and performance second.
-
-- High flexibility using configuration only, e.g. a user can add:
-  - New framings
-  - New categories 
-  - New editions
-  - New analysis scripts
-- Reasonable performance using multi-threading
-- Client binary
-  - Reading of input file
-  - Printing decoded JSON
-  - Writing decoded JSON to text or ZIP file 
-  - Piping into other applications
-
-Currently support framings:
-- None: Raw, netto, unframed ASTERIX data blocks
-- IOSS: IOSS Final Format
-- IOSS SEQ: IOSS Final Format with preceding sequence numbers
-- RFF: Comsoft RFF format
-
-Currently supported ASTERIX categories & editions, reserved expansion fields and special purpose fields:
-
-| CAT |       Editions | REFs|       SPFs|
-|-----|----------------|-----|-----------|
-|  001|             1.1|     |           |
-|  002|             1.0|     |           |
-|  019|             1.2|     |           |
-|  020|        1.5, 1.8|  1.3|           |
-|  021|        2.1, 2.4|     |           |
-|  023|             1.2|     |           |
-|  034|            1.26|     |           |
-|  048|            1.15|     |           |
-|  062|1.12, 1.16, 1.18|  1.2| ARTAS TRIs|
-|  063|             1.0|     |           |
-|  063|             1.1|     |           |
-|  065|        1.2, 1.3|     |           |
-
+For a detailed list of features, as well as the offered commercial services, please refer to [OpenATS jASTERIX](https://www.openats.at/projects/jasterix/).
 
 ## Contents
 - Folder "analyze": Contains Python scripts for data analysis
