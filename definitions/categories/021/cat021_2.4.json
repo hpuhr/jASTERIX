@@ -1722,7 +1722,7 @@
                             "optional_bitfield_index":8,
                             "data_fields":[
                                 {
-                                    "name":"age",
+                                    "name":"Age",
                                     "comment":"Age of the Flight Level information in item I021/145",
                                     "type":"fixed_bytes",
                                     "data_type":"uint",
