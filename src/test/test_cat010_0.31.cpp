@@ -200,7 +200,7 @@ void test_cat010_callback(std::unique_ptr<nlohmann::json> json_data, size_t num_
     REQUIRE(record.at("FSPEC").size() == 4 * 8);
 
     REQUIRE(record.at("FSPEC") ==
-            std::vector<bool>({1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 
+            std::vector<bool>({1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1,
                                0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0}));
 
     //    ;  I010/010: =0x 68 1e
@@ -277,12 +277,12 @@ void test_cat010_callback(std::unique_ptr<nlohmann::json> json_data, size_t num_
     REQUIRE(record.at("170").at("TCC") == 0);
     REQUIRE(record.at("170").at("STH") == 1);
     REQUIRE(record.at("170").at("FX") == 1);
-        
+
     REQUIRE(record.at("170").at("TOM") == 3);
     REQUIRE(record.at("170").at("DOU") == 0);
     REQUIRE(record.at("170").at("MRS") == 0);
     REQUIRE(record.at("170").at("FX2") == 1);
-    
+
     REQUIRE(record.at("170").at("GHO") == 0);
 
     //    ;  I010/200: =0x 00 04 be 10
@@ -313,10 +313,10 @@ void test_cat010_callback(std::unique_ptr<nlohmann::json> json_data, size_t num_
 
     loginf << "cat010 test: 210" << logendl;
     REQUIRE(record.at("270").at("LENGTH") == 27.0);
-	 REQUIRE(record.at("270").at("FX") == 1);
+    REQUIRE(record.at("270").at("FX") == 1);
 
     REQUIRE(approximatelyEqual(record.at("270").at("ORIENTATION"), 267.1875, 10e-4));
-	 REQUIRE(record.at("270").at("FX2") == 1);
+    REQUIRE(record.at("270").at("FX2") == 1);
 
     REQUIRE(record.at("270").at("WIDTH") == 40.0);
 }

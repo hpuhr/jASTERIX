@@ -25,6 +25,7 @@ target_sources( test_categories
         "${CMAKE_CURRENT_LIST_DIR}/test_cat062_1.16.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/test_cat063_1.0.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/test_cat065_1.3.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/test_cat247_1.2.cpp"
 )
 
 target_sources( test_limits

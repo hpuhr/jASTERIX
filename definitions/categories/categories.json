@@ -241,5 +241,19 @@
         },
         "mappings":{
         }
+    },
+    "247":{
+        "comment":"Category 247 Version Number Exchange",
+        "default_edition":"1.2",
+        "default_mapping":"",
+        "editions":{
+            "1.2":{
+                "document":"",
+                "date":"February 2008",
+                "file":"247/cat247_1.2.json"
+            }
+        },
+        "mappings":{
+        }
     }
 }
