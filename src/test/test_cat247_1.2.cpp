@@ -50,8 +50,8 @@ void test_cat247_callback(std::unique_ptr<nlohmann::json> json_data, size_t num_
     //                             "records": [
     //                                 {
     //                                     "010": {
-    //                                         "SAC": 104,
-    //                                         "SIC": 80
+    //                                         "SAC": 0,
+    //                                         "SIC": 1
     //                                     },
     //                                     "015": {
     //                                         "Service Identification": 1
@@ -91,7 +91,7 @@ void test_cat247_callback(std::unique_ptr<nlohmann::json> json_data, size_t num_
     //                                     ],
     //                                     "index": 11,
     //                                     "length": 17,
-    //                                     "record_data": "f06850011c2fbb03150201170102f70102"
+    //                                     "record_data": "f00001011c2fbb03150201170102f70102"
     //                                 }
     //                             ]
     //                         },
@@ -140,12 +140,12 @@ void test_cat247_callback(std::unique_ptr<nlohmann::json> json_data, size_t num_
     REQUIRE(record.at("FSPEC") ==
             std::vector<bool>({1, 1, 1, 1, 0, 0, 0, 0}));
 
-    // ;  I247/010: =0x 68 50
-    // ;  Data Source Identifier: 0x6850 (SAC=104; SIC=80)
+    // ;  I247/010: =0x 00 01
+    // ;  Data Source Identifier: 0x0001 (SAC=0; SIC=1)
 
     loginf << "cat247 test: 010" << logendl;
-    REQUIRE(record.at("010").at("SAC") == 104);
-    REQUIRE(record.at("010").at("SIC") == 80);
+    REQUIRE(record.at("010").at("SAC") == 0);
+    REQUIRE(record.at("010").at("SIC") == 1);
 
     // ;  I247/015: =0x 01
     // ;  Service Identification: 1
@@ -184,9 +184,9 @@ TEST_CASE("jASTERIX CAT247 1.2", "[jASTERIX CAT247]")
 
     jASTERIX::jASTERIX jasterix(definition_path, true, true, false);
 
-    // f70014f06850011c2fbb03150201170102f70102
+    // f70014f00001011c2fbb03150201170102f70102
     // echo -n
-    // f70014f06850011c2fbb03150201170102f70102
+    // f70014f00001011c2fbb03150201170102f70102
     // | xxd -r -p > cat247ed1.2.bin
 
     REQUIRE(jasterix.hasCategory(247));

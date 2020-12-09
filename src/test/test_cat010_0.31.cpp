@@ -53,8 +53,8 @@ void test_cat010_callback(std::unique_ptr<nlohmann::json> json_data, size_t num_
     //                                         "Message Type": 1
     //                                     },
     //                                     "010": {
-    //                                         "SAC": 104,
-    //                                         "SIC": 30
+    //                                         "SAC": 0,
+    //                                         "SIC": 1
     //                                     },
     //                                     "020": {
     //                                         "CHN": 0,
@@ -153,7 +153,7 @@ void test_cat010_callback(std::unique_ptr<nlohmann::json> json_data, size_t num_
     //                                     ],
     //                                     "index": 11,
     //                                     "length": 38,
-    //                                     "record_data": "f7f10910681e016100303a92063486c3fef5f9e20004be10fffe0000000403c10037bf50fcff"
+    //                                     "record_data": "f7f109100001016100303a92063486c3fef5f9e20004be10fffe0000000403c10037bf50fcff"
     //                                 }
     //                             ]
     //                         },
@@ -203,12 +203,12 @@ void test_cat010_callback(std::unique_ptr<nlohmann::json> json_data, size_t num_
             std::vector<bool>({1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1,
                                0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0}));
 
-    //    ;  I010/010: =0x 68 1e
-    //    ;  Data Source Identifier: 0x681e (SAC=104; SIC=30)
+    //    ;  I010/010: =0x 00 01
+    //    ;  Data Source Identifier: 0x0001 (SAC=0; SIC=1)
 
     loginf << "cat010 test: 010" << logendl;
-    REQUIRE(record.at("010").at("SAC") == 104);
-    REQUIRE(record.at("010").at("SIC") == 30);
+    REQUIRE(record.at("010").at("SAC") == 0);
+    REQUIRE(record.at("010").at("SIC") == 1);
 
     //    ;  I010/000: =0x 01
     //    ;  Message Type: 1 (Target Report)
@@ -327,9 +327,9 @@ TEST_CASE("jASTERIX CAT010 0.31", "[jASTERIX CAT010]")
 
     jASTERIX::jASTERIX jasterix(definition_path, true, true, false);
 
-    // 0a0029f7f10910681e016100303a92063486c3fef5f9e20004be10fffe0000000403c10037bf50fcff
+    // 0a0029f7f109100001016100303a92063486c3fef5f9e20004be10fffe0000000403c10037bf50fcff
     // echo -n
-    // 0a0029f7f10910681e016100303a92063486c3fef5f9e20004be10fffe0000000403c10037bf50fcff
+    // 0a0029f7f109100001016100303a92063486c3fef5f9e20004be10fffe0000000403c10037bf50fcff
     // | xxd -r -p > cat010ed0.31.bin
 
     REQUIRE(jasterix.hasCategory(10));
