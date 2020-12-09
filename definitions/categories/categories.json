@@ -27,6 +27,20 @@
         "mappings":{
         }
     },
+    "004":{
+        "comment":"Category 004 Safety Net Messages",
+        "default_edition":"1.4",
+        "default_mapping":"",
+        "editions":{
+            "1.4":{
+                "document":"SUR.ET1.ST05.2000-STD-17-02",
+                "date":"October 2010",
+                "file":"004/cat004_1.4.json"
+            }
+        },
+        "mappings":{
+        }
+    },
     "010":{
         "comment":"Category 010 Transmission of Monosensor Surface Movement Data",
         "default_edition":"0.31",
