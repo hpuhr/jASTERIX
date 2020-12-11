@@ -140,6 +140,20 @@
         "mappings":{
         }
     },
+    "030":{
+        "comment":"Category 030 APPLICATION OF ASTERIX TO ARTAS",
+        "default_edition":"7.0",
+        "default_mapping":"",
+        "editions":{
+            "7.0":{
+                "document":"DIS/SUR/ARTAS/ASTX.015",
+                "date":"06/01/2009",
+                "file":"030/cat030_7.0.json"
+            }
+        },
+        "mappings":{
+        }
+    },
     "034":{
         "comment":"Category 034 Transmission of Monoradar Service Messages",
         "default_edition":"1.26",
