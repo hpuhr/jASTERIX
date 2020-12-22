@@ -293,5 +293,19 @@
         },
         "mappings":{
         }
+    },
+    "252":{
+        "comment":"Category 252 APPLICATION OF ASTERIX TO ARTAS",
+        "default_edition":"7.0",
+        "default_mapping":"",
+        "editions":{
+            "7.0":{
+                "document":"DIS/SUR/ARTAS/ASTX.015",
+                "date":"06/01/2009",
+                "file":"252/cat252_7.0.json"
+            }
+        },
+        "mappings":{
+        }
     }
 }
