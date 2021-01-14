@@ -180,13 +180,26 @@
     },
     "048":{
         "comment":"Category 048 Transmission of Monoradar Target Reports",
-        "default_edition":"1.15",
+        "default_edition":"1.23",
+        "default_ref_edition":"1.9",
         "default_mapping":"",
         "editions":{
             "1.15":{
                 "document":"SUR.ET1.ST05.2000-STD-04-01",
                 "date":"April 2007",
                 "file":"048/cat048_1.15.json"
+            },
+            "1.23":{
+                "document":"EUROCONTROL-SPEC-0149-4A",
+                "date":"31/07/2017",
+                "file":"048/cat048_1.23.json"
+            }
+        },
+        "ref_editions":{
+            "1.9":{
+                "document":"EUROCONTROL-SPEC-0149-4A",
+                "date":"31/07/2017",
+                "file":"048/cat048_ref_1.9.json"
             }
         },
         "mappings":{

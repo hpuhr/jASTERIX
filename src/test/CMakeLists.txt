@@ -24,6 +24,7 @@ target_sources( test_categories
         "${CMAKE_CURRENT_LIST_DIR}/test_cat030_7.0.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/test_cat034_1.26.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/test_cat048_1.15.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/test_cat048_1.23.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/test_cat062_1.12.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/test_cat062_1.16.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/test_cat063_1.0.cpp"

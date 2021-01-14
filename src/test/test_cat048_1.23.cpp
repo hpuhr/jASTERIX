@@ -25,7 +25,7 @@
 using namespace std;
 using namespace nlohmann;
 
-void test_cat048_115_callback(std::unique_ptr<nlohmann::json> json_data, size_t num_frames,
+void test_cat048_123_callback(std::unique_ptr<nlohmann::json> json_data, size_t num_frames,
                           size_t num_records, size_t num_errors)
 {
     loginf << "cat048 test: decoded " << num_frames << " frames, " << num_records << " records, "
@@ -41,7 +41,7 @@ void test_cat048_115_callback(std::unique_ptr<nlohmann::json> json_data, size_t 
     //                "category": 48,
     //                "content": {
     //                    "index": 3,
-    //                    "length": 62,
+    //                    "length": 63,
     //                    "records": [
     //                        {
     //                            "010": {
@@ -49,12 +49,19 @@ void test_cat048_115_callback(std::unique_ptr<nlohmann::json> json_data, size_t 
     //                                "SIC": 1
     //                            },
     //                            "020": {
-    //                                "FX": 0,
+    //                                "ERR": 1,
+    //                                "FOE/FRI": 0,
+    //                                "FX": 1,
+    //                                "FX2": 0,
+    //                                "ME": 0,
+    //                                "MI": 1,
     //                                "RAB": 0,
     //                                "RDP": 1,
     //                                "SIM": 0,
     //                                "SPI": 0,
-    //                                "TYP": 5
+    //                                "TST": 0,
+    //                                "TYP": 5,
+    //                                "XPP": 0
     //                            },
     //                            "040": {
     //                                "RHO": 73.921875,
@@ -78,10 +85,10 @@ void test_cat048_115_callback(std::unique_ptr<nlohmann::json> json_data, size_t 
     //                                "available": [
     //                                    false,
     //                                    false,
-    //                                    false,
-    //                                    false,
-    //                                    false,
     //                                    true,
+    //                                    false,
+    //                                    false,
+    //                                    false,
     //                                    false,
     //                                    false
     //                                ]
@@ -114,6 +121,7 @@ void test_cat048_115_callback(std::unique_ptr<nlohmann::json> json_data, size_t 
     //                                "B1B": 13,
     //                                "COM": 1,
     //                                "MSSC": 1,
+    //                                "SI": 0,
     //                                "STAT": 0
     //                            },
     //                            "240": {
@@ -165,10 +173,12 @@ void test_cat048_115_callback(std::unique_ptr<nlohmann::json> json_data, size_t 
     //                                true,
     //                                false
     //                            ]
+    //                            "index": 3,
+    //                            "length": 63
     //                        }
     //                    ]
     //                },
-    //                "length": 65
+    //                "length": 66
     //            }
     //        ]
     //    }
@@ -184,7 +194,7 @@ void test_cat048_115_callback(std::unique_ptr<nlohmann::json> json_data, size_t 
     REQUIRE(first_data_block.contains("category"));
     REQUIRE(first_data_block.at("category") == 48);
     REQUIRE(first_data_block.contains("length"));
-    REQUIRE(first_data_block.at("length") == 65);
+    REQUIRE(first_data_block.at("length") == 66);
 
     loginf << "cat048 test: num records" << logendl;
     REQUIRE(first_data_block.contains("content"));
@@ -218,8 +228,8 @@ void test_cat048_115_callback(std::unique_ptr<nlohmann::json> json_data, size_t 
     double tmp_d = record.at("140").at("Time-of-Day");
     REQUIRE(fabs(tmp_d - 33499.835938) < 10e-6);
 
-    //    ;  I048/020: =0x a8
-    //    ;  Target Report Descriptor: TYP='Single ModeS Roll-Call' ACT RDP-2
+    //    ;  I048/020: =0x a948
+    //    ;  Target Report Descriptor: TYP='Single ModeS Roll-Call' ACT RDP-2 ERR MI
 
     loginf << "cat048 test: 020" << logendl;
     REQUIRE(record.at("020").at("TYP") == 5);
@@ -227,7 +237,9 @@ void test_cat048_115_callback(std::unique_ptr<nlohmann::json> json_data, size_t 
     REQUIRE(record.at("020").at("RDP") == 1);
     REQUIRE(record.at("020").at("SPI") == 0);
     REQUIRE(record.at("020").at("RAB") == 0);
-    REQUIRE(record.at("020").at("FX") == 0);
+    REQUIRE(record.at("020").at("FX") == 1);
+    REQUIRE(record.at("020").at("ERR") == 1);
+    REQUIRE(record.at("020").at("MI") == 1);
 
     //    ;  I048/040: =0x 49 ec 3f c4
     //    ;  Measured Position: srg=18924 (73.922 nmi); azm=16324 (89.670 deg)
@@ -325,27 +337,27 @@ void test_cat048_115_callback(std::unique_ptr<nlohmann::json> json_data, size_t 
     REQUIRE(record.at("230").at("B1B") == 13);
 }
 
-TEST_CASE("jASTERIX CAT048 1.15", "[jASTERIX CAT048]")
+TEST_CASE("jASTERIX CAT048 1.23", "[jASTERIX CAT048]")
 {
     loginf << "cat048 test: start" << logendl;
 
     jASTERIX::jASTERIX jasterix(definition_path, true, true, false);
 
-    // echo -n 300041fff7020001416deba849ec3fc4213805c820c1ab4cbd4994b5617820038bd9eb2fbfe400608091
-    // 9f39a004dd50c8480030a80000400397083c17304020fd | xxd -r -p > cat048ed1.15.bin
+    // echo -n 300042fff7020001416deba94849ec3fc4213805c820c1ab4cbd4994b5617820038bd9eb2fbfe400608091
+    // 9f39a004dd50c8480030a80000400397083c17304020fd | xxd -r -p > cat048ed1.23.bin
 
     REQUIRE(jasterix.hasCategory(48));
     std::shared_ptr<jASTERIX::Category> cat048 = jasterix.category(48);
-    REQUIRE(cat048->hasEdition("1.15"));
-    cat048->setCurrentEdition("1.15");
+    REQUIRE(cat048->hasEdition("1.23"));
+    cat048->setCurrentEdition("1.23");
     cat048->setCurrentMapping("");
 
-    const std::string filename = "cat048ed1.15.bin";
+    const std::string filename = "cat048ed1.23.bin";
 
     REQUIRE(jASTERIX::Files::fileExists(data_path + filename));
-    REQUIRE(jASTERIX::Files::fileSize(data_path + filename) == 65);
+    REQUIRE(jASTERIX::Files::fileSize(data_path + filename) == 66);
 
-    jasterix.decodeFile(data_path + filename, test_cat048_115_callback);
+    jasterix.decodeFile(data_path + filename, test_cat048_123_callback);
 
     loginf << "cat048 test: end" << logendl;
 }
