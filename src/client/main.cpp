@@ -36,6 +36,8 @@ namespace po = boost::program_options;
 #include <iostream>
 #include <thread>
 
+#include <tbb/tbb.h>
+
 #if USE_LOG4CPP
 #include "log4cpp/Layout.hh"
 #include "log4cpp/OstreamAppender.hh"
@@ -79,6 +81,8 @@ int main(int argc, char** argv)
     root.setPriority(log4cpp::Priority::INFO);
     root.addAppender(console_appender_);
 #endif
+
+    tbb::task_scheduler_init guard(std::thread::hardware_concurrency());
 
     std::string filename;
     std::string framing{""};
