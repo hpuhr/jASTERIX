@@ -25,7 +25,7 @@
 using namespace std;
 using namespace nlohmann;
 
-void test_cat048_callback(std::unique_ptr<nlohmann::json> json_data, size_t num_frames,
+void test_cat048_115_callback(std::unique_ptr<nlohmann::json> json_data, size_t num_frames,
                           size_t num_records, size_t num_errors)
 {
     loginf << "cat048 test: decoded " << num_frames << " frames, " << num_records << " records, "
@@ -345,7 +345,7 @@ TEST_CASE("jASTERIX CAT048 1.15", "[jASTERIX CAT048]")
     REQUIRE(jASTERIX::Files::fileExists(data_path + filename));
     REQUIRE(jASTERIX::Files::fileSize(data_path + filename) == 65);
 
-    jasterix.decodeFile(data_path + filename, test_cat048_callback);
+    jasterix.decodeFile(data_path + filename, test_cat048_115_callback);
 
     loginf << "cat048 test: end" << logendl;
 }
