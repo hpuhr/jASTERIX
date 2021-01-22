@@ -988,7 +988,7 @@
                             "optional_bitfield_index":1,
                             "data_fields":[
                                 {
-                                    "name":"SDP-x",
+                                    "name":"sigma-x",
                                     "comment":"Standard Deviation of X component",
                                     "type":"fixed_bytes",
                                     "length":2,
@@ -996,7 +996,7 @@
                                     "lsb":0.25
                                 },
                                 {
-                                    "name":"SDP-y",
+                                    "name":"sigma-y",
                                     "comment":"Standard Deviation of Y component",
                                     "type":"fixed_bytes",
                                     "length":2,
@@ -1004,7 +1004,7 @@
                                     "lsb":0.25
                                 },
                                 {
-                                    "name":"SDP-xy",
+                                    "name":"rho-xy",
                                     "comment":"Correlation coefficient in two's complement",
                                     "type":"fixed_bytes",
                                     "length":2,
@@ -1021,7 +1021,7 @@
                             "optional_bitfield_index":2,
                             "data_fields":[
                                 {
-                                    "name":"SDH-gh",
+                                    "name":"sigma-gh",
                                     "comment":"Standard Deviation of Geometric Height",
                                     "type":"fixed_bytes",
                                     "length":2,

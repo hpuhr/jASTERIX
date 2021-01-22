@@ -6,6 +6,29 @@ The library allows decoding of binary ASTERIX data into JSON. The ASTERIX defini
 
 For a detailed list of features, as well as the offered commercial services, please refer to [OpenATS jASTERIX](https://www.openats.at/projects/jasterix/).
 
+## Supported Editions
+
+| CAT |         Editions | REFs |       SPFs |
+|-----|------------------|------|------------|
+| 001 |              1.1 |      |            |
+| 002 |              1.0 |      |            |
+| 004 |              1.4 |      |            |
+| 010 |             0.31 |      |            |
+| 019 |         1.2, 1.3 |      |            |
+| 020 |         1.5, 1.8 |  1.3 |            |
+| 021 |   0.26, 2.1, 2.4 |      |            |
+| 023 |              1.2 |      |            |
+| 030 |              7.0 |      |            |
+| 034 |             1.26 |      |            |
+| 048 |       1.15, 1.23 |  1.9 |            |
+| 062 | 1.12, 1.16, 1.18 |  1.2 | ARTAS TRIs |
+| 063 |          1.0,1.1 |      |            |
+| 065 |         1.2, 1.3 |      |            |
+| 247 |              1.2 |      |            |
+| 252 |              7.0 |      |            |
+
+
+
 ## Contents
 - Folder "analyze": Contains Python scripts for data analysis
 - Folder "appimage": Contains files required for AppImage building
