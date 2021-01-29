@@ -18,6 +18,7 @@
 #include "fixedbitsitemparser.h"
 
 #include <algorithm>
+#include <boost/dynamic_bitset.hpp>
 
 #include "logger.h"
 #include "string_conv.h"
@@ -63,7 +64,22 @@ FixedBitsItemParser::FixedBitsItemParser(const nlohmann::json& item_definition,
     }
 
     if (data_type_ == "int")
-        negative_bit_pos_ = start_bit_ + bit_length_ - 1;
+    {
+        //negative_bit_pos_ = start_bit_ + bit_length_ - 1;
+
+        if (byte_length_ == 1)
+        {
+            neg_bitmask1 = 1 << (bit_length_ - 1);
+        }
+        else if (byte_length_ <= 4)
+        {
+            neg_bitmask4 = 1 << (bit_length_ - 1);
+        }
+        else if (byte_length_ <= 8)
+        {
+            neg_bitmask8 = 1 << (bit_length_ - 1);
+        }
+    }
 
     if (data_type_ == "uint" || data_type_ == "int")
     {
@@ -321,8 +337,8 @@ size_t FixedBitsItemParser::parseItem(const char* data, size_t index, size_t siz
 
             int data_int;
 
-            if ((tmp1 & (1 << negative_bit_pos_)) != 0)
-                data_int = tmp1 | ~((1 << negative_bit_pos_) - 1);
+            if ((tmp1 & neg_bitmask1) != 0)
+                data_int = tmp1 | ~((neg_bitmask1) - 1);
             else
                 data_int = tmp1;
 
@@ -415,21 +431,24 @@ size_t FixedBitsItemParser::parseItem(const char* data, size_t index, size_t siz
             tmp4 &= bitmask4;
             tmp4 >>= start_bit_;
 
+//            loginf << "UGA tmp4 " << boost::dynamic_bitset<> (byte_length_*8, tmp4);
+//            loginf << "UGA ngbm " << boost::dynamic_bitset<> (byte_length_*8, neg_bitmask4);
+
             if (debug)
                 loginf << "parsing fixed bits item '" << name_ << "' with start bit " << start_bit_
                        << " length " << bit_length_ << " value " << (size_t)tmp4 << " neg bit pos "
-                       << negative_bit_pos_ << " set " << (tmp4 & (1 << negative_bit_pos_))
+                       //<< negative_bit_pos_ << " set " << (tmp4 & neg_bitmask4)
                        << logendl;
 
             int data_int;
 
-            if ((tmp4 & (1 << negative_bit_pos_)) != 0)
+            if ((tmp4 & (neg_bitmask4)) != 0)
             {
                 if (debug)
                     loginf << "parsing fixed bits item '" << name_ << "' negative bit "
                            << (size_t)tmp4 << logendl;
 
-                data_int = tmp4 | ~((1 << negative_bit_pos_) - 1);
+                data_int = tmp4 | ~((neg_bitmask4) - 1);
             }
             else
                 data_int = tmp4;
@@ -528,8 +547,8 @@ size_t FixedBitsItemParser::parseItem(const char* data, size_t index, size_t siz
 
             long int data_lint;
 
-            if ((tmp8 & (1 << negative_bit_pos_)) != 0)
-                data_lint = tmp8 | ~((1 << negative_bit_pos_) - 1);
+            if ((tmp8 & (neg_bitmask8)) != 0)
+                data_lint = tmp8 | ~((neg_bitmask8) - 1);
             else
                 data_lint = tmp8;
 

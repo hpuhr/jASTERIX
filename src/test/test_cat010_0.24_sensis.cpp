@@ -302,13 +302,6 @@ void test_cat010_sensis_callback(std::unique_ptr<nlohmann::json> json_data, size
     REQUIRE(record.at("170").at("STH") == 1);
     REQUIRE(record.at("170").at("FX") == 0);
 
-    //    ;  I010/200: =0x 00 04 be 10
-    //    ;  Calculated Track Velocity: spd=4 (0.879 kts); hdg=48656 (267.275 deg)
-
-    loginf << "cat010 sensis test: 200" << logendl;
-    REQUIRE(approximatelyEqual(record.at("200").at("Ground Speed"), 0.0002441406, 10e-10));
-    REQUIRE(approximatelyEqual(record.at("200").at("Track Angle"), 267.27539050336, 10e-11));
-
     //    ;  I010/220: =0x 47 4c a1
     //    ;  Aircraft Address: 0x474ca1 (4672673)
 
