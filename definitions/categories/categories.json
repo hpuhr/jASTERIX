@@ -43,9 +43,14 @@
     },
     "010":{
         "comment":"Category 010 Transmission of Monosensor Surface Movement Data",
-        "default_edition":"0.31",
+        "default_edition":"0.24_sensis",
         "default_mapping":"",
         "editions":{
+            "0.24_sensis":{
+                "document":"Sensis for Heathrow MDS",
+                "date":"April 5, 2002",
+                "file":"010/cat010_0.24_sensis.json"
+            },
             "0.31":{
                 "document":"SUR.ET1.ST05.2000-STD-07-01",
                 "date":"December 2001",

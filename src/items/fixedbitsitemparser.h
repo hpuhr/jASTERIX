@@ -37,13 +37,17 @@ class FixedBitsItemParser : public ItemParserBase
     unsigned int start_bit_{0};
     unsigned int bit_length_{0};
     std::string data_type_{"uint"};
-    unsigned int negative_bit_pos_{0};
+    //unsigned int negative_bit_pos_{0};
     bool has_lsb_{false};
     double lsb_{1.0};
 
     unsigned char bitmask1;
     unsigned int bitmask4;
     size_t bitmask8;
+
+    unsigned char neg_bitmask1;
+    unsigned int neg_bitmask4;
+    size_t neg_bitmask8;
 
     // data type digits stuff
     unsigned int num_digits_{0};

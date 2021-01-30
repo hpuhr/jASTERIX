@@ -13,10 +13,10 @@
         "020",
         "140",
         "041",
-        "040",
+        "-",
         "042",
         "FX",
-        "200",
+        "-",
         "202",
         "161",
         "170",
@@ -24,18 +24,18 @@
         "220",
         "245",
         "FX",
-        "250",
-        "300",
+        "-",
+        "-",
         "090",
         "091",
-        "270",
+        "-",
         "550",
-        "310",
+        "-",
         "FX",
         "500",
-        "280",
-        "131",
-        "210",
+        "-",
+        "-",
+        "-",
         "-",
         "SP",
         "RE",
@@ -577,20 +577,27 @@
             "type":"item",
             "data_fields":[
                 {
-                    "name":"Vx",
-                    "comment":"Max.range = +/-8192m/s",
-                    "type":"fixed_bytes",
-                    "length":2,
-                    "data_type":"int",
-                    "lsb":0.25
-                },
-                {
-                    "name":"Vy",
-                    "comment":"Max.range = +/-8192m/s",
-                    "type":"fixed_bytes",
-                    "length":2,
-                    "data_type":"int",
-                    "lsb":0.25
+                    "name":"track_velocity",
+                    "type":"fixed_bitfield",
+                    "length":3,
+                    "items":[
+                        {
+                            "name":"Vx",
+                            "comment":"",
+                            "type":"fixed_bits",
+                            "start_bit":12,
+                            "bit_length":12,
+                            "data_type":"int"
+                        },
+                        {
+                            "name":"Vy",
+                            "comment":"",
+                            "type":"fixed_bits",
+                            "start_bit":0,
+                            "bit_length":12,
+                            "data_type":"int"
+                        }
+                    ]
                 }
             ]
         },
