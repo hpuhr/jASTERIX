@@ -35,7 +35,21 @@ class ADSBModeSChain(ModeSChain):
         self._num_records += 1
 
         # process time
-        tod = find_value("073.Time of Message Reception for Position", record)
+        
+        tod = find_value("071.Time of Applicability for Position", record)
+        
+        if tod is None:
+            tod = find_value("073.Time of Message Reception for Position", record)
+
+        if tod is None:
+            print ('no time found')
+            return
+
+        if self._last_tod is not None and tod < self._last_tod:
+            print('warn: utn {} ta {} record {} time jump from {} to {} diff {}'.format(
+                self._utn, hex(self._target_address), self._num_records,
+                time_str_from_seconds(self._last_tod), time_str_from_seconds(tod),
+                time_str_from_seconds(self._last_tod-tod)))
 
         self._target_reports[tod] = ADSBTargetReport(record)
 
@@ -46,13 +60,7 @@ class ADSBModeSChain(ModeSChain):
             self._first_tod = tod
             self._last_tod = tod
 
-        if tod > self._last_tod:
-            self._last_tod = tod
-        elif tod < self._last_tod:
-            print('warn: utn {} ta {} record {} time jump from {} to {} diff {}'.format(
-                self._utn, hex(self._target_address), self._num_records,
-                time_str_from_seconds(self._last_tod), time_str_from_seconds(tod),
-                time_str_from_seconds(self._last_tod-tod)))
+        self._last_tod = tod
 
     def getMOPSVersions(self):
         mops_versions = []

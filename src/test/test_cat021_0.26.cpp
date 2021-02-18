@@ -202,8 +202,8 @@ void test_cat021_026_callback(std::unique_ptr<nlohmann::json> json_data, size_t 
     //    ;   lat=7228617 (38:46:38.363N); lon=-1702186 (009:07:52.454W)
 
     loginf << "cat021 test: 130" << logendl;
-    REQUIRE(approximatelyEqual(record.at("130").at("Latitude"), 38.777323149905996, 10e-15));
-    REQUIRE(approximatelyEqual(record.at("130").at("Longitude"), -9.131237217748, 10e-12));
+    REQUIRE(approximatelyEqual(record.at("130").at("Latitude"), 38.77732336521148681641, 10e-15));
+    REQUIRE(approximatelyEqual(record.at("130").at("Longitude"), -9.131237268447875976563, 10e-12));
 
     //    ;  I021/080: =0x 49 6c 2e
     //    ;  Aircraft Address: 0x496c2e (4811822)
