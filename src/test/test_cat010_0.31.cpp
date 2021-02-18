@@ -225,7 +225,7 @@ void test_cat010_callback(std::unique_ptr<nlohmann::json> json_data, size_t num_
 
     loginf << "cat010 test: 040" << logendl;
     REQUIRE(record.at("040").at("RHO") == 1588.0);
-    REQUIRE(approximatelyEqual(record.at("040").at("THETA"), 189.50866690594, 10e-11));
+    REQUIRE(approximatelyEqual(record.at("040").at("THETA"), 189.5086669921875, 10e-11));
 
     //    ;  I010/042: =0x fe f5 f9 e2
     //    ;  Calculated Position: x=-267 mtr; y=-1566 mtr
@@ -273,8 +273,8 @@ void test_cat010_callback(std::unique_ptr<nlohmann::json> json_data, size_t num_
     //    ;  Calculated Track Velocity: spd=4 (0.879 kts); hdg=48656 (267.275 deg)
 
     loginf << "cat010 test: 200" << logendl;
-    REQUIRE(approximatelyEqual(record.at("200").at("Ground Speed"), 0.0002441406, 10e-6));
-    REQUIRE(approximatelyEqual(record.at("200").at("Track Angle"), 267.27539050336, 10e-4));
+    REQUIRE(approximatelyEqual(record.at("200").at("Ground Speed"), 2.44140625E-4, 10e-10));
+    REQUIRE(approximatelyEqual(record.at("200").at("Track Angle"), 267.275390625, 10e-10));
 
     //    ;  I010/202: =0x ff fe 00 00
     //    ;  Calculated Track Velocity in Cartesian Co-ordinates: vx=-0.50 m/s; vy=0.00 m/s

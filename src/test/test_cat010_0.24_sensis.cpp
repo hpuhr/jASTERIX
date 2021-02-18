@@ -257,8 +257,8 @@ void test_cat010_sensis_callback(std::unique_ptr<nlohmann::json> json_data, size
     //    ;   lat=305690101 (25:37:21.534N); lon=264564000 (022:10:31.794E)
 
     loginf << "cat010 sensis test: 41" << logendl;
-    REQUIRE(approximatelyEqual(record.at("041").at("Latitude"), 25.6226482708, 10e-8));
-    REQUIRE(approximatelyEqual(record.at("041").at("Longitude"), 22.1754983068, 10e-8));
+    REQUIRE(approximatelyEqual(record.at("041").at("Latitude"), 25.62264827080070972443, 10e-10));
+    REQUIRE(approximatelyEqual(record.at("041").at("Longitude"), 22.1754983067512512207, 10e-10));
 
     //                                "Latitude": 25.6226482660952,
     //                                "Longitude": 22.1754983026788

@@ -341,8 +341,8 @@ void test_cat020_callback(std::unique_ptr<nlohmann::json> json_data, size_t num_
     //    ;   lat=8925925 (47:52:56.615N); lon=3042378 (016:19:14.115E)
 
     loginf << "cat020 test: 041" << logendl;
-    REQUIRE(approximatelyEqual(record.at("041").at("Latitude"), 47.8823930025, 10e-4));
-    REQUIRE(approximatelyEqual(record.at("041").at("Longitude"), 16.3205873966, 10e-4));
+    REQUIRE(approximatelyEqual(record.at("041").at("Latitude"), 47.88239300251007080078, 10e-10));
+    REQUIRE(approximatelyEqual(record.at("041").at("Longitude"), 16.32058739662170410156, 10e-10));
 
     //    ;  I020/042: =0x 05 4b b3 01  60 6a
     //    ;  Position in Cartesian coordinates:

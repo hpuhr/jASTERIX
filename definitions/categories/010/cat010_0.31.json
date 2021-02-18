@@ -226,7 +226,7 @@
                     "type":"fixed_bytes",
                     "length":2,
                     "data_type":"uint",
-                    "lsb":0.00549316406
+                    "lsb":0.0054931640625
                 }
             ]
         },
