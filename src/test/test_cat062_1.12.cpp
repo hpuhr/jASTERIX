@@ -521,8 +521,8 @@ void test_cat062_callback(std::unique_ptr<nlohmann::json> json_data, size_t num_
     //    ;   lat=8475332 (45:27:54.806N); lon=3231012 (017:19:56.996E)
 
     loginf << "cat062 1.12 test: 105" << logendl;
-    REQUIRE(approximatelyEqual(record.at("105").at("Latitude"), 45.4652237892, 10e-4));
-    REQUIRE(approximatelyEqual(record.at("105").at("Longitude"), 17.3324990273, 10e-4));
+    REQUIRE(approximatelyEqual(record.at("105").at("Latitude"), 45.46522378921508789063, 10e-10));
+    REQUIRE(approximatelyEqual(record.at("105").at("Longitude"), 17.33249902725219726563, 10e-10));
 
     //    ;  I062/100: =0x 07 f4 6a f9  43 b1
     //    ;  Calculated Track Position (Cartesian): x=521322 (140.746 nmi); y=-441423 (-119.175 nmi)
@@ -570,8 +570,7 @@ void test_cat062_callback(std::unique_ptr<nlohmann::json> json_data, size_t num_
     //    ;   Target identification: "DLH9CK  "
     REQUIRE(record.at("380").at("ID").at("Target Identification") == "DLH9CK  ");
     //    ;   Magnetic heading: 21824 (119.883 deg)
-    REQUIRE(approximatelyEqual(record.at("380").at("MHG").at("Magnetic Heading"), 119.88281244544,
-                               10e-4));
+    REQUIRE(approximatelyEqual(record.at("380").at("MHG").at("Magnetic Heading"), 119.8828125, 10e-4));
     //    ;   Final state selected altitude: mv=0; ah=0; am=0; alt=1400(350.00 FL)
     REQUIRE(record.at("380").at("FSS").at("Altitude") == 35000.0);
     //    ;   Barometric vertical rate: -5 (-31.25 ft/min)
@@ -755,8 +754,11 @@ void test_cat062_callback(std::unique_ptr<nlohmann::json> json_data, size_t num_
     REQUIRE(record.at("500").at("APC").at("APC (Y-Component)") == 63.0);
     //    ;   Estimated accuracy of track position (WGS-84): lat=105 (0.0005633 deg); lon=95
     //    (0.0005096 deg)
-    REQUIRE(record.at("500").at("APW").at("APW (Latitude Component)") == 0.00056326305);
-    REQUIRE(record.at("500").at("APW").at("APW (Longitude Component)") == 0.00050961895);
+    REQUIRE(approximatelyEqual(record.at("500").at("APW").at("APW (Latitude Component)"),
+                               5.6326389312744140625E-4, 10e-4));
+    REQUIRE(approximatelyEqual(record.at("500").at("APW").at("APW (Longitude Component)"),
+                               5.0961971282958984375E-4, 10e-4));
+
     //    ;   Estimated accuracy of calculated track geometric altitude: 255 (15.94 FL)
     REQUIRE(record.at("500").at("AGA").at("AGA") == 1593.75);
     //    ;   Estimated accuracy of calculated track barometric altitude: 1 (0.25 FL)
@@ -786,7 +788,9 @@ void test_cat062_callback(std::unique_ptr<nlohmann::json> json_data, size_t num_
     REQUIRE(record.at("340").at("SID").at("SIC") == 1);
     //    ;   Measured position: rho=32373 (126.457 nmi); theta=23303 (128.007 deg)
     REQUIRE(record.at("340").at("POS").at("RHO") == 126.45703125);
-    REQUIRE(record.at("340").at("POS").at("THETA") == 128.00720209018);
+    REQUIRE(approximatelyEqual(record.at("340").at("POS").at("THETA"),
+                               128.0072021484375, 10e-10));
+
     //    ;   Last measured mode C code: v=0; g=0; code=1399 (349.75 FL)
     REQUIRE(record.at("340").at("MDC").at("V") == 0);
     REQUIRE(record.at("340").at("MDC").at("G") == 0);

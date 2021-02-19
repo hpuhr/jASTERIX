@@ -233,8 +233,8 @@ void test_cat048_115_callback(std::unique_ptr<nlohmann::json> json_data, size_t 
     //    ;  Measured Position: srg=18924 (73.922 nmi); azm=16324 (89.670 deg)
 
     loginf << "cat048 test: 040" << logendl;
-    REQUIRE(approximatelyEqual(record.at("040").at("RHO"), 73.922, 10e-3));
-    REQUIRE(approximatelyEqual(record.at("040").at("THETA"), 89.670, 10e-3));
+    REQUIRE(approximatelyEqual(record.at("040").at("RHO"), 73.921875, 10e-6));
+    REQUIRE(approximatelyEqual(record.at("040").at("THETA"), 89.67041015625, 10e-10));
 
     //    ;  I048/070: =0x 21 38
     //    ;  Mode 3/A Code: v=0; g=0; l=1; code=00470
