@@ -357,8 +357,8 @@ void test_cat019_callback(std::unique_ptr<nlohmann::json> json_data, size_t num_
     //    ;   Longitude: 83513253 (014:00:00.000E)
 
     loginf << "cat019 test: 600" << logendl;
-    REQUIRE(approximatelyEqual(record.at("600").at("Latitude"), 47.5, 10e-6));
-    REQUIRE(approximatelyEqual(record.at("600").at("Longitude"), 14.0, 10e-6));
+    REQUIRE(approximatelyEqual(record.at("600").at("Latitude"), 47.50000001862645149231, 10e-10));
+    REQUIRE(approximatelyEqual(record.at("600").at("Longitude"), 14.00000000372529029846, 10e-10));
 
     //    ;  I019/610: =0x 00 00
     //    ;  Height of the MLT System Reference Point: 0.00 mtr

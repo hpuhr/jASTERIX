@@ -522,8 +522,8 @@ void test_cat062_116_callback(std::unique_ptr<nlohmann::json> json_data, size_t 
     //    ;   lat=6550318 (35:08:19.118N); lon=-2267914 (012:09:57.740W)
 
     loginf << "cat062 1.16 test: 105" << logendl;
-    REQUIRE(approximatelyEqual(record.at("105").at("Latitude"), 35.13864398, 10e-4));
-    REQUIRE(approximatelyEqual(record.at("105").at("Longitude"), -12.1660387516, 10e-4));
+    REQUIRE(approximatelyEqual(record.at("105").at("Latitude"), 35.13864398002624511719, 10e-10));
+    REQUIRE(approximatelyEqual(record.at("105").at("Longitude"), -12.16603875160217285156, 10e-10));
 
     //    ;  I062/100: =0x f7 93 02 f3  da 58
     //    ;  Calculated Track Position (Cartesian): x=-552190 (-149.079 nmi); y=-796072 (-214.922

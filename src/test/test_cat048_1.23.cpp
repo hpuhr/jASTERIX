@@ -270,7 +270,7 @@ void test_cat048_123_callback(std::unique_ptr<nlohmann::json> json_data, size_t 
 
     loginf << "cat048 test: 040" << logendl;
     REQUIRE(approximatelyEqual(record.at("040").at("RHO"), 255.99609375, 10e-8));
-    REQUIRE(approximatelyEqual(record.at("040").at("THETA"), 89.670, 10e-3));
+    REQUIRE(approximatelyEqual(record.at("040").at("THETA"), 89.67041015625, 10e-10));
 
     //    ;  I048/070: =0x 21 38
     //    ;  Mode 3/A Code: v=0; g=0; l=1; code=00470

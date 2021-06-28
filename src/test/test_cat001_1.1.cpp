@@ -61,7 +61,7 @@ void test_cat001_callback(std::unique_ptr<nlohmann::json> json_data, size_t num_
     //                            },
     //                            "040": {
     //                                "RHO": 127.4375,
-    //                                "THETA": 256.61865222695997
+    //                                "THETA": 256.61865234375
     //                            },
     //                            "070": {
     //                                "G": 0,
@@ -164,8 +164,8 @@ void test_cat001_callback(std::unique_ptr<nlohmann::json> json_data, size_t num_
     //    ;  I001/040: =0x 3f b8 b6 7c
     //    ;  Measured Position: rng=16312 (127.438 nmi); azm=46716 (256.619 deg)
     loginf << "cat001 test: 040" << logendl;
-    REQUIRE(approximatelyEqual(record.at("040").at("RHO"), 127.4375, 10e-3));
-    REQUIRE(approximatelyEqual(record.at("040").at("THETA"), 256.61865222695997, 10e-3));
+    REQUIRE(approximatelyEqual(record.at("040").at("RHO"), 127.4375, 10e-4));
+    REQUIRE(approximatelyEqual(record.at("040").at("THETA"), 256.61865234375, 10e-10));
 
     //    ;  I001/070: =0x 0b 63
     //    ;  Mode 3/A Code: v=0; g=0; l=0; code=05543

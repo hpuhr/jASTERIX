@@ -28,7 +28,12 @@ class ReferenceUpdate(object):
 
     def fromADSBTargetReport (self, target_report):
         assert isinstance(target_report, ADSBTargetReport)
-        assert self.tod == target_report.get("tod")
+        
+        if target_report.get("tod") is not None:
+            assert self.tod == target_report.get("tod")
+        else:
+            assert target_report.get("tod2") is not None
+            assert self.tod == target_report.get("tod2")
 
         self.callsign = target_report.get("callsign")
         self.mode3a_code = target_report.get("mode3a_code")

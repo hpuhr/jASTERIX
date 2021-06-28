@@ -35,142 +35,126 @@ void test_cat010_callback(std::unique_ptr<nlohmann::json> json_data, size_t num_
     REQUIRE(num_records == 1);
     REQUIRE(num_errors == 0);
 
-    // {
-    //     "frames": [
-    //         {
-    //             "board_number": 0,
-    //             "cnt": 0,
-    //             "content": {
-    //                 "data_blocks": [
-    //                     {
-    //                         "category": 10,
-    //                         "content": {
-    //                             "index": 11,
-    //                             "length": 38,
-    //                             "records": [
-    //                                 {
-    //                                     "000": {
-    //                                         "Message Type": 1
-    //                                     },
-    //                                     "010": {
-    //                                         "SAC": 0,
-    //                                         "SIC": 1
-    //                                     },
-    //                                     "020": {
-    //                                         "CHN": 0,
-    //                                         "CRT": 0,
-    //                                         "DCR": 0,
-    //                                         "FX": 1,
-    //                                         "FX2": 0,
-    //                                         "GBS": 0,
-    //                                         "LOP": 0,
-    //                                         "RAB": 0,
-    //                                         "SIM": 0,
-    //                                         "TOT": 0,
-    //                                         "TST": 0,
-    //                                         "TYP": 3
-    //                                     },
-    //                                     "040": {
-    //                                         "RHO": 1588.0,
-    //                                         "THETA": 189.50866690594
-    //                                     },
-    //                                     "042": {
-    //                                         "X": -267.0,
-    //                                         "Y": -1566.0
-    //                                     },
-    //                                     "140": {
-    //                                         "Time-of-Day": 24693.140625
-    //                                     },
-    //                                     "161": {
-    //                                         "TRACK NUMBER": 4
-    //                                     },
-    //                                     "170": {
-    //                                         "CNF": 0,
-    //                                         "CST": 0,
-    //                                         "DOU": 0,
-    //                                         "FX": 1,
-    //                                         "FX2": 1,
-    //                                         "GHO": 0,
-    //                                         "MAH": 0,
-    //                                         "MRS": 0,
-    //                                         "STH": 1,
-    //                                         "TCC": 0,
-    //                                         "TOM": 3,
-    //                                         "TRE": 0
-    //                                     },
-    //                                     "200": {
-    //                                         "Ground Speed": 0.0002441406,
-    //                                         "Track Angle": 267.27539050336
-    //                                     },
-    //                                     "202": {
-    //                                         "Vx": -0.5,
-    //                                         "Vy": 0.0
-    //                                     },
-    //                                     "210": {
-    //                                         "Ax": -1.0,
-    //                                         "Ay": -0.25
-    //                                     },
-    //                                     "270": {
-    //                                         "FX": 1,
-    //                                         "FX2": 1,
-    //                                         "LENGTH": 27.0,
-    //                                         "ORIENTATION": 267.1875,
-    //                                         "WIDTH": 40.0
-    //                                     },
-    //                                     "FSPEC": [
-    //                                         true,
-    //                                         true,
-    //                                         true,
-    //                                         true,
-    //                                         false,
-    //                                         true,
-    //                                         true,
-    //                                         true,
-    //                                         true,
-    //                                         true,
-    //                                         true,
-    //                                         true,
-    //                                         false,
-    //                                         false,
-    //                                         false,
-    //                                         true,
-    //                                         false,
-    //                                         false,
-    //                                         false,
-    //                                         false,
-    //                                         true,
-    //                                         false,
-    //                                         false,
-    //                                         true,
-    //                                         false,
-    //                                         false,
-    //                                         false,
-    //                                         true,
-    //                                         false,
-    //                                         false,
-    //                                         false,
-    //                                         false
-    //                                     ],
-    //                                     "index": 11,
-    //                                     "length": 38,
-    //                                     "record_data": "f7f109100001016100303a92063486c3fef5f9e20004be10fffe0000000403c10037bf50fcff"
-    //                                 }
-    //                             ]
-    //                         },
-    //                         "length": 41
-    //                     }
-    //                 ],
-    //                 "index": 8,
-    //                 "length": 41
-    //             },
-    //             "length": 53,
-    //             "padding": 2779096485,
-    //             "recording_day": 0,
-    //             "time_ms": 24693.2
-    //         }
-    //     ],
-    //     "rec_num": 0
-    // }
+//    {
+//         "data_blocks": [
+//             {
+//                 "category": 10,
+//                 "content": {
+//                     "index": 3,
+//                     "length": 38,
+//                     "records": [
+//                         {
+//                             "000": {
+//                                 "Message Type": 1
+//                             },
+//                             "010": {
+//                                 "SAC": 0,
+//                                 "SIC": 1
+//                             },
+//                             "020": {
+//                                 "CHN": 0,
+//                                 "CRT": 0,
+//                                 "DCR": 0,
+//                                 "FX": 1,
+//                                 "FX2": 0,
+//                                 "GBS": 0,
+//                                 "LOP": 0,
+//                                 "RAB": 0,
+//                                 "SIM": 0,
+//                                 "TOT": 0,
+//                                 "TST": 0,
+//                                 "TYP": 3
+//                             },
+//                             "040": {
+//                                 "RHO": 1588.0,
+//                                 "THETA": 189.50866690594
+//                             },
+//                             "042": {
+//                                 "X": -267.0,
+//                                 "Y": -1566.0
+//                             },
+//                             "140": {
+//                                 "Time-of-Day": 24693.140625
+//                             },
+//                             "161": {
+//                                 "TRACK NUMBER": 4
+//                             },
+//                             "170": {
+//                                 "CNF": 0,
+//                                 "CST": 0,
+//                                 "DOU": 0,
+//                                 "FX": 1,
+//                                 "FX2": 1,
+//                                 "GHO": 0,
+//                                 "MAH": 0,
+//                                 "MRS": 0,
+//                                 "STH": 1,
+//                                 "TCC": 0,
+//                                 "TOM": 3,
+//                                 "TRE": 0
+//                             },
+//                             "200": {
+//                                 "Ground Speed": 0.000244140625,
+//                                 "Track Angle": 267.275390625
+//                             },
+//                             "202": {
+//                                 "Vx": -0.5,
+//                                 "Vy": 0.0
+//                             },
+//                             "210": {
+//                                 "Ax": -1.0,
+//                                 "Ay": -0.25
+//                             },
+//                             "270": {
+//                                 "FX": 1,
+//                                 "FX2": 1,
+//                                 "LENGTH": 27.0,
+//                                 "ORIENTATION": 267.1875,
+//                                 "WIDTH": 40.0
+//                             },
+//                             "FSPEC": [
+//                                 true,
+//                                 true,
+//                                 true,
+//                                 true,
+//                                 false,
+//                                 true,
+//                                 true,
+//                                 true,
+//                                 true,
+//                                 true,
+//                                 true,
+//                                 true,
+//                                 false,
+//                                 false,
+//                                 false,
+//                                 true,
+//                                 false,
+//                                 false,
+//                                 false,
+//                                 false,
+//                                 true,
+//                                 false,
+//                                 false,
+//                                 true,
+//                                 false,
+//                                 false,
+//                                 false,
+//                                 true,
+//                                 false,
+//                                 false,
+//                                 false,
+//                                 false
+//                             ],
+//                             "index": 3,
+//                             "length": 38
+//                         }
+//                     ]
+//                 },
+//                 "length": 41
+//             }
+//         ]
+//     }
 
     loginf << "cat010 test: data block" << logendl;
 
@@ -241,7 +225,7 @@ void test_cat010_callback(std::unique_ptr<nlohmann::json> json_data, size_t num_
 
     loginf << "cat010 test: 040" << logendl;
     REQUIRE(record.at("040").at("RHO") == 1588.0);
-    REQUIRE(approximatelyEqual(record.at("040").at("THETA"), 189.50866690594, 10e-11));
+    REQUIRE(approximatelyEqual(record.at("040").at("THETA"), 189.5086669921875, 10e-11));
 
     //    ;  I010/042: =0x fe f5 f9 e2
     //    ;  Calculated Position: x=-267 mtr; y=-1566 mtr
@@ -289,8 +273,8 @@ void test_cat010_callback(std::unique_ptr<nlohmann::json> json_data, size_t num_
     //    ;  Calculated Track Velocity: spd=4 (0.879 kts); hdg=48656 (267.275 deg)
 
     loginf << "cat010 test: 200" << logendl;
-    REQUIRE(approximatelyEqual(record.at("200").at("Ground Speed"), 0.0002441406, 10e-10));
-    REQUIRE(approximatelyEqual(record.at("200").at("Track Angle"), 267.27539050336, 10e-11));
+    REQUIRE(approximatelyEqual(record.at("200").at("Ground Speed"), 2.44140625E-4, 10e-10));
+    REQUIRE(approximatelyEqual(record.at("200").at("Track Angle"), 267.275390625, 10e-10));
 
     //    ;  I010/202: =0x ff fe 00 00
     //    ;  Calculated Track Velocity in Cartesian Co-ordinates: vx=-0.50 m/s; vy=0.00 m/s
