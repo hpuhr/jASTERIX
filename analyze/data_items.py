@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 import sys
 import json
@@ -76,9 +76,10 @@ class DataItemStatistic:
             val_stat.print(self.count)
 
 class DataItemStatisticsCalculator:
-    def __init__(self):
+    def __init__(self, per_source):
+        self._per_source = per_source
         self.__num_records = 0
-        self.__statistics = {}  # type: Dict[str, DataItemStatistic]
+        self.__statistics = {}  # type: Dict[(int, int), Dict[str, DataItemStatistic]]
 
     @property
     def num_records(self):
@@ -86,22 +87,41 @@ class DataItemStatisticsCalculator:
 
     def process_record(self, cat, record):
 
+        sac = None
+        sic = None
+
+        if self._per_source:
+            sac = find_value('010.SAC', record)
+            sic = find_value('010.SIC', record)
+
+            assert sac is not None and sic is not None
+
         self.__num_records += 1
 
         cat_str = str(cat).zfill(3)
 
-        if cat_str not in self.__statistics:
-            self.__statistics[cat_str] = DataItemStatistic(cat_str)
+        if (sac, sic) not in self.__statistics:
+            self.__statistics[(sac, sic)] = {}
 
-        self.__statistics[cat_str].process_object(record)
+        if cat_str not in self.__statistics[(sac, sic)]:
+            self.__statistics[(sac, sic)][cat_str] = DataItemStatistic(cat_str)
+
+        self.__statistics[(sac, sic)][cat_str].process_object(record)
 
     def print(self):
         print('num records {}'.format(self.__num_records))
 
-        print('data items')
-        for cat, stat in sorted(self.__statistics.items()):
-            print()
-            stat.print()
+        for (sac, sic), stat_dict in sorted(self.__statistics.items()):
+
+            if self._per_source:
+                print('data items for {}/{}'.format(sac, sic))
+            else:
+                print('data items')
+
+            for cat, stat in sorted(stat_dict.items()):
+                print()
+                stat.print()
+                print('\n\n')
 
 
 # filter functions return True if record should be skipped
@@ -122,32 +142,32 @@ def filter_cats(cat, record):
 def main(argv):
 
     parser = argparse.ArgumentParser(description='ASTERIX data item analysis')
-    parser.add_argument('--framing', help='Framing True or False', required=True)
+    parser.add_argument('--framing', help='Framing', default=False, action='store_true', required=False)
     parser.add_argument('--cats', help='ASTERIX categories to be analyzed as CSV', required=False)
+    parser.add_argument('--per_source', help='Whether to do analysis per SAC/SIC', default=False, action='store_true', required=False)
 
     args = parser.parse_args()
 
-    assert args.framing is not None
-    assert args.framing == 'True' or args.framing == 'False'
-    framing = args.framing == 'True'
+    #assert args.framing is not None
+    #assert args.framing == 'True' or args.framing == 'False'
+    print('framing {} '.format(args.framing))
 
     global cat_list
     if args.cats is not None:
         cat_list = args.cats.split(",")
         cat_list = [int(i) for i in cat_list]
 
-    print('framing {}'.format(framing))
     print('cats {}'.format(cat_list))
+    print('per-source {} '.format(args.per_source))
 
     num_blocks = 0
 
-    statistics_calc = DataItemStatisticsCalculator()  # type: DataItemStatisticsCalculator
+    statistics_calc = DataItemStatisticsCalculator(args.per_source)  # type: DataItemStatisticsCalculator
 
     if cat_list is None:  # without filtering
-        record_extractor = RecordExtractor (framing, statistics_calc.process_record)  # type: RecordExtractor
+        record_extractor = RecordExtractor (args.framing, statistics_calc.process_record)  # type: RecordExtractor
     else:  # with filtering lambda
-        record_extractor = RecordExtractor(framing, statistics_calc.process_record, filter_cats)  # type: RecordExtractor
-
+        record_extractor = RecordExtractor(args.framing, statistics_calc.process_record, filter_cats)  # type: RecordExtractor
 
     start_time = time.time()
 

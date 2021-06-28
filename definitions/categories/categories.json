@@ -43,7 +43,7 @@
     },
     "010":{
         "comment":"Category 010 Transmission of Monosensor Surface Movement Data",
-        "default_edition":"0.24_sensis",
+        "default_edition":"0.31",
         "default_mapping":"",
         "editions":{
             "0.24_sensis":{
