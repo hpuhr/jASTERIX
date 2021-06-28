@@ -314,7 +314,7 @@ size_t Record::parseItem(const char* data, size_t index, size_t size, size_t cur
 
     if (special_purpose_field_present)
     {
-        size_t re_bytes = static_cast<size_t>(data[index + parsed_bytes]);
+        size_t re_bytes = static_cast<unsigned char>(data[index + parsed_bytes]);
 
         parsed_bytes += 1;  // read 1 len byte
         re_bytes -= 1;      // includes 1 len byte
