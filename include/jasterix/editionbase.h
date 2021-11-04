@@ -3,9 +3,12 @@
 
 #include <string>
 
+#include <jasterix/iteminfo.h>
+
 #include "json.hpp"
 
 namespace jASTERIX {
+
 
 class EditionBase
 {
@@ -18,8 +21,9 @@ public:
     std::string document() const;
     std::string date() const;
     std::string file() const;
-
     std::string definitionPath() const;
+
+    virtual void addInfo (CategoryItemInfo& info, const std::string& prefix="")=0;
 
 protected:
     std::string number_;

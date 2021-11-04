@@ -18,12 +18,12 @@
 #ifndef ITEMPARSING_H
 #define ITEMPARSING_H
 
-#include <cstddef>
-#include <sstream>
+#include <jasterix/iteminfo.h>
 
 #include "json.hpp"
-//#include "logger.h"
 
+#include <cstddef>
+#include <sstream>
 #include <bitset>
 #include <cassert>
 #include <exception>
@@ -44,6 +44,8 @@ class ItemParserBase
                              size_t current_parsed_bytes, nlohmann::json& target, bool debug) = 0;
     std::string name() const;
     std::string type() const;
+
+    virtual void addInfo (CategoryItemInfo& info, const std::string& prefix="") const;
 
   protected:
     const nlohmann::json& item_definition_;

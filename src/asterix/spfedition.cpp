@@ -34,4 +34,10 @@ SPFEdition::~SPFEdition() {}
 
 std::shared_ptr<SpecialPurposeField> SPFEdition::specialPurposeField() const { return spf_; }
 
+void SPFEdition::addInfo (CategoryItemInfo& info, const std::string& prefix)
+{
+    assert (spf_);
+    spf_->addInfo(info, prefix);
+}
+
 }  // namespace jASTERIX

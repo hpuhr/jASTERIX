@@ -38,6 +38,8 @@ class SPFEdition : public EditionBase
 
     std::shared_ptr<SpecialPurposeField> specialPurposeField() const;
 
+    virtual void addInfo (CategoryItemInfo& info, const std::string& prefix="") override;
+
   protected:
     std::shared_ptr<SpecialPurposeField> spf_;
 };

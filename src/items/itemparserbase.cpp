@@ -113,6 +113,11 @@ std::string ItemParserBase::name() const { return name_; }
 
 std::string ItemParserBase::type() const { return type_; }
 
+void ItemParserBase::addInfo (CategoryItemInfo& info, const std::string& prefix) const
+{
+    throw runtime_error("item '" + name_ + "' addInfo not implemented");
+}
+
 // size_t parseFixedBitsItem (const std::string& name, const std::string& type, const
 // nlohmann::json& item_definition,
 //                           const char* data, size_t index, size_t size, size_t

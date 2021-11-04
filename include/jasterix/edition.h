@@ -27,6 +27,7 @@
 
 namespace jASTERIX
 {
+
 class Record;
 
 class Edition : public EditionBase
@@ -37,6 +38,8 @@ class Edition : public EditionBase
     virtual ~Edition();
 
     std::shared_ptr<Record> record() const;
+
+    virtual void addInfo (CategoryItemInfo& info, const std::string& prefix="") override;
 
   protected:
     std::shared_ptr<Record> record_;

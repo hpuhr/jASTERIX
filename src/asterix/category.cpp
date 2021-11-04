@@ -333,6 +333,15 @@ CategoryItemInfo Category::itemInfo () const
 {
     CategoryItemInfo info;
 
+    for (const auto& ed_it : editions_)
+        ed_it.second->addInfo(info);
+
+    for (const auto& ed_it : ref_editions_)
+        ed_it.second->addInfo(info);
+
+    for (const auto& ed_it : spf_editions_)
+        ed_it.second->addInfo(info);
+
     return info;
 }
 
