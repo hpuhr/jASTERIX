@@ -18,6 +18,7 @@
 #ifndef EDITION_H
 #define EDITION_H
 
+#include <jasterix/editionbase.h>
 #include <jasterix/record.h>
 
 #include <string>
@@ -28,29 +29,16 @@ namespace jASTERIX
 {
 class Record;
 
-class Edition
+class Edition : public EditionBase
 {
   public:
     Edition(const std::string& number, const nlohmann::json& definition,
             const std::string& definition_path);
     virtual ~Edition();
 
-    std::string number() const;
-    std::string document() const;
-    std::string date() const;
-    std::string file() const;
-
     std::shared_ptr<Record> record() const;
-    std::string definitionPath() const;
 
   protected:
-    std::string number_;
-    std::string document_;
-    std::string date_;
-    std::string file_;
-
-    std::string edition_definition_path_;
-    nlohmann::json definition_;  // from file
     std::shared_ptr<Record> record_;
 };
 

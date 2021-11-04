@@ -328,4 +328,12 @@ bool Category::decode() const { return decode_; }
 
 void Category::decode(bool value) { decode_ = value; }
 
+
+CategoryItemInfo Category::itemInfo () const
+{
+    CategoryItemInfo info;
+
+    return info;
+}
+
 }  // namespace jASTERIX

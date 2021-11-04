@@ -18,6 +18,7 @@
 #ifndef REFEDITION_H
 #define REFEDITION_H
 
+#include <jasterix/editionbase.h>
 #include <jasterix/ref.h>
 
 #include <string>
@@ -28,29 +29,16 @@ namespace jASTERIX
 {
 class Record;
 
-class REFEdition
+class REFEdition : public EditionBase
 {
   public:
     REFEdition(const std::string& number, const nlohmann::json& definition,
                const std::string& definition_path);
     virtual ~REFEdition();
 
-    std::string number() const;
-    std::string document() const;
-    std::string date() const;
-    std::string file() const;
-
     std::shared_ptr<ReservedExpansionField> reservedExpansionField() const;
-    std::string definitionPath() const;
 
   protected:
-    std::string number_;
-    std::string document_;
-    std::string date_;
-    std::string file_;
-
-    std::string edition_definition_path_;
-    nlohmann::json definition_;  // from file
     std::shared_ptr<ReservedExpansionField> ref_;
 };
 
