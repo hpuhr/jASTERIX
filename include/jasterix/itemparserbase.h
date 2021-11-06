@@ -48,7 +48,7 @@ public:
     std::string longName() const;
     std::string type() const;
 
-    virtual void addInfo (CategoryItemInfo& info) const;
+    virtual void addInfo (const std::string& edition, CategoryItemInfo& info) const;
 
 protected:
     const nlohmann::json& item_definition_;

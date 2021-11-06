@@ -110,10 +110,10 @@ size_t FixedBitFieldItemParser::parseItem(const char* data, size_t index, size_t
 }
 
 
-void FixedBitFieldItemParser::addInfo (CategoryItemInfo& info) const
+void FixedBitFieldItemParser::addInfo (const std::string& edition, CategoryItemInfo& info) const
 {
     for (auto& item_it : items_)
-        item_it->addInfo(info);
+        item_it->addInfo(edition, info);
 }
 
 }  // namespace jASTERIX

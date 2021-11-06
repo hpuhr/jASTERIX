@@ -32,7 +32,7 @@ class OptionalItemParser : public ItemParserBase
                              size_t current_parsed_bytes, nlohmann::json& target,
                              bool debug) override;
 
-    virtual void addInfo (CategoryItemInfo& info) const;
+    virtual void addInfo (const std::string& edition, CategoryItemInfo& info) const override;
 
   protected:
     std::string bitfield_name_;

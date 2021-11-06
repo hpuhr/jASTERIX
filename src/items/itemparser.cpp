@@ -86,10 +86,10 @@ size_t ItemParser::parseItem(const char* data, size_t index, size_t size,
 
 std::string ItemParser::number() const { return number_; }
 
-void ItemParser::addInfo (CategoryItemInfo& info) const
+void ItemParser::addInfo (const std::string& edition, CategoryItemInfo& info) const
 {
     for (auto& field_it : data_fields_)
-        field_it->addInfo(info);
+        field_it->addInfo(edition, info);
 }
 
 

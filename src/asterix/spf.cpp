@@ -243,13 +243,13 @@ size_t SpecialPurposeField::parseComplexItem(const char* data, size_t index, siz
     return parsed_bytes;
 }
 
-void SpecialPurposeField::addInfo (CategoryItemInfo& info) const
+void SpecialPurposeField::addInfo (const std::string& edition, CategoryItemInfo& info) const
 {
     for (auto& item_it : complex_items_)
-        item_it.second->addInfo(info);
+        item_it.second->addInfo(edition, info);
 
     for (auto& item_it : simple_items_)
-        item_it->addInfo(info);
+        item_it->addInfo(edition, info);
 }
 
 

@@ -96,10 +96,10 @@ size_t ExtendableItemParser::parseItem(const char* data, size_t index, size_t si
     return parsed_bytes;
 }
 
-void ExtendableItemParser::addInfo (CategoryItemInfo& info) const
+void ExtendableItemParser::addInfo (const std::string& edition, CategoryItemInfo& info) const
 {
     for (auto& item_it : items_)
-        item_it->addInfo(info);
+        item_it->addInfo(edition, info);
 }
 
 }  // namespace jASTERIX

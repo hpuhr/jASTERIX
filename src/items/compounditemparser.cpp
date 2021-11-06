@@ -97,10 +97,10 @@ size_t CompoundItemParser::parseItem(const char* data, size_t index, size_t size
     return parsed_bytes;
 }
 
-void CompoundItemParser::addInfo (CategoryItemInfo& info) const
+void CompoundItemParser::addInfo (const std::string& edition, CategoryItemInfo& info) const
 {
     for (auto& item_it : items_)
-        item_it->addInfo(info);
+        item_it->addInfo(edition, info);
 }
 
 }  // namespace jASTERIX

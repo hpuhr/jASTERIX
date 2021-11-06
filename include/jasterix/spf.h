@@ -19,7 +19,7 @@ class SpecialPurposeField : public ItemParserBase
                              size_t current_parsed_bytes, nlohmann::json& target,
                              bool debug) override;
 
-    virtual void addInfo (CategoryItemInfo& info) const override;
+    virtual void addInfo (const std::string& edition, CategoryItemInfo& info) const override;
 
   protected:
     std::unique_ptr<ItemParserBase> complex_field_specification_;

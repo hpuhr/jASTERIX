@@ -20,6 +20,7 @@
 #include <iomanip>
 #include <iostream>
 #include <string>
+#include <algorithm>
 
 #include "compounditemparser.h"
 #include "dynamicbytesitemparser.h"
@@ -121,22 +122,22 @@ std::string ItemParserBase::name() const { return name_; }
 
 std::string ItemParserBase::type() const { return type_; }
 
-void ItemParserBase::addInfo (CategoryItemInfo& info) const
+void ItemParserBase::addInfo (const std::string& edition, CategoryItemInfo& info) const
 {
     string comment;
 
     if (item_definition_.contains("comment"))
+    {
         comment = item_definition_.at("comment");
+        comment.erase(std::remove(comment.begin(), comment.end(), '\n'), comment.end());
+    }
 
-    if (info.count(long_name_))
-    {
-        // TODO edition
-    }
-    else
-    {
+    if (!info.count(long_name_))
         info[long_name_].description_ = comment;
-        // TODO edition
-    }
+
+    info.at(long_name_).editions_.insert(edition);
+
+    // TODO edition
 
 }
 

@@ -368,10 +368,10 @@ std::shared_ptr<SpecialPurposeField> Record::spf() const { return spf_; }
 
 void Record::setSpf(const std::shared_ptr<SpecialPurposeField>& spf) { spf_ = spf; }
 
-void Record::addInfo (CategoryItemInfo& info) const
+void Record::addInfo (const std::string& edition, CategoryItemInfo& info) const
 {
     for (auto& item_it : items_)
-        item_it.second->addInfo(info);
+        item_it.second->addInfo(edition, info);
 }
 
 // bool Record::compareKey (const nlohmann::json& container, const std::string& value)

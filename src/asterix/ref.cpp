@@ -162,10 +162,10 @@ size_t ReservedExpansionField::parseItem(const char* data, size_t index, size_t 
     return parsed_bytes;
 }
 
-void ReservedExpansionField::addInfo (CategoryItemInfo& info) const
+void ReservedExpansionField::addInfo (const std::string& edition, CategoryItemInfo& info) const
 {
     for (auto& item_it : items_)
-        item_it.second->addInfo(info);
+        item_it.second->addInfo(edition, info);
 }
 
 // bool ReservedExpansionField::compareKey (const nlohmann::json& container, const std::string&

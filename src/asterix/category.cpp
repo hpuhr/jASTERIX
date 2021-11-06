@@ -334,13 +334,13 @@ CategoryItemInfo Category::itemInfo () const
     CategoryItemInfo info;
 
     for (const auto& ed_it : editions_)
-        ed_it.second->addInfo(info);
+        ed_it.second->addInfo(ed_it.first, info);
 
     for (const auto& ed_it : ref_editions_)
-        ed_it.second->addInfo(info);
+        ed_it.second->addInfo("REF "+ed_it.first, info);
 
     for (const auto& ed_it : spf_editions_)
-        ed_it.second->addInfo(info);
+        ed_it.second->addInfo("SPF "+ed_it.first, info);
 
     return info;
 }

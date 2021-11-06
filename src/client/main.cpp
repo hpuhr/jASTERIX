@@ -265,8 +265,8 @@ int main(int argc, char** argv)
 
             for (const auto& cat_it : asterix.categories())
             {
-                if (cat_it.first != 48)
-                    continue;
+//                if (cat_it.first != 48)
+//                    continue;
 
                 jASTERIX::CategoryItemInfo info = cat_it.second->itemInfo();
 
@@ -274,11 +274,19 @@ int main(int argc, char** argv)
 
                 for (auto& info_it : info)
                 {
-                    loginf << "'" << info_it.first << "'" << logendl;
+                    string editions;
+
+                    for (auto& ed_it : info_it.second.editions_)
+                    {
+                        if (editions.size())
+                            editions += ",";
+
+                        editions += ed_it;
+                    }
+
+                    loginf << "'" << info_it.first << "'; '" << info_it.second.description_ << "';"
+                                  << editions << logendl;
                 }
-
-                loginf << logendl;
-
             }
 
             return 0;

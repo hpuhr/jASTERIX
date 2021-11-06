@@ -33,7 +33,7 @@ class ItemParser : public ItemParserBase
                              bool debug) override;
     std::string number() const;
 
-    virtual void addInfo (CategoryItemInfo& info) const;
+    virtual void addInfo (const std::string& edition, CategoryItemInfo& info) const override;
 
 protected:
     std::string number_;

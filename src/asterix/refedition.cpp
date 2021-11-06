@@ -39,10 +39,10 @@ REFEdition::~REFEdition() {}
 
 std::shared_ptr<ReservedExpansionField> REFEdition::reservedExpansionField() const { return ref_; }
 
-void REFEdition::addInfo (CategoryItemInfo& info)
+void REFEdition::addInfo (const std::string& edition, CategoryItemInfo& info)
 {
     assert (ref_);
-    ref_->addInfo(info);
+    ref_->addInfo(edition, info);
 }
 
 }  // namespace jASTERIX

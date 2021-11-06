@@ -23,7 +23,7 @@ public:
     std::string file() const;
     std::string definitionPath() const;
 
-    virtual void addInfo (CategoryItemInfo& info)=0;
+    virtual void addInfo (const std::string& edition, CategoryItemInfo& info)=0;
 
 protected:
     std::string number_;

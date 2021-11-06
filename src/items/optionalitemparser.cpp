@@ -121,10 +121,10 @@ size_t OptionalItemParser::parseItem(const char* data, size_t index, size_t size
     return parsed_bytes;
 }
 
-void OptionalItemParser::addInfo (CategoryItemInfo& info) const
+void OptionalItemParser::addInfo (const std::string& edition, CategoryItemInfo& info) const
 {
     for (auto& item_it : data_fields_)
-        item_it->addInfo(info);
+        item_it->addInfo(edition, info);
 }
 
 }  // namespace jASTERIX
