@@ -51,7 +51,7 @@ FrameParser::FrameParser(const json& framing_definition, ASTERIXParser& asterix_
                 loginf << "frame parser constructing file header item '" << item_name << "'"
                        << logendl;
 
-            item = ItemParserBase::createItemParser(data_item_it);
+            item = ItemParserBase::createItemParser(data_item_it, "");
             assert(item);
             file_header_items_.push_back(std::unique_ptr<ItemParserBase>{item});
         }
@@ -72,7 +72,7 @@ FrameParser::FrameParser(const json& framing_definition, ASTERIXParser& asterix_
         if (debug)
             loginf << "frame parser constructing frame item '" << item_name << "'" << logendl;
 
-        item = ItemParserBase::createItemParser(data_item_it);
+        item = ItemParserBase::createItemParser(data_item_it, "");
         assert(item);
         frame_items_.push_back(std::unique_ptr<ItemParserBase>{item});
     }

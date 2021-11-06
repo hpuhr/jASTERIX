@@ -39,7 +39,7 @@ Record::Record(const nlohmann::json& item_definition) : ItemParserBase(item_defi
     if (!field_specification.is_object())
         throw runtime_error("record item '" + name_ + "' field specification is not an object");
 
-    field_specification_.reset(ItemParserBase::createItemParser(field_specification));
+    field_specification_.reset(ItemParserBase::createItemParser(field_specification, ""));
     assert(field_specification_);
 
     // uap
@@ -120,7 +120,7 @@ Record::Record(const nlohmann::json& item_definition) : ItemParserBase(item_defi
             throw runtime_error("record item '" + data_item_it.dump(4) + "' without number");
 
         item_number = data_item_it.at("number");
-        item = ItemParserBase::createItemParser(data_item_it);
+        item = ItemParserBase::createItemParser(data_item_it, "");
         assert(item);
 
         if (items_.count(item_number) != 0)
@@ -367,6 +367,12 @@ void Record::setRef(const std::shared_ptr<ReservedExpansionField>& ref) { ref_ =
 std::shared_ptr<SpecialPurposeField> Record::spf() const { return spf_; }
 
 void Record::setSpf(const std::shared_ptr<SpecialPurposeField>& spf) { spf_ = spf; }
+
+void Record::addInfo (CategoryItemInfo& info) const
+{
+    for (auto& item_it : items_)
+        item_it.second->addInfo(info);
+}
 
 // bool Record::compareKey (const nlohmann::json& container, const std::string& value)
 //{

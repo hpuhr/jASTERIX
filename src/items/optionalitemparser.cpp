@@ -24,8 +24,8 @@ using namespace nlohmann;
 
 namespace jASTERIX
 {
-OptionalItemParser::OptionalItemParser(const nlohmann::json& item_definition)
-    : ItemParserBase(item_definition)
+OptionalItemParser::OptionalItemParser(const nlohmann::json& item_definition, const std::string& long_name_prefix)
+    : ItemParserBase(item_definition, long_name_prefix)
 {
     assert(type_ == "optional_item");
 
@@ -54,7 +54,7 @@ OptionalItemParser::OptionalItemParser(const nlohmann::json& item_definition)
     for (const json& data_item_it : data_fields)
     {
         item_name = data_item_it.at("name");
-        item = ItemParserBase::createItemParser(data_item_it);
+        item = ItemParserBase::createItemParser(data_item_it, long_name_prefix_); // leave out own name
         assert(item);
         data_fields_.push_back(std::unique_ptr<ItemParserBase>{item});
     }
@@ -119,6 +119,12 @@ size_t OptionalItemParser::parseItem(const char* data, size_t index, size_t size
                << logendl;
 
     return parsed_bytes;
+}
+
+void OptionalItemParser::addInfo (CategoryItemInfo& info) const
+{
+    for (auto& item_it : data_fields_)
+        item_it->addInfo(info);
 }
 
 }  // namespace jASTERIX

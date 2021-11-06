@@ -24,7 +24,8 @@ using namespace nlohmann;
 
 namespace jASTERIX
 {
-ItemParser::ItemParser(const nlohmann::json& item_definition) : ItemParserBase(item_definition)
+ItemParser::ItemParser(const nlohmann::json& item_definition, const std::string& long_name_prefix)
+    : ItemParserBase(item_definition, long_name_prefix)
 {
     assert(type_ == "item");
 
@@ -33,18 +34,30 @@ ItemParser::ItemParser(const nlohmann::json& item_definition) : ItemParserBase(i
 
     number_ = item_definition.at("number");
 
+    if (long_name_prefix_.size())
+        long_name_ = long_name_prefix_ + "." + number_;
+    else
+        long_name_ = number_;
+
     const json& data_fields = item_definition.at("data_fields");
 
     if (!data_fields.is_array())
         throw runtime_error("parsing item '" + name_ + "' data fields container is not an array");
 
     std::string item_name;
+    std::string item_number;
     ItemParserBase* item{nullptr};
 
     for (const json& data_item_it : data_fields)
     {
         item_name = data_item_it.at("name");
-        item = ItemParserBase::createItemParser(data_item_it);
+
+        if (data_item_it.contains("number"))
+            item_number = data_item_it.at("number");
+        else
+            item_number = "";
+
+        item = ItemParserBase::createItemParser(data_item_it, long_name_);
         assert(item);
         data_fields_.push_back(std::unique_ptr<ItemParserBase>{item});
     }
@@ -72,5 +85,12 @@ size_t ItemParser::parseItem(const char* data, size_t index, size_t size,
 }
 
 std::string ItemParser::number() const { return number_; }
+
+void ItemParser::addInfo (CategoryItemInfo& info) const
+{
+    for (auto& field_it : data_fields_)
+        field_it->addInfo(info);
+}
+
 
 }  // namespace jASTERIX

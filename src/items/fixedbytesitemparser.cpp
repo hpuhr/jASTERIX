@@ -27,8 +27,8 @@ using namespace nlohmann;
 
 namespace jASTERIX
 {
-FixedBytesItemParser::FixedBytesItemParser(const nlohmann::json& item_definition)
-    : ItemParserBase(item_definition)
+FixedBytesItemParser::FixedBytesItemParser(const nlohmann::json& item_definition, const std::string& long_name_prefix)
+    : ItemParserBase(item_definition, long_name_prefix)
 {
     assert(type_ == "fixed_bytes");
 

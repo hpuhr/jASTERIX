@@ -39,7 +39,7 @@ class Edition : public EditionBase
 
     std::shared_ptr<Record> record() const;
 
-    virtual void addInfo (CategoryItemInfo& info, const std::string& prefix="") override;
+    virtual void addInfo (CategoryItemInfo& info) override;
 
   protected:
     std::shared_ptr<Record> record_;

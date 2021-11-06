@@ -38,7 +38,7 @@ class REFEdition : public EditionBase
 
     std::shared_ptr<ReservedExpansionField> reservedExpansionField() const;
 
-    virtual void addInfo (CategoryItemInfo& info, const std::string& prefix="") override;
+    virtual void addInfo (CategoryItemInfo& info) override;
 
   protected:
     std::shared_ptr<ReservedExpansionField> ref_;

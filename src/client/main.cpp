@@ -35,6 +35,7 @@ namespace po = boost::program_options;
 #include <cstdlib>
 #include <iostream>
 #include <thread>
+#include <memory>
 
 #include <tbb/tbb.h>
 
@@ -46,9 +47,9 @@ namespace po = boost::program_options;
 
 using namespace std;
 
-extern jASTERIX::JSONWriter* json_writer;
+extern std::unique_ptr<jASTERIX::JSONWriter> json_writer;
 
-jASTERIX::JSONWriter* json_writer{nullptr};
+std::unique_ptr<jASTERIX::JSONWriter> json_writer;
 
 void write_callback(std::unique_ptr<nlohmann::json> data_chunk, size_t num_frames,
                     size_t num_records, size_t num_errors)
@@ -91,6 +92,7 @@ int main(int argc, char** argv)
     bool debug{false};
     bool debug_include_framing{false};
     bool print{false};
+    bool print_cat_info{false};
     std::string write_type;
     std::string write_filename;
     bool log_performance{false};
@@ -116,6 +118,7 @@ int main(int argc, char** argv)
         "debug", po::bool_switch(&debug), "print debug output (only for small files)")(
         "debug_include_framing", po::bool_switch(&debug_include_framing),
         "print debug output including framing, debug still has to be set, disable per default")(
+        "print_cat_info", po::bool_switch(&print_cat_info), "print category info")(
         "single_thread", po::bool_switch(&jASTERIX::single_thread),
         "process data in single thread")("only_cats", po::value<std::string>(&only_cats),
                                          "restricts categories to be decoded, e.g. 20,21.")(
@@ -189,7 +192,7 @@ int main(int argc, char** argv)
             return -1;
         }
 
-        hash_checker = new HashChecker(framing.size());  // true if framing set
+        hash_checker.reset(new HashChecker(framing.size()));  // true if framing set
     }
 #endif
 
@@ -209,9 +212,9 @@ int main(int argc, char** argv)
         }
 
         if (write_type == "text")
-            json_writer = new jASTERIX::JSONWriter(jASTERIX::JSON_TEXT, write_filename);
+            json_writer.reset(new jASTERIX::JSONWriter(jASTERIX::JSON_TEXT, write_filename));
         else if (write_type == "zip")
-            json_writer = new jASTERIX::JSONWriter(jASTERIX::JSON_ZIP_TEXT, write_filename);
+            json_writer.reset(new jASTERIX::JSONWriter(jASTERIX::JSON_ZIP_TEXT, write_filename));
     }
 
     std::vector<unsigned int> cat_list;
@@ -255,6 +258,30 @@ int main(int argc, char** argv)
                 if (debug)
                     loginf << "jASTERIX client: decoding category " << cat_it << logendl;
             }
+        }
+
+        if (print_cat_info)
+        {
+
+            for (const auto& cat_it : asterix.categories())
+            {
+                if (cat_it.first != 48)
+                    continue;
+
+                jASTERIX::CategoryItemInfo info = cat_it.second->itemInfo();
+
+                loginf << "cat " << cat_it.first << ": " << logendl;
+
+                for (auto& info_it : info)
+                {
+                    loginf << "'" << info_it.first << "'" << logendl;
+                }
+
+                loginf << logendl;
+
+            }
+
+            return 0;
         }
 
         boost::posix_time::ptime start_time = boost::posix_time::microsec_clock::local_time();
@@ -331,19 +358,19 @@ int main(int argc, char** argv)
         return -1;
     }
 
-    if (json_writer)
-    {
-        delete json_writer;
-        json_writer = nullptr;
-    }
+//    if (json_writer)
+//    {
+//        delete json_writer;
+//        json_writer = nullptr;
+//    }
 
-#if USE_OPENSSL
-    if (hash_checker)
-    {
-        delete hash_checker;
-        hash_checker = nullptr;
-    }
-#endif
+//#if USE_OPENSSL
+//    if (hash_checker)
+//    {
+//        delete hash_checker;
+//        hash_checker = nullptr;
+//    }
+//#endif
 
     if (debug)
         loginf << "jASTERIX client: shutdown" << logendl;

@@ -26,7 +26,7 @@ namespace jASTERIX
 class SkipBytesItemParser : public ItemParserBase
 {
   public:
-    SkipBytesItemParser(const nlohmann::json& item_definition);
+    SkipBytesItemParser(const nlohmann::json& item_definition, const std::string& long_name_prefix);
     virtual ~SkipBytesItemParser() {}
 
     virtual size_t parseItem(const char* data, size_t index, size_t size,

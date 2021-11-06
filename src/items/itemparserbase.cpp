@@ -39,8 +39,8 @@ using namespace nlohmann;
 
 namespace jASTERIX
 {
-ItemParserBase::ItemParserBase(const nlohmann::json& item_definition)
-    : item_definition_(item_definition)
+ItemParserBase::ItemParserBase(const nlohmann::json& item_definition, const std::string& long_name_prefix)
+    : item_definition_(item_definition), long_name_prefix_(long_name_prefix)
 {
     if (!item_definition.contains("name"))
         throw runtime_error("item construction without JSON name definition");
@@ -51,9 +51,17 @@ ItemParserBase::ItemParserBase(const nlohmann::json& item_definition)
         throw runtime_error("item '" + name_ + "' construction without data type definition");
 
     type_ = item_definition.at("type");
+
+    if (long_name_prefix_.size())
+        long_name_ = long_name_prefix_ + "." + name_;
+    else
+        long_name_ = name_;
+
+    //loginf << "UGA name '" << name_ << "' long '" << long_name_ << "'" << logendl;
 }
 
-ItemParserBase* ItemParserBase::createItemParser(const nlohmann::json& item_definition)
+ItemParserBase* ItemParserBase::createItemParser(const nlohmann::json& item_definition,
+                                                 const std::string& long_name_prefix)
 {
     if (!item_definition.contains("name"))
         throw runtime_error("item creation without JSON name definition");
@@ -67,43 +75,43 @@ ItemParserBase* ItemParserBase::createItemParser(const nlohmann::json& item_defi
 
     if (type == "item")
     {
-        return new ItemParser(item_definition);
+        return new ItemParser(item_definition, long_name_prefix);
     }
     else if (type == "fixed_bytes")
     {
-        return new FixedBytesItemParser(item_definition);
+        return new FixedBytesItemParser(item_definition, long_name_prefix);
     }
     else if (type == "skip_bytes")
     {
-        return new SkipBytesItemParser(item_definition);
+        return new SkipBytesItemParser(item_definition, long_name_prefix);
     }
     else if (type == "dynamic_bytes")
     {
-        return new DynamicBytesItemParser(item_definition);
+        return new DynamicBytesItemParser(item_definition, long_name_prefix);
     }
     else if (type == "compound")
     {
-        return new CompoundItemParser(item_definition);
+        return new CompoundItemParser(item_definition, long_name_prefix);
     }
     else if (type == "extendable_bits")
     {
-        return new ExtendableBitsItemParser(item_definition);
+        return new ExtendableBitsItemParser(item_definition, long_name_prefix);
     }
     else if (type == "extendable")
     {
-        return new ExtendableItemParser(item_definition);
+        return new ExtendableItemParser(item_definition, long_name_prefix);
     }
     else if (type == "fixed_bitfield")
     {
-        return new FixedBitFieldItemParser(item_definition);
+        return new FixedBitFieldItemParser(item_definition, long_name_prefix);
     }
     else if (type == "optional_item")
     {
-        return new OptionalItemParser(item_definition);
+        return new OptionalItemParser(item_definition, long_name_prefix);
     }
     else if (type == "repetitive")
     {
-        return new RepetetiveItemParser(item_definition);
+        return new RepetetiveItemParser(item_definition, long_name_prefix);
     }
     else
         throw runtime_error("item creation name '" + name + "' with unknown type '" + type + "'");
@@ -113,9 +121,33 @@ std::string ItemParserBase::name() const { return name_; }
 
 std::string ItemParserBase::type() const { return type_; }
 
-void ItemParserBase::addInfo (CategoryItemInfo& info, const std::string& prefix) const
+void ItemParserBase::addInfo (CategoryItemInfo& info) const
 {
-    throw runtime_error("item '" + name_ + "' addInfo not implemented");
+    string comment;
+
+    if (item_definition_.contains("comment"))
+        comment = item_definition_.at("comment");
+
+    if (info.count(long_name_))
+    {
+        // TODO edition
+    }
+    else
+    {
+        info[long_name_].description_ = comment;
+        // TODO edition
+    }
+
+}
+
+std::string ItemParserBase::longName() const
+{
+    return long_name_;
+}
+
+std::string ItemParserBase::longNamePrefix() const
+{
+    return long_name_prefix_;
 }
 
 // size_t parseFixedBitsItem (const std::string& name, const std::string& type, const

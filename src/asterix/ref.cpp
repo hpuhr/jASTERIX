@@ -42,7 +42,7 @@ ReservedExpansionField::ReservedExpansionField(const nlohmann::json& item_defini
         throw runtime_error("ReservedExpansionField item '" + name_ +
                             "' field specification is not an object");
 
-    field_specification_.reset(ItemParserBase::createItemParser(field_specification));
+    field_specification_.reset(ItemParserBase::createItemParser(field_specification, "REF"));
     assert(field_specification_);
 
     // uap
@@ -81,7 +81,7 @@ ReservedExpansionField::ReservedExpansionField(const nlohmann::json& item_defini
                                 "' without number");
 
         item_number = data_item_it.at("number");
-        item = ItemParserBase::createItemParser(data_item_it);
+        item = ItemParserBase::createItemParser(data_item_it, "REF");
         assert(item);
 
         if (items_.count(item_number) != 0)
@@ -160,6 +160,12 @@ size_t ReservedExpansionField::parseItem(const char* data, size_t index, size_t 
     }
 
     return parsed_bytes;
+}
+
+void ReservedExpansionField::addInfo (CategoryItemInfo& info) const
+{
+    for (auto& item_it : items_)
+        item_it.second->addInfo(info);
 }
 
 // bool ReservedExpansionField::compareKey (const nlohmann::json& container, const std::string&

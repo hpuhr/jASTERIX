@@ -34,10 +34,10 @@ Edition::~Edition() {}
 
 std::shared_ptr<Record> Edition::record() const { return record_; }
 
-void Edition::addInfo (CategoryItemInfo& info, const std::string& prefix)
+void Edition::addInfo (CategoryItemInfo& info)
 {
     assert (record_);
-    record_->addInfo(info, prefix);
+    record_->addInfo(info);
 }
 
 }  // namespace jASTERIX

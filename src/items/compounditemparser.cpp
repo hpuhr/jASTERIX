@@ -24,8 +24,8 @@ using namespace nlohmann;
 
 namespace jASTERIX
 {
-CompoundItemParser::CompoundItemParser(const nlohmann::json& item_definition)
-    : ItemParserBase(item_definition)
+CompoundItemParser::CompoundItemParser(const nlohmann::json& item_definition, const std::string& long_name_prefix)
+    : ItemParserBase(item_definition, long_name_prefix)
 {
     assert(type_ == "compound");
 
@@ -40,7 +40,7 @@ CompoundItemParser::CompoundItemParser(const nlohmann::json& item_definition)
 
     // field_specification_name_ = field_specification.at("name");
 
-    field_specification_.reset(ItemParserBase::createItemParser(field_specification));
+    field_specification_.reset(ItemParserBase::createItemParser(field_specification, long_name_));
     assert(field_specification_);
 
     if (!item_definition.contains("items"))
@@ -58,7 +58,7 @@ CompoundItemParser::CompoundItemParser(const nlohmann::json& item_definition)
     for (const json& data_item_it : items)
     {
         item_name = data_item_it.at("name");
-        item = ItemParserBase::createItemParser(data_item_it);
+        item = ItemParserBase::createItemParser(data_item_it, long_name_prefix_); // leave out own name
         assert(item);
         items_.push_back(std::unique_ptr<ItemParserBase>{item});
     }
@@ -95,6 +95,12 @@ size_t CompoundItemParser::parseItem(const char* data, size_t index, size_t size
     }
 
     return parsed_bytes;
+}
+
+void CompoundItemParser::addInfo (CategoryItemInfo& info) const
+{
+    for (auto& item_it : items_)
+        item_it->addInfo(info);
 }
 
 }  // namespace jASTERIX

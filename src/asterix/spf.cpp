@@ -49,7 +49,7 @@ SpecialPurposeField::SpecialPurposeField(const nlohmann::json& item_definition)
             throw runtime_error("SpecialPurposeField item '" + name_ +
                                 "' field specification is not an object");
 
-        complex_field_specification_.reset(ItemParserBase::createItemParser(field_specification));
+        complex_field_specification_.reset(ItemParserBase::createItemParser(field_specification, ""));
         assert(complex_field_specification_);
 
         // uap
@@ -88,7 +88,7 @@ SpecialPurposeField::SpecialPurposeField(const nlohmann::json& item_definition)
                                     "' without number");
 
             item_number = data_item_it.at("number");
-            item = ItemParserBase::createItemParser(data_item_it);
+            item = ItemParserBase::createItemParser(data_item_it, "SPF");
             assert(item);
 
             if (complex_items_.count(item_number) != 0)
@@ -127,7 +127,7 @@ SpecialPurposeField::SpecialPurposeField(const nlohmann::json& item_definition)
                 throw runtime_error("SpecialPurposeField simple but item '" + data_item_it.dump(4) +
                                     "' contains number");
 
-            item = ItemParserBase::createItemParser(data_item_it);
+            item = ItemParserBase::createItemParser(data_item_it, "SPF");
             assert(item);
             simple_items_.emplace_back(item);
         }
@@ -242,6 +242,16 @@ size_t SpecialPurposeField::parseComplexItem(const char* data, size_t index, siz
 
     return parsed_bytes;
 }
+
+void SpecialPurposeField::addInfo (CategoryItemInfo& info) const
+{
+    for (auto& item_it : complex_items_)
+        item_it.second->addInfo(info);
+
+    for (auto& item_it : simple_items_)
+        item_it->addInfo(info);
+}
+
 
 // bool SpecialPurposeField::compareKey (const nlohmann::json& container, const std::string& value)
 //{

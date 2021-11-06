@@ -10,6 +10,7 @@ namespace jASTERIX
 
 class ItemInfo
 {
+public:
     std::string description_; // item description
     std::set<std::string> editions_; // item edition numbers, includes REF + SPF
 };
