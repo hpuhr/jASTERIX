@@ -54,7 +54,7 @@ OptionalItemParser::OptionalItemParser(const nlohmann::json& item_definition, co
     for (const json& data_item_it : data_fields)
     {
         item_name = data_item_it.at("name");
-        item = ItemParserBase::createItemParser(data_item_it, long_name_prefix_); // leave out own name
+        item = ItemParserBase::createItemParser(data_item_it, long_name_); // leave out own name
         assert(item);
         data_fields_.push_back(std::unique_ptr<ItemParserBase>{item});
     }

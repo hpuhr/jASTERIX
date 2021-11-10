@@ -265,8 +265,8 @@ int main(int argc, char** argv)
 
             for (const auto& cat_it : asterix.categories())
             {
-//                if (cat_it.first != 48)
-//                    continue;
+                if (cat_it.first != 48)
+                    continue;
 
                 jASTERIX::CategoryItemInfo info = cat_it.second->itemInfo();
 
@@ -284,9 +284,17 @@ int main(int argc, char** argv)
                         editions += ed_it;
                     }
 
+                    string description;
+                    description = info_it.second.description_;
+
+                    description.erase(std::remove(description.begin(), description.end(), '\n'), description.end());
+
+
                     loginf << "'" << info_it.first << "'; '" << info_it.second.description_ << "';"
                                   << editions << logendl;
                 }
+
+                loginf << logendl << logendl;
             }
 
             return 0;

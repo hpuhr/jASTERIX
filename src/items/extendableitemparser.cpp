@@ -44,7 +44,7 @@ ExtendableItemParser::ExtendableItemParser(const nlohmann::json& item_definition
     for (const json& data_item_it : items)
     {
         item_name = data_item_it.at("name");
-        item = ItemParserBase::createItemParser(data_item_it, long_name_prefix_); // leave out own name
+        item = ItemParserBase::createItemParser(data_item_it, long_name_); // leave out own name
         assert(item);
         items_.push_back(std::unique_ptr<ItemParserBase>{item});
     }

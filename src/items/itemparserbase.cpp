@@ -129,7 +129,6 @@ void ItemParserBase::addInfo (const std::string& edition, CategoryItemInfo& info
     if (item_definition_.contains("comment"))
     {
         comment = item_definition_.at("comment");
-        comment.erase(std::remove(comment.begin(), comment.end(), '\n'), comment.end());
     }
 
     if (!info.count(long_name_))
