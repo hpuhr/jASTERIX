@@ -110,4 +110,10 @@ size_t RepetetiveItemParser::parseItem(const char* data, size_t index, size_t si
     return parsed_bytes;
 }
 
+void RepetetiveItemParser::addInfo (const std::string& edition, CategoryItemInfo& info) const
+{
+    for (auto& item_it : items_)
+        item_it->addInfo(edition, info);
+}
+
 }  // namespace jASTERIX

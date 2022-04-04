@@ -31,9 +31,10 @@ message("USE_OPENSSL: ${USE_OPENSSL}")
 
 configure_file(include/jasterix/global.h.in include/jasterix/global.h)
 
-find_package ( Boost REQUIRED COMPONENTS system program_options filesystem iostreams)
+find_package ( Boost COMPONENTS program_options filesystem iostreams regex system REQUIRED)
 message("  Boost_INCLUDE_DIR: ${Boost_INCLUDE_DIR}")
 message("  Boost_LIBRARY_DIR: ${Boost_LIBRARY_DIR}")
+message("  Boost_LIBRARIES: ${Boost_LIBRARIES}")
 
 include_directories (
     ${Boost_INCLUDE_DIRS}
@@ -95,6 +96,7 @@ include_directories (
 target_link_libraries ( jasterix
     ${TBB_LIBRARIES}
     ${LibArchive_LIBRARIES}
+    ${Boost_LIBRARIES}
     )
 
 target_sources(jasterix
