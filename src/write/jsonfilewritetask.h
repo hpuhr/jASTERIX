@@ -25,6 +25,7 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <future>
 
 #include "jsonwriter.h"
 #include "logger.h"
@@ -43,12 +44,20 @@ class JSONTextFileWriteTask //: public tbb::task
 
     void start()
     {
-        g_.run([&] {
+        std::async(std::launch::async, [&] {
             for (const std::string& str_it : text_)
                 json_file_ << str_it;
 
             json_writer_.fileWritingDone();
+
         });
+
+//        g_.run([&] {
+//            for (const std::string& str_it : text_)
+//                json_file_ << str_it;
+
+//            json_writer_.fileWritingDone();
+//        });
     }
 
 //    /*override*/ tbb::task* execute()
@@ -70,7 +79,7 @@ class JSONTextFileWriteTask //: public tbb::task
     std::vector<std::string> text_;
     JSONWriter& json_writer_;
 
-    tbb::task_group g_;
+    //tbb::task_group g_;
 };
 
 //class JSONBinaryFileWriteTask : public tbb::task
@@ -110,7 +119,7 @@ class JSONTextZipFileWriteTask //: public tbb::task
 
     void start()
     {
-        g_.run([&] {
+        std::async(std::launch::async, [&] {
             createEntry();
 
             for (const std::string str_it : text_)
@@ -121,6 +130,18 @@ class JSONTextZipFileWriteTask //: public tbb::task
 
             endEntry();
         });
+
+//        g_.run([&] {
+//            createEntry();
+
+//            for (const std::string str_it : text_)
+//                archive_write_data(json_zip_file_, str_it.c_str(), str_it.size());
+//            ;
+
+//            json_writer_.fileWritingDone();
+
+//            endEntry();
+//        });
     }
 
 //    /*override*/ tbb::task* execute()
@@ -147,7 +168,7 @@ class JSONTextZipFileWriteTask //: public tbb::task
     std::vector<std::string> text_;
     JSONWriter& json_writer_;
 
-    tbb::task_group g_;
+    //tbb::task_group g_;
 
     void createEntry()
     {

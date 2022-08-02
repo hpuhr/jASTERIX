@@ -20,6 +20,7 @@
 
 #include <tbb/tbb.h>
 
+#include <future>
 #include <exception>
 #include <tuple>
 
@@ -47,9 +48,7 @@ class FrameParserTask // : public tbb::task
 
     void start()
     {
-
-
-        g_.run([&] {
+        pending_future_ = std::async(std::launch::async, [&] {
             if (debug_)
                 loginf << "frame parser task execute" << logendl;
 
@@ -90,6 +89,48 @@ class FrameParserTask // : public tbb::task
                 loginf << "frame parser task execute done" << logendl;
 
         });
+
+//        g_.run([&] {
+//            if (debug_)
+//                loginf << "frame parser task execute" << logendl;
+
+//            while (!force_stop_ && !done_)  // || size_-index_ > 0
+//            {
+//                std::unique_ptr<nlohmann::json> data_chunk{new nlohmann::json()};
+
+//                if (frame_parser_.hasFileHeaderItems())
+//                    *data_chunk = header_;  // copy header
+
+//                assert(index_ < size_);
+
+//                std::tuple<size_t, size_t, bool> ret =
+//                    frame_parser_.findFrames(data_, index_, size_, data_chunk.get(), debug_);
+
+//                index_ += std::get<0>(ret);  // parsed bytes
+//                done_ = std::get<2>(ret);    // done flag
+
+//                //            if (done_)
+//                //                loginf << "frame parser task done" << logendl;
+
+//                assert(data_chunk != nullptr);
+
+//                if (!data_chunk->contains("frames"))
+//                    throw std::runtime_error("jASTERIX scoped frames information contains no frames");
+
+//                if (!data_chunk->at("frames").is_array())
+//                    throw std::runtime_error("jASTERIX scoped frames information is not array");
+
+//                jasterix_.addDataChunk(std::move(data_chunk), done_);
+//                assert(data_chunk == nullptr);
+//            }
+
+//            if (force_stop_)
+//                done_ = true;
+
+//            if (debug_)
+//                loginf << "frame parser task execute done" << logendl;
+
+//        });
     }
 
 //    /*override*/ tbb::task* execute()
@@ -150,7 +191,9 @@ class FrameParserTask // : public tbb::task
     bool done_{false};
     volatile bool force_stop_{false};
 
-    tbb::task_group g_;
+    std::future<void> pending_future_;
+
+    //tbb::task_group g_;
 };
 
 void FrameParserTask::forceStop() { force_stop_ = true; }
