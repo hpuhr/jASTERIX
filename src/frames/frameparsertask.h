@@ -29,7 +29,7 @@
 
 namespace jASTERIX
 {
-class FrameParserTask : public tbb::task
+class FrameParserTask // : public tbb::task
 {
   public:
     FrameParserTask(jASTERIX& jasterix, FrameParser& frame_parser, const nlohmann::json& header,
@@ -45,49 +45,96 @@ class FrameParserTask : public tbb::task
         // loginf << "frame parser ctor" << logendl;
     }
 
-    /*override*/ tbb::task* execute()
+    void start()
     {
-        if (debug_)
-            loginf << "frame parser task execute" << logendl;
 
-        while (!force_stop_ && !done_)  // || size_-index_ > 0
-        {
-            std::unique_ptr<nlohmann::json> data_chunk{new nlohmann::json()};
 
-            if (frame_parser_.hasFileHeaderItems())
-                *data_chunk = header_;  // copy header
+        g_.run([&] {
+            if (debug_)
+                loginf << "frame parser task execute" << logendl;
 
-            assert(index_ < size_);
+            while (!force_stop_ && !done_)  // || size_-index_ > 0
+            {
+                std::unique_ptr<nlohmann::json> data_chunk{new nlohmann::json()};
 
-            std::tuple<size_t, size_t, bool> ret =
-                frame_parser_.findFrames(data_, index_, size_, data_chunk.get(), debug_);
+                if (frame_parser_.hasFileHeaderItems())
+                    *data_chunk = header_;  // copy header
 
-            index_ += std::get<0>(ret);  // parsed bytes
-            done_ = std::get<2>(ret);    // done flag
+                assert(index_ < size_);
 
-            //            if (done_)
-            //                loginf << "frame parser task done" << logendl;
+                std::tuple<size_t, size_t, bool> ret =
+                    frame_parser_.findFrames(data_, index_, size_, data_chunk.get(), debug_);
 
-            assert(data_chunk != nullptr);
+                index_ += std::get<0>(ret);  // parsed bytes
+                done_ = std::get<2>(ret);    // done flag
 
-            if (!data_chunk->contains("frames"))
-                throw std::runtime_error("jASTERIX scoped frames information contains no frames");
+                //            if (done_)
+                //                loginf << "frame parser task done" << logendl;
 
-            if (!data_chunk->at("frames").is_array())
-                throw std::runtime_error("jASTERIX scoped frames information is not array");
+                assert(data_chunk != nullptr);
 
-            jasterix_.addDataChunk(std::move(data_chunk), done_);
-            assert(data_chunk == nullptr);
-        }
+                if (!data_chunk->contains("frames"))
+                    throw std::runtime_error("jASTERIX scoped frames information contains no frames");
 
-        if (force_stop_)
-            done_ = true;
+                if (!data_chunk->at("frames").is_array())
+                    throw std::runtime_error("jASTERIX scoped frames information is not array");
 
-        if (debug_)
-            loginf << "frame parser task execute done" << logendl;
+                jasterix_.addDataChunk(std::move(data_chunk), done_);
+                assert(data_chunk == nullptr);
+            }
 
-        return nullptr;  // or a pointer to a new task to be executed immediately
+            if (force_stop_)
+                done_ = true;
+
+            if (debug_)
+                loginf << "frame parser task execute done" << logendl;
+
+        });
     }
+
+//    /*override*/ tbb::task* execute()
+//    {
+//        if (debug_)
+//            loginf << "frame parser task execute" << logendl;
+
+//        while (!force_stop_ && !done_)  // || size_-index_ > 0
+//        {
+//            std::unique_ptr<nlohmann::json> data_chunk{new nlohmann::json()};
+
+//            if (frame_parser_.hasFileHeaderItems())
+//                *data_chunk = header_;  // copy header
+
+//            assert(index_ < size_);
+
+//            std::tuple<size_t, size_t, bool> ret =
+//                frame_parser_.findFrames(data_, index_, size_, data_chunk.get(), debug_);
+
+//            index_ += std::get<0>(ret);  // parsed bytes
+//            done_ = std::get<2>(ret);    // done flag
+
+//            //            if (done_)
+//            //                loginf << "frame parser task done" << logendl;
+
+//            assert(data_chunk != nullptr);
+
+//            if (!data_chunk->contains("frames"))
+//                throw std::runtime_error("jASTERIX scoped frames information contains no frames");
+
+//            if (!data_chunk->at("frames").is_array())
+//                throw std::runtime_error("jASTERIX scoped frames information is not array");
+
+//            jasterix_.addDataChunk(std::move(data_chunk), done_);
+//            assert(data_chunk == nullptr);
+//        }
+
+//        if (force_stop_)
+//            done_ = true;
+
+//        if (debug_)
+//            loginf << "frame parser task execute done" << logendl;
+
+//        return nullptr;  // or a pointer to a new task to be executed immediately
+//    }
 
     void forceStop();
     bool done() const;
@@ -102,6 +149,8 @@ class FrameParserTask : public tbb::task
     bool debug_;
     bool done_{false};
     volatile bool force_stop_{false};
+
+    tbb::task_group g_;
 };
 
 void FrameParserTask::forceStop() { force_stop_ = true; }

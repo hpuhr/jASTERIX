@@ -31,7 +31,7 @@
 
 namespace jASTERIX
 {
-class JSONTextFileWriteTask : public tbb::task
+class JSONTextFileWriteTask //: public tbb::task
 {
   public:
     JSONTextFileWriteTask(std::ofstream& json_file, std::vector<std::string>&& text,
@@ -41,24 +41,36 @@ class JSONTextFileWriteTask : public tbb::task
         // loginf << "JSONTextFileWriteTask: ctor" << logendl;
     }
 
-    /*override*/ tbb::task* execute()
+    void start()
     {
-        // loginf << "JSONTextFileWriteTask: execute" << logendl;
+        g_.run([&] {
+            for (const std::string& str_it : text_)
+                json_file_ << str_it;
 
-        for (const std::string& str_it : text_)
-            json_file_ << str_it;
-
-        json_writer_.fileWritingDone();
-
-        // loginf << "JSONTextFileWriteTask: execute done" << logendl;
-
-        return nullptr;  // or a pointer to a new task to be executed immediately
+            json_writer_.fileWritingDone();
+        });
     }
+
+//    /*override*/ tbb::task* execute()
+//    {
+//        // loginf << "JSONTextFileWriteTask: execute" << logendl;
+
+//        for (const std::string& str_it : text_)
+//            json_file_ << str_it;
+
+//        json_writer_.fileWritingDone();
+
+//        // loginf << "JSONTextFileWriteTask: execute done" << logendl;
+
+//        return nullptr;  // or a pointer to a new task to be executed immediately
+//    }
 
   private:
     std::ofstream& json_file_;
     std::vector<std::string> text_;
     JSONWriter& json_writer_;
+
+    tbb::task_group g_;
 };
 
 //class JSONBinaryFileWriteTask : public tbb::task
@@ -86,7 +98,7 @@ class JSONTextFileWriteTask : public tbb::task
 //    JSONWriter& json_writer_;
 //};
 
-class JSONTextZipFileWriteTask : public tbb::task
+class JSONTextZipFileWriteTask //: public tbb::task
 {
   public:
     JSONTextZipFileWriteTask(struct archive* json_zip_file, std::vector<std::string>&& text,
@@ -95,20 +107,36 @@ class JSONTextZipFileWriteTask : public tbb::task
     {
     }
 
-    /*override*/ tbb::task* execute()
+
+    void start()
     {
-        createEntry();
+        g_.run([&] {
+            createEntry();
 
-        for (const std::string str_it : text_)
-            archive_write_data(json_zip_file_, str_it.c_str(), str_it.size());
-        ;
+            for (const std::string str_it : text_)
+                archive_write_data(json_zip_file_, str_it.c_str(), str_it.size());
+            ;
 
-        json_writer_.fileWritingDone();
+            json_writer_.fileWritingDone();
 
-        endEntry();
-
-        return nullptr;  // or a pointer to a new task to be executed immediately
+            endEntry();
+        });
     }
+
+//    /*override*/ tbb::task* execute()
+//    {
+//        createEntry();
+
+//        for (const std::string str_it : text_)
+//            archive_write_data(json_zip_file_, str_it.c_str(), str_it.size());
+//        ;
+
+//        json_writer_.fileWritingDone();
+
+//        endEntry();
+
+//        return nullptr;  // or a pointer to a new task to be executed immediately
+//    }
 
   private:
     struct archive* json_zip_file_;
@@ -118,6 +146,8 @@ class JSONTextZipFileWriteTask : public tbb::task
 
     std::vector<std::string> text_;
     JSONWriter& json_writer_;
+
+    tbb::task_group g_;
 
     void createEntry()
     {

@@ -83,7 +83,7 @@ int main(int argc, char** argv)
     root.addAppender(console_appender_);
 #endif
 
-    tbb::task_scheduler_init guard(std::thread::hardware_concurrency());
+    //tbb::task_scheduler_init guard(std::thread::hardware_concurrency());
 
     std::string filename;
     std::string framing{""};

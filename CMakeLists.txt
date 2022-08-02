@@ -94,7 +94,8 @@ include_directories (
     )
 
 target_link_libraries ( jasterix
-    ${TBB_LIBRARIES}
+    #${TBB_LIBRARIES}
+    TBB::tbb
     ${LibArchive_LIBRARIES}
     ${Boost_LIBRARIES}
     )

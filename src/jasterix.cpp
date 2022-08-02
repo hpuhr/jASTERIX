@@ -265,9 +265,13 @@ void jASTERIX::decodeFile(
         loginf << "jasterix: creating frame parser task index " << index << " header '"
                << json_header.dump(4) << "'" << logendl;
 
-    FrameParserTask* task = new (tbb::task::allocate_root())
-        FrameParserTask(*this, frame_parser, json_header, data, index, file_size, debug_framing);
-    tbb::task::enqueue(*task);
+//    FrameParserTask* task = new (tbb::task::allocate_root())
+//        FrameParserTask(*this, frame_parser, json_header, data, index, file_size, debug_framing);
+//    tbb::task::enqueue(*task);
+
+    std::unique_ptr<FrameParserTask> task {
+        new FrameParserTask(*this, frame_parser, json_header, data, index, file_size, debug_framing)};
+    task->start();
 
     if (debug_)
     {
@@ -394,9 +398,14 @@ void jASTERIX::decodeFile(
 
     size_t index{0};
 
-    DataBlockFinderTask* task = new (tbb::task::allocate_root())
-        DataBlockFinderTask(*this, asterix_parser, data, index, file_size, debug_);
-    tbb::task::enqueue(*task);
+//    DataBlockFinderTask* task = new (tbb::task::allocate_root())
+//        DataBlockFinderTask(*this, asterix_parser, data, index, file_size, debug_);
+//    tbb::task::enqueue(*task);
+
+    std::unique_ptr<DataBlockFinderTask> task {
+        new DataBlockFinderTask(*this, asterix_parser, data, index, file_size, debug_)};
+
+    task->start();
 
     if (debug_)
         while (!task->done())
@@ -491,9 +500,13 @@ void jASTERIX::decodeData(const char* data, unsigned int len,
 
     size_t index{0};
 
-    DataBlockFinderTask* task = new (tbb::task::allocate_root())
-        DataBlockFinderTask(*this, asterix_parser_instance, data, index, len, debug_);
-    tbb::task::enqueue(*task);
+//    DataBlockFinderTask* task = new (tbb::task::allocate_root())
+//        DataBlockFinderTask(*this, asterix_parser_instance, data, index, len, debug_);
+//    tbb::task::enqueue(*task);
+
+    std::unique_ptr<DataBlockFinderTask> task {
+        new DataBlockFinderTask(*this, asterix_parser_instance, data, index, len, debug_)};
+    task->start();
 
     if (debug_)
         while (!task->done())
