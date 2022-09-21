@@ -288,10 +288,6 @@ size_t Record::parseItem(const char* data, size_t index, size_t size, size_t cur
             {
                 logerr << "record '" + name_ + "' has reserved expansion field with "
                        << re_bytes << " length " << logendl;
-
-                parsed_bytes += re_bytes;
-
-                return parsed_bytes;
             }
             else
             {
@@ -345,9 +341,6 @@ size_t Record::parseItem(const char* data, size_t index, size_t size, size_t cur
             {
                 logerr << "record '" + name_ + "' has special purpose field with "
                        << re_bytes << " length " << logendl;
-
-                parsed_bytes += re_bytes;
-                return parsed_bytes;
             }
             else
             {
