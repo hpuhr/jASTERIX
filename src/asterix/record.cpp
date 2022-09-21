@@ -284,7 +284,7 @@ size_t Record::parseItem(const char* data, size_t index, size_t size, size_t cur
                 loginf << "record '" + name_ + "' has reserved expansion field, reading "
                        << re_bytes << " bytes " << logendl;
 
-            if (re_bytes <= 1)
+            if (re_bytes == 0)
             {
                 logerr << "record '" + name_ + "' has reserved expansion field with "
                        << re_bytes << " length " << logendl;
@@ -296,7 +296,7 @@ size_t Record::parseItem(const char* data, size_t index, size_t size, size_t cur
             else
             {
 
-                assert(re_bytes > 1);
+                assert(re_bytes >= 1);
 
                 size_t ref_bytes =
                         ref_->parseItem(data, index + parsed_bytes, re_bytes, 0, target["REF"], debug);
@@ -341,7 +341,7 @@ size_t Record::parseItem(const char* data, size_t index, size_t size, size_t cur
                 loginf << "record '" + name_ + "' has special purpose field, reading " << re_bytes
                        << " bytes " << logendl;
 
-            if (re_bytes <= 1)
+            if (re_bytes == 0)
             {
                 logerr << "record '" + name_ + "' has special purpose field with "
                        << re_bytes << " length " << logendl;
@@ -351,7 +351,7 @@ size_t Record::parseItem(const char* data, size_t index, size_t size, size_t cur
             }
             else
             {
-                assert(re_bytes > 1);
+                assert(re_bytes >= 1);
 
                 size_t ref_bytes =
                         spf_->parseItem(data, index + parsed_bytes, re_bytes, 0, target["SPF"], debug);
