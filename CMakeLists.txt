@@ -31,10 +31,12 @@ message("USE_OPENSSL: ${USE_OPENSSL}")
 
 configure_file(include/jasterix/global.h.in include/jasterix/global.h)
 
-find_package ( Boost COMPONENTS program_options filesystem iostreams regex system REQUIRED)
-message("  Boost_INCLUDE_DIR: ${Boost_INCLUDE_DIR}")
+find_package ( Boost 1.73.0 COMPONENTS program_options filesystem iostreams regex system REQUIRED)
+message("  Boost_INCLUDE_DIRS: ${Boost_INCLUDE_DIRS}")
 message("  Boost_LIBRARY_DIR: ${Boost_LIBRARY_DIR}")
 message("  Boost_LIBRARIES: ${Boost_LIBRARIES}")
+
+find_package(Threads REQUIRED)
 
 include_directories (
     ${Boost_INCLUDE_DIRS}
@@ -47,6 +49,7 @@ link_directories(
 
 target_link_libraries ( jasterix
     ${Boost_LIBRARIES}
+    Threads::Threads
     )
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH};${ATSDB_PATH}/cmake_modules)
@@ -90,6 +93,7 @@ include_directories (
     ${CMAKE_SOURCE_DIR}
     ${CMAKE_CURRENT_BINARY_DIR}
     ${PROJECT_BINARY_DIR}/include
+    ${Boost_INCLUDE_DIRS}
     ${LibArchive_INCLUDE_DIRS}
     )
 
