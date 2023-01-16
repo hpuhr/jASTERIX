@@ -24,8 +24,8 @@ using namespace nlohmann;
 
 namespace jASTERIX
 {
-RepetetiveItemParser::RepetetiveItemParser(const nlohmann::json& item_definition)
-    : ItemParserBase(item_definition)
+RepetetiveItemParser::RepetetiveItemParser(const nlohmann::json& item_definition, const std::string& long_name_prefix)
+    : ItemParserBase(item_definition, long_name_prefix)
 {
     assert(type_ == "repetitive");
 
@@ -43,7 +43,7 @@ RepetetiveItemParser::RepetetiveItemParser(const nlohmann::json& item_definition
         throw runtime_error("parsing repetitive item '" + name_ +
                             "' repetition item specification has to be named 'REP'");
 
-    repetition_item_.reset(ItemParserBase::createItemParser(repetition_item));
+    repetition_item_.reset(ItemParserBase::createItemParser(repetition_item, long_name_));
     assert(repetition_item_);
 
     if (!item_definition.contains("items"))
@@ -61,7 +61,7 @@ RepetetiveItemParser::RepetetiveItemParser(const nlohmann::json& item_definition
     for (const json& data_item_it : items)
     {
         item_name = data_item_it.at("name");
-        item = ItemParserBase::createItemParser(data_item_it);
+        item = ItemParserBase::createItemParser(data_item_it, long_name_);
         assert(item);
         items_.push_back(std::unique_ptr<ItemParserBase>{item});
     }
@@ -108,6 +108,12 @@ size_t RepetetiveItemParser::parseItem(const char* data, size_t index, size_t si
     }
 
     return parsed_bytes;
+}
+
+void RepetetiveItemParser::addInfo (const std::string& edition, CategoryItemInfo& info) const
+{
+    for (auto& item_it : items_)
+        item_it->addInfo(edition, info);
 }
 
 }  // namespace jASTERIX

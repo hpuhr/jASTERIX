@@ -5,6 +5,7 @@ DEG2RAD = 2*math.pi/360.0
 RAD2DEG = 1.0/DEG2RAD
 FT2M = 0.3048
 M2FT = 1.0/FT2M
+M2FL = 1.0/(100*FT2M)
 
 FL2M = 30.48  # flight levels to metres
 NM2M = 1852.0  # NM to meters

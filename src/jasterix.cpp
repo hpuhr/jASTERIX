@@ -265,9 +265,13 @@ void jASTERIX::decodeFile(
         loginf << "jasterix: creating frame parser task index " << index << " header '"
                << json_header.dump(4) << "'" << logendl;
 
-    FrameParserTask* task = new (tbb::task::allocate_root())
-        FrameParserTask(*this, frame_parser, json_header, data, index, file_size, debug_framing);
-    tbb::task::enqueue(*task);
+//    FrameParserTask* task = new (tbb::task::allocate_root())
+//        FrameParserTask(*this, frame_parser, json_header, data, index, file_size, debug_framing);
+//    tbb::task::enqueue(*task);
+
+    std::unique_ptr<FrameParserTask> task {
+        new FrameParserTask(*this, frame_parser, json_header, data, index, file_size, debug_framing)};
+    task->start();
 
     if (debug_)
     {
@@ -286,7 +290,9 @@ void jASTERIX::decodeFile(
 
     //loginf << "jASTERIX: decodeFile: processing";
 
-    while (1)
+    stop_file_decoding_ = false;
+
+    while (!stop_file_decoding_)
     {
         if (data_processing_done_ && data_chunks_.empty())
             break;
@@ -351,6 +357,9 @@ void jASTERIX::decodeFile(
         }
     }
 
+    if (stop_file_decoding_ && !task->done()) // aborted
+        task->forceStop();
+
     if (debug_)
         loginf << "jASTERIX decode file done" << logendl;
 
@@ -389,9 +398,14 @@ void jASTERIX::decodeFile(
 
     size_t index{0};
 
-    DataBlockFinderTask* task = new (tbb::task::allocate_root())
-        DataBlockFinderTask(*this, asterix_parser, data, index, file_size, debug_);
-    tbb::task::enqueue(*task);
+//    DataBlockFinderTask* task = new (tbb::task::allocate_root())
+//        DataBlockFinderTask(*this, asterix_parser, data, index, file_size, debug_);
+//    tbb::task::enqueue(*task);
+
+    std::unique_ptr<DataBlockFinderTask> task {
+        new DataBlockFinderTask(*this, asterix_parser, data, index, file_size, debug_)};
+
+    task->start();
 
     if (debug_)
         while (!task->done())
@@ -401,7 +415,9 @@ void jASTERIX::decodeFile(
 
     std::pair<size_t, size_t> dec_ret{0, 0};
 
-    while (1)
+    stop_file_decoding_ = false;
+
+    while (!stop_file_decoding_)
     {
         if (data_block_processing_done_ && data_block_chunks_.empty())
             break;
@@ -461,10 +477,107 @@ void jASTERIX::decodeFile(
         }
     }
 
+    if (stop_file_decoding_ && !task->done()) // aborted
+        task->forceStop();
+
     if (debug_)
         loginf << "jASTERIX decode file done" << logendl;
 
     file_.close();
+}
+
+void jASTERIX::stopFileDecoding()
+{
+    stop_file_decoding_ = true;
+}
+
+void jASTERIX::decodeData(const char* data, unsigned int len,
+                std::function<void(std::unique_ptr<nlohmann::json>, size_t, size_t, size_t)> data_callback)
+{
+    static ASTERIXParser asterix_parser_instance (data_block_definition_, category_definitions_, debug_);
+
+    data_block_processing_done_ = false;
+
+    size_t index{0};
+
+//    DataBlockFinderTask* task = new (tbb::task::allocate_root())
+//        DataBlockFinderTask(*this, asterix_parser_instance, data, index, len, debug_);
+//    tbb::task::enqueue(*task);
+
+    std::unique_ptr<DataBlockFinderTask> task {
+        new DataBlockFinderTask(*this, asterix_parser_instance, data, index, len, debug_)};
+    task->start();
+
+    if (debug_)
+        while (!task->done())
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));
+
+    std::unique_ptr<nlohmann::json> data_block_chunk;
+
+    std::pair<size_t, size_t> dec_ret{0, 0};
+
+    while (1)
+    {
+        if (data_block_processing_done_ && data_block_chunks_.empty())
+            break;
+
+        if (data_block_chunks_.empty())
+        {
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));
+            continue;
+        }
+
+        // loginf << "jasterix: task done " << data_block_processing_done_ << " empty " <<
+        // data_block_chunks_.empty()
+        // << logendl;
+
+        assert(!data_block_chunk);
+
+        data_block_chunks_mutex_.lock();
+
+        data_block_chunk = std::move(data_block_chunks_.front());
+        data_block_chunks_.pop_front();
+
+        data_block_chunks_mutex_.unlock();
+
+        if (debug_)
+            loginf << "jasterix: decoding data block" << logendl;
+
+        try
+        {
+            if (!data_block_chunk->contains("data_blocks"))
+                throw runtime_error("jasterix data blocks not found");
+
+            if (!data_block_chunk->at("data_blocks").is_array())
+                throw runtime_error("jasterix data blocks is not an array");
+
+            dec_ret =
+                asterix_parser_instance.decodeDataBlocks(data, data_block_chunk->at("data_blocks"), debug_);
+            num_records_ += dec_ret.first;
+            num_errors_ += dec_ret.second;
+
+            if (print_)
+                std::cout << data_block_chunk->dump(print_dump_indent) << std::endl;
+
+            if (data_callback)
+                data_callback(std::move(data_block_chunk), 0, dec_ret.first, dec_ret.second);
+            else
+                data_block_chunk = nullptr;
+        }
+        catch (std::exception& e)
+        {
+            loginf << "jASTERIX caught exception'" << e.what() << "', breaking" << logendl;
+            task->forceStop();
+
+            while (!task->done())
+                std::this_thread::sleep_for(std::chrono::milliseconds(1));
+
+            throw;
+        }
+    }
+
+    if (debug_)
+        loginf << "jASTERIX decode data done" << logendl;
 }
 
 size_t jASTERIX::numFrames() const { return num_frames_; }

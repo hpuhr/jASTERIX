@@ -18,6 +18,7 @@
 #ifndef SPFEDITION_H
 #define SPFEDITION_H
 
+#include <jasterix/editionbase.h>
 #include <jasterix/spf.h>
 
 #include <string>
@@ -28,29 +29,18 @@ namespace jASTERIX
 {
 class Record;
 
-class SPFEdition
+class SPFEdition : public EditionBase
 {
   public:
     SPFEdition(const std::string& number, const nlohmann::json& definition,
                const std::string& definition_path);
     virtual ~SPFEdition();
 
-    std::string number() const;
-    std::string document() const;
-    std::string date() const;
-    std::string file() const;
-
     std::shared_ptr<SpecialPurposeField> specialPurposeField() const;
-    std::string definitionPath() const;
+
+    virtual void addInfo (const std::string& edition, CategoryItemInfo& info) override;
 
   protected:
-    std::string number_;
-    std::string document_;
-    std::string date_;
-    std::string file_;
-
-    std::string edition_definition_path_;
-    nlohmann::json definition_;  // from file
     std::shared_ptr<SpecialPurposeField> spf_;
 };
 

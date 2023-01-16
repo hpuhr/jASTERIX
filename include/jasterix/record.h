@@ -46,6 +46,8 @@ class Record : public ItemParserBase
     std::shared_ptr<SpecialPurposeField> spf() const;
     void setSpf(const std::shared_ptr<SpecialPurposeField>& spf);
 
+    virtual void addInfo (const std::string& edition, CategoryItemInfo& info) const override;
+
   protected:
     std::unique_ptr<ItemParserBase> field_specification_;
     std::vector<std::string> uap_names_;

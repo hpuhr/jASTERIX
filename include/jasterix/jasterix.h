@@ -74,6 +74,11 @@ class jASTERIX
     void decodeFile(const std::string& filename,
                     std::function<void(std::unique_ptr<nlohmann::json>, size_t, size_t, size_t)>
                         data_callback = nullptr);
+    void stopFileDecoding();
+
+    void decodeData(const char* data, unsigned int len,
+                    std::function<void(std::unique_ptr<nlohmann::json>, size_t, size_t, size_t)>
+                        data_callback = nullptr);
 
     size_t numFrames() const;
     size_t numRecords() const;
@@ -120,6 +125,8 @@ class jASTERIX
     size_t num_frames_{0};
     size_t num_records_{0};
     size_t num_errors_{0};
+
+    bool stop_file_decoding_ {false};
 };
 }  // namespace jASTERIX
 

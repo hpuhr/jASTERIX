@@ -27,7 +27,7 @@ namespace jASTERIX
 class ExtendableBitsItemParser : public ItemParserBase
 {
   public:
-    ExtendableBitsItemParser(const nlohmann::json& item_definition);
+    ExtendableBitsItemParser(const nlohmann::json& item_definition, const std::string& long_name_prefix);
     virtual ~ExtendableBitsItemParser() {}
 
     virtual size_t parseItem(const char* data, size_t index, size_t size,

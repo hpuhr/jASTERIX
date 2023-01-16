@@ -22,6 +22,7 @@
 #include <jasterix/mapping.h>
 #include <jasterix/refedition.h>
 #include <jasterix/spfedition.h>
+#include <jasterix/iteminfo.h>
 
 #include <string>
 
@@ -84,6 +85,9 @@ class Category
 
     bool decode() const;
     void decode(bool value);
+
+    CategoryItemInfo itemInfo () const;
+
 
   protected:
     std::string number_;

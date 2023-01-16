@@ -180,9 +180,13 @@ void JSONWriter::writeTextToFile()
 
     // loginf << "JSONWriter: new write task" << logendl;
 
-    JSONTextFileWriteTask* write_task = new (tbb::task::allocate_root())
-        JSONTextFileWriteTask(json_file_, std::move(text_data_), *this);
-    tbb::task::enqueue(*write_task);
+    std::unique_ptr<JSONTextFileWriteTask> task {
+        new JSONTextFileWriteTask(json_file_, std::move(text_data_), *this)};
+    task->start();
+
+//    JSONTextFileWriteTask* write_task = new (tbb::task::allocate_root())
+//        JSONTextFileWriteTask(json_file_, std::move(text_data_), *this);
+//    tbb::task::enqueue(*write_task);
 
     text_data_.clear();
 
@@ -240,9 +244,13 @@ void JSONWriter::writeTextToZipFile()
 
     file_write_in_progress_ = true;
 
-    JSONTextZipFileWriteTask* write_task = new (tbb::task::allocate_root())
-        JSONTextZipFileWriteTask(json_zip_file_, std::move(text_data_), *this);
-    tbb::task::enqueue(*write_task);
+    std::unique_ptr<JSONTextZipFileWriteTask> task {
+        new JSONTextZipFileWriteTask(json_zip_file_, std::move(text_data_), *this)};
+    task->start();
+
+//    JSONTextZipFileWriteTask* write_task = new (tbb::task::allocate_root())
+//        JSONTextZipFileWriteTask(json_zip_file_, std::move(text_data_), *this);
+//    tbb::task::enqueue(*write_task);
 
     text_data_.clear();
 }
