@@ -111,11 +111,18 @@
                             "bit_length": 1
                         },
                         {
-                            "name":"MFM",
-                            "comment":"Status of MCP/FCU Mode Bits",
+                            "name":"MFM#EP",
+                            "comment":"Status of MCP/FCU Mode Bits Element Populated Bit\n0  Element not populated\n1  Element populated",
+                            "type":"fixed_bits",
+                            "start_bit": 3,
+                            "bit_length": 1
+                        },
+                        {
+                            "name":"MFM#VAL",
+                            "comment":"Status of MCP/FCU Mode Bits Value\n0 MCP/FCU Mode Bits not populated\n1 MCP/FCU Mode Bits populated",
                             "type":"fixed_bits",
                             "start_bit": 2,
-                            "bit_length": 2
+                            "bit_length": 1
                         }
                     ]
                 }
