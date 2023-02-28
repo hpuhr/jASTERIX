@@ -36,6 +36,8 @@ class ReservedExpansionField : public ItemParserBase
                              size_t current_parsed_bytes, nlohmann::json& target,
                              bool debug) override;
 
+    virtual void addInfo (const std::string& edition, CategoryItemInfo& info) const override;
+
   protected:
     std::unique_ptr<ItemParserBase> field_specification_;
     std::vector<std::string> items_names_;

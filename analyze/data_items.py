@@ -87,6 +87,12 @@ class DataItemStatisticsCalculator:
 
     def process_record(self, cat, record):
 
+        di010 = None
+        di010 = find_value('010', record)
+
+        if di010 is None:
+            print("di 010 missing in '{}'".format(record))
+
         sac = None
         sic = None
 
@@ -174,7 +180,11 @@ def main(argv):
     for line in sys.stdin:
         #print(line)
 
-        json_data = json.loads(line)
+        try:
+            json_data = json.loads(line)
+        except:
+            print("`exception occurred in json '{}'".format(line))
+            continue
 
         record_extractor.find_records (json_data)
 

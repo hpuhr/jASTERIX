@@ -18,12 +18,12 @@
 #ifndef ITEMPARSING_H
 #define ITEMPARSING_H
 
-#include <cstddef>
-#include <sstream>
+#include <jasterix/iteminfo.h>
 
 #include "json.hpp"
-//#include "logger.h"
 
+#include <cstddef>
+#include <sstream>
 #include <bitset>
 #include <cassert>
 #include <exception>
@@ -33,21 +33,28 @@ namespace jASTERIX
 {
 class ItemParserBase
 {
-  public:
-    ItemParserBase(const nlohmann::json& item_definition);
+public:
+    ItemParserBase(const nlohmann::json& item_definition, const std::string& long_name_prefix="");
     virtual ~ItemParserBase() {}
 
-    static ItemParserBase* createItemParser(const nlohmann::json& item_definition);
+    static ItemParserBase* createItemParser(const nlohmann::json& item_definition,
+                                            const std::string& long_name_prefix);
 
     // always return number of parsed bytes
     virtual size_t parseItem(const char* data, size_t index, size_t size,
                              size_t current_parsed_bytes, nlohmann::json& target, bool debug) = 0;
     std::string name() const;
+    std::string longNamePrefix() const;
+    std::string longName() const;
     std::string type() const;
 
-  protected:
+    virtual void addInfo (const std::string& edition, CategoryItemInfo& info) const;
+
+protected:
     const nlohmann::json& item_definition_;
     std::string name_;
+    std::string long_name_prefix_;
+    std::string long_name_;
     std::string type_;
 };
 

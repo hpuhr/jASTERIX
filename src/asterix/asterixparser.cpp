@@ -65,7 +65,7 @@ ASTERIXParser::ASTERIXParser(
             loginf << "asterix parser constructing data block item '" << item_name << "'"
                    << logendl;
 
-        item = ItemParserBase::createItemParser(data_item_it);
+        item = ItemParserBase::createItemParser(data_item_it, "");
         assert(item);
         data_block_items_.push_back(std::unique_ptr<ItemParserBase>{item});
     }

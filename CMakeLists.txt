@@ -1,7 +1,7 @@
 set(ATSDB_PATH "${CMAKE_CURRENT_SOURCE_DIR}")
 message("  Path: ${ATSDB_PATH}")
 
-cmake_minimum_required(VERSION 3.1)
+cmake_minimum_required(VERSION 3.3)
 set ( CMAKE_BUILD_TYPE RelWithDebInfo ) #Debug RelWithDebInfo Release
 
 project( jASTERIX )
@@ -31,9 +31,12 @@ message("USE_OPENSSL: ${USE_OPENSSL}")
 
 configure_file(include/jasterix/global.h.in include/jasterix/global.h)
 
-find_package ( Boost REQUIRED COMPONENTS system program_options filesystem iostreams)
-message("  Boost_INCLUDE_DIR: ${Boost_INCLUDE_DIR}")
+find_package ( Boost 1.73.0 COMPONENTS program_options filesystem iostreams regex system REQUIRED)
+message("  Boost_INCLUDE_DIRS: ${Boost_INCLUDE_DIRS}")
 message("  Boost_LIBRARY_DIR: ${Boost_LIBRARY_DIR}")
+message("  Boost_LIBRARIES: ${Boost_LIBRARIES}")
+
+find_package(Threads REQUIRED)
 
 include_directories (
     ${Boost_INCLUDE_DIRS}
@@ -46,6 +49,7 @@ link_directories(
 
 target_link_libraries ( jasterix
     ${Boost_LIBRARIES}
+    Threads::Threads
     )
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH};${ATSDB_PATH}/cmake_modules)
@@ -89,12 +93,15 @@ include_directories (
     ${CMAKE_SOURCE_DIR}
     ${CMAKE_CURRENT_BINARY_DIR}
     ${PROJECT_BINARY_DIR}/include
+    ${Boost_INCLUDE_DIRS}
     ${LibArchive_INCLUDE_DIRS}
     )
 
 target_link_libraries ( jasterix
-    ${TBB_LIBRARIES}
+    #${TBB_LIBRARIES}
+    TBB::tbb
     ${LibArchive_LIBRARIES}
+    ${Boost_LIBRARIES}
     )
 
 target_sources(jasterix
@@ -107,7 +114,7 @@ message("Installing using prefix: ${CMAKE_INSTALL_PREFIX}")
 #install(DIRECTORY "specifications" DESTINATION jasterix)
 
 set_target_properties(jasterix PROPERTIES PUBLIC_HEADER
-    "include/jasterix/jasterix.h;include/jasterix/category.h;include/jasterix/edition.h;include/jasterix/refedition.h;include/jasterix/ref.h;include/jasterix/spfedition.h;include/jasterix/spf.h;include/jasterix/mapping.h;include/jasterix/frameparser.h;include/jasterix/record.h;include/jasterix/itemparserbase.h;build/include/jasterix/global.h")
+    "include/jasterix/jasterix.h;include/jasterix/category.h;include/jasterix/editionbase.h;include/jasterix/edition.h;include/jasterix/refedition.h;include/jasterix/ref.h;include/jasterix/spfedition.h;include/jasterix/spf.h;include/jasterix/mapping.h;include/jasterix/frameparser.h;include/jasterix/record.h;include/jasterix/iteminfo.h;include/jasterix/itemparserbase.h;build/include/jasterix/global.h")
 
 #install (TARGETS jasterix DESTINATION lib)
 install (TARGETS jasterix DESTINATION lib

@@ -7,7 +7,7 @@
 
 std::string check_artas_md5_hash;
 std::vector<int> check_artas_md5_categories;
-HashChecker* hash_checker{nullptr};
+std::unique_ptr<HashChecker> hash_checker;
 
 using namespace nlohmann;
 // using namespace Utils;

@@ -25,7 +25,7 @@ namespace jASTERIX
 class ItemParser : public ItemParserBase
 {
   public:
-    ItemParser(const nlohmann::json& item_definition);
+    ItemParser(const nlohmann::json& item_definition, const std::string& long_name_prefix="");
     virtual ~ItemParser() {}
 
     virtual size_t parseItem(const char* data, size_t index, size_t size,
@@ -33,7 +33,9 @@ class ItemParser : public ItemParserBase
                              bool debug) override;
     std::string number() const;
 
-  protected:
+    virtual void addInfo (const std::string& edition, CategoryItemInfo& info) const override;
+
+protected:
     std::string number_;
     std::vector<std::unique_ptr<ItemParserBase>> data_fields_;
 };
