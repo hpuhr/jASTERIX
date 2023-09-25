@@ -133,8 +133,11 @@ class jASTERIX
 
     bool stop_file_decoding_ {false};
 
-    // cat -> key -> count
-    std::map<std::string, std::map<std::string, unsigned int>> analysis_counts_;
+    // sac/sic -> cat -> count
+    std::map<std::string, std::map<std::string, unsigned int>> sensor_counts_;
+
+    // cat -> key -> count/min/max
+    std::map<std::string, std::map<std::string, nlohmann::json>> data_item_analysis_;
 
     size_t openFile (const std::string& filename); // returns file size
     nlohmann::json loadFramingDefinition(const std::string& framing_str);

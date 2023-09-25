@@ -265,7 +265,8 @@ std::unique_ptr<nlohmann::json> jASTERIX::analyzeFile(const std::string& filenam
 
         data_chunks_mutex_.lock();
 
-        loginf << "jASTERIX: analyze frame chunks " << data_chunks_.size() << logendl;
+        //loginf << "jASTERIX: analyze frame chunks " << data_chunks_.size() << logendl;
+        //  mostly 2. mostly.
 
         data_chunk = std::move(data_chunks_.front());
         data_chunks_.pop_front();
@@ -338,8 +339,11 @@ std::unique_ptr<nlohmann::json> jASTERIX::analyzeFile(const std::string& filenam
 
     file_.close();
 
-    (*analsis_result)["statistics"] = analysis_counts_;
-    analysis_counts_.clear();
+    (*analsis_result)["sensor_counts"] = sensor_counts_;
+    (*analsis_result)["data_items"] = data_item_analysis_;
+
+    sensor_counts_.clear();
+    data_item_analysis_.clear();
 
     return analsis_result;
 }
@@ -449,7 +453,7 @@ std::unique_ptr<nlohmann::json> jASTERIX::analyzeFile(const std::string& filenam
             while (!task->done())
                 std::this_thread::sleep_for(std::chrono::milliseconds(1));
 
-            analysis_counts_.clear();
+            data_item_analysis_.clear();
 
             throw;
         }
@@ -463,8 +467,11 @@ std::unique_ptr<nlohmann::json> jASTERIX::analyzeFile(const std::string& filenam
 
     file_.close();
 
-    (*analsis_result)["statistics"] = analysis_counts_;
-    analysis_counts_.clear();
+    (*analsis_result)["sensor_counts"] = sensor_counts_;
+    (*analsis_result)["data_items"] = data_item_analysis_;
+
+    sensor_counts_.clear();
+    data_item_analysis_.clear();
 
     return analsis_result;
 }
@@ -923,7 +930,6 @@ void jASTERIX::analyzeChunk(const std::unique_ptr<nlohmann::json>& data_chunk, b
     if (framing)
     {
         assert (data_chunk->contains("frames"));
-//        frames = json_data['frames']
 
         for (const auto& frame : data_chunk->at("frames"))
         {
@@ -944,39 +950,6 @@ void jASTERIX::analyzeChunk(const std::unique_ptr<nlohmann::json>& data_chunk, b
                 }
             }
         }
-
-//        for frame in frames:
-
-//            if 'content' not in frame:
-//                print("warn: no content in data_block")
-//                continue
-
-//            frame_content = frame['content']
-
-//            if 'data_blocks' not in frame_content:
-//                print("warn: no data_blocks in frame_content")
-//                continue
-
-//            data_blocks = frame_content['data_blocks']
-
-//            for data_block in data_blocks:
-//                if 'category' not in data_block:
-//                    print("warn: no category in data_block")
-//                    continue
-
-//                cat = data_block['category']
-
-//                if 'content' not in data_block:
-//                    print("warn: no content in data_block")
-//                    continue
-
-//                content = data_block['content']
-
-//                if 'records' not in content:
-//                    # print("warn: no records in content") # happens when filtering
-//                    continue
-
-//                records = content['records']
     }
 }
 
@@ -984,7 +957,25 @@ void jASTERIX::analyzeRecord(unsigned int category, const nlohmann::json& record
 {
     string cat_str = to_string(category);
 
-    analysis_counts_[cat_str]["count"] += 1;
+    // sensor
+
+    string sensor_id;
+
+    if (record.contains("010") && record.at("010").count("SAC") && record.at("010").count("SIC"))
+        sensor_id = to_string(record.at("010").at("SAC")) + "/" + to_string(record.at("010").at("SIC"));
+    else
+        sensor_id = "unkown";
+
+    sensor_counts_[sensor_id][cat_str] += 1;
+
+    // data item analysis
+    if (data_item_analysis_.count(cat_str) && data_item_analysis_.at(cat_str).count("count"))
+    {
+        unsigned int count = data_item_analysis_.at(cat_str).at("count");
+        data_item_analysis_[cat_str]["count"] = count + 1;
+    }
+    else
+        data_item_analysis_[cat_str]["count"] = 1;
 
     assert (record.is_object());
 
@@ -997,6 +988,7 @@ void jASTERIX::addJSONAnalysis(const std::string& cat_str, const std::string& pr
     assert (item.is_object());
 
     string sub_prefix;
+    bool is_primitive;
 
     for (const auto& item_it : item.items())
     {
@@ -1008,7 +1000,36 @@ void jASTERIX::addJSONAnalysis(const std::string& cat_str, const std::string& pr
         if (item_it.value().is_object())
             addJSONAnalysis(cat_str, sub_prefix, item_it.value());
         else
-            analysis_counts_[cat_str][sub_prefix] += 1;
+        {
+            is_primitive = item_it.value().is_primitive();
+
+            if (data_item_analysis_.count(cat_str)
+                    && data_item_analysis_.at(cat_str).count(sub_prefix)
+                    && data_item_analysis_.at(cat_str).at(sub_prefix).count("count"))
+            {
+                unsigned int count = data_item_analysis_.at(cat_str).at(sub_prefix).at("count");
+                data_item_analysis_.at(cat_str).at(sub_prefix).at("count") = count + 1;
+
+                if (is_primitive)
+                {
+                    data_item_analysis_.at(cat_str).at(sub_prefix).at("min") =
+                            min(item_it.value(), data_item_analysis_.at(cat_str).at(sub_prefix).at("min"));
+                    data_item_analysis_.at(cat_str).at(sub_prefix).at("max") =
+                            max(item_it.value(), data_item_analysis_.at(cat_str).at(sub_prefix).at("max"));
+                }
+            }
+            else
+            {
+                data_item_analysis_[cat_str][sub_prefix]["count"] = 1;
+
+                if (is_primitive)
+                {
+                    data_item_analysis_.at(cat_str).at(sub_prefix)["min"] = item_it.value();
+                    data_item_analysis_.at(cat_str).at(sub_prefix)["max"] = item_it.value();
+
+                }
+            }
+        }
     }
 }
 
