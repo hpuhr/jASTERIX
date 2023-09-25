@@ -67,6 +67,11 @@ class jASTERIX
         return category_definitions_;
     }
 
+
+    std::unique_ptr<nlohmann::json> analyzeFile(const std::string& filename, const std::string& framing_str,
+                                                unsigned int record_limit=0);
+    std::unique_ptr<nlohmann::json> analyzeFile(const std::string& filename, unsigned int record_limit=0);
+
     void decodeFile(const std::string& filename, const std::string& framing_str,
                     std::function<void(std::unique_ptr<nlohmann::json>, size_t, size_t, size_t)>
                         data_callback = nullptr);
@@ -127,6 +132,16 @@ class jASTERIX
     size_t num_errors_{0};
 
     bool stop_file_decoding_ {false};
+
+    // cat -> key -> count
+    std::map<std::string, std::map<std::string, unsigned int>> analysis_counts_;
+
+    size_t openFile (const std::string& filename); // returns file size
+    nlohmann::json loadFramingDefinition(const std::string& framing_str);
+    void analyzeChunk(const std::unique_ptr<nlohmann::json>& data_chunk, bool framing);
+    void analyzeRecord(unsigned int category, const nlohmann::json& record);
+
+    void addJSONAnalysis(const std::string& cat_str, const std::string& prefix, const nlohmann::json& item);
 };
 }  // namespace jASTERIX
 

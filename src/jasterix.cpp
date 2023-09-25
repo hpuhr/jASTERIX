@@ -204,47 +204,282 @@ std::shared_ptr<Category> jASTERIX::category(unsigned int cat)
     return category_definitions_.at(cat);
 }
 
-void jASTERIX::decodeFile(
-    const std::string& filename, const std::string& framing,
-    std::function<void(std::unique_ptr<nlohmann::json>, size_t, size_t, size_t)> data_callback)
+std::unique_ptr<nlohmann::json> jASTERIX::analyzeFile(const std::string& filename, const std::string& framing_str,
+                                                      unsigned int record_limit)
 {
-    // check and open file
-    if (!fileExists(filename))
-        throw invalid_argument("jASTERIX called with non-existing file '" + filename + "'");
-
-    size_t file_size = fileSize(filename);
-
-    if (!file_size)
-        throw invalid_argument("jASTERIX called with empty file '" + filename + "'");
-
-    if (debug_)
-        loginf << "jASTERIX: file " << filename << " size " << file_size << logendl;
-
-    assert(!file_.is_open());
-
-    file_.open(filename, file_size);
-
-    if (!file_.is_open())
-        throw runtime_error("jASTERIX unable to map file '" + filename + "'");
+    size_t file_size = openFile(filename);
 
     const char* data = file_.data();
 
-    // check framing
-    if (!fileExists(definition_path_ + "/framings/" + framing + ".json"))
-        throw invalid_argument("jASTERIX called with unknown framing '" + framing + "'");
+    nlohmann::json framing_definition = loadFramingDefinition(framing_str);
 
-    nlohmann::json framing_definition;
+    // create ASTERIX parser
+    ASTERIXParser asterix_parser(data_block_definition_, category_definitions_, debug_);
 
-    try  // create framing definition
+    // create frame parser
+    bool debug_framing = debug_ && !debug_exclude_framing_;
+    FrameParser frame_parser(framing_definition, asterix_parser, debug_framing);
+
+    nlohmann::json json_header;
+
+    size_t index{0};
+
+    // parsing header
+    if (frame_parser.hasFileHeaderItems())
+        index = frame_parser.parseHeader(data, 0, file_size, json_header, debug_framing);
+
+    if (debug_)
+        loginf << "jasterix: analyze creating frame parser task index " << index << " header '"
+               << json_header.dump(4) << "'" << logendl;
+
+    std::unique_ptr<FrameParserTask> task {
+        new FrameParserTask(*this, frame_parser, json_header, data, index, file_size, debug_framing)};
+    task->start();
+
+    if (debug_)
     {
-        framing_definition =
-            json::parse(ifstream(definition_path_ + "/framings/" + framing + ".json"));
+        while (!task->done())
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
-    catch (json::exception& e)
+
+    std::unique_ptr<nlohmann::json> data_chunk;
+    std::unique_ptr<nlohmann::json> analsis_result {new nlohmann::json()};
+
+    size_t num_callback_frames;
+    std::pair<size_t, size_t> dec_ret{0, 0};
+
+    stop_file_decoding_ = false;
+
+    while (!stop_file_decoding_)
     {
-        throw runtime_error("jASTERIX parsing error in framing definition '" + framing +
-                            "': " + e.what());
+        if (data_processing_done_ && data_chunks_.empty())
+            break;
+
+        if (data_chunks_.empty())
+        {
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));
+            continue;
+        }
+
+        assert(!data_chunk);
+
+        data_chunks_mutex_.lock();
+
+        loginf << "jASTERIX: analyze frame chunks " << data_chunks_.size() << logendl;
+
+        data_chunk = std::move(data_chunks_.front());
+        data_chunks_.pop_front();
+
+        data_chunks_mutex_.unlock();
+
+        if (debug_)
+            loginf << "jASTERIX: analyze decoding frames" << logendl;
+
+        num_callback_frames = data_chunk->at("frames").size();
+        num_frames_ += num_callback_frames;
+
+
+        (*analsis_result)["num_frames"] = num_frames_;
+
+        try
+        {
+            dec_ret = frame_parser.decodeFrames(data, data_chunk.get(), debug_);
+            num_records_ += dec_ret.first;
+            num_errors_ += dec_ret.second;
+
+            (*analsis_result)["num_records"] = num_records_;
+            (*analsis_result)["num_errors"] = num_errors_;
+
+            if (debug_)
+                loginf << "jASTERIX analyze " << num_frames_ << " frames, " << num_records_
+                       << " records " << num_errors_ << " errors " << logendl;
+
+            if (num_errors_)
+            {
+                loginf << "jASTERIX analyze resulted in " << num_errors_ << " errors " << logendl;
+
+                task->forceStop();
+
+                while (!task->done())
+                    std::this_thread::sleep_for(std::chrono::milliseconds(2));
+
+                break;
+            }
+
+            analyzeChunk(data_chunk, true);
+
+            data_chunk = nullptr;
+
+            if (record_limit > 0 && num_records_ >= static_cast<unsigned>(record_limit))
+            {
+                if (debug_)
+                    loginf << "jASTERIX analyze hit record limit" << logendl;
+
+                break;
+            }
+        }
+        catch (std::exception& e)
+        {
+            loginf << "jASTERIX caught exception '" << e.what() << "', breaking" << logendl;
+            task->forceStop();
+
+            while (!task->done())
+                std::this_thread::sleep_for(std::chrono::milliseconds(2));
+
+            throw;  // rethrow
+        }
     }
+
+    if (stop_file_decoding_ && !task->done()) // aborted
+        task->forceStop();
+
+    if (debug_)
+        loginf << "jASTERIX analyze file done" << logendl;
+
+    file_.close();
+
+    (*analsis_result)["statistics"] = analysis_counts_;
+    analysis_counts_.clear();
+
+    return analsis_result;
+}
+
+std::unique_ptr<nlohmann::json> jASTERIX::analyzeFile(const std::string& filename, unsigned int record_limit)
+{
+    size_t file_size = openFile(filename);
+
+    const char* data = file_.data();
+
+    // create ASTERIX parser
+    ASTERIXParser asterix_parser(data_block_definition_, category_definitions_, debug_);
+
+    if (debug_)
+        loginf << "jASTERIX: finding data blocks" << logendl;
+
+    size_t index{0};
+
+    std::unique_ptr<DataBlockFinderTask> task {
+        new DataBlockFinderTask(*this, asterix_parser, data, index, file_size, debug_)};
+
+    task->start();
+
+    if (debug_)
+        while (!task->done())
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));
+
+    std::unique_ptr<nlohmann::json> data_block_chunk;
+    std::unique_ptr<nlohmann::json> analsis_result {new nlohmann::json()};
+
+    std::pair<size_t, size_t> dec_ret{0, 0};
+
+    stop_file_decoding_ = false;
+
+    while (!stop_file_decoding_)
+    {
+        if (data_block_processing_done_ && data_block_chunks_.empty())
+            break;
+
+        if (data_block_chunks_.empty())
+        {
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));
+            continue;
+        }
+
+        // loginf << "jasterix: task done " << data_block_processing_done_ << " empty " <<
+        // data_block_chunks_.empty()
+        // << logendl;
+
+        assert(!data_block_chunk);
+
+        data_block_chunks_mutex_.lock();
+
+        data_block_chunk = std::move(data_block_chunks_.front());
+        data_block_chunks_.pop_front();
+
+        data_block_chunks_mutex_.unlock();
+
+        if (debug_)
+            loginf << "jasterix: analyze decoding data block" << logendl;
+
+        try
+        {
+            if (!data_block_chunk->contains("data_blocks"))
+                throw runtime_error("jasterix data blocks not found");
+
+            if (!data_block_chunk->at("data_blocks").is_array())
+                throw runtime_error("jasterix data blocks is not an array");
+
+            dec_ret =
+                asterix_parser.decodeDataBlocks(data, data_block_chunk->at("data_blocks"), debug_);
+            num_records_ += dec_ret.first;
+            num_errors_ += dec_ret.second;
+
+            (*analsis_result)["num_records"] = num_records_;
+            (*analsis_result)["num_errors"] = num_errors_;
+
+            if (num_errors_)
+            {
+                loginf << "jASTERIX analyze resulted in " << num_errors_ << " errors " << logendl;
+
+                task->forceStop();
+
+                while (!task->done())
+                    std::this_thread::sleep_for(std::chrono::milliseconds(2));
+
+                break;
+            }
+
+            analyzeChunk(data_block_chunk, false);
+
+            data_block_chunk = nullptr;
+
+            if (record_limit > 0 && num_records_ >= static_cast<unsigned>(record_limit))
+            {
+                if (debug_)
+                    loginf << "jASTERIX analyze hit record limit" << logendl;
+
+                break;
+            }
+        }
+        catch (std::exception& e)
+        {
+            loginf << "jASTERIX caught exception'" << e.what() << "', breaking" << logendl;
+            task->forceStop();
+
+            while (!task->done())
+                std::this_thread::sleep_for(std::chrono::milliseconds(1));
+
+            analysis_counts_.clear();
+
+            throw;
+        }
+    }
+
+    if (stop_file_decoding_ && !task->done()) // aborted
+        task->forceStop();
+
+    if (debug_)
+        loginf << "jASTERIX decode file done" << logendl;
+
+    file_.close();
+
+    (*analsis_result)["statistics"] = analysis_counts_;
+    analysis_counts_.clear();
+
+    return analsis_result;
+}
+
+
+void jASTERIX::decodeFile(
+    const std::string& filename, const std::string& framing_str,
+    std::function<void(std::unique_ptr<nlohmann::json>, size_t, size_t, size_t)> data_callback)
+{
+
+    size_t file_size = openFile(filename);
+
+    const char* data = file_.data();
+
+    nlohmann::json framing_definition = loadFramingDefinition(framing_str);
 
     // create ASTERIX parser
     ASTERIXParser asterix_parser(data_block_definition_, category_definitions_, debug_);
@@ -370,23 +605,8 @@ void jASTERIX::decodeFile(
     const std::string& filename,
     std::function<void(std::unique_ptr<nlohmann::json>, size_t, size_t, size_t)> data_callback)
 {
-    // check and open file
-    if (!fileExists(filename))
-        throw invalid_argument("jASTERIX called with non-existing file '" + filename + "'");
 
-    size_t file_size = fileSize(filename);
-
-    if (!file_size)
-        throw invalid_argument("jASTERIX called with empty file '" + filename + "'");
-
-    if (debug_)
-        loginf << "jASTERIX: file " << filename << " size " << file_size << logendl;
-
-    assert(!file_.is_open());
-    file_.open(filename, file_size);
-
-    if (!file_.is_open())
-        throw runtime_error("jASTERIX unable to map file '" + filename + "'");
+    size_t file_size = openFile(filename);
 
     const char* data = file_.data();
 
@@ -654,5 +874,142 @@ const std::string& jASTERIX::framingsFolderPath() const { return framing_path_; 
 void jASTERIX::setDebug(bool debug) { debug_ = debug; }
 
 size_t jASTERIX::numErrors() const { return num_errors_; }
+
+size_t jASTERIX::openFile (const std::string& filename)
+{
+    // check and open file
+    if (!fileExists(filename))
+        throw invalid_argument("jASTERIX called with non-existing file '" + filename + "'");
+
+    size_t file_size = fileSize(filename);
+
+    if (!file_size)
+        throw invalid_argument("jASTERIX called with empty file '" + filename + "'");
+
+    if (debug_)
+        loginf << "jASTERIX: file " << filename << " size " << file_size << logendl;
+
+    assert(!file_.is_open());
+
+    file_.open(filename, file_size);
+
+    if (!file_.is_open())
+        throw runtime_error("jASTERIX unable to map file '" + filename + "'");
+
+    return file_size;
+}
+
+nlohmann::json jASTERIX::loadFramingDefinition(const std::string& framing_str)
+{
+    // check framing
+    if (!fileExists(definition_path_ + "/framings/" + framing_str + ".json"))
+        throw invalid_argument("jASTERIX called with unknown framing '" + framing_str + "'");
+
+    try  // create framing definition
+    {
+        return json::parse(ifstream(definition_path_ + "/framings/" + framing_str + ".json"));
+    }
+    catch (json::exception& e)
+    {
+        throw runtime_error("jASTERIX parsing error in framing definition '" + framing_str +
+                            "': " + e.what());
+    }
+}
+
+void jASTERIX::analyzeChunk(const std::unique_ptr<nlohmann::json>& data_chunk, bool framing)
+{
+    unsigned int category;
+
+    if (framing)
+    {
+        assert (data_chunk->contains("frames"));
+//        frames = json_data['frames']
+
+        for (const auto& frame : data_chunk->at("frames"))
+        {
+            assert (frame.contains("content"));
+            assert (frame.at("content").contains("data_blocks"));
+
+            for (const auto& data_block : frame.at("content").at("data_blocks"))
+            {
+                assert (data_block.contains("category"));
+                assert (data_block.contains("content"));
+                assert (data_block.at("content").contains("records"));
+
+                category = data_block.at("category");
+
+                for (const auto& record : data_block.at("content").at("records"))
+                {
+                    analyzeRecord (category, record);
+                }
+            }
+        }
+
+//        for frame in frames:
+
+//            if 'content' not in frame:
+//                print("warn: no content in data_block")
+//                continue
+
+//            frame_content = frame['content']
+
+//            if 'data_blocks' not in frame_content:
+//                print("warn: no data_blocks in frame_content")
+//                continue
+
+//            data_blocks = frame_content['data_blocks']
+
+//            for data_block in data_blocks:
+//                if 'category' not in data_block:
+//                    print("warn: no category in data_block")
+//                    continue
+
+//                cat = data_block['category']
+
+//                if 'content' not in data_block:
+//                    print("warn: no content in data_block")
+//                    continue
+
+//                content = data_block['content']
+
+//                if 'records' not in content:
+//                    # print("warn: no records in content") # happens when filtering
+//                    continue
+
+//                records = content['records']
+    }
+}
+
+void jASTERIX::analyzeRecord(unsigned int category, const nlohmann::json& record)
+{
+    string cat_str = to_string(category);
+
+    analysis_counts_[cat_str]["count"] += 1;
+
+    assert (record.is_object());
+
+    addJSONAnalysis(cat_str, "", record);
+}
+
+
+void jASTERIX::addJSONAnalysis(const std::string& cat_str, const std::string& prefix, const nlohmann::json& item)
+{
+    assert (item.is_object());
+
+    string sub_prefix;
+
+    for (const auto& item_it : item.items())
+    {
+        if (prefix.size())
+            sub_prefix = prefix+"."+item_it.key();
+        else
+            sub_prefix = item_it.key();
+
+        if (item_it.value().is_object())
+            addJSONAnalysis(cat_str, sub_prefix, item_it.value());
+        else
+            analysis_counts_[cat_str][sub_prefix] += 1;
+    }
+}
 
 }  // namespace jASTERIX
