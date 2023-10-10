@@ -61,25 +61,36 @@ class FrameParserTask // : public tbb::task
 
                 assert(index_ < size_);
 
-                std::tuple<size_t, size_t, bool> ret =
-                    frame_parser_.findFrames(data_, index_, size_, data_chunk.get(), debug_);
+                try
+                {
+                    std::tuple<size_t, size_t, bool> ret =
+                        frame_parser_.findFrames(data_, index_, size_, data_chunk.get(), debug_);
 
-                index_ += std::get<0>(ret);  // parsed bytes
-                done_ = std::get<2>(ret);    // done flag
+                    index_ += std::get<0>(ret);  // parsed bytes
+                    done_ = std::get<2>(ret);    // done flag
 
-                //            if (done_)
-                //                loginf << "frame parser task done" << logendl;
+                    //            if (done_)
+                    //                loginf << "frame parser task done" << logendl;
 
-                assert(data_chunk != nullptr);
+                    assert(data_chunk != nullptr);
 
-                if (!data_chunk->contains("frames"))
-                    throw std::runtime_error("jASTERIX scoped frames information contains no frames");
+                    if (!data_chunk->contains("frames"))
+                        throw std::runtime_error("jASTERIX scoped frames information contains no frames");
 
-                if (!data_chunk->at("frames").is_array())
-                    throw std::runtime_error("jASTERIX scoped frames information is not array");
+                    if (!data_chunk->at("frames").is_array())
+                        throw std::runtime_error("jASTERIX scoped frames information is not array");
 
-                jasterix_.addDataChunk(std::move(data_chunk), done_);
-                assert(data_chunk == nullptr);
+                    jasterix_.addDataChunk(std::move(data_chunk), done_);
+                    assert(data_chunk == nullptr);
+
+                }
+                catch (std::exception& e)
+                {
+                    break;
+
+                    done_ = true;
+                    throw (e);
+                }
             }
 
             if (force_stop_)

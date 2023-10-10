@@ -40,18 +40,28 @@ class DataBlockFinderTask // : public tbb::task
             {
                 std::unique_ptr<nlohmann::json> jdata{new nlohmann::json()};
 
-                std::tuple<size_t, size_t, bool, bool> ret = asterix_parser_.findDataBlocks(
-                            data_, index_ + parsed_bytes, size_ - parsed_bytes, jdata.get(), debug_);
+                try
+                {
+                    std::tuple<size_t, size_t, bool, bool> ret = asterix_parser_.findDataBlocks(
+                                data_, index_ + parsed_bytes, size_ - parsed_bytes, jdata.get(), debug_);
 
-                parsed_bytes += std::get<0>(ret);
-                num_data_blocks += std::get<1>(ret);
-                error_ += std::get<2>(ret);
-                done_ = std::get<3>(ret);
+                    parsed_bytes += std::get<0>(ret);
+                    num_data_blocks += std::get<1>(ret);
+                    error_ += std::get<2>(ret);
+                    done_ = std::get<3>(ret);
 
-                loginf << "DataBlockFinderTask: ex pb " << parsed_bytes << " num db "
-                       << num_data_blocks << " done " << done_ << logendl;
+                    loginf << "DataBlockFinderTask: ex pb " << parsed_bytes << " num db "
+                           << num_data_blocks << " done " << done_ << logendl;
 
-                jasterix_.addDataBlockChunk(std::move(jdata), error_, done_);
+                    jasterix_.addDataBlockChunk(std::move(jdata), error_, done_);
+                }
+                catch (std::exception& e)
+                {
+                    break;
+
+                    done_ = true;
+                    throw (e);
+                }
             }
 
             if (force_stop_)

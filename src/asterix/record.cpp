@@ -316,7 +316,11 @@ size_t Record::parseItem(const char* data, size_t index, size_t size, size_t cur
                 loginf << "record '" + name_ + "' has reserved expansion field, reading "
                        << re_bytes << " bytes " << logendl;
 
-            if (index + parsed_bytes > size)
+            loginf << "UGA RE index " << index << " parsed_bytes " << parsed_bytes
+                   << " re_bytes " << re_bytes
+                   << " sum " << parsed_bytes + re_bytes << " size " << size;
+
+            if (parsed_bytes + re_bytes > size)
                 throw std::runtime_error("reserved expansion field longer than max size");
 
             target["REF"] = binary2hex((const unsigned char*)&data[index + parsed_bytes], re_bytes);
@@ -360,6 +364,7 @@ size_t Record::parseItem(const char* data, size_t index, size_t size, size_t cur
                     throw runtime_error(
                             "record item '" + name_ + "' special purpose field definition only read " +
                             to_string(ref_bytes) + " bytes of specified " + to_string(re_bytes));
+
                 parsed_bytes += re_bytes;
             }
             // loginf << "UGA SPF '" << target["SPF"].dump(4) << "'" << logendl;
@@ -370,8 +375,18 @@ size_t Record::parseItem(const char* data, size_t index, size_t size, size_t cur
                 loginf << "record '" + name_ + "' has special purpose field, reading " << re_bytes
                        << " bytes " << logendl;
 
-            if (index + parsed_bytes > size)
-                throw std::runtime_error("special purpose field longer than max size");
+            if (parsed_bytes + re_bytes > size)
+            {
+                loginf << "UGA SPF index " << index << " parsed_bytes " << parsed_bytes
+                       << " re_bytes " << re_bytes
+                       << " sum " << parsed_bytes + re_bytes << " size " << size;
+
+                throw std::runtime_error("special purpose field longer than size");
+            }
+
+            cout << "UGA SPF index " << index << " parsed_bytes " << parsed_bytes
+                   << " re_bytes " << re_bytes
+                   << " sum " << parsed_bytes + re_bytes << " size " << size << endl;
 
             target["SPF"] = binary2hex((const unsigned char*)&data[index + parsed_bytes], re_bytes);
             parsed_bytes += re_bytes;
