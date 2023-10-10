@@ -80,7 +80,7 @@ class jASTERIX
                         data_callback = nullptr);
     void stopFileDecoding();
 
-    void decodeData(const char* data, unsigned int len,
+    void decodeData(const char* data, unsigned int total_size,
                     std::function<void(std::unique_ptr<nlohmann::json>, size_t, size_t, size_t)>
                         data_callback = nullptr);
 

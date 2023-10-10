@@ -58,8 +58,8 @@ FixedBytesItemParser::FixedBytesItemParser(const nlohmann::json& item_definition
 }
 
 size_t FixedBytesItemParser::parseItem(const char* data, size_t index, size_t size,
-                                       size_t current_parsed_bytes, nlohmann::json& target,
-                                       bool debug)
+                                       size_t current_parsed_bytes, size_t total_size,
+                                       nlohmann::json& target, bool debug)
 {
     if (debug)
         loginf << "parsing fixed bytes item '" << name_ << "' index " << index << " size " << size

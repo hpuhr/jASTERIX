@@ -65,8 +65,8 @@ CompoundItemParser::CompoundItemParser(const nlohmann::json& item_definition, co
 }
 
 size_t CompoundItemParser::parseItem(const char* data, size_t index, size_t size,
-                                     size_t current_parsed_bytes, nlohmann::json& target,
-                                     bool debug)
+                                     size_t current_parsed_bytes, size_t total_size,
+                                     nlohmann::json& target, bool debug)
 {
     if (debug)
         loginf << "parsing compound item '" << name_ << "' with " << items_.size()
@@ -78,8 +78,8 @@ size_t CompoundItemParser::parseItem(const char* data, size_t index, size_t size
     if (debug)
         loginf << "parsing compound item '" + name_ + "' field specification" << logendl;
 
-    parsed_bytes = field_specification_->parseItem(data, index + parsed_bytes, size, parsed_bytes,
-                                                   target, debug);
+    parsed_bytes = field_specification_->parseItem(
+                data, index + parsed_bytes, size, parsed_bytes, total_size, target, debug);
 
     if (debug)
         loginf << "parsing compound item '" + name_ + "' data items" << logendl;
@@ -90,8 +90,8 @@ size_t CompoundItemParser::parseItem(const char* data, size_t index, size_t size
             loginf << "parsing compound item '" << name_ << "' data item '" << data_item_it->name()
                    << "' index " << index + parsed_bytes << logendl;
 
-        parsed_bytes +=
-            data_item_it->parseItem(data, index + parsed_bytes, size, parsed_bytes, target, debug);
+        parsed_bytes += data_item_it->parseItem(
+                    data, index + parsed_bytes, size, parsed_bytes, total_size, target, debug);
     }
 
     return parsed_bytes;

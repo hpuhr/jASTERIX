@@ -109,10 +109,9 @@ ASTERIXParser::ASTERIXParser(
     }
 }
 
-std::tuple<size_t, size_t, bool, bool> ASTERIXParser::findDataBlocks(const char* data, size_t index,
-                                                                     size_t length,
-                                                                     nlohmann::json* target,
-                                                                     bool debug)
+std::tuple<size_t, size_t, bool, bool> ASTERIXParser::findDataBlocks(
+        const char* data, size_t index, size_t length, size_t total_size,
+        nlohmann::json* target, bool debug)
 {
     if (debug)
         loginf << "asterix parser finding data blocks at index " << index << " length " << length
@@ -163,7 +162,7 @@ std::tuple<size_t, size_t, bool, bool> ASTERIXParser::findDataBlocks(const char*
             for (auto& r_item : data_block_items_)
             {
                 parsed_bytes =
-                    r_item->parseItem(data, current_index, length, parsed_data_block_bytes,
+                    r_item->parseItem(data, current_index, length, parsed_data_block_bytes, total_size,
                                       (*target)[data_block_name_][num_blocks], debug);
                 //            loginf << "UGA FP2 parsed " << parsed_bytes << " target '" <<
                 //            target[data_block_name_][num_blocks]
@@ -229,7 +228,7 @@ std::tuple<size_t, size_t, bool, bool> ASTERIXParser::findDataBlocks(const char*
                                hit_data_block_limit ? true : !hit_data_block_chunk_limit);
 }
 
-std::pair<size_t, size_t> ASTERIXParser::decodeDataBlocks(const char* data,
+std::pair<size_t, size_t> ASTERIXParser::decodeDataBlocks(const char* data, size_t total_size,
                                                           nlohmann::json& data_blocks, bool debug)
 {
     if (debug)
@@ -248,12 +247,12 @@ std::pair<size_t, size_t> ASTERIXParser::decodeDataBlocks(const char* data,
     if (debug || single_thread)  // switch to single thread in debug
     {
         for (size_t cnt = 0; cnt < num_data_blocks; ++cnt)
-            num_records.at(cnt) = decodeDataBlock(data, data_blocks[cnt], debug);
+            num_records.at(cnt) = decodeDataBlock(data, total_size, data_blocks[cnt], debug);
     }
     else
     {
         tbb::parallel_for(size_t(0), num_data_blocks, [&](size_t cnt) {
-            num_records.at(cnt) = decodeDataBlock(data, data_blocks[cnt], debug);
+            num_records.at(cnt) = decodeDataBlock(data, total_size, data_blocks[cnt], debug);
         });
     }
 
@@ -288,7 +287,7 @@ std::pair<size_t, size_t> ASTERIXParser::decodeDataBlocks(const char* data,
     return ret;
 }
 
-std::pair<size_t, size_t> ASTERIXParser::decodeDataBlock(const char* data,
+std::pair<size_t, size_t> ASTERIXParser::decodeDataBlock(const char* data, size_t total_size,
                                                          nlohmann::json& data_block, bool debug)
 {
     if (debug)
@@ -374,9 +373,10 @@ std::pair<size_t, size_t> ASTERIXParser::decodeDataBlock(const char* data,
                 // << " length " << record_length;
 
                 record_parsed_bytes =
-                    records_.at(cat)->parseItem(data, data_block_index + data_block_parsed_bytes,
-                                                data_block_length - data_block_parsed_bytes,
-                                                data_block_parsed_bytes, records[ret.first], debug);
+                    records_.at(cat)->parseItem(
+                            data, data_block_index + data_block_parsed_bytes,
+                            data_block_length - data_block_parsed_bytes,
+                            data_block_parsed_bytes, total_size, records[ret.first], debug);
 
                 if (debug)
                     loginf << "record with cat " << cat << " index "

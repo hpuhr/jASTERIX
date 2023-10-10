@@ -64,7 +64,7 @@ ItemParser::ItemParser(const nlohmann::json& item_definition, const std::string&
 }
 
 size_t ItemParser::parseItem(const char* data, size_t index, size_t size,
-                             size_t current_parsed_bytes, nlohmann::json& target, bool debug)
+                             size_t current_parsed_bytes, size_t total_size, nlohmann::json& target, bool debug)
 {
     if (debug)
         loginf << "parsing item '" << name_ << "'" << logendl;
@@ -73,8 +73,8 @@ size_t ItemParser::parseItem(const char* data, size_t index, size_t size,
 
     for (auto& df_item : data_fields_)
     {
-        parsed_bytes += df_item->parseItem(data, index + parsed_bytes, size, current_parsed_bytes,
-                                           target[number_], debug);
+        parsed_bytes += df_item->parseItem(
+                    data, index + parsed_bytes, size, current_parsed_bytes, total_size, target[number_], debug);
     }
 
     if (debug)

@@ -309,7 +309,10 @@ int main(int argc, char** argv)
         {
             if (framing == "netto" || framing == "")
             {
-                assert (false);
+                std::unique_ptr<nlohmann::json> result = asterix.analyzeFile(filename);
+
+                loginf << "jASTERIX client: analysis result:" << logendl;
+                loginf << result->dump(4) << logendl;
             }
             else
             {

@@ -16,12 +16,12 @@ class DataBlockFinderTask // : public tbb::task
 {
   public:
     DataBlockFinderTask(jASTERIX& jasterix, ASTERIXParser& asterix_parser, const char* data,
-                        size_t index, size_t size, bool debug)
+                        size_t index, size_t total_size, bool debug)
         : jasterix_(jasterix),
           asterix_parser_(asterix_parser),
           data_(data),
           index_(index),
-          size_(size),
+          total_size_(total_size),
           debug_(debug)
     {
     }
@@ -43,22 +43,21 @@ class DataBlockFinderTask // : public tbb::task
                 try
                 {
                     std::tuple<size_t, size_t, bool, bool> ret = asterix_parser_.findDataBlocks(
-                                data_, index_ + parsed_bytes, size_ - parsed_bytes, jdata.get(), debug_);
+                                data_, index_ + parsed_bytes, total_size_ - parsed_bytes, total_size_,
+                                jdata.get(), debug_);
 
                     parsed_bytes += std::get<0>(ret);
                     num_data_blocks += std::get<1>(ret);
                     error_ += std::get<2>(ret);
                     done_ = std::get<3>(ret);
 
-                    loginf << "DataBlockFinderTask: ex pb " << parsed_bytes << " num db "
-                           << num_data_blocks << " done " << done_ << logendl;
+//                    loginf << "DataBlockFinderTask: ex pb " << parsed_bytes << " num db "
+//                           << num_data_blocks << " done " << done_ << logendl;
 
                     jasterix_.addDataBlockChunk(std::move(jdata), error_, done_);
                 }
                 catch (std::exception& e)
                 {
-                    break;
-
                     done_ = true;
                     throw (e);
                 }
@@ -146,7 +145,7 @@ class DataBlockFinderTask // : public tbb::task
     ASTERIXParser& asterix_parser_;
     const char* data_;
     size_t index_;
-    size_t size_;
+    size_t total_size_;
     bool debug_;
     bool error_{false};
     bool done_{false};

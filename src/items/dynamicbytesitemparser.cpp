@@ -46,8 +46,8 @@ DynamicBytesItemParser::DynamicBytesItemParser(const nlohmann::json& item_defini
 }
 
 size_t DynamicBytesItemParser::parseItem(const char* data, size_t index, size_t size,
-                                         size_t current_parsed_bytes, nlohmann::json& target,
-                                         bool debug)
+                                         size_t current_parsed_bytes, size_t total_size,
+                                         nlohmann::json& target, bool debug)
 {
     if (debug)
         loginf << "parsing dynamic bytes item '" << name_ << "' substract " << substract_previous_

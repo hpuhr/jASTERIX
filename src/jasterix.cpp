@@ -232,6 +232,9 @@ std::unique_ptr<nlohmann::json> jASTERIX::analyzeFile(const std::string& filenam
         loginf << "jasterix: analyze creating frame parser task index " << index << " header '"
                << json_header.dump(4) << "'" << logendl;
 
+    stop_file_decoding_ = false;
+        std::unique_ptr<nlohmann::json> analsis_result {new nlohmann::json()};
+
     std::unique_ptr<FrameParserTask> task {
         new FrameParserTask(*this, frame_parser, json_header, data, index, file_size, debug_framing)};
     task->start();
@@ -243,14 +246,11 @@ std::unique_ptr<nlohmann::json> jASTERIX::analyzeFile(const std::string& filenam
     }
 
     std::unique_ptr<nlohmann::json> data_chunk;
-    std::unique_ptr<nlohmann::json> analsis_result {new nlohmann::json()};
 
     size_t num_callback_frames;
     std::pair<size_t, size_t> dec_ret{0, 0};
 
-    stop_file_decoding_ = false;
-
-    while (!stop_file_decoding_)
+    while (!stop_file_decoding_ && !task->errorOcurred())
     {
         if (data_processing_done_ && data_chunks_.empty())
             break;
@@ -279,12 +279,11 @@ std::unique_ptr<nlohmann::json> jASTERIX::analyzeFile(const std::string& filenam
         num_callback_frames = data_chunk->at("frames").size();
         num_frames_ += num_callback_frames;
 
-
         (*analsis_result)["num_frames"] = num_frames_;
 
         try
         {
-            dec_ret = frame_parser.decodeFrames(data, data_chunk.get(), debug_);
+            dec_ret = frame_parser.decodeFrames(data, file_size, data_chunk.get(), debug_);
             num_records_ += dec_ret.first;
             num_errors_ += dec_ret.second;
 
@@ -302,7 +301,10 @@ std::unique_ptr<nlohmann::json> jASTERIX::analyzeFile(const std::string& filenam
                 task->forceStop();
 
                 while (!task->done())
+                {
+                    //loginf << "UGA2" << logendl;
                     std::this_thread::sleep_for(std::chrono::milliseconds(2));
+                }
 
                 break;
             }
@@ -313,10 +315,12 @@ std::unique_ptr<nlohmann::json> jASTERIX::analyzeFile(const std::string& filenam
 
             if (record_limit > 0 && num_records_ >= static_cast<unsigned>(record_limit))
             {
-                if (debug_)
+                //if (debug_)
                     loginf << "jASTERIX analyze hit record limit" << logendl;
 
-                break;
+                task->forceStop();
+
+                stop_file_decoding_ = true;
             }
         }
         catch (std::exception& e)
@@ -327,12 +331,27 @@ std::unique_ptr<nlohmann::json> jASTERIX::analyzeFile(const std::string& filenam
             while (!task->done())
                 std::this_thread::sleep_for(std::chrono::milliseconds(2));
 
-            throw;  // rethrow
+            throw (e);  // rethrow
         }
     }
 
-    if (stop_file_decoding_ && !task->done()) // aborted
+    if (task->errorOcurred())
+    {
+        (*analsis_result)["num_errors"] = 1;
+    }
+
+    if (!task->done()) // aborted
+    {
         task->forceStop();
+
+        loginf << "jASTERIX analyze file done, waiting" << logendl;
+
+        while (!task->done())
+        {
+            //loginf << "UGA3" << logendl;
+            std::this_thread::sleep_for(std::chrono::milliseconds(2));
+        }
+    }
 
     if (debug_)
         loginf << "jASTERIX analyze file done" << logendl;
@@ -344,6 +363,8 @@ std::unique_ptr<nlohmann::json> jASTERIX::analyzeFile(const std::string& filenam
 
     sensor_counts_.clear();
     data_item_analysis_.clear();
+
+    loginf << "jASTERIX analyze file done2" << logendl;
 
     return analsis_result;
 }
@@ -414,7 +435,7 @@ std::unique_ptr<nlohmann::json> jASTERIX::analyzeFile(const std::string& filenam
                 throw runtime_error("jasterix data blocks is not an array");
 
             dec_ret =
-                asterix_parser.decodeDataBlocks(data, data_block_chunk->at("data_blocks"), debug_);
+                asterix_parser.decodeDataBlocks(data, file_size, data_block_chunk->at("data_blocks"), debug_);
             num_records_ += dec_ret.first;
             num_errors_ += dec_ret.second;
 
@@ -442,7 +463,7 @@ std::unique_ptr<nlohmann::json> jASTERIX::analyzeFile(const std::string& filenam
                 if (debug_)
                     loginf << "jASTERIX analyze hit record limit" << logendl;
 
-                break;
+                stop_file_decoding_ = true;
             }
         }
         catch (std::exception& e)
@@ -451,7 +472,7 @@ std::unique_ptr<nlohmann::json> jASTERIX::analyzeFile(const std::string& filenam
             task->forceStop();
 
             while (!task->done())
-                std::this_thread::sleep_for(std::chrono::milliseconds(1));
+                std::this_thread::sleep_for(std::chrono::milliseconds(2));
 
             data_item_analysis_.clear();
 
@@ -460,7 +481,12 @@ std::unique_ptr<nlohmann::json> jASTERIX::analyzeFile(const std::string& filenam
     }
 
     if (stop_file_decoding_ && !task->done()) // aborted
+    {
         task->forceStop();
+
+        while (!task->done())
+            std::this_thread::sleep_for(std::chrono::milliseconds(2));
+    }
 
     if (debug_)
         loginf << "jASTERIX decode file done" << logendl;
@@ -562,7 +588,7 @@ void jASTERIX::decodeFile(
 
         try
         {
-            dec_ret = frame_parser.decodeFrames(data, data_chunk.get(), debug_);
+            dec_ret = frame_parser.decodeFrames(data, file_size, data_chunk.get(), debug_);
             num_records_ += dec_ret.first;
             num_errors_ += dec_ret.second;
 
@@ -574,8 +600,7 @@ void jASTERIX::decodeFile(
                 std::cout << data_chunk->dump(print_dump_indent) << std::endl;
 
             if (data_callback)
-                data_callback(std::move(data_chunk), num_callback_frames, dec_ret.first,
-                              dec_ret.second);
+                data_callback(std::move(data_chunk), num_callback_frames, dec_ret.first, dec_ret.second);
             else
                 data_chunk = nullptr;
 
@@ -680,7 +705,7 @@ void jASTERIX::decodeFile(
                 throw runtime_error("jasterix data blocks is not an array");
 
             dec_ret =
-                asterix_parser.decodeDataBlocks(data, data_block_chunk->at("data_blocks"), debug_);
+                asterix_parser.decodeDataBlocks(data, file_size, data_block_chunk->at("data_blocks"), debug_);
             num_records_ += dec_ret.first;
             num_errors_ += dec_ret.second;
 
@@ -718,7 +743,7 @@ void jASTERIX::stopFileDecoding()
     stop_file_decoding_ = true;
 }
 
-void jASTERIX::decodeData(const char* data, unsigned int len,
+void jASTERIX::decodeData(const char* data, unsigned int total_size,
                 std::function<void(std::unique_ptr<nlohmann::json>, size_t, size_t, size_t)> data_callback)
 {
     static ASTERIXParser asterix_parser_instance (data_block_definition_, category_definitions_, debug_);
@@ -732,7 +757,7 @@ void jASTERIX::decodeData(const char* data, unsigned int len,
 //    tbb::task::enqueue(*task);
 
     std::unique_ptr<DataBlockFinderTask> task {
-        new DataBlockFinderTask(*this, asterix_parser_instance, data, index, len, debug_)};
+        new DataBlockFinderTask(*this, asterix_parser_instance, data, index, total_size, debug_)};
     task->start();
 
     if (debug_)
@@ -779,7 +804,7 @@ void jASTERIX::decodeData(const char* data, unsigned int len,
                 throw runtime_error("jasterix data blocks is not an array");
 
             dec_ret =
-                asterix_parser_instance.decodeDataBlocks(data, data_block_chunk->at("data_blocks"), debug_);
+                asterix_parser_instance.decodeDataBlocks(data, total_size, data_block_chunk->at("data_blocks"), debug_);
             num_records_ += dec_ret.first;
             num_errors_ += dec_ret.second;
 
@@ -929,16 +954,26 @@ void jASTERIX::analyzeChunk(const std::unique_ptr<nlohmann::json>& data_chunk, b
 
     if (framing)
     {
+        if (!data_chunk->contains("frames"))
+            return;
+
         assert (data_chunk->contains("frames"));
 
         for (const auto& frame : data_chunk->at("frames"))
         {
+            if (!frame.contains("content") || !frame.at("content").contains("data_blocks"))
+                continue;
+
             assert (frame.contains("content"));
             assert (frame.at("content").contains("data_blocks"));
 
             for (const auto& data_block : frame.at("content").at("data_blocks"))
             {
                 assert (data_block.contains("category"));
+
+                if (!data_block.contains("content") || !data_block.at("content").contains("records"))
+                    continue;
+
                 assert (data_block.contains("content"));
                 assert (data_block.at("content").contains("records"));
 
@@ -948,6 +983,31 @@ void jASTERIX::analyzeChunk(const std::unique_ptr<nlohmann::json>& data_chunk, b
                 {
                     analyzeRecord (category, record);
                 }
+            }
+        }
+    }
+    else // no framing
+    {
+        if (!data_chunk->contains("data_blocks"))
+            return;
+
+        assert (data_chunk->contains("data_blocks"));
+
+        for (const auto& data_block : data_chunk->at("data_blocks"))
+        {
+            assert (data_block.contains("category"));
+
+            if (!data_block.contains("content") || !data_block.at("content").contains("records"))
+                continue;
+
+            assert (data_block.contains("content"));
+            assert (data_block.at("content").contains("records"));
+
+            category = data_block.at("category");
+
+            for (const auto& record : data_block.at("content").at("records"))
+            {
+                analyzeRecord (category, record);
             }
         }
     }
