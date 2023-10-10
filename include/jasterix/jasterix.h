@@ -67,7 +67,6 @@ class jASTERIX
         return category_definitions_;
     }
 
-
     std::unique_ptr<nlohmann::json> analyzeFile(const std::string& filename, const std::string& framing_str,
                                                 unsigned int record_limit=0);
     std::unique_ptr<nlohmann::json> analyzeFile(const std::string& filename, unsigned int record_limit=0);

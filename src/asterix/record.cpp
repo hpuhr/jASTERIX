@@ -316,6 +316,9 @@ size_t Record::parseItem(const char* data, size_t index, size_t size, size_t cur
                 loginf << "record '" + name_ + "' has reserved expansion field, reading "
                        << re_bytes << " bytes " << logendl;
 
+            if (index + parsed_bytes > size)
+                throw std::runtime_error("reserved expansion field longer than max size");
+
             target["REF"] = binary2hex((const unsigned char*)&data[index + parsed_bytes], re_bytes);
 
             parsed_bytes += re_bytes;
@@ -366,6 +369,9 @@ size_t Record::parseItem(const char* data, size_t index, size_t size, size_t cur
             if (debug)
                 loginf << "record '" + name_ + "' has special purpose field, reading " << re_bytes
                        << " bytes " << logendl;
+
+            if (index + parsed_bytes > size)
+                throw std::runtime_error("special purpose field longer than max size");
 
             target["SPF"] = binary2hex((const unsigned char*)&data[index + parsed_bytes], re_bytes);
             parsed_bytes += re_bytes;
