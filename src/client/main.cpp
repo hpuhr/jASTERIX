@@ -98,6 +98,7 @@ int main(int argc, char** argv)
     bool log_performance{false};
 
     bool analyze{false};
+    unsigned int analyze_record_limit {0};
 
     po::options_description desc("Allowed options");
     desc.add_options()("help", "produce help message")(
@@ -125,7 +126,9 @@ int main(int argc, char** argv)
                 "process data in single thread")("only_cats", po::value<std::string>(&only_cats),
                                                  "restricts categories to be decoded, e.g. 20,21.")(
                 "log_perf", po::bool_switch(&log_performance), "enable performance log after processing")(
-                "analyze", po::bool_switch(&analyze), "analyze data sources and contents")
+                "analyze", po::bool_switch(&analyze), "analyze data sources and contents")(
+                "analyze_record_limit", po::value<unsigned int>(&analyze_record_limit),
+                "number of records to analyze. 0 (default) disables limit.")
         #if USE_OPENSSL
             ("add_artas_md5", po::bool_switch(&jASTERIX::add_artas_md5_hash), "add ARTAS MD5 hashes")(
                 "check_artas_md5", po::value<std::string>(&check_artas_md5_hash),
@@ -307,16 +310,19 @@ int main(int argc, char** argv)
 
         if (analyze)
         {
+            loginf << "jASTERIX client: analyzing, framing '"
+                   << framing << "' analyze_record_limit " << analyze_record_limit << logendl;
+
             if (framing == "netto" || framing == "")
             {
-                std::unique_ptr<nlohmann::json> result = asterix.analyzeFile(filename);
+                std::unique_ptr<nlohmann::json> result = asterix.analyzeFile(filename, analyze_record_limit);
 
                 loginf << "jASTERIX client: analysis result:" << logendl;
                 loginf << result->dump(4) << logendl;
             }
             else
             {
-                std::unique_ptr<nlohmann::json> result = asterix.analyzeFile(filename, framing);
+                std::unique_ptr<nlohmann::json> result = asterix.analyzeFile(filename, framing, analyze_record_limit);
 
                 loginf << "jASTERIX client: analysis result:" << logendl;
                 loginf << result->dump(4) << logendl;

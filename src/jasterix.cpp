@@ -204,8 +204,8 @@ std::shared_ptr<Category> jASTERIX::category(unsigned int cat)
     return category_definitions_.at(cat);
 }
 
-std::unique_ptr<nlohmann::json> jASTERIX::analyzeFile(const std::string& filename, const std::string& framing_str,
-                                                      unsigned int record_limit)
+std::unique_ptr<nlohmann::json> jASTERIX::analyzeFile(
+        const std::string& filename, const std::string& framing_str, unsigned int record_limit)
 {
     size_t file_size = openFile(filename);
 
@@ -252,6 +252,8 @@ std::unique_ptr<nlohmann::json> jASTERIX::analyzeFile(const std::string& filenam
 
     while (!stop_file_decoding_ && !task->errorOcurred())
     {
+        //loginf << "jASTERIX: analyze UGA-1" << logendl;
+
         if (data_processing_done_ && data_chunks_.empty())
             break;
 
@@ -262,6 +264,8 @@ std::unique_ptr<nlohmann::json> jASTERIX::analyzeFile(const std::string& filenam
         }
 
         assert(!data_chunk);
+
+        //loginf << "jASTERIX: analyze UGA0" << logendl;
 
         data_chunks_mutex_.lock();
 
@@ -283,6 +287,8 @@ std::unique_ptr<nlohmann::json> jASTERIX::analyzeFile(const std::string& filenam
 
         try
         {
+            //loginf << "jASTERIX: analyze UGA1" << logendl;
+
             dec_ret = frame_parser.decodeFrames(data, file_size, data_chunk.get(), debug_);
             num_records_ += dec_ret.first;
             num_errors_ += dec_ret.second;
@@ -302,25 +308,37 @@ std::unique_ptr<nlohmann::json> jASTERIX::analyzeFile(const std::string& filenam
 
                 while (!task->done())
                 {
-                    //loginf << "UGA2" << logendl;
+                    clearDataChunks();
                     std::this_thread::sleep_for(std::chrono::milliseconds(2));
                 }
 
                 break;
             }
 
+            //loginf << "jASTERIX: analyze UGA1" << logendl;
+
             analyzeChunk(data_chunk, true);
 
             data_chunk = nullptr;
 
-            if (record_limit > 0 && num_records_ >= static_cast<unsigned>(record_limit))
+            if (record_limit > 0 && num_records_ >= static_cast<unsigned>(record_limit) && !task->done())
             {
-                //if (debug_)
+                if (debug_)
                     loginf << "jASTERIX analyze hit record limit" << logendl;
 
                 task->forceStop();
 
-                stop_file_decoding_ = true;
+                while (!task->done())
+                {
+                    //loginf << "jASTERIX: analyze sleep";
+
+                    clearDataChunks();
+                    std::this_thread::sleep_for(std::chrono::milliseconds(2));
+                }
+
+                //stop_file_decoding_ = true;
+
+                break;
             }
         }
         catch (std::exception& e)
@@ -329,7 +347,10 @@ std::unique_ptr<nlohmann::json> jASTERIX::analyzeFile(const std::string& filenam
             task->forceStop();
 
             while (!task->done())
+            {
+                clearDataChunks();
                 std::this_thread::sleep_for(std::chrono::milliseconds(2));
+            }
 
             throw (e);  // rethrow
         }
@@ -337,18 +358,18 @@ std::unique_ptr<nlohmann::json> jASTERIX::analyzeFile(const std::string& filenam
 
     if (task->errorOcurred())
     {
-        (*analsis_result)["num_errors"] = 1;
+        (*analsis_result)["num_errors"] += 1;
     }
 
     if (!task->done()) // aborted
     {
         task->forceStop();
 
-        loginf << "jASTERIX analyze file done, waiting" << logendl;
+        //loginf << "jASTERIX analyze file done, waiting" << logendl;
 
         while (!task->done())
         {
-            //loginf << "UGA3" << logendl;
+            clearDataChunks();
             std::this_thread::sleep_for(std::chrono::milliseconds(2));
         }
     }
@@ -363,8 +384,6 @@ std::unique_ptr<nlohmann::json> jASTERIX::analyzeFile(const std::string& filenam
 
     sensor_counts_.clear();
     data_item_analysis_.clear();
-
-    loginf << "jASTERIX analyze file done2" << logendl;
 
     return analsis_result;
 }
@@ -458,7 +477,7 @@ std::unique_ptr<nlohmann::json> jASTERIX::analyzeFile(const std::string& filenam
 
             data_block_chunk = nullptr;
 
-            if (record_limit > 0 && num_records_ >= static_cast<unsigned>(record_limit))
+            if (record_limit > 0 && num_records_ >= static_cast<unsigned>(record_limit) && !task->done())
             {
                 if (debug_)
                     loginf << "jASTERIX analyze hit record limit" << logendl;
@@ -775,6 +794,7 @@ void jASTERIX::decodeData(const char* data, unsigned int total_size,
 
         if (data_block_chunks_.empty())
         {
+            loginf << "jASTERIX: decodeData: UGA1";
             std::this_thread::sleep_for(std::chrono::milliseconds(1));
             continue;
         }
@@ -836,8 +856,7 @@ size_t jASTERIX::numFrames() const { return num_frames_; }
 
 size_t jASTERIX::numRecords() const { return num_records_; }
 
-void jASTERIX::addDataBlockChunk(std::unique_ptr<nlohmann::json> data_block_chunk, bool error,
-                                 bool done)
+void jASTERIX::addDataBlockChunk(std::unique_ptr<nlohmann::json> data_block_chunk, bool error, bool done)
 {
     if (debug_)
     {
@@ -863,7 +882,10 @@ void jASTERIX::addDataBlockChunk(std::unique_ptr<nlohmann::json> data_block_chun
     data_block_chunks_mutex_.unlock();
 
     while (!debug_ && data_block_chunks_.size() >= 2) // debug forces decoding of all frames first
+    {
+        //loginf << "jASTERIX: addDataBlockChunk: sleep";
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    }
 }
 
 void jASTERIX::addDataChunk(std::unique_ptr<nlohmann::json> data_chunk, bool done)
@@ -889,7 +911,10 @@ void jASTERIX::addDataChunk(std::unique_ptr<nlohmann::json> data_chunk, bool don
     //loginf << "jASTERIX: addDataChunk: sleep";
 
     while (!debug_ && data_chunks_.size() >= 2)  // debug forces decoding of all frames first
-        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    {
+        //loginf << "jASTERIX: addDataChunk: sleep";
+        std::this_thread::sleep_for(std::chrono::milliseconds(2));
+    }
 
     //loginf << "jASTERIX: addDataChunk: done";
 }
@@ -1090,6 +1115,16 @@ void jASTERIX::addJSONAnalysis(const std::string& cat_str, const std::string& pr
                 }
             }
         }
+    }
+}
+
+void jASTERIX::clearDataChunks()
+{
+    if (data_chunks_.size())
+    {
+        data_chunks_mutex_.lock();
+        data_chunks_.clear();
+        data_chunks_mutex_.unlock();
     }
 }
 

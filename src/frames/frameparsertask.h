@@ -96,10 +96,13 @@ public:
             }
 
             if (force_stop_)
+            {
                 done_ = true;
+            }
 
             if (debug_)
                 loginf << "frame parser task execute done" << logendl;
+
         });
     }
 
@@ -122,7 +125,11 @@ private:
     std::future<void> pending_future_;
 };
 
-void FrameParserTask::forceStop() { force_stop_ = true; }
+void FrameParserTask::forceStop()
+{
+    //loginf << "frame parser task force stop";
+    force_stop_ = true;
+}
 
 bool FrameParserTask::done() const { return done_; }
 

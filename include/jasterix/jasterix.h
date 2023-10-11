@@ -144,6 +144,8 @@ class jASTERIX
     void analyzeRecord(unsigned int category, const nlohmann::json& record);
 
     void addJSONAnalysis(const std::string& cat_str, const std::string& prefix, const nlohmann::json& item);
+
+    void clearDataChunks();
 };
 }  // namespace jASTERIX
 
