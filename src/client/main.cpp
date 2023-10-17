@@ -326,6 +326,41 @@ int main(int argc, char** argv)
 
                 loginf << "jASTERIX client: analysis result:" << logendl;
                 loginf << result->dump(4) << logendl;
+
+
+                loginf << "jASTERIX client: data items analysis CSV result:" << logendl;
+
+                std::ostringstream ss;
+
+                string min_str, max_str;
+
+                if (result->contains("data_items"))
+                {
+                    for (const auto& cat_it : result->at("data_items").items())
+                    {
+                        string cat_str = cat_it.key();
+
+                        for (const auto& item_it : cat_it.value().items())
+                        {
+                            if (!item_it.value().contains("count")
+                                    || !item_it.value().contains("min")
+                                    || !item_it.value().contains("max"))
+                            {
+                                continue;
+                            }
+
+                            ss.str("");
+                            ss.clear();
+
+                            ss << std::setw(3) << std::setfill('0') << cat_str;
+
+                            cout << "I" << ss.str() << "/" << item_it.key()
+                                   << ";"  << item_it.value().at("count")
+                                   << ";"  << item_it.value().at("min")
+                                   << ";"  << item_it.value().at("max") << endl;
+                        }
+                    }
+                }
             }
         }
         else
