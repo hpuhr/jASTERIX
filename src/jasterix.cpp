@@ -794,7 +794,6 @@ void jASTERIX::decodeData(const char* data, unsigned int total_size,
 
         if (data_block_chunks_.empty())
         {
-            loginf << "jASTERIX: decodeData: UGA1";
             std::this_thread::sleep_for(std::chrono::milliseconds(1));
             continue;
         }
