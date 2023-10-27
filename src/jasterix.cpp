@@ -233,7 +233,7 @@ std::unique_ptr<nlohmann::json> jASTERIX::analyzeFile(
                << json_header.dump(4) << "'" << logendl;
 
     stop_file_decoding_ = false;
-        std::unique_ptr<nlohmann::json> analsis_result {new nlohmann::json()};
+        std::unique_ptr<nlohmann::json> analysis_result {new nlohmann::json()};
 
     std::unique_ptr<FrameParserTask> task {
         new FrameParserTask(*this, frame_parser, json_header, data, index, file_size, debug_framing)};
@@ -252,8 +252,6 @@ std::unique_ptr<nlohmann::json> jASTERIX::analyzeFile(
 
     while (!stop_file_decoding_ && !task->errorOcurred())
     {
-        //loginf << "jASTERIX: analyze UGA-1" << logendl;
-
         if (data_processing_done_ && data_chunks_.empty())
             break;
 
@@ -264,8 +262,6 @@ std::unique_ptr<nlohmann::json> jASTERIX::analyzeFile(
         }
 
         assert(!data_chunk);
-
-        //loginf << "jASTERIX: analyze UGA0" << logendl;
 
         data_chunks_mutex_.lock();
 
@@ -283,18 +279,16 @@ std::unique_ptr<nlohmann::json> jASTERIX::analyzeFile(
         num_callback_frames = data_chunk->at("frames").size();
         num_frames_ += num_callback_frames;
 
-        (*analsis_result)["num_frames"] = num_frames_;
+        (*analysis_result)["num_frames"] = num_frames_;
 
         try
         {
-            //loginf << "jASTERIX: analyze UGA1" << logendl;
-
             dec_ret = frame_parser.decodeFrames(data, file_size, data_chunk.get(), debug_);
             num_records_ += dec_ret.first;
             num_errors_ += dec_ret.second;
 
-            (*analsis_result)["num_records"] = num_records_;
-            (*analsis_result)["num_errors"] = num_errors_;
+            (*analysis_result)["num_records"] = num_records_;
+            (*analysis_result)["num_errors"] = num_errors_;
 
             if (debug_)
                 loginf << "jASTERIX analyze " << num_frames_ << " frames, " << num_records_
@@ -304,39 +298,21 @@ std::unique_ptr<nlohmann::json> jASTERIX::analyzeFile(
             {
                 loginf << "jASTERIX analyze resulted in " << num_errors_ << " errors " << logendl;
 
-                task->forceStop();
-
-                while (!task->done())
-                {
-                    clearDataChunks();
-                    std::this_thread::sleep_for(std::chrono::milliseconds(2));
-                }
+                forceStopTask(*task);
 
                 break;
             }
-
-            //loginf << "jASTERIX: analyze UGA1" << logendl;
 
             analyzeChunk(data_chunk, true);
 
             data_chunk = nullptr;
 
-            if (record_limit > 0 && num_records_ >= static_cast<unsigned>(record_limit) && !task->done())
+            if (record_limit > 0 && num_records_ >= record_limit)
             {
                 if (debug_)
                     loginf << "jASTERIX analyze hit record limit" << logendl;
 
-                task->forceStop();
-
-                while (!task->done())
-                {
-                    //loginf << "jASTERIX: analyze sleep";
-
-                    clearDataChunks();
-                    std::this_thread::sleep_for(std::chrono::milliseconds(2));
-                }
-
-                //stop_file_decoding_ = true;
+                forceStopTask(*task);
 
                 break;
             }
@@ -344,13 +320,8 @@ std::unique_ptr<nlohmann::json> jASTERIX::analyzeFile(
         catch (std::exception& e)
         {
             loginf << "jASTERIX caught exception '" << e.what() << "', breaking" << logendl;
-            task->forceStop();
 
-            while (!task->done())
-            {
-                clearDataChunks();
-                std::this_thread::sleep_for(std::chrono::milliseconds(2));
-            }
+            forceStopTask(*task);
 
             throw (e);  // rethrow
         }
@@ -358,38 +329,37 @@ std::unique_ptr<nlohmann::json> jASTERIX::analyzeFile(
 
     if (task->errorOcurred())
     {
-        (*analsis_result)["num_errors"] += 1;
+        unsigned int num_errors {0};
+
+        if (analysis_result->contains("num_errors"))
+            num_errors = analysis_result->at("num_errors");
+
+        ++num_errors;
+
+        (*analysis_result)["num_errors"] = num_errors;
     }
 
     if (!task->done()) // aborted
-    {
-        task->forceStop();
-
-        //loginf << "jASTERIX analyze file done, waiting" << logendl;
-
-        while (!task->done())
-        {
-            clearDataChunks();
-            std::this_thread::sleep_for(std::chrono::milliseconds(2));
-        }
-    }
+        forceStopTask(*task);
 
     if (debug_)
         loginf << "jASTERIX analyze file done" << logendl;
 
     file_.close();
 
-    (*analsis_result)["sensor_counts"] = sensor_counts_;
-    (*analsis_result)["data_items"] = data_item_analysis_;
+    (*analysis_result)["sensor_counts"] = sensor_counts_;
+    (*analysis_result)["data_items"] = data_item_analysis_;
 
     sensor_counts_.clear();
     data_item_analysis_.clear();
 
-    return analsis_result;
+    return analysis_result;
 }
 
 std::unique_ptr<nlohmann::json> jASTERIX::analyzeFile(const std::string& filename, unsigned int record_limit)
 {
+    loginf << "jASTERIX: analyzeFile: filename '" << filename << "' record_limit " << record_limit << logendl;
+
     size_t file_size = openFile(filename);
 
     const char* data = file_.data();
@@ -412,7 +382,7 @@ std::unique_ptr<nlohmann::json> jASTERIX::analyzeFile(const std::string& filenam
             std::this_thread::sleep_for(std::chrono::milliseconds(1));
 
     std::unique_ptr<nlohmann::json> data_block_chunk;
-    std::unique_ptr<nlohmann::json> analsis_result {new nlohmann::json()};
+    std::unique_ptr<nlohmann::json> analysis_result {new nlohmann::json()};
 
     std::pair<size_t, size_t> dec_ret{0, 0};
 
@@ -455,20 +425,21 @@ std::unique_ptr<nlohmann::json> jASTERIX::analyzeFile(const std::string& filenam
 
             dec_ret =
                 asterix_parser.decodeDataBlocks(data, file_size, data_block_chunk->at("data_blocks"), debug_);
+
+//            loginf << "jASTERIX: analyzeFile: decode data block done, num_records " << dec_ret.first
+//                   << " errors " << dec_ret.second << logendl;
+
             num_records_ += dec_ret.first;
             num_errors_ += dec_ret.second;
 
-            (*analsis_result)["num_records"] = num_records_;
-            (*analsis_result)["num_errors"] = num_errors_;
+            (*analysis_result)["num_records"] = num_records_;
+            (*analysis_result)["num_errors"] = num_errors_;
 
             if (num_errors_)
             {
                 loginf << "jASTERIX analyze resulted in " << num_errors_ << " errors " << logendl;
 
-                task->forceStop();
-
-                while (!task->done())
-                    std::this_thread::sleep_for(std::chrono::milliseconds(2));
+                forceStopTask(*task);
 
                 break;
             }
@@ -477,21 +448,21 @@ std::unique_ptr<nlohmann::json> jASTERIX::analyzeFile(const std::string& filenam
 
             data_block_chunk = nullptr;
 
-            if (record_limit > 0 && num_records_ >= static_cast<unsigned>(record_limit) && !task->done())
+            if (record_limit > 0 && num_records_ >= record_limit)
             {
                 if (debug_)
                     loginf << "jASTERIX analyze hit record limit" << logendl;
 
-                stop_file_decoding_ = true;
+                forceStopTask(*task);
+
+                break;
             }
         }
         catch (std::exception& e)
         {
             loginf << "jASTERIX caught exception'" << e.what() << "', breaking" << logendl;
-            task->forceStop();
 
-            while (!task->done())
-                std::this_thread::sleep_for(std::chrono::milliseconds(2));
+            forceStopTask(*task);
 
             data_item_analysis_.clear();
 
@@ -499,26 +470,37 @@ std::unique_ptr<nlohmann::json> jASTERIX::analyzeFile(const std::string& filenam
         }
     }
 
-    if (stop_file_decoding_ && !task->done()) // aborted
-    {
-        task->forceStop();
+    //loginf << "jASTERIX analyze done with while" << logendl;
 
-        while (!task->done())
-            std::this_thread::sleep_for(std::chrono::milliseconds(2));
+    if (task->error())
+    {
+        unsigned int num_errors {0};
+
+        if (analysis_result->contains("num_errors"))
+            num_errors = analysis_result->at("num_errors");
+
+        ++num_errors;
+
+        (*analysis_result)["num_errors"] = num_errors;
     }
+
+    //loginf << "jASTERIX analyze waiting on task force stop" << logendl;
+
+    if (!task->done()) // aborted
+        forceStopTask(*task);
 
     if (debug_)
         loginf << "jASTERIX decode file done" << logendl;
 
     file_.close();
 
-    (*analsis_result)["sensor_counts"] = sensor_counts_;
-    (*analsis_result)["data_items"] = data_item_analysis_;
+    (*analysis_result)["sensor_counts"] = sensor_counts_;
+    (*analysis_result)["data_items"] = data_item_analysis_;
 
     sensor_counts_.clear();
     data_item_analysis_.clear();
 
-    return analsis_result;
+    return analysis_result;
 }
 
 
@@ -634,17 +616,15 @@ void jASTERIX::decodeFile(
         catch (std::exception& e)
         {
             loginf << "jASTERIX caught exception '" << e.what() << "', breaking" << logendl;
-            task->forceStop();
 
-            while (!task->done())
-                std::this_thread::sleep_for(std::chrono::milliseconds(2));
+            forceStopTask(*task);
 
             throw;  // rethrow
         }
     }
 
-    if (stop_file_decoding_ && !task->done()) // aborted
-        task->forceStop();
+    if (!task->done()) // aborted
+        forceStopTask(*task);
 
     if (debug_)
         loginf << "jASTERIX decode file done" << logendl;
@@ -690,6 +670,12 @@ void jASTERIX::decodeFile(
 
     while (!stop_file_decoding_)
     {
+        if (task->error())
+        {
+            ++num_errors_;
+            break;
+        }
+
         if (data_block_processing_done_ && data_block_chunks_.empty())
             break;
 
@@ -739,17 +725,15 @@ void jASTERIX::decodeFile(
         catch (std::exception& e)
         {
             loginf << "jASTERIX caught exception'" << e.what() << "', breaking" << logendl;
-            task->forceStop();
 
-            while (!task->done())
-                std::this_thread::sleep_for(std::chrono::milliseconds(1));
+            forceStopTask(*task);
 
             throw;
         }
     }
 
-    if (stop_file_decoding_ && !task->done()) // aborted
-        task->forceStop();
+    if (!task->done()) // aborted
+        forceStopTask(*task);
 
     if (debug_)
         loginf << "jASTERIX decode file done" << logendl;
@@ -838,10 +822,8 @@ void jASTERIX::decodeData(const char* data, unsigned int total_size,
         catch (std::exception& e)
         {
             loginf << "jASTERIX caught exception'" << e.what() << "', breaking" << logendl;
-            task->forceStop();
 
-            while (!task->done())
-                std::this_thread::sleep_for(std::chrono::milliseconds(1));
+            forceStopTask(*task);
 
             throw;
         }
@@ -1124,6 +1106,37 @@ void jASTERIX::clearDataChunks()
         data_chunks_mutex_.lock();
         data_chunks_.clear();
         data_chunks_mutex_.unlock();
+    }
+}
+
+void jASTERIX::clearDataBlockChunks()
+{
+    if (data_block_chunks_.size())
+    {
+        data_block_chunks_mutex_.lock();
+        data_block_chunks_.clear();
+        data_block_chunks_mutex_.unlock();
+    }
+}
+
+void jASTERIX::forceStopTask (DataBlockFinderTask& task)
+{
+    task.forceStop();
+
+    while (!task.done())
+    {
+        clearDataBlockChunks();
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    }
+}
+void jASTERIX::forceStopTask (FrameParserTask& task)
+{
+    task.forceStop();
+
+    while (!task.done())
+    {
+        clearDataChunks();
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
 }
 

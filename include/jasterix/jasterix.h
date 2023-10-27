@@ -49,6 +49,9 @@ extern bool add_artas_md5_hash;
 
 extern bool add_record_data;
 
+class DataBlockFinderTask;
+class FrameParserTask;
+
 class jASTERIX
 {
   public:
@@ -146,6 +149,10 @@ class jASTERIX
     void addJSONAnalysis(const std::string& cat_str, const std::string& prefix, const nlohmann::json& item);
 
     void clearDataChunks();
+    void clearDataBlockChunks();
+
+    void forceStopTask (DataBlockFinderTask& task);
+    void forceStopTask (FrameParserTask& task);
 };
 }  // namespace jASTERIX
 

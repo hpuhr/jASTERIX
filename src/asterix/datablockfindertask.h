@@ -28,10 +28,6 @@ class DataBlockFinderTask // : public tbb::task
 
     void start()
     {
-        //tbb::task_group g;
-
-        //tbb::task_group g_;
-
         pending_future_ = std::async(std::launch::async, [&] {
             size_t parsed_bytes{0};
             size_t num_data_blocks{0};
@@ -70,69 +66,8 @@ class DataBlockFinderTask // : public tbb::task
 
         });
 
-//        g_.run([&] {
-//            size_t parsed_bytes{0};
-//            size_t num_data_blocks{0};
 
-//            while (!force_stop_ && !done_)  // || size_-index_ > 0
-//            {
-//                std::unique_ptr<nlohmann::json> jdata{new nlohmann::json()};
-
-//                std::tuple<size_t, size_t, bool, bool> ret = asterix_parser_.findDataBlocks(
-//                    data_, index_ + parsed_bytes, size_ - parsed_bytes, jdata.get(), debug_);
-
-//                parsed_bytes += std::get<0>(ret);
-//                num_data_blocks += std::get<1>(ret);
-//                error_ += std::get<2>(ret);
-//                done_ = std::get<3>(ret);
-
-//                //            loginf << "DataBlockFinderTask: ex pb " << parsed_bytes << " num db " <<
-//                //            num_data_blocks << " done "
-//                //                   << done << logendl;
-
-//                jasterix_.addDataBlockChunk(std::move(jdata), error_, done_);
-//            }
-
-//            if (force_stop_)
-//                done_ = true;
-
-//            // loginf << "data block finder task done " << done << logendl;
-
-//        });
     }
-
-//    /*override*/ tbb::task* execute()
-//    {
-//        // loginf << "data block finder task start" << logendl;
-
-//        size_t parsed_bytes{0};
-//        size_t num_data_blocks{0};
-//        while (!force_stop_ && !done_)  // || size_-index_ > 0
-//        {
-//            std::unique_ptr<nlohmann::json> jdata{new nlohmann::json()};
-
-//            std::tuple<size_t, size_t, bool, bool> ret = asterix_parser_.findDataBlocks(
-//                data_, index_ + parsed_bytes, size_ - parsed_bytes, jdata.get(), debug_);
-
-//            parsed_bytes += std::get<0>(ret);
-//            num_data_blocks += std::get<1>(ret);
-//            error_ += std::get<2>(ret);
-//            done_ = std::get<3>(ret);
-
-//            //            loginf << "DataBlockFinderTask: ex pb " << parsed_bytes << " num db " <<
-//            //            num_data_blocks << " done "
-//            //                   << done << logendl;
-
-//            jasterix_.addDataBlockChunk(std::move(jdata), error_, done_);
-//        }
-
-//        if (force_stop_)
-//            done_ = true;
-
-//        // loginf << "data block finder task done " << done << logendl;
-
-//        return nullptr;  // or a pointer to a new task to be executed immediately
-//    }
 
     void forceStop();
 
