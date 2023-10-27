@@ -1030,7 +1030,7 @@ void jASTERIX::analyzeRecord(unsigned int category, const nlohmann::json& record
     if (record.contains("010") && record.at("010").count("SAC") && record.at("010").count("SIC"))
         sensor_id = to_string(record.at("010").at("SAC")) + "/" + to_string(record.at("010").at("SIC"));
     else
-        sensor_id = "unkown";
+        sensor_id = "unknown";
 
     sensor_counts_[sensor_id][cat_str] += 1;
 
