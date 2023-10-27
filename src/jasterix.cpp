@@ -40,9 +40,9 @@ namespace jASTERIX
 {
 int print_dump_indent = 4;
 int frame_limit = -1;
-int frame_chunk_size = 10000;
+int frame_chunk_size = 1000;
 int data_block_limit = -1;
-int data_block_chunk_size = 10000;
+int data_block_chunk_size = 1000;
 int data_write_size = 1;
 bool single_thread = false;
 
@@ -862,7 +862,7 @@ void jASTERIX::addDataBlockChunk(std::unique_ptr<nlohmann::json> data_block_chun
 
     data_block_chunks_mutex_.unlock();
 
-    while (!debug_ && data_block_chunks_.size() >= 2) // debug forces decoding of all frames first
+    while (!data_block_processing_done_ && !debug_ && data_block_chunks_.size() >= 2) // debug forces decoding of all frames first
     {
         //loginf << "jASTERIX: addDataBlockChunk: sleep";
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
@@ -891,7 +891,7 @@ void jASTERIX::addDataChunk(std::unique_ptr<nlohmann::json> data_chunk, bool don
 
     //loginf << "jASTERIX: addDataChunk: sleep";
 
-    while (!debug_ && data_chunks_.size() >= 2)  // debug forces decoding of all frames first
+    while (!data_processing_done_ && !debug_ && data_chunks_.size() >= 2)  // debug forces decoding of all frames first
     {
         //loginf << "jASTERIX: addDataChunk: sleep";
         std::this_thread::sleep_for(std::chrono::milliseconds(2));
@@ -1121,6 +1121,8 @@ void jASTERIX::clearDataBlockChunks()
 
 void jASTERIX::forceStopTask (DataBlockFinderTask& task)
 {
+    loginf << "jASTERIX: forceStopTask: data block finder task" << logendl;
+
     task.forceStop();
 
     while (!task.done())
@@ -1128,9 +1130,14 @@ void jASTERIX::forceStopTask (DataBlockFinderTask& task)
         clearDataBlockChunks();
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
+
+    loginf << "jASTERIX: forceStopTask: done" << logendl;
 }
+
 void jASTERIX::forceStopTask (FrameParserTask& task)
 {
+    loginf << "jASTERIX: forceStopTask: frame task" << logendl;
+
     task.forceStop();
 
     while (!task.done())
@@ -1138,6 +1145,8 @@ void jASTERIX::forceStopTask (FrameParserTask& task)
         clearDataChunks();
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
+
+    loginf << "jASTERIX: forceStopTask: done" << logendl;
 }
 
 }  // namespace jASTERIX
