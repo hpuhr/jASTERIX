@@ -894,7 +894,7 @@ void jASTERIX::addDataChunk(std::unique_ptr<nlohmann::json> data_chunk, bool don
     while (!data_processing_done_ && !debug_ && data_chunks_.size() >= 2)  // debug forces decoding of all frames first
     {
         //loginf << "jASTERIX: addDataChunk: sleep";
-        std::this_thread::sleep_for(std::chrono::milliseconds(2));
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
 
     //loginf << "jASTERIX: addDataChunk: done";

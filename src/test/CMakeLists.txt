@@ -55,7 +55,7 @@ enable_testing()
 set ( DEFINITION_PATH "${CMAKE_CURRENT_LIST_DIR}/../../definitions/" )
 set ( DATA_PATH "${CMAKE_CURRENT_LIST_DIR}/" )
 
-set ( TEST_FILENAME "/home/sk/data/test/20190506.ff")
+set ( TEST_FILENAME "/home/sk/data/test/test1/test.ff")
 
 add_test(NAME TestCategories COMMAND test_categories --definition_path ${DEFINITION_PATH} --data_path ${DATA_PATH})
 add_test(NAME TestLimits COMMAND test_limits --definition_path ${DEFINITION_PATH} --filename ${TEST_FILENAME})

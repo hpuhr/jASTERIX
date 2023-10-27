@@ -1,5 +1,5 @@
-set(ATSDB_PATH "${CMAKE_CURRENT_SOURCE_DIR}")
-message("  Path: ${ATSDB_PATH}")
+set(JASTERIX_PATH "${CMAKE_CURRENT_SOURCE_DIR}")
+message("  Path: ${JASTERIX_PATH}")
 
 cmake_minimum_required(VERSION 3.3)
 set ( CMAKE_BUILD_TYPE RelWithDebInfo ) #Debug RelWithDebInfo Release
@@ -40,7 +40,7 @@ find_package(Threads REQUIRED)
 
 include_directories (
     ${Boost_INCLUDE_DIRS}
-    ${ATSDB_PATH}/include/
+    ${JASTERIX_PATH}/include/
     )
 
 link_directories(
@@ -52,7 +52,7 @@ target_link_libraries ( jasterix
     Threads::Threads
     )
 
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH};${ATSDB_PATH}/cmake_modules)
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH};${JASTERIX_PATH}/cmake_modules)
 message("  CMAKE_MODULE_PATH: ${CMAKE_MODULE_PATH}") 
 
 
