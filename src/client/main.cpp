@@ -98,6 +98,7 @@ int main(int argc, char** argv)
     bool log_performance{false};
 
     bool analyze{false};
+    bool analyze_csv{false};
     unsigned int analyze_record_limit {0};
 
     po::options_description desc("Allowed options");
@@ -127,6 +128,7 @@ int main(int argc, char** argv)
                                                  "restricts categories to be decoded, e.g. 20,21.")(
                 "log_perf", po::bool_switch(&log_performance), "enable performance log after processing")(
                 "analyze", po::bool_switch(&analyze), "analyze data sources and contents")(
+                "analyze_csv", po::bool_switch(&analyze_csv), "analyze data sources and contents, print as CSV")(
                 "analyze_record_limit", po::value<unsigned int>(&analyze_record_limit),
                 "number of records to analyze. 0 (default) disables limit.")
         #if USE_OPENSSL
@@ -313,59 +315,28 @@ int main(int argc, char** argv)
             loginf << "jASTERIX client: analyzing, framing '"
                    << framing << "' analyze_record_limit " << analyze_record_limit << logendl;
 
+            string tmp_str;
+
             if (framing == "netto" || framing == "")
             {
-                std::unique_ptr<nlohmann::json> result = asterix.analyzeFile(filename, analyze_record_limit);
-
-                loginf << "jASTERIX client: analysis result:" << logendl;
-                loginf << result->dump(4) << logendl;
+                if (analyze_csv)
+                    tmp_str = asterix.analyzeFileCSV(filename, analyze_record_limit);
+                else
+                    tmp_str = asterix.analyzeFile(filename, analyze_record_limit)->dump(4);
             }
             else
             {
-                std::unique_ptr<nlohmann::json> result = asterix.analyzeFile(filename, framing, analyze_record_limit);
-
-                loginf << "jASTERIX client: analysis result:" << logendl;
-                loginf << result->dump(4) << logendl;
-
-
-                loginf << "jASTERIX client: data items analysis CSV result:" << logendl;
-
-                std::ostringstream ss;
-
-                string min_str, max_str;
-
-                if (result->contains("data_items"))
-                {
-                    for (const auto& cat_it : result->at("data_items").items())
-                    {
-                        string cat_str = cat_it.key();
-
-                        for (const auto& item_it : cat_it.value().items())
-                        {
-                            if (!item_it.value().contains("count")
-                                    || !item_it.value().contains("min")
-                                    || !item_it.value().contains("max"))
-                            {
-                                continue;
-                            }
-
-                            ss.str("");
-                            ss.clear();
-
-                            ss << std::setw(3) << std::setfill('0') << cat_str;
-
-                            cout << "I" << ss.str() << "/" << item_it.key()
-                                   << ";"  << item_it.value().at("count")
-                                   << ";"  << item_it.value().at("min")
-                                   << ";"  << item_it.value().at("max") << endl;
-                        }
-                    }
-                }
+                if (analyze_csv)
+                    tmp_str = asterix.analyzeFileCSV(filename, framing, analyze_record_limit);
+                else
+                    tmp_str = asterix.analyzeFile(filename, framing, analyze_record_limit)->dump(4);
             }
+
+            loginf << "jASTERIX client: analysis result:" << logendl;
+            loginf << tmp_str << logendl;
         }
         else
         {
-
             if (framing == "netto" || framing == "")
             {
                 if (json_writer)

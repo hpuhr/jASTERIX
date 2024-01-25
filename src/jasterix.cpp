@@ -17,14 +17,6 @@
 
 #include "jasterix.h"
 
-#include <malloc.h>
-
-#include <chrono>
-#include <exception>
-#include <fstream>
-#include <iostream>
-#include <thread>
-
 #include "asterixparser.h"
 #include "category.h"
 #include "datablockfindertask.h"
@@ -33,6 +25,16 @@
 #include "frameparser.h"
 #include "frameparsertask.h"
 #include "logger.h"
+
+#include <malloc.h>
+
+#include <chrono>
+#include <exception>
+#include <fstream>
+#include <iostream>
+#include <thread>
+#include <iomanip>
+
 
 using namespace nlohmann;
 
@@ -495,12 +497,81 @@ std::unique_ptr<nlohmann::json> jASTERIX::analyzeFile(const std::string& filenam
     file_.close();
 
     (*analysis_result)["sensor_counts"] = sensor_counts_;
+
+    //if (csv)
     (*analysis_result)["data_items"] = data_item_analysis_;
 
     sensor_counts_.clear();
     data_item_analysis_.clear();
 
     return analysis_result;
+}
+
+std::string jASTERIX::analyzeFileCSV(const std::string& filename, const std::string& framing_str,
+                                     unsigned int record_limit)
+{
+    std::unique_ptr<nlohmann::json> analysis_result = analyzeFile(filename, framing_str, record_limit);
+
+    // sac/sic -> cat -> count
+    assert (analysis_result->contains("sensor_counts"));
+
+    std::stringstream ss;
+
+    std::map<std::string, std::map<std::string, unsigned int>> sensor_counts = analysis_result->at("sensor_counts");
+
+    ss << "sensor counts" << endl;
+
+    ss << "sensor;cat;count" << endl;
+
+    for (const auto& sen_it : sensor_counts)
+       for (const auto& count_it : sen_it.second)
+            ss << sen_it.first <<  ";" << count_it.first << ";" << count_it.second << endl;
+
+    ss << endl << endl;
+
+    // cat -> key -> count/min/max
+    assert (analysis_result->contains("data_items"));
+
+    ss << "data items" << endl;
+
+    std::map<std::string, std::map<std::string, nlohmann::json>> data_item_analysis = analysis_result->at("data_items");
+
+    ss << toCSV(data_item_analysis);
+
+    return ss.str();
+}
+
+std::string jASTERIX::analyzeFileCSV(const std::string& filename, unsigned int record_limit)
+{
+    std::unique_ptr<nlohmann::json> analysis_result = analyzeFile(filename, record_limit);
+
+    // sac/sic -> cat -> count
+    assert (analysis_result->contains("sensor_counts"));
+
+    std::stringstream ss;
+
+    std::map<std::string, std::map<std::string, unsigned int>> sensor_counts = analysis_result->at("sensor_counts");
+
+    ss << "sensor counts" << endl;
+
+    ss << "sensor;cat;count" << endl;
+
+    for (const auto& sen_it : sensor_counts)
+       for (const auto& count_it : sen_it.second)
+            ss << sen_it.first <<  ";" << count_it.first << ";" << count_it.second << endl;
+
+    ss << endl << endl;
+
+    // cat -> key -> count/min/max
+    assert (analysis_result->contains("data_items"));
+
+    ss << "data items" << endl;
+
+    std::map<std::string, std::map<std::string, nlohmann::json>> data_item_analysis = analysis_result->at("data_items");
+
+    ss << toCSV(data_item_analysis);
+
+    return ss.str();
 }
 
 
@@ -1117,6 +1188,47 @@ void jASTERIX::clearDataBlockChunks()
         data_block_chunks_.clear();
         data_block_chunks_mutex_.unlock();
     }
+}
+
+
+std::string jASTERIX::toCSV (const std::map<std::string, std::map<std::string, nlohmann::json>>& data_item_analysis)
+{
+    // cat -> key -> count/min/max
+
+    std::stringstream ss;
+
+    ss << "name;count;min;max" << endl;
+
+    for (const auto& cat_it : data_item_analysis)
+    {
+        ss << "CAT" << std::setw(3) << std::setfill('0') << cat_it.first << ":" << endl;
+
+        for (const auto& di_info_it : cat_it.second) // key -> count/min/max
+        {
+            if (di_info_it.second.is_primitive())
+            {
+                ss << "count;" << di_info_it.second << ";;" << endl;
+                continue;
+            }
+
+            ss << di_info_it.first << ";" << di_info_it.second.at("count");
+            ss << ";";
+
+            if (di_info_it.second.contains("min"))
+                ss << di_info_it.second.at("min");
+
+            ss << ";";
+
+            if (di_info_it.second.contains("max"))
+            ss << di_info_it.second.at("max");
+
+            ss << endl;
+        }
+
+        ss << endl << endl;
+    }
+
+    return ss.str();
 }
 
 void jASTERIX::forceStopTask (DataBlockFinderTask& task)

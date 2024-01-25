@@ -72,7 +72,13 @@ class jASTERIX
 
     std::unique_ptr<nlohmann::json> analyzeFile(const std::string& filename, const std::string& framing_str,
                                                 unsigned int record_limit=0);
-    std::unique_ptr<nlohmann::json> analyzeFile(const std::string& filename, unsigned int record_limit=0);
+    std::unique_ptr<nlohmann::json> analyzeFile(const std::string& filename,
+                                                unsigned int record_limit=0);
+
+    std::string analyzeFileCSV(const std::string& filename, const std::string& framing_str,
+                               unsigned int record_limit=0);
+    std::string analyzeFileCSV(const std::string& filename,
+                               unsigned int record_limit=0);
 
     void decodeFile(const std::string& filename, const std::string& framing_str,
                     std::function<void(std::unique_ptr<nlohmann::json>, size_t, size_t, size_t)>
@@ -150,6 +156,8 @@ class jASTERIX
 
     void clearDataChunks();
     void clearDataBlockChunks();
+
+    std::string toCSV (const std::map<std::string, std::map<std::string, nlohmann::json>>& data_item_analysis);
 
     void forceStopTask (DataBlockFinderTask& task);
     void forceStopTask (FrameParserTask& task);
