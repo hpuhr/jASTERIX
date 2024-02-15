@@ -366,6 +366,80 @@ std::unique_ptr<nlohmann::json> jASTERIX::analyzeFile(const std::string& filenam
 
     const char* data = file_.data();
 
+    return analyzeData(data, file_size, record_limit);
+}
+
+std::string jASTERIX::analyzeFileCSV(const std::string& filename, const std::string& framing_str,
+                                     unsigned int record_limit)
+{
+    std::unique_ptr<nlohmann::json> analysis_result = analyzeFile(filename, framing_str, record_limit);
+
+    // sac/sic -> cat -> count
+    assert (analysis_result->contains("sensor_counts"));
+
+    std::stringstream ss;
+
+    std::map<std::string, std::map<std::string, unsigned int>> sensor_counts = analysis_result->at("sensor_counts");
+
+    ss << "sensor counts" << endl;
+
+    ss << "sensor;cat;count" << endl;
+
+    for (const auto& sen_it : sensor_counts)
+       for (const auto& count_it : sen_it.second)
+            ss << sen_it.first <<  ";" << count_it.first << ";" << count_it.second << endl;
+
+    ss << endl << endl;
+
+    // cat -> key -> count/min/max
+    assert (analysis_result->contains("data_items"));
+
+    ss << "data items" << endl;
+
+    std::map<std::string, std::map<std::string, nlohmann::json>> data_item_analysis = analysis_result->at("data_items");
+
+    ss << toCSV(data_item_analysis);
+
+    return ss.str();
+}
+
+std::string jASTERIX::analyzeFileCSV(const std::string& filename, unsigned int record_limit)
+{
+    std::unique_ptr<nlohmann::json> analysis_result = analyzeFile(filename, record_limit);
+
+    // sac/sic -> cat -> count
+    assert (analysis_result->contains("sensor_counts"));
+
+    std::stringstream ss;
+
+    std::map<std::string, std::map<std::string, unsigned int>> sensor_counts = analysis_result->at("sensor_counts");
+
+    ss << "sensor counts" << endl;
+
+    ss << "sensor;cat;count" << endl;
+
+    for (const auto& sen_it : sensor_counts)
+       for (const auto& count_it : sen_it.second)
+            ss << sen_it.first <<  ";" << count_it.first << ";" << count_it.second << endl;
+
+    ss << endl << endl;
+
+    // cat -> key -> count/min/max
+    assert (analysis_result->contains("data_items"));
+
+    ss << "data items" << endl;
+
+    std::map<std::string, std::map<std::string, nlohmann::json>> data_item_analysis = analysis_result->at("data_items");
+
+    ss << toCSV(data_item_analysis);
+
+    return ss.str();
+}
+
+
+std::unique_ptr<nlohmann::json> jASTERIX::analyzeData(const char* data, unsigned int total_size,
+                                                      unsigned int record_limit)
+{
     // create ASTERIX parser
     ASTERIXParser asterix_parser(data_block_definition_, category_definitions_, debug_);
 
@@ -375,7 +449,7 @@ std::unique_ptr<nlohmann::json> jASTERIX::analyzeFile(const std::string& filenam
     size_t index{0};
 
     std::unique_ptr<DataBlockFinderTask> task {
-        new DataBlockFinderTask(*this, asterix_parser, data, index, file_size, debug_)};
+        new DataBlockFinderTask(*this, asterix_parser, data, index, total_size, debug_)};
 
     task->start();
 
@@ -426,7 +500,7 @@ std::unique_ptr<nlohmann::json> jASTERIX::analyzeFile(const std::string& filenam
                 throw runtime_error("jasterix data blocks is not an array");
 
             dec_ret =
-                asterix_parser.decodeDataBlocks(data, file_size, data_block_chunk->at("data_blocks"), debug_);
+                asterix_parser.decodeDataBlocks(data, total_size, data_block_chunk->at("data_blocks"), debug_);
 
 //            loginf << "jASTERIX: analyzeFile: decode data block done, num_records " << dec_ret.first
 //                   << " errors " << dec_ret.second << logendl;
@@ -507,10 +581,10 @@ std::unique_ptr<nlohmann::json> jASTERIX::analyzeFile(const std::string& filenam
     return analysis_result;
 }
 
-std::string jASTERIX::analyzeFileCSV(const std::string& filename, const std::string& framing_str,
+std::string jASTERIX::analyzeDataCSV(const char* data, unsigned int total_size,
                                      unsigned int record_limit)
 {
-    std::unique_ptr<nlohmann::json> analysis_result = analyzeFile(filename, framing_str, record_limit);
+    std::unique_ptr<nlohmann::json> analysis_result = analyzeData(data, total_size, record_limit);
 
     // sac/sic -> cat -> count
     assert (analysis_result->contains("sensor_counts"));
@@ -540,40 +614,6 @@ std::string jASTERIX::analyzeFileCSV(const std::string& filename, const std::str
 
     return ss.str();
 }
-
-std::string jASTERIX::analyzeFileCSV(const std::string& filename, unsigned int record_limit)
-{
-    std::unique_ptr<nlohmann::json> analysis_result = analyzeFile(filename, record_limit);
-
-    // sac/sic -> cat -> count
-    assert (analysis_result->contains("sensor_counts"));
-
-    std::stringstream ss;
-
-    std::map<std::string, std::map<std::string, unsigned int>> sensor_counts = analysis_result->at("sensor_counts");
-
-    ss << "sensor counts" << endl;
-
-    ss << "sensor;cat;count" << endl;
-
-    for (const auto& sen_it : sensor_counts)
-       for (const auto& count_it : sen_it.second)
-            ss << sen_it.first <<  ";" << count_it.first << ";" << count_it.second << endl;
-
-    ss << endl << endl;
-
-    // cat -> key -> count/min/max
-    assert (analysis_result->contains("data_items"));
-
-    ss << "data items" << endl;
-
-    std::map<std::string, std::map<std::string, nlohmann::json>> data_item_analysis = analysis_result->at("data_items");
-
-    ss << toCSV(data_item_analysis);
-
-    return ss.str();
-}
-
 
 void jASTERIX::decodeFile(
     const std::string& filename, const std::string& framing_str,

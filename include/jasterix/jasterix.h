@@ -80,6 +80,12 @@ class jASTERIX
     std::string analyzeFileCSV(const std::string& filename,
                                unsigned int record_limit=0);
 
+    std::unique_ptr<nlohmann::json> analyzeData(const char* data, unsigned int total_size,
+                                                unsigned int record_limit=0);
+
+    std::string analyzeDataCSV(const char* data, unsigned int total_size,
+                                                unsigned int record_limit=0);
+
     void decodeFile(const std::string& filename, const std::string& framing_str,
                     std::function<void(std::unique_ptr<nlohmann::json>, size_t, size_t, size_t)>
                         data_callback = nullptr);

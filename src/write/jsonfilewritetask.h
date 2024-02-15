@@ -122,7 +122,7 @@ class JSONTextZipFileWriteTask //: public tbb::task
         std::async(std::launch::async, [&] {
             createEntry();
 
-            for (const std::string str_it : text_)
+            for (const std::string& str_it : text_)
                 archive_write_data(json_zip_file_, str_it.c_str(), str_it.size());
             ;
 
