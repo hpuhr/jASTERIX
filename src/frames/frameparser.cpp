@@ -78,12 +78,12 @@ FrameParser::FrameParser(const json& framing_definition, ASTERIXParser& asterix_
     }
 }
 
-size_t FrameParser::parseHeader(const char* data, size_t index, size_t size, json& target,
+size_t FrameParser::parseHeader(const char* data, size_t index, size_t total_size, json& target,
                                 bool debug)
 {
     assert(data);
-    assert(size);
-    assert(index < size);
+    assert(total_size);
+    assert(index < total_size);
     // assert (target != nullptr);
 
     size_t parsed_bytes{0};
@@ -91,19 +91,19 @@ size_t FrameParser::parseHeader(const char* data, size_t index, size_t size, jso
     for (auto& j_item : file_header_items_)
     {
         parsed_bytes +=
-            j_item->parseItem(data, index + parsed_bytes, size, parsed_bytes, target, debug);
+            j_item->parseItem(data, index + parsed_bytes, total_size, parsed_bytes, total_size, target, debug);
     }
 
     return parsed_bytes;
 }
 
 std::tuple<size_t, size_t, bool> FrameParser::findFrames(const char* data, size_t index,
-                                                         size_t size, nlohmann::json* target,
+                                                         size_t total_size, nlohmann::json* target,
                                                          bool debug)
 {
     assert(data);
-    assert(size);
-    assert(index < size);
+    assert(total_size);
+    assert(index < total_size);
     assert(target);
 
     if (has_file_header_items_)
@@ -115,7 +115,7 @@ std::tuple<size_t, size_t, bool> FrameParser::findFrames(const char* data, size_
     size_t chunk_frames_cnt{0};
 
     if (debug)
-        loginf << "finding frames index " << index << " size " << size << " num_frames "
+        loginf << "finding frames index " << index << " size " << total_size << " num_frames "
                << frame_chunk_size;
 
     nlohmann::json& j_frames = (*target)["frames"];
@@ -123,12 +123,12 @@ std::tuple<size_t, size_t, bool> FrameParser::findFrames(const char* data, size_
     bool hit_frame_limit{false};
     bool hit_frame_chunk_limit{false};
 
-    while (index + parsed_bytes_sum < size)
+    while (index + parsed_bytes_sum < total_size)
     {
         // parse single frame
         if (debug)
             loginf << "finding frame " << sum_frames_cnt_ << " at index "
-                   << index + parsed_bytes_sum << " size " << size << logendl;
+                   << index + parsed_bytes_sum << " size " << total_size << logendl;
 
         if (frame_limit > 0 && sum_frames_cnt_ >= static_cast<unsigned>(frame_limit))
         {
@@ -159,8 +159,8 @@ std::tuple<size_t, size_t, bool> FrameParser::findFrames(const char* data, size_
                        << parsed_bytes_frame << " cnt " << chunk_frames_cnt << logendl;
 
             parsed_bytes =
-                j_item->parseItem(data, index + parsed_bytes_sum, size - parsed_bytes_sum,
-                                  parsed_bytes_frame, j_frames[chunk_frames_cnt], debug);
+                j_item->parseItem(data, index + parsed_bytes_sum, total_size - parsed_bytes_sum,
+                                  parsed_bytes_frame, total_size, j_frames[chunk_frames_cnt], debug);
             j_frames[chunk_frames_cnt]["cnt"] = chunk_frames_cnt;
             parsed_bytes_frame += parsed_bytes;
             parsed_bytes_sum += parsed_bytes;
@@ -177,7 +177,7 @@ std::tuple<size_t, size_t, bool> FrameParser::findFrames(const char* data, size_
     // done if frame limit hit, if not -> done if frame chunk limit not hit
 }
 
-std::pair<size_t, size_t> FrameParser::decodeFrames(const char* data, json* target, bool debug)
+std::pair<size_t, size_t> FrameParser::decodeFrames(const char* data, size_t total_size, json* target, bool debug)
 {
     assert(data);
     assert(target != nullptr);
@@ -193,7 +193,7 @@ std::pair<size_t, size_t> FrameParser::decodeFrames(const char* data, json* targ
 
         for (json& frame_it : j_frames)
         {
-            tmp = decodeFrame(data, frame_it, debug);
+            tmp = decodeFrame(data, total_size, frame_it, debug);
             ret.first += tmp.first;
             ret.second += tmp.second;
         }
@@ -205,7 +205,7 @@ std::pair<size_t, size_t> FrameParser::decodeFrames(const char* data, json* targ
         dec_ret.resize(num_frames, {0, 0});
 
         tbb::parallel_for(size_t(0), num_frames, [&](size_t cnt) {
-            dec_ret.at(cnt) = decodeFrame(data, j_frames.at(cnt), debug);
+            dec_ret.at(cnt) = decodeFrame(data, total_size, j_frames.at(cnt), debug);
         });
 
         for (auto num_record_it : dec_ret)
@@ -224,7 +224,7 @@ std::pair<size_t, size_t> FrameParser::decodeFrames(const char* data, json* targ
 
 bool FrameParser::hasFileHeaderItems() const { return has_file_header_items_; }
 
-std::pair<size_t, size_t> FrameParser::decodeFrame(const char* data, json& json_frame, bool debug)
+std::pair<size_t, size_t> FrameParser::decodeFrame(const char* data, size_t total_size, json& json_frame, bool debug)
 {
     if (!json_frame.contains("content"))
         throw runtime_error("frame parser scoped frames does not contain correct content");
@@ -247,7 +247,7 @@ std::pair<size_t, size_t> FrameParser::decodeFrame(const char* data, json& json_
     size_t size = frame_content.at("length");
 
     std::tuple<size_t, size_t, bool, bool> db_ret =
-        asterix_parser_.findDataBlocks(data, index, size, &frame_content, debug);
+        asterix_parser_.findDataBlocks(data, index, size, total_size, &frame_content, debug);
 
     // parsed_bytes += std::get<0>(ret);
     // size_t num_data_blocks = std::get<1>(ret);
@@ -270,7 +270,7 @@ std::pair<size_t, size_t> FrameParser::decodeFrame(const char* data, json& json_
 
     for (json& data_block : frame_content.at("data_blocks"))
     {
-        dec_ret = asterix_parser_.decodeDataBlock(data, data_block, debug);
+        dec_ret = asterix_parser_.decodeDataBlock(data, total_size, data_block, debug);
         ret.first += dec_ret.first;
         ret.second += dec_ret.second;
     }

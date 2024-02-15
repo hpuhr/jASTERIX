@@ -131,7 +131,7 @@ Record::Record(const nlohmann::json& item_definition) : ItemParserBase(item_defi
     }
 }
 
-size_t Record::parseItem(const char* data, size_t index, size_t size, size_t current_parsed_bytes,
+size_t Record::parseItem(const char* data, size_t index, size_t size, size_t current_parsed_bytes, size_t total_size,
                          nlohmann::json& target, bool debug)
 {
     if (debug)
@@ -143,7 +143,7 @@ size_t Record::parseItem(const char* data, size_t index, size_t size, size_t cur
     if (debug)
         loginf << "parsing record item '" + name_ + "' field specification" << logendl;
 
-    parsed_bytes = field_specification_->parseItem(data, index + parsed_bytes, size, parsed_bytes,
+    parsed_bytes = field_specification_->parseItem(data, index + parsed_bytes, size, parsed_bytes, total_size,
                                                    target, debug);
 
     if (!target.contains("FSPEC"))
@@ -205,7 +205,7 @@ size_t Record::parseItem(const char* data, size_t index, size_t size, size_t cur
                                     item_name + "'");
 
             parsed_bytes += items_.at(item_name)->parseItem(data, index + parsed_bytes, size,
-                                                            parsed_bytes, target, debug);
+                                                            parsed_bytes, total_size, target, debug);
         }
         else
             uap_cnt++;
@@ -263,7 +263,7 @@ size_t Record::parseItem(const char* data, size_t index, size_t size, size_t cur
                                                 "' references undefined item '" + item_name + "'");
 
                         parsed_bytes += items_.at(item_name)->parseItem(
-                                    data, index + parsed_bytes, size, parsed_bytes, target, debug);
+                                    data, index + parsed_bytes, size, parsed_bytes, total_size, target, debug);
                     }
                     else
                         uap_cnt++;
@@ -275,100 +275,112 @@ size_t Record::parseItem(const char* data, size_t index, size_t size, size_t cur
     if (reserved_expansion_field_present)
     {
         size_t re_bytes = static_cast<unsigned char>(data[index + parsed_bytes]);
-        parsed_bytes += 1;  // read 1 len byte
-        re_bytes -= 1;      // includes 1 len byte
 
-        if (ref_)  // decode ref
+        if (re_bytes) // skip if empty
         {
-            if (debug)
-                loginf << "record '" + name_ + "' has reserved expansion field, reading "
-                       << re_bytes << " bytes " << logendl;
+            parsed_bytes += 1;  // read 1 len byte
+            re_bytes -= 1;      // includes 1 len byte
 
-            if (re_bytes == 0)
+            if (ref_)  // decode ref
             {
-                logerr << "record '" + name_ + "' has reserved expansion field with "
-                       << re_bytes << " length " << logendl;
+                if (debug)
+                    loginf << "record '" + name_ + "' has reserved expansion field, reading "
+                           << re_bytes << " bytes " << logendl;
+
+                if (re_bytes == 0)
+                {
+                    logerr << "record '" + name_ + "' has reserved expansion field with "
+                           << re_bytes << " length " << logendl;
+                }
+                else
+                {
+
+                    assert(re_bytes >= 1);
+
+                    size_t ref_bytes =
+                            ref_->parseItem(data, index + parsed_bytes, re_bytes, 0, total_size, target["REF"], debug);
+
+                    if (debug)
+                        loginf << "record '" + name_ + "' parsed reserved expansion field, read "
+                               << ref_bytes << " ref in " << re_bytes << " bytes " << logendl;
+
+                    if (ref_bytes != re_bytes)
+                        throw runtime_error(
+                                "record item '" + name_ + "' reserved expansion field definition only read " +
+                                to_string(ref_bytes) + " bytes of specified " + to_string(re_bytes));
+
+                    parsed_bytes += re_bytes;
+                }
+                // loginf << "UGA REF '" << target["REF"].dump(4) << "'" << logendl;
             }
             else
             {
-
-                assert(re_bytes >= 1);
-
-                size_t ref_bytes =
-                        ref_->parseItem(data, index + parsed_bytes, re_bytes, 0, target["REF"], debug);
-
                 if (debug)
-                    loginf << "record '" + name_ + "' parsed reserved expansion field, read "
-                           << ref_bytes << " ref in " << re_bytes << " bytes " << logendl;
+                    loginf << "record '" + name_ + "' has reserved expansion field, reading "
+                           << re_bytes << " bytes " << logendl;
 
-                if (ref_bytes != re_bytes)
-                    throw runtime_error(
-                            "record item '" + name_ + "' reserved expansion field definition only read " +
-                            to_string(ref_bytes) + " bytes of specified " + to_string(re_bytes));
+                if (index + parsed_bytes + re_bytes > total_size)
+                    throw std::runtime_error("reserved expansion field longer than max size");
+
+                target["REF"] = binary2hex((const unsigned char*)&data[index + parsed_bytes], re_bytes);
 
                 parsed_bytes += re_bytes;
             }
-            // loginf << "UGA REF '" << target["REF"].dump(4) << "'" << logendl;
         }
-        else
-        {
-            if (debug)
-                loginf << "record '" + name_ + "' has reserved expansion field, reading "
-                       << re_bytes << " bytes " << logendl;
-
-            target["REF"] = binary2hex((const unsigned char*)&data[index + parsed_bytes], re_bytes);
-
-            parsed_bytes += re_bytes;
-        }
-
-
     }
 
     if (special_purpose_field_present)
     {
         size_t re_bytes = static_cast<unsigned char>(data[index + parsed_bytes]);
 
-        parsed_bytes += 1;  // read 1 len byte
-        re_bytes -= 1;      // includes 1 len byte
-
-        if (spf_)  // decode ref
+        if (re_bytes) // skip if empty
         {
-            if (debug)
-                loginf << "record '" + name_ + "' has special purpose field, reading " << re_bytes
-                       << " bytes " << logendl;
+            parsed_bytes += 1;  // read 1 len byte
+            re_bytes -= 1;      // includes 1 len byte
 
-            if (re_bytes == 0)
+            if (spf_)  // decode ref
             {
-                logerr << "record '" + name_ + "' has special purpose field with "
-                       << re_bytes << " length " << logendl;
+                if (debug)
+                    loginf << "record '" + name_ + "' has special purpose field, reading " << re_bytes
+                           << " bytes " << logendl;
+
+                if (re_bytes == 0)
+                {
+                    logerr << "record '" + name_ + "' has special purpose field with "
+                           << re_bytes << " length " << logendl;
+                }
+                else
+                {
+                    assert(re_bytes >= 1);
+
+                    size_t ref_bytes = spf_->parseItem(
+                                data, index + parsed_bytes, re_bytes, 0, total_size, target["SPF"], debug);
+
+                    if (debug)
+                        loginf << "record '" + name_ + "' parsed special purpose field, read " << ref_bytes
+                               << " ref in " << re_bytes << " bytes " << logendl;
+
+                    if (ref_bytes != re_bytes)
+                        throw runtime_error(
+                                "record item '" + name_ + "' special purpose field definition only read " +
+                                to_string(ref_bytes) + " bytes of specified " + to_string(re_bytes));
+
+                    parsed_bytes += re_bytes;
+                }
+                // loginf << "UGA SPF '" << target["SPF"].dump(4) << "'" << logendl;
             }
             else
             {
-                assert(re_bytes >= 1);
-
-                size_t ref_bytes =
-                        spf_->parseItem(data, index + parsed_bytes, re_bytes, 0, target["SPF"], debug);
-
                 if (debug)
-                    loginf << "record '" + name_ + "' parsed special purpose field, read " << ref_bytes
-                           << " ref in " << re_bytes << " bytes " << logendl;
+                    loginf << "record '" + name_ + "' has special purpose field, reading " << re_bytes
+                           << " bytes " << logendl;
 
-                if (ref_bytes != re_bytes)
-                    throw runtime_error(
-                            "record item '" + name_ + "' special purpose field definition only read " +
-                            to_string(ref_bytes) + " bytes of specified " + to_string(re_bytes));
+                if (index + parsed_bytes + re_bytes > total_size)
+                    throw std::runtime_error("special purpose field longer than max size");
+
+                target["SPF"] = binary2hex((const unsigned char*)&data[index + parsed_bytes], re_bytes);
                 parsed_bytes += re_bytes;
             }
-            // loginf << "UGA SPF '" << target["SPF"].dump(4) << "'" << logendl;
-        }
-        else
-        {
-            if (debug)
-                loginf << "record '" + name_ + "' has special purpose field, reading " << re_bytes
-                       << " bytes " << logendl;
-
-            target["SPF"] = binary2hex((const unsigned char*)&data[index + parsed_bytes], re_bytes);
-            parsed_bytes += re_bytes;
         }
     }
 

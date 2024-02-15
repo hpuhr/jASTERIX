@@ -79,8 +79,8 @@ FixedBitFieldItemParser::FixedBitFieldItemParser(const nlohmann::json& item_defi
 }
 
 size_t FixedBitFieldItemParser::parseItem(const char* data, size_t index, size_t size,
-                                          size_t current_parsed_bytes, nlohmann::json& target,
-                                          bool debug)
+                                          size_t current_parsed_bytes, size_t total_size,
+                                          nlohmann::json& target, bool debug)
 {
     if (debug)
         loginf << "parsing fixed bitfield item '" << name_ << "' index " << index << " size "
@@ -103,7 +103,7 @@ size_t FixedBitFieldItemParser::parseItem(const char* data, size_t index, size_t
             loginf << "parsing fixed bitfield item '" << name_ << "' item '" << sub_item_it->name()
                    << "'" << logendl;
 
-        sub_item_it->parseItem(data, index, size, current_parsed_bytes, target, debug);
+        sub_item_it->parseItem(data, index, size, current_parsed_bytes, total_size, target, debug);
     }
 
     return length_;

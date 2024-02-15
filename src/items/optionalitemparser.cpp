@@ -61,8 +61,8 @@ OptionalItemParser::OptionalItemParser(const nlohmann::json& item_definition, co
 }
 
 size_t OptionalItemParser::parseItem(const char* data, size_t index, size_t size,
-                                     size_t current_parsed_bytes, nlohmann::json& target,
-                                     bool debug)
+                                     size_t current_parsed_bytes, size_t total_size,
+                                     nlohmann::json& target, bool debug)
 {
     if (debug)
         loginf << "parsing optional item '" << name_ << "' index " << index << " size " << size
@@ -110,8 +110,8 @@ size_t OptionalItemParser::parseItem(const char* data, size_t index, size_t size
 
     for (auto& df_item : data_fields_)
     {
-        parsed_bytes += df_item->parseItem(data, index + parsed_bytes, size, current_parsed_bytes,
-                                           target[name_], debug);
+        parsed_bytes += df_item->parseItem(
+                    data, index + parsed_bytes, size, current_parsed_bytes, total_size, target[name_], debug);
     }
 
     if (debug)

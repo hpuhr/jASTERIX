@@ -95,8 +95,8 @@ ReservedExpansionField::ReservedExpansionField(const nlohmann::json& item_defini
 ReservedExpansionField::~ReservedExpansionField() {}
 
 size_t ReservedExpansionField::parseItem(const char* data, size_t index, size_t size,
-                                         size_t current_parsed_bytes, nlohmann::json& target,
-                                         bool debug)
+                                         size_t current_parsed_bytes, size_t total_size,
+                                         nlohmann::json& target, bool debug)
 {
     if (debug)
         loginf << "parsing ReservedExpansionField item '" << name_ << "' with index " << index
@@ -108,8 +108,8 @@ size_t ReservedExpansionField::parseItem(const char* data, size_t index, size_t 
         loginf << "parsing ReservedExpansionField item '" + name_ + "' field specification"
                << logendl;
 
-    parsed_bytes = field_specification_->parseItem(data, index + parsed_bytes, size, parsed_bytes,
-                                                   target, debug);
+    parsed_bytes = field_specification_->parseItem(
+                data, index + parsed_bytes, size, parsed_bytes, total_size, target, debug);
 
     if (!target.contains("REF_FSPEC"))
         throw runtime_error("ReservedExpansionField item '" + name_ + "' FSPEC not found");
@@ -152,8 +152,8 @@ size_t ReservedExpansionField::parseItem(const char* data, size_t index, size_t 
                 throw runtime_error("ReservedExpansionField item '" + name_ +
                                     "' references undefined item '" + item_name + "'");
 
-            parsed_bytes += items_.at(item_name)->parseItem(data, index + parsed_bytes, size,
-                                                            parsed_bytes, target, debug);
+            parsed_bytes += items_.at(item_name)->parseItem(
+                        data, index + parsed_bytes, size, parsed_bytes, total_size, target, debug);
         }
         else
             uap_cnt++;
