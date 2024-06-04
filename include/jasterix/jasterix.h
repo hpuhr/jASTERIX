@@ -148,22 +148,23 @@ class jASTERIX
     bool stop_file_decoding_ {false};
 
     // sac/sic -> cat -> count
-    std::map<std::string, std::map<std::string, unsigned int>> sensor_counts_;
+    //std::map<std::string, std::map<std::string, unsigned int>> sensor_counts_;
 
-    // cat -> key -> count/min/max
-    std::map<std::string, std::map<std::string, nlohmann::json>> data_item_analysis_;
+    // sac/sic -> cat -> key -> count/min/max
+    std::map<std::string, std::map<std::string, std::map<std::string, nlohmann::json>>> data_item_analysis_;
 
     size_t openFile (const std::string& filename); // returns file size
     nlohmann::json loadFramingDefinition(const std::string& framing_str);
     void analyzeChunk(const std::unique_ptr<nlohmann::json>& data_chunk, bool framing);
     void analyzeRecord(unsigned int category, const nlohmann::json& record);
 
-    void addJSONAnalysis(const std::string& cat_str, const std::string& prefix, const nlohmann::json& item);
+    void addJSONAnalysis(const std::string& sensor_id, const std::string& cat_str,
+                         const std::string& prefix, const nlohmann::json& item);
 
     void clearDataChunks();
     void clearDataBlockChunks();
 
-    std::string toCSV (const std::map<std::string, std::map<std::string, nlohmann::json>>& data_item_analysis);
+    std::string toCSV (const std::map<std::string, std::map<std::string, std::map<std::string, nlohmann::json>>>& data_item_analysis);
 
     void forceStopTask (DataBlockFinderTask& task);
     void forceStopTask (FrameParserTask& task);
