@@ -350,7 +350,10 @@ std::unique_ptr<nlohmann::json> jASTERIX::analyzeFile(
     file_.close();
 
             //(*analysis_result)["sensor_counts"] = sensor_counts_;
-    (*analysis_result) = data_item_analysis_;
+
+    for (auto& ana_it : data_item_analysis_)
+        (*analysis_result)[ana_it.first] = ana_it.second;
+    //(*analysis_result) = data_item_analysis_;
 
             //sensor_counts_.clear();
     data_item_analysis_.clear();
@@ -576,7 +579,9 @@ std::unique_ptr<nlohmann::json> jASTERIX::analyzeData(const char* data, unsigned
 
             //if (csv)
 
-    (*analysis_result) = data_item_analysis_;
+    for (auto& ana_it : data_item_analysis_)
+        (*analysis_result)[ana_it.first] = ana_it.second;
+    //(*analysis_result) = data_item_analysis_;
 
             //sensor_counts_.clear();
     data_item_analysis_.clear();
