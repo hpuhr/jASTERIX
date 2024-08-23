@@ -446,6 +446,8 @@ std::pair<size_t, size_t> ASTERIXParser::decodeDataBlock(const char* data, size_
     return ret;
 }
 
+#if USE_OPENSSL
+
 void ASTERIXParser::calculateARTASMD5Hash(const char* data, size_t length, nlohmann::json& target)
 {
     unsigned char digest[MD5_DIGEST_LENGTH];
@@ -470,5 +472,7 @@ void ASTERIXParser::calculateARTASMD5Hash(const char* data, size_t length, nlohm
 
     target.emplace("artas_md5", binary2hex(digest, 4));
 }
+
+#endif
 
 }  // namespace jASTERIX
