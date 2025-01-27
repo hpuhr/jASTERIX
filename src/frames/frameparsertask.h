@@ -86,7 +86,7 @@ public:
                 }
                 catch (std::exception& e)
                 {
-                    loginf << "frame parser task caught exeception '" << e.what() << "'" << logendl;
+                    logerr << "frame parser task caught exeception '" << e.what() << "'" << logendl;
 
                     error_ocurred_ = true;
                     done_ = true;

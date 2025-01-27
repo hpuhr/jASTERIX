@@ -321,7 +321,7 @@ std::unique_ptr<nlohmann::json> jASTERIX::analyzeFile(
         }
         catch (std::exception& e)
         {
-            loginf << "jASTERIX caught exception '" << e.what() << "', breaking" << logendl;
+            logerr << "jASTERIX caught exception '" << e.what() << "', breaking" << logendl;
 
             forceStopTask(*task);
 
@@ -542,7 +542,7 @@ std::unique_ptr<nlohmann::json> jASTERIX::analyzeData(const char* data, unsigned
         }
         catch (std::exception& e)
         {
-            loginf << "jASTERIX caught exception'" << e.what() << "', breaking" << logendl;
+            logerr << "jASTERIX caught exception'" << e.what() << "', breaking" << logendl;
 
             forceStopTask(*task);
 
@@ -737,7 +737,7 @@ void jASTERIX::decodeFile(
         }
         catch (std::exception& e)
         {
-            loginf << "jASTERIX caught exception '" << e.what() << "', breaking" << logendl;
+            logerr << "jASTERIX caught exception '" << e.what() << "', breaking" << logendl;
 
             forceStopTask(*task);
 
@@ -846,7 +846,7 @@ void jASTERIX::decodeFile(
         }
         catch (std::exception& e)
         {
-            loginf << "jASTERIX caught exception'" << e.what() << "', breaking" << logendl;
+            logerr << "jASTERIX caught exception'" << e.what() << "', breaking" << logendl;
 
             forceStopTask(*task);
 
@@ -943,7 +943,7 @@ void jASTERIX::decodeData(const char* data, unsigned int total_size,
         }
         catch (std::exception& e)
         {
-            loginf << "jASTERIX caught exception'" << e.what() << "', breaking" << logendl;
+            logerr << "jASTERIX caught exception'" << e.what() << "', breaking" << logendl;
 
             forceStopTask(*task);
 

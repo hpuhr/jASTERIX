@@ -23,6 +23,7 @@
 #include "itemparserbase.h"
 #include "jasterix.h"
 #include "logger.h"
+#include "string_conv.h"
 
 using namespace std;
 using namespace nlohmann;
@@ -245,6 +246,14 @@ std::pair<size_t, size_t> FrameParser::decodeFrame(const char* data, size_t tota
 
     size_t index = frame_content.at("index");
     size_t size = frame_content.at("length");
+
+    if (debug)
+    {
+        loginf << "FrameParser: decodeFrame: index " << index << " length "
+               << size << " data '"
+               << binary2hex((const unsigned char*)&data[index], size)
+               << "'" << logendl;
+    }
 
     std::tuple<size_t, size_t, bool, bool> db_ret =
         asterix_parser_.findDataBlocks(data, index, size, total_size, &frame_content, debug);

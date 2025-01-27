@@ -412,9 +412,12 @@ std::pair<size_t, size_t> ASTERIXParser::decodeDataBlock(const char* data, size_
         }
         catch (std::exception& e)
         {
-            loginf << "asterix parser decoding of cat " << cat << " failed with exception: '"
+            logerr << "asterix parser decoding of cat " << cat << " failed with exception: '"
                    << e.what() << "'"
-                   << "' after index " << data_block_index + data_block_parsed_bytes << logendl;
+                   << "' after index " << data_block_index + data_block_parsed_bytes
+                   << " data block " << binary2hex((const unsigned char*)&data[data_block_index], data_block_length)
+                   << logendl;
+
             ++ret.second;
         }
     }
