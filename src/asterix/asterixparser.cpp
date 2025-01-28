@@ -412,10 +412,16 @@ std::pair<size_t, size_t> ASTERIXParser::decodeDataBlock(const char* data, size_
         }
         catch (std::exception& e)
         {
+            std::string record_json;
+
+            if (data_block_content.contains("records") && data_block_content.at("records").size())
+                record_json = data_block_content.at("records").back().dump(4);
+
             logerr << "asterix parser decoding of cat " << cat << " failed with exception: '"
                    << e.what() << "'"
                    << "' after index " << data_block_index + data_block_parsed_bytes
                    << " data block " << binary2hex((const unsigned char*)&data[data_block_index], data_block_length)
+                   << (record_json.size() ? " record json '" + record_json + "'" : "")
                    << logendl;
 
             ++ret.second;

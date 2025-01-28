@@ -184,17 +184,12 @@ size_t Record::parseItem(const char* data, size_t index, size_t size, size_t cur
 
             if (item_name == "SP")  // special purpose field
             {
-                // loginf << "WARN: record item '"+name_+"' has special purpose field, not
-                // implemented yet"
-                // << logendl;
                 special_purpose_field_present = true;
                 continue;
             }
 
             if (item_name == "RE")  // reserved expansion field
             {
-                // loginf << "WARN: record item '"+name_+"' has reserved expansion field, not
-                // implemented yet" << logendl;
                 reserved_expansion_field_present = true;
                 continue;
             }
@@ -260,16 +255,12 @@ size_t Record::parseItem(const char* data, size_t index, size_t size, size_t cur
 
                 if (item_name == "SP")  // special purpose field
                 {
-                    // loginf << "WARN: record item '"+name_+"' has special purpose field,
-                    // not implemented yet" << logendl;
                     special_purpose_field_present = true;
                     continue;
                 }
 
                 if (item_name == "RE")  // reserved expansion field
                 {
-                    // loginf << "WARN: record item '"+name_+"' has reserved expansion
-                    // field, not implemented yet" << logendl;
                     reserved_expansion_field_present = true;
                     continue;
                 }
@@ -323,9 +314,14 @@ size_t Record::parseItem(const char* data, size_t index, size_t size, size_t cur
                                << ref_bytes << " ref in " << re_bytes << " bytes " << logendl;
 
                     if (ref_bytes != re_bytes)
+                    {
+                        logerr << "parsing error in REF '"
+                               << binary2hex((const unsigned char*)&data[index + parsed_bytes], re_bytes) << "'";
+
                         throw runtime_error(
-                            "record item '" + name_ + "' reserved expansion field definition only read " +
-                            to_string(ref_bytes) + " bytes of specified " + to_string(re_bytes));
+                            "record item '" + name_ + "' reserved expansion field definition read " +
+                            to_string(ref_bytes) + " bytes instead of specified " + to_string(re_bytes));
+                    }
 
                     parsed_bytes += re_bytes;
                 }
@@ -379,9 +375,14 @@ size_t Record::parseItem(const char* data, size_t index, size_t size, size_t cur
                                << " ref in " << re_bytes << " bytes " << logendl;
 
                     if (ref_bytes != re_bytes)
+                    {
+                        logerr << "parsing error in SPF '"
+                               << binary2hex((const unsigned char*)&data[index + parsed_bytes], re_bytes) << "'";
+
                         throw runtime_error(
-                            "record item '" + name_ + "' special purpose field definition only read " +
-                            to_string(ref_bytes) + " bytes of specified " + to_string(re_bytes));
+                            "record item '" + name_ + "' special purpose field definition read " +
+                            to_string(ref_bytes) + " bytes instead of specified " + to_string(re_bytes));
+                    }
 
                     parsed_bytes += re_bytes;
                 }
