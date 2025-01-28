@@ -303,7 +303,6 @@ size_t Record::parseItem(const char* data, size_t index, size_t size, size_t cur
                 }
                 else
                 {
-
                     assert(re_bytes >= 1);
 
                     size_t ref_bytes =
