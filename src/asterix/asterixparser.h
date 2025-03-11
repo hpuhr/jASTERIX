@@ -39,13 +39,13 @@ class ASTERIXParser
 
     // parsed bytes, num data blocks, error flag, done flag
     std::tuple<size_t, size_t, bool, bool> findDataBlocks(const char* data, size_t index,
-                                                          size_t length, nlohmann::json* target,
-                                                          bool debug);
+                                                          size_t length, size_t total_size,
+                                                          nlohmann::json* target, bool debug);
 
     // num recored, num errors
-    std::pair<size_t, size_t> decodeDataBlocks(const char* data, nlohmann::json& data_blocks,
+    std::pair<size_t, size_t> decodeDataBlocks(const char* data, size_t total_size, nlohmann::json& data_blocks,
                                                bool debug);
-    std::pair<size_t, size_t> decodeDataBlock(const char* data, nlohmann::json& data_block,
+    std::pair<size_t, size_t> decodeDataBlock(const char* data, size_t total_size, nlohmann::json& data_block,
                                               bool debug);
     //    size_t decodeDataBlock (const char* data, unsigned int cat, size_t index, size_t size,
     //    nlohmann::json& target,

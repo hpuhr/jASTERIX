@@ -131,7 +131,7 @@ Record::Record(const nlohmann::json& item_definition) : ItemParserBase(item_defi
     }
 }
 
-size_t Record::parseItem(const char* data, size_t index, size_t size, size_t current_parsed_bytes,
+size_t Record::parseItem(const char* data, size_t index, size_t size, size_t current_parsed_bytes, size_t total_size,
                          nlohmann::json& target, bool debug)
 {
     if (debug)
@@ -143,7 +143,7 @@ size_t Record::parseItem(const char* data, size_t index, size_t size, size_t cur
     if (debug)
         loginf << "parsing record item '" + name_ + "' field specification" << logendl;
 
-    parsed_bytes = field_specification_->parseItem(data, index + parsed_bytes, size, parsed_bytes,
+    parsed_bytes = field_specification_->parseItem(data, index + parsed_bytes, size, parsed_bytes, total_size,
                                                    target, debug);
 
     if (!target.contains("FSPEC"))
@@ -166,6 +166,9 @@ size_t Record::parseItem(const char* data, size_t index, size_t size, size_t cur
 
     for (const auto& item_name : uap_names_)  // parse static uap items
     {
+        if (debug)
+            loginf << " item name '" + item_name + "'" << logendl;
+
         if (uap_cnt >= num_fspec_bits)
             break;
 
@@ -181,17 +184,12 @@ size_t Record::parseItem(const char* data, size_t index, size_t size, size_t cur
 
             if (item_name == "SP")  // special purpose field
             {
-                // loginf << "WARN: record item '"+name_+"' has special purpose field, not
-                // implemented yet"
-                // << logendl;
                 special_purpose_field_present = true;
                 continue;
             }
 
             if (item_name == "RE")  // reserved expansion field
             {
-                // loginf << "WARN: record item '"+name_+"' has reserved expansion field, not
-                // implemented yet" << logendl;
                 reserved_expansion_field_present = true;
                 continue;
             }
@@ -205,7 +203,7 @@ size_t Record::parseItem(const char* data, size_t index, size_t size, size_t cur
                                     item_name + "'");
 
             parsed_bytes += items_.at(item_name)->parseItem(data, index + parsed_bytes, size,
-                                                            parsed_bytes, target, debug);
+                                                            parsed_bytes, total_size, target, debug);
         }
         else
             uap_cnt++;
@@ -213,166 +211,260 @@ size_t Record::parseItem(const char* data, size_t index, size_t size, size_t cur
 
     if (has_conditional_uap_)
     {
-        for (const auto& conditional_uap_value : conditional_uap_names_)
+        if (debug)
+            loginf << "parsing record item '" + name_ + "' conditional uap data items" << logendl;
+
+        std::string json_value = getValue(target, debug);
+
+        if (debug)
+            loginf << "conditional uap data item value '" << json_value << "'" << logendl;
+
+        if (!conditional_uap_names_.count(json_value))
         {
-            if (compareKey(target, conditional_uap_value.first))
+            if (debug)
+                loginf << "conditional uap data item value '" << json_value << "' not defined" << logendl;
+
+            throw runtime_error("conditional uap data item value '" + json_value + "' not defined");
+        }
+
+        if (debug)
+            loginf << "record item '" << name_ << "' with conditional " << conditional_uaps_key_ << " value "
+                   << json_value << " found" << logendl;
+
+        const auto& current_uap_names = conditional_uap_names_.at(json_value);
+
+        for (const auto& item_name : current_uap_names)  // parse dynamic uap items
+        {
+            if (uap_cnt >= num_fspec_bits)
             {
                 if (debug)
-                    loginf << "record item '" << name_ << "' with conditinal "
-                           << conditional_uaps_key_ << " value " << conditional_uap_value.first
-                           << " found" << logendl;
-
-                for (const auto& item_name :
-                     conditional_uap_value.second)  // parse dynamic uap items
-                {
-                    if (uap_cnt >= num_fspec_bits)
-                        break;
-
-                    if (fspec_bits.at(uap_cnt))
-                    {
-                        uap_cnt++;
-
-                        if (item_name == "FX")  // extension into next byte
-                            continue;
-
-                        if (item_name == "-")  // bit not used
-                            continue;
-
-                        if (item_name == "SP")  // special purpose field
-                        {
-                            // loginf << "WARN: record item '"+name_+"' has special purpose field,
-                            // not implemented yet" << logendl;
-                            special_purpose_field_present = true;
-                            continue;
-                        }
-
-                        if (item_name == "RE")  // reserved expansion field
-                        {
-                            // loginf << "WARN: record item '"+name_+"' has reserved expansion
-                            // field, not implemented yet" << logendl;
-                            reserved_expansion_field_present = true;
-                            continue;
-                        }
-
-                        if (debug)
-                            loginf << "parsing record item '" << name_ << "' data item '"
-                                   << item_name << "' index " << index + parsed_bytes << logendl;
-
-                        if (items_.count(item_name) != 1)
-                            throw runtime_error("record item '" + name_ +
-                                                "' references undefined item '" + item_name + "'");
-
-                        parsed_bytes += items_.at(item_name)->parseItem(
-                                    data, index + parsed_bytes, size, parsed_bytes, target, debug);
-                    }
-                    else
-                        uap_cnt++;
-                }
+                    loginf << "conditional uap data item count break, uap_cnt " << uap_cnt
+                           << " num_fspec_bits " << num_fspec_bits << logendl;
+                break;
             }
+
+            if (fspec_bits.at(uap_cnt))
+            {
+                uap_cnt++;
+
+                if (item_name == "FX")  // extension into next byte
+                    continue;
+
+                if (item_name == "-")  // bit not used
+                    continue;
+
+                if (item_name == "SP")  // special purpose field
+                {
+                    special_purpose_field_present = true;
+                    continue;
+                }
+
+                if (item_name == "RE")  // reserved expansion field
+                {
+                    reserved_expansion_field_present = true;
+                    continue;
+                }
+
+                if (debug)
+                    loginf << "parsing record item '" << name_ << "' data item '"
+                           << item_name << "' index " << index + parsed_bytes << logendl;
+
+                if (items_.count(item_name) != 1)
+                    throw runtime_error("record item '" + name_ +
+                                        "' references undefined item '" + item_name + "'");
+
+                parsed_bytes += items_.at(item_name)->parseItem(
+                    data, index + parsed_bytes, size, parsed_bytes, total_size, target, debug);
+            }
+            else
+                uap_cnt++;
         }
     }
 
     if (reserved_expansion_field_present)
     {
         size_t re_bytes = static_cast<unsigned char>(data[index + parsed_bytes]);
-        parsed_bytes += 1;  // read 1 len byte
-        re_bytes -= 1;      // includes 1 len byte
 
-        if (ref_)  // decode ref
+        if (re_bytes) // skip if empty
         {
-            if (debug)
-                loginf << "record '" + name_ + "' has reserved expansion field, reading "
-                       << re_bytes << " bytes " << logendl;
+            parsed_bytes += 1;  // read 1 len byte
+            re_bytes -= 1;      // includes 1 len byte
 
-            if (re_bytes == 0)
+            if (ref_)  // decode ref
             {
-                logerr << "record '" + name_ + "' has reserved expansion field with "
-                       << re_bytes << " length " << logendl;
+                if (debug)
+                    loginf << "record '" + name_ + "' has reserved expansion field, reading "
+                           << re_bytes << " bytes " << logendl;
+
+                if (re_bytes == 0)
+                {
+                    logerr << "record '" + name_ + "' has reserved expansion field with "
+                           << re_bytes << " length " << logendl;
+                }
+                else
+                {
+                    assert(re_bytes >= 1);
+
+                    size_t ref_bytes =
+                        ref_->parseItem(data, index + parsed_bytes, re_bytes, 0, total_size, target["REF"], debug);
+
+                    if (debug)
+                        loginf << "record '" + name_ + "' parsed reserved expansion field, read "
+                               << ref_bytes << " ref in " << re_bytes << " bytes " << logendl;
+
+                    if (ref_bytes != re_bytes)
+                    {
+                        logerr << "parsing error in REF '"
+                               << binary2hex((const unsigned char*)&data[index + parsed_bytes], re_bytes) << "'";
+
+                        throw runtime_error(
+                            "record item '" + name_ + "' reserved expansion field definition read " +
+                            to_string(ref_bytes) + " bytes instead of specified " + to_string(re_bytes));
+                    }
+
+                    parsed_bytes += re_bytes;
+                }
+                // loginf << "UGA REF '" << target["REF"].dump(4) << "'" << logendl;
             }
             else
             {
-
-                assert(re_bytes >= 1);
-
-                size_t ref_bytes =
-                        ref_->parseItem(data, index + parsed_bytes, re_bytes, 0, target["REF"], debug);
-
                 if (debug)
-                    loginf << "record '" + name_ + "' parsed reserved expansion field, read "
-                           << ref_bytes << " ref in " << re_bytes << " bytes " << logendl;
+                    loginf << "record '" + name_ + "' has reserved expansion field, reading "
+                           << re_bytes << " bytes " << logendl;
 
-                if (ref_bytes != re_bytes)
-                    throw runtime_error(
-                            "record item '" + name_ + "' reserved expansion field definition only read " +
-                            to_string(ref_bytes) + " bytes of specified " + to_string(re_bytes));
+                if (index + parsed_bytes + re_bytes > total_size)
+                    throw std::runtime_error("reserved expansion field longer than max size");
+
+                target["REF"] = binary2hex((const unsigned char*)&data[index + parsed_bytes], re_bytes);
 
                 parsed_bytes += re_bytes;
             }
-            // loginf << "UGA REF '" << target["REF"].dump(4) << "'" << logendl;
         }
-        else
-        {
-            if (debug)
-                loginf << "record '" + name_ + "' has reserved expansion field, reading "
-                       << re_bytes << " bytes " << logendl;
-
-            target["REF"] = binary2hex((const unsigned char*)&data[index + parsed_bytes], re_bytes);
-
-            parsed_bytes += re_bytes;
-        }
-
-
     }
 
     if (special_purpose_field_present)
     {
         size_t re_bytes = static_cast<unsigned char>(data[index + parsed_bytes]);
 
-        parsed_bytes += 1;  // read 1 len byte
-        re_bytes -= 1;      // includes 1 len byte
-
-        if (spf_)  // decode ref
+        if (re_bytes) // skip if empty
         {
-            if (debug)
-                loginf << "record '" + name_ + "' has special purpose field, reading " << re_bytes
-                       << " bytes " << logendl;
+            parsed_bytes += 1;  // read 1 len byte
+            re_bytes -= 1;      // includes 1 len byte
 
-            if (re_bytes == 0)
+            if (spf_)  // decode ref
             {
-                logerr << "record '" + name_ + "' has special purpose field with "
-                       << re_bytes << " length " << logendl;
+                if (debug)
+                    loginf << "record '" + name_ + "' has special purpose field, reading " << re_bytes
+                           << " bytes " << logendl;
+
+                if (re_bytes == 0)
+                {
+                    logerr << "record '" + name_ + "' has special purpose field with "
+                           << re_bytes << " length " << logendl;
+                }
+                else
+                {
+                    assert(re_bytes >= 1);
+
+                    size_t ref_bytes = spf_->parseItem(
+                        data, index + parsed_bytes, re_bytes, 0, total_size, target["SPF"], debug);
+
+                    if (debug)
+                        loginf << "record '" + name_ + "' parsed special purpose field, read " << ref_bytes
+                               << " ref in " << re_bytes << " bytes " << logendl;
+
+                    if (ref_bytes != re_bytes)
+                    {
+                        logerr << "parsing error in SPF '"
+                               << binary2hex((const unsigned char*)&data[index + parsed_bytes], re_bytes) << "'";
+
+                        throw runtime_error(
+                            "record item '" + name_ + "' special purpose field definition read " +
+                            to_string(ref_bytes) + " bytes instead of specified " + to_string(re_bytes));
+                    }
+
+                    parsed_bytes += re_bytes;
+                }
+                // loginf << "UGA SPF '" << target["SPF"].dump(4) << "'" << logendl;
             }
             else
             {
-                assert(re_bytes >= 1);
-
-                size_t ref_bytes =
-                        spf_->parseItem(data, index + parsed_bytes, re_bytes, 0, target["SPF"], debug);
-
                 if (debug)
-                    loginf << "record '" + name_ + "' parsed special purpose field, read " << ref_bytes
-                           << " ref in " << re_bytes << " bytes " << logendl;
+                    loginf << "record '" + name_ + "' has special purpose field, reading " << re_bytes
+                           << " bytes " << logendl;
 
-                if (ref_bytes != re_bytes)
-                    throw runtime_error(
-                            "record item '" + name_ + "' special purpose field definition only read " +
-                            to_string(ref_bytes) + " bytes of specified " + to_string(re_bytes));
+                if (index + parsed_bytes + re_bytes > total_size)
+                    throw std::runtime_error("special purpose field longer than max size");
+
+                target["SPF"] = binary2hex((const unsigned char*)&data[index + parsed_bytes], re_bytes);
                 parsed_bytes += re_bytes;
             }
-            // loginf << "UGA SPF '" << target["SPF"].dump(4) << "'" << logendl;
-        }
-        else
-        {
-            if (debug)
-                loginf << "record '" + name_ + "' has special purpose field, reading " << re_bytes
-                       << " bytes " << logendl;
-
-            target["SPF"] = binary2hex((const unsigned char*)&data[index + parsed_bytes], re_bytes);
-            parsed_bytes += re_bytes;
         }
     }
 
     return parsed_bytes;
+}
+
+bool Record::compareKey(const nlohmann::json& container, const std::string& value, bool debug)
+{
+    const nlohmann::json* val_ptr = &container;
+
+    for (const std::string& sub_key : conditional_uaps_sub_keys_)
+    {
+        if (debug)
+            loginf << "Record: compareKey: sub_key '" << sub_key << "' json '" << val_ptr->dump(4) << "'"<< logendl;
+
+        val_ptr = &(*val_ptr)[sub_key];
+    }
+
+    if (debug)
+        loginf << "Record: compareKey: last json '" << val_ptr->dump(4) << "'"<< logendl;
+
+    bool ret {false};
+    std::string json_value;
+
+    if (val_ptr->type() == nlohmann::json::value_t::string)  // from string conv
+        json_value = val_ptr->get<std::string>();
+    else
+        json_value = val_ptr->dump();
+
+    ret = json_value == value;
+
+    loginf << "Record: compareKey: json value '" << json_value << "' value '" << value << "' ret " << ret << logendl;
+
+    return ret;
+}
+
+std::string Record::getValue(const nlohmann::json& container, bool debug)
+{
+    const nlohmann::json* val_ptr = &container;
+
+    for (const std::string& sub_key : conditional_uaps_sub_keys_)
+    {
+        if (debug)
+            loginf << "Record: getValue: sub_key '" << sub_key << "' json '" << val_ptr->dump(4) << "'" << logendl;
+
+        if (!val_ptr->contains(sub_key))
+        {
+            if (debug)
+                loginf << "Record: getValue: sub_key '" << sub_key << "' not found" << logendl;
+
+            return "";
+        }
+
+        val_ptr = &(*val_ptr)[sub_key];
+    }
+
+    std::string json_value;
+
+    if (val_ptr->type() == nlohmann::json::value_t::string)  // from string conv
+        json_value = val_ptr->get<std::string>();
+    else
+        json_value = val_ptr->dump();
+
+    loginf << "Record: compareKey: json value '" << json_value << "'" << logendl;
+
+    return json_value;
 }
 
 bool Record::decodeREF() const { return decode_ref_; }

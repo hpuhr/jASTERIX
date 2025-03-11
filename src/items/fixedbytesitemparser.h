@@ -29,8 +29,8 @@ class FixedBytesItemParser : public ItemParserBase
     virtual ~FixedBytesItemParser() {}
 
     virtual size_t parseItem(const char* data, size_t index, size_t size,
-                             size_t current_parsed_bytes, nlohmann::json& target,
-                             bool debug) override;
+                             size_t current_parsed_bytes, size_t total_size,
+                             nlohmann::json& target, bool debug) override;
 
   protected:
     size_t length_{0};

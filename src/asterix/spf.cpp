@@ -140,21 +140,21 @@ SpecialPurposeField::SpecialPurposeField(const nlohmann::json& item_definition)
 SpecialPurposeField::~SpecialPurposeField() {}
 
 size_t SpecialPurposeField::parseItem(const char* data, size_t index, size_t size,
-                                      size_t current_parsed_bytes, nlohmann::json& target,
+                                      size_t current_parsed_bytes, size_t total_size, nlohmann::json& target,
                                       bool debug)
 {
     if (type_ == "ComplexSpecialPurposeField")
-        return parseComplexItem(data, index, size, current_parsed_bytes, target, debug);
+        return parseComplexItem(data, index, size, current_parsed_bytes, total_size, target, debug);
     else if (type_ == "SimpleSpecialPurposeField")
-        return parseSimpleItem(data, index, size, current_parsed_bytes, target, debug);
+        return parseSimpleItem(data, index, size, current_parsed_bytes, total_size, target, debug);
     else
         throw runtime_error("SpecialPurposeField item '" + name_ + "' of unknown type '" + type_ +
                             "'");
 }
 
 size_t SpecialPurposeField::parseSimpleItem(const char* data, size_t index, size_t size,
-                                            size_t current_parsed_bytes, nlohmann::json& target,
-                                            bool debug)
+                                            size_t current_parsed_bytes, size_t total_size,
+                                            nlohmann::json& target, bool debug)
 {
     if (debug)
         loginf << "parsing simple SpecialPurposeField item '" << name_ << "' with index " << index
@@ -172,14 +172,14 @@ size_t SpecialPurposeField::parseSimpleItem(const char* data, size_t index, size
                    << item_it->name() << "' index " << index + parsed_bytes << logendl;
 
         parsed_bytes +=
-            item_it->parseItem(data, index + parsed_bytes, size, parsed_bytes, target, debug);
+            item_it->parseItem(data, index + parsed_bytes, size, parsed_bytes, total_size, target, debug);
     }
 
     return parsed_bytes;
 }
 
 size_t SpecialPurposeField::parseComplexItem(const char* data, size_t index, size_t size,
-                                             size_t current_parsed_bytes, nlohmann::json& target,
+                                             size_t current_parsed_bytes, size_t total_size, nlohmann::json& target,
                                              bool debug)
 {
     if (debug)
@@ -193,7 +193,7 @@ size_t SpecialPurposeField::parseComplexItem(const char* data, size_t index, siz
                << logendl;
 
     parsed_bytes = complex_field_specification_->parseItem(data, index + parsed_bytes, size,
-                                                           parsed_bytes, target, debug);
+                                                           parsed_bytes, total_size, target, debug);
 
     if (!target.contains("REF_FSPEC"))
         throw runtime_error("complex SpecialPurposeField item '" + name_ + "' FSPEC not found");
@@ -234,7 +234,7 @@ size_t SpecialPurposeField::parseComplexItem(const char* data, size_t index, siz
                                     "' references undefined item '" + item_name + "'");
 
             parsed_bytes += complex_items_.at(item_name)->parseItem(
-                data, index + parsed_bytes, size, parsed_bytes, target, debug);
+                data, index + parsed_bytes, size, parsed_bytes, total_size, target, debug);
         }
         else
             uap_cnt++;

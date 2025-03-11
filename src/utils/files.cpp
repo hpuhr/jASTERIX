@@ -21,6 +21,7 @@
 #include <cassert>
 #include <iostream>
 #include <stdexcept>
+#include <algorithm>
 
 #include "jasterix/global.h"
 

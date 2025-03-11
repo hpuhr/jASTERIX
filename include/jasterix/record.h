@@ -35,8 +35,8 @@ class Record : public ItemParserBase
     virtual ~Record() override {}
 
     virtual size_t parseItem(const char* data, size_t index, size_t size,
-                             size_t current_parsed_bytes, nlohmann::json& target,
-                             bool debug) override;
+                             size_t current_parsed_bytes, size_t total_size,
+                             nlohmann::json& target, bool debug) override;
     bool decodeREF() const;
     void decodeREF(bool decodeREF);
 
@@ -62,21 +62,8 @@ class Record : public ItemParserBase
     std::shared_ptr<ReservedExpansionField> ref_;
     std::shared_ptr<SpecialPurposeField> spf_;
 
-    inline bool compareKey(const nlohmann::json& container, const std::string& value)
-    {
-        const nlohmann::json* val_ptr = &container;
-
-        for (const std::string& sub_key : conditional_uaps_sub_keys_)
-        {
-            // loginf << "UGA '" << sub_key << "' json '" << val_ptr->dump(4) << "'"<< logendl;
-            val_ptr = &(*val_ptr)[sub_key];
-        }
-
-        if (val_ptr->type() == nlohmann::json::value_t::string)  // from string conv
-            return val_ptr->get<std::string>() == value;
-        else
-            return val_ptr->dump() == value;
-    }
+    bool compareKey(const nlohmann::json& container, const std::string& value, bool debug);
+    std::string getValue(const nlohmann::json& container, bool debug);
 };
 
 }  // namespace jASTERIX

@@ -41,8 +41,11 @@ public:
                                             const std::string& long_name_prefix);
 
     // always return number of parsed bytes
+    // size can be for sub-item parsing and relative to index (already parsed),
+    // total size always largest possible, e.g. file size
     virtual size_t parseItem(const char* data, size_t index, size_t size,
-                             size_t current_parsed_bytes, nlohmann::json& target, bool debug) = 0;
+                             size_t current_parsed_bytes, size_t total_size,
+                             nlohmann::json& target, bool debug) = 0;
     std::string name() const;
     std::string longNamePrefix() const;
     std::string longName() const;
