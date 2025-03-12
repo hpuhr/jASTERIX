@@ -430,7 +430,8 @@ bool Record::compareKey(const nlohmann::json& container, const std::string& valu
 
     ret = json_value == value;
 
-    loginf << "Record: compareKey: json value '" << json_value << "' value '" << value << "' ret " << ret << logendl;
+    if (debug)
+        loginf << "Record: compareKey: json value '" << json_value << "' value '" << value << "' ret " << ret << logendl;
 
     return ret;
 }
@@ -462,7 +463,8 @@ std::string Record::getValue(const nlohmann::json& container, bool debug)
     else
         json_value = val_ptr->dump();
 
-    loginf << "Record: compareKey: json value '" << json_value << "'" << logendl;
+    if (debug)
+        loginf << "Record: compareKey: json value '" << json_value << "'" << logendl;
 
     return json_value;
 }
