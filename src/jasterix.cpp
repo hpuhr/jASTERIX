@@ -412,32 +412,35 @@ std::string jASTERIX::analyzeFileCSV(const std::string& filename, unsigned int r
 {
     std::unique_ptr<nlohmann::json> analysis_result = analyzeFile(filename, record_limit);
 
-            // sac/sic -> cat -> count
-//    assert (analysis_result->contains("sensor_counts"));
-
     std::stringstream ss;
 
-//    std::map<std::string, std::map<std::string, unsigned int>> sensor_counts = analysis_result->at("sensor_counts");
+    unsigned int num_errors=0;
+    if (analysis_result->contains("num_errors"))
+    {
+        num_errors = analysis_result->at("num_errors");
+        analysis_result->erase("num_errors");
+    }
 
-//    ss << "sensor counts" << endl;
+    ss << "num_errors;" << num_errors << endl;
 
-//    ss << "sensor;cat;count" << endl;
+    unsigned int num_records=0;
+    if (analysis_result->contains("num_records"))
+    {
+        num_records = analysis_result->at("num_records");
+        analysis_result->erase("num_records");
+    }
 
-//    for (const auto& sen_it : sensor_counts)
-//        for (const auto& count_it : sen_it.second)
-//            ss << sen_it.first <<  ";" << count_it.first << ";" << count_it.second << endl;
+    ss << "num_records;" << num_records << endl;
 
-//    ss << endl << endl;
-
-//            // cat -> key -> count/min/max
-//    assert (analysis_result->contains("data_items"));
-
-//    ss << "data items" << endl;
+    //loginf << "jASTERIX: analyzeFileCSV: analysis_result '" << analysis_result->dump(2) << "'";
 
     std::map<std::string, std::map<std::string, std::map<std::string, nlohmann::json>>> data_item_analysis =
         *analysis_result;
 
+    //loginf << "jASTERIX: analyzeFileCSV: toCSV";
     ss << toCSV(data_item_analysis);
+
+    //loginf << "jASTERIX: analyzeFileCSV: toCSV '" << ss.str() << "'";
 
     return ss.str();
 }
@@ -1260,18 +1263,29 @@ std::string jASTERIX::toCSV (
 
     ss << "sac/sic;name;count;min;max" << endl;
 
+    string cat_str;
+
     for (const auto& sensor_it : data_item_analysis)
     {
+        loginf << sensor_it.first << sensor_it.second;
 
         for (const auto& cat_it : sensor_it.second)
         {
-            ss << sensor_it.first << " CAT" << std::setw(3) << std::setfill('0') << cat_it.first << ":" << endl;
+            std::ostringstream oss;
+
+            // Format the number: width=3, fill='0'
+            oss << std::setw(3) << std::setfill('0') << cat_it.first;
+
+            cat_str = oss.str();
+
+            ss << sensor_it.first << " CAT" << cat_str << ":" << endl;
 
             for (const auto& di_info_it : cat_it.second) // key -> count/min/max
             {
                 if (di_info_it.second.is_primitive())
                 {
                     ss << sensor_it.first << ";count;" << di_info_it.second << ";;" << endl;
+
                     continue;
                 }
 
