@@ -211,10 +211,16 @@ class jASTERIX
     // sac/sic -> cat -> key -> count/min/max
     std::map<std::string, std::map<std::string, std::map<std::string, nlohmann::json>>> data_item_analysis_;
 
+    // cat -> {num data blocks, num bytes} of data blocks skipped during analysis
+    // because the category could not be decoded (no definition or decoding disabled)
+    std::map<unsigned int, std::pair<size_t, size_t>> skipped_category_counts_;
+
     size_t openFile (const std::string& filename); // returns file size
     nlohmann::json loadFramingDefinition(const std::string& framing_str);
     void analyzeChunk(const std::unique_ptr<nlohmann::json>& data_chunk, bool framing);
     void analyzeRecord(unsigned int category, const nlohmann::json& record);
+    void countSkippedDataBlock(const nlohmann::json& data_block);
+    void addSkippedCategoriesAnalysis(nlohmann::json& analysis_result);
 
     void addJSONAnalysis(const std::string& sensor_id, const std::string& cat_str,
                          const std::string& prefix, const nlohmann::json& item);

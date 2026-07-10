@@ -360,8 +360,11 @@ std::unique_ptr<nlohmann::json> jASTERIX::analyzeFile(
     for (const auto& ana_it : data_item_analysis_) // add to preserve num counters
         (*analysis_result)[ana_it.first] = ana_it.second;
 
+    addSkippedCategoriesAnalysis(*analysis_result);
+
             //sensor_counts_.clear();
     data_item_analysis_.clear();
+    skipped_category_counts_.clear();
 
     return analysis_result;
 }
@@ -659,6 +662,7 @@ std::unique_ptr<nlohmann::json> jASTERIX::analyzeData(const char* data, unsigned
             forceStopTask(*task);
 
             data_item_analysis_.clear();
+            skipped_category_counts_.clear();
 
             throw;
         }
@@ -697,8 +701,11 @@ std::unique_ptr<nlohmann::json> jASTERIX::analyzeData(const char* data, unsigned
     for (const auto& ana_it : data_item_analysis_) // add to preserve num counters
         (*analysis_result)[ana_it.first] = ana_it.second;
 
+    addSkippedCategoriesAnalysis(*analysis_result);
+
             //sensor_counts_.clear();
     data_item_analysis_.clear();
+    skipped_category_counts_.clear();
 
     return analysis_result;
 }
@@ -1464,7 +1471,10 @@ void jASTERIX::analyzeChunk(const std::unique_ptr<nlohmann::json>& data_chunk, b
                 traced_assert(data_block.contains("category"));
 
                 if (!data_block.contains("content") || !data_block.at("content").contains("records"))
+                {
+                    countSkippedDataBlock(data_block);
                     continue;
+                }
 
                 traced_assert(data_block.contains("content"));
                 traced_assert(data_block.at("content").contains("records"));
@@ -1490,7 +1500,10 @@ void jASTERIX::analyzeChunk(const std::unique_ptr<nlohmann::json>& data_chunk, b
             traced_assert(data_block.contains("category"));
 
             if (!data_block.contains("content") || !data_block.at("content").contains("records"))
+            {
+                countSkippedDataBlock(data_block);
                 continue;
+            }
 
             traced_assert(data_block.contains("content"));
             traced_assert(data_block.at("content").contains("records"));
@@ -1536,6 +1549,44 @@ void jASTERIX::analyzeRecord(unsigned int category, const nlohmann::json& record
     addJSONAnalysis(sensor_id, cat_str, "", record);
 }
 
+void jASTERIX::countSkippedDataBlock(const nlohmann::json& data_block)
+{
+    unsigned int category = data_block.at("category");
+
+    // only count data blocks skipped because the category cannot be decoded,
+    // either since no definition exists or since decoding is disabled
+    if (category_definitions_.count(category) && category_definitions_.at(category)->decode())
+        return;
+
+    size_t bytes = 0;
+
+    if (data_block.contains("length")) // whole data block incl. CAT/LEN header
+        bytes = data_block.at("length");
+    else if (data_block.contains("content") && data_block.at("content").contains("length"))
+        bytes = data_block.at("content").at("length");
+
+    auto& counts = skipped_category_counts_[category];
+    counts.first += 1;
+    counts.second += bytes;
+}
+
+void jASTERIX::addSkippedCategoriesAnalysis(nlohmann::json& analysis_result)
+{
+    if (skipped_category_counts_.empty())
+        return;
+
+    nlohmann::json& skipped = analysis_result["skipped_categories"];
+
+    for (const auto& cat_it : skipped_category_counts_)
+    {
+        string cat_str = to_string(cat_it.first);
+
+        skipped[cat_str]["data_blocks"] = cat_it.second.first;
+        skipped[cat_str]["bytes"]       = cat_it.second.second;
+        skipped[cat_str]["reason"]      = category_definitions_.count(cat_it.first) ?
+                    "decoding disabled" : "no specification";
+    }
+}
 
 void jASTERIX::addJSONAnalysis(const std::string& sensor_id, const std::string& cat_str,
                                const std::string& prefix, const nlohmann::json& item)
