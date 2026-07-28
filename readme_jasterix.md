@@ -1,0 +1,295 @@
+# jASTERIX
+
+## What jASTERIX is
+
+**jASTERIX** is the OpenATS-maintained C++ library that converts EUROCONTROL ASTERIX binary data to JSON - and, for supported categories, encodes JSON back to bytes. It is developed as a standalone GPL-3.0 library in its own repository (`~/workspace/jasterix/`) and is the decoding engine embedded in COMPASS. All ASTERIX structure knowledge lives in JSON definition files, not in C++ code: new categories and editions are added by writing definitions only, with no recompilation.
+
+Two consumers:
+
+- **COMPASS** (primary use case): links `libjasterix` and calls `decodeFile()` / `decodeData()` with callbacks receiving `std::unique_ptr<nlohmann::json>` chunks for in-memory processing. The COMPASS-side import pipeline (JSON-to-DBContent mappings, edition selection per data context) is documented in [readme_asterix.md](/home/sk/workspace/compass/src/task/import/asterix/readme_asterix.md).
+- **`jasterix_client`** (secondary): CLI application for standalone decoding to stdout, text file, or zip; distributed as an AppImage.
+
+Build, code conventions, dependencies, and naming rules for the library are covered in the repo's own [CLAUDE.md](/home/sk/workspace/jasterix/CLAUDE.md) - this readme covers the domain side: repo layout, definitions, output formats, and the API.
+
+## Repository layout
+
+| Path | What lives there |
+|---|---|
+| `include/jasterix/` | Public API headers: `jasterix.h` (main `jASTERIX` class), `category.h`, `edition.h`/`editionbase.h`, `refedition.h`/`ref.h`, `spfedition.h`/`spf.h`, `mapping.h`, `frameparser.h`, `record.h` (FSPEC/UAP), `itemparserbase.h`, `iteminfo.h` |
+| `src/jasterix.cpp` | Main library implementation (decode entry points, chunking, TBB task orchestration) |
+| `src/asterix/` | Parsing core: `ASTERIXParser` (data block splitting), `Category`, `Edition`, `Record`, `Mapping`, REF/SPF editions |
+| `src/frames/` | Framing parsers (`FrameParser`, `FrameParserTask`) for IOSS / IOSS-seq / RFF wrappers |
+| `src/items/` | Item parser implementations, one per definition item type: fixed bytes/bits/bitfield, extendable, compound, repetitive, dynamic bytes, optional, skip. Factory dispatch via `ItemParserBase::createItemParser()` |
+| `src/write/` | JSON output writing (`JsonWriter`, `JsonFileWriteTask`) |
+| `src/client/` | `jasterix_client` CLI (`main.cpp`) |
+| `src/test/` | Catch2 tests (`test_cat<NNN>_<edition>.cpp`, `test_encode.cpp`, `test_limits.cpp`, `test_performance.cpp`) plus small per-category binary test recordings |
+| `src/utils/` | Files, logger, string conversion, ARTAS MD5 hash checker |
+| `definitions/` | The canonical ASTERIX definition files (see below). COMPASS ships a copy in `compass/data/jasterix_definitions/`, kept in sync with this folder |
+| `analyze/` | Python analysis scripts (data item statistics, ADS-B quality, mapping checks) |
+| repo root | EUROCONTROL spec PDFs for offline reference (Part 1 ed 3.1 and others) |
+
+## Supported categories and editions
+
+From `definitions/categories/` (the `categories.json` registry lists the default edition per category):
+
+| CAT | Editions | REFs | SPFs | Description |
+|---|---|---|---|---|
+| 001 | 1.1 | | | Monoradar target reports (legacy) |
+| 002 | 1.0 | | | Monoradar service messages (legacy) |
+| 004 | 1.4 | | | Safety net messages |
+| 010 | 0.24 (Sensis), 0.31 | | | Surface movement data |
+| 019 | 1.2, 1.3 | | | Multilateration system status |
+| 020 | 1.5, 1.8 | 1.3 | | Multilateration target reports |
+| 021 | 0.26, 2.1, 2.4 | 1.5 | | ADS-B target reports |
+| 023 | 1.2 | | | CNS/ATM ground station status |
+| 030 | 7.0, nonstd | | | ARTAS track messages |
+| 034 | 1.26 | | | Monoradar service messages |
+| 048 | 1.15, 1.23 | 1.9 | | Monoradar target reports |
+| 062 | 1.12, 1.16, 1.18, 1.21 | 1.2, 1.4 | ARTAS TRIs | System track messages (SDPS/ARTAS) |
+| 063 | 1.0, 1.1 | | | Sensor status messages |
+| 065 | 1.2, 1.3 | | | SDPS service status |
+| 247 | 1.2 | | | Version number exchange |
+| 252 | 7.0 | | | ARTAS track updates |
+
+COMPASS imports all of these except the ARTAS-internal 030/252 (decodable, but not mapped to DBContent).
+
+## ASTERIX binary format essentials
+
+The spec reference is `eurocontrol-specification-asterix-part1-ed-3-1.pdf` in the repo root.
+
+```
+[Framing]                      Optional recording/network encapsulation (IOSS, IOSS-seq, RFF)
+  +- Data Block                CAT (1 byte) + LEN (2 bytes) + Data Records
+       +- Data Record          FSPEC + Data Fields (one per FSPEC-selected item)
+            +- Data Item       Structure per item type (see below)
+                 +- Subitem    Fixed or variable octets
+                      +- Element   Individual bit fields within a subitem
+```
+
+- **UAP (User Application Profile)**: ordered table mapping FRN positions to data item numbers; one per category/edition (some categories have conditional UAPs selected by a data item value).
+- **FSPEC**: variable-length bitmask at the start of each record; each bit selects a UAP entry, the FX (LSB) bit chains additional FSPEC octets. There is no fixed record layout.
+- **Data item types** (spec section 5.2.5): fixed length, extended length (FX-chained), explicit length (leading LEN octet), repetitive (leading REP count octet), and compound (a mini-FSPEC presence bitmask selecting data subitems, each of which can itself be any of the other types).
+
+## Definition file format
+
+All decoding rules live in `definitions/`:
+
+- `data_block_definition.json` - the CAT/LEN/content envelope
+- `framings/{ioss,ioss_seq,rff}.json` - recording wrappers (per-frame timestamps, sequence numbers, board metadata)
+- `categories/categories.json` - registry of supported editions, REFs, SPFs, and the default per category
+- `categories/<NNN>/cat<NNN>_<edition>.json` - per-edition UAP plus per-item layout
+- `categories/<NNN>/cat<NNN>_ref_<edition>.json` / `cat<NNN>_spf_*.json` - REF and SPF definitions (e.g. ARTAS TRIs in 062)
+
+A category definition is a `record` with a `field_specification` (FSPEC), a `uap` array, and an `items` array; each item has `data_fields` describing the bit/byte layout:
+
+```json
+{
+    "name": "cat048_1.23_record",
+    "type": "record",
+    "field_specification": { "name": "FSPEC", "type": "extendable_bits", ... },
+    "uap": ["010", "140", "020", "040", "070", "090", "130", ...],
+    "items": [
+        { "number": "010", "name": "Data Source Identifier", "type": "item",
+          "data_fields": [
+              { "name": "SAC", "type": "fixed_bytes", "length": 1, "data_type": "uint" },
+              { "name": "SIC", "type": "fixed_bytes", "length": 1, "data_type": "uint" }
+          ]
+        }
+    ]
+}
+```
+
+**Field types**: `fixed_bytes`, `fixed_bits`, `fixed_bitfield`, `extendable_bits`, `extendable`, `compound`, `repetitive`, `dynamic_bytes`, `optional`, `skip_bytes`. Scaled quantities carry an `lsb` factor (e.g. 360/2^16 degrees for azimuth).
+
+**ASCII only**: definition JSONs (here and in the COMPASS copy) must use plain ASCII - no Greek letters, curly quotes, or en/em-dashes. Their content renders through pdflatex in the COMPASS ASTERIX Import / Data Item Analysis reports.
+
+When adding a new edition: create the `cat<NNN>_<edition>.json`, register it in `categories.json`, add a `test_cat<NNN>_<edition>.cpp` with a small binary sample in `src/test/`, and sync the file into `compass/data/jasterix_definitions/`.
+
+## JSON output formats
+
+Two output formats: **structured** (default) and **flat** (`--flat` / `do_flat`).
+
+**Structured** mirrors the data block / record hierarchy; item numbers are keys:
+
+```json
+{ "data_blocks": [ { "category": 48, "content": { "records": [
+    { "010": { "SAC": 0, "SIC": 1 },
+      "040": { "RHO": 73.92, "THETA": 89.67 },
+      "140": { "Time-of-Day": 33499.84 } } ] } } ] }
+```
+
+**Flat** is columnar, keyed by category number: each leaf field becomes a top-level array with one entry per record; fields not selected by FSPEC are `null`:
+
+```json
+{ "48": { "010.SAC": [0, 0, 5], "040.RHO": [73.92, null, 55.10] } }
+```
+
+Repetitive items are represented differently per format. Structured mode nests them as an array of objects plus a `"REP"` count key (`"SPF": { "REP": 2, "Target Report Identifiers": [ { "TRI": "76427f0a" }, { "TRI": "10c4d792" } ] }`). Flat mode flattens down to the leaf (struct-of-arrays): one column per leaf path, each per-record cell an array of scalars aligned by repetition index (`"SPF.Target Report Identifiers.TRI": [["76427f0a", "10c4d792"], null, ...]`), plus a `<prefix>.REP` column mirroring the structured REP location (`"SPF.REP"`). Multi-field repetitions produce one such column per field, aligned by index. Extendable items keep their whole array-of-objects in a single column keyed by the item path. Flat-to-nested reconstruction stays lossless: repetitive leaf cells (arrays of scalars) are zipped back into the array-of-objects form by repetition index.
+
+## Library API
+
+Main entry point is the `jASTERIX` class in `include/jasterix/jasterix.h`:
+
+```cpp
+jASTERIX::jASTERIX jasterix(definition_path, print, debug, debug_exclude_framing);
+
+jasterix.decodeFile(filename, framing, callback);      // file with framing ("" = raw/netto)
+jasterix.decodeData(data, size, callback);             // raw buffer
+jasterix.decodePCAPFile(filename, callback);           // libpcap capture (payload of all streams, raw/netto)
+
+jasterix.hasCategory(cat);
+jasterix.decodeCategory(cat, enable);                  // enable/disable per category
+jasterix.category(cat);                                // Category object: editions, REFs, SPFs, current selection
+jasterix.stopDecoding();                               // abort from another thread
+```
+
+Callbacks receive `std::unique_ptr<nlohmann::json>` chunks; decoding is chunked and TBB-parallelized so large files never load fully into memory.
+
+### Encoding
+
+jASTERIX can also encode, not just decode:
+
+```cpp
+std::vector<char> encodeRecord(unsigned int category, const nlohmann::json& record_json, bool debug = false);
+std::vector<char> encodeDataBlock(unsigned int category, const std::vector<nlohmann::json>& records, bool debug = false);
+```
+
+Both take **structured (nested) JSON** as produced by decoding and return a complete data block (CAT + LEN + records). Encoding is byte-exact for round trips (verified in `test_encode.cpp`, including CAT062 1.21). The CLI exposes encoding for **flat** input via `--encode_flat` / `--encode_flat_zip` (the client reconstructs the nested form from the flat columns - lossless, see above - then encodes); structured-JSON encoding is library-only.
+
+## CLI client
+
+```
+jasterix_client --definition_path definitions/ --filename <file> [options]
+```
+
+`--definition_path` is mandatory; `--filename` is required for anything that reads data. Options (from `src/client/main.cpp`, boost::program_options):
+
+**Input**
+
+| Option | Meaning |
+|---|---|
+| `--filename <path>` | Input file to decode |
+| `--definition_path <path>` | Path to the definition files (mandatory) |
+| `--framing <name>` | Input framing as named in `definitions/framings/` (`ioss`, `ioss_seq`, `rff`). Default is raw/netto (no framing) |
+| `--pcap` | Input file is a PCAP capture (libpcap); the ASTERIX payload of all network streams is extracted in capture order and decoded as raw/netto (no framing, do not combine with `--framing`) |
+
+**Decoding scope and behavior**
+
+| Option | Meaning |
+|---|---|
+| `--only_cats <list>` | Restrict decoded categories, e.g. `20,21,48`. Others are skipped |
+| `--editions <list>` | Select non-default editions per category, e.g. `21:0.26,48:1.15`. Without this, the defaults from `categories.json` apply |
+| `--frame_limit <n>` | Max frames to process (with framing). Default -1 (unlimited) |
+| `--frame_chunk_size <n>` | Frames per processing chunk. Default 1000, -1 disables chunking |
+| `--data_block_limit <n>` | Max data blocks to process (without framing). Default -1 (unlimited) |
+| `--data_block_chunk_size <n>` | Data blocks per processing chunk. Default 1000, -1 disables chunking |
+| `--single_thread` | Disable TBB multi-threading (deterministic ordering, easier debugging) |
+
+**Output**
+
+| Option | Meaning |
+|---|---|
+| `--print` | Print the decoded JSON to stdout |
+| `--print_indent <n>` | Indentation for printed JSON, -1 for compact single-line output |
+| `--flat` | Output in flat/columnar format (category -> leaf name -> array) instead of the structured record hierarchy |
+| `--write_type <text\|zip>` | Write decoded JSON to a file; `text` writes one JSON chunk per line, `zip` writes a zip archive with one member per chunk. Needs `--write_filename` |
+| `--write_filename <path>` | Output file for `--write_type`, e.g. `out.json` or `out.zip` |
+| `--data_write_size <n>` | Number of chunks per file write. Default 1, -1 disables |
+| `--add_record_data` | Include each record's original bytes as hex in the output (useful for definition debugging and byte-exact comparison) |
+
+**Analysis and diagnostics**
+
+| Option | Meaning |
+|---|---|
+| `--analyze` | Analyze data sources and contents (per-SAC/SIC, per-category, per-item statistics) instead of full JSON output; this is what COMPASS uses for its import probe |
+| `--analyze_csv` | Same analysis, printed as CSV |
+| `--analyze_record_limit <n>` | Limit the number of analyzed records. Default 0 (no limit) |
+| `--print_cat_info` | Print the supported categories, editions, REFs, and SPFs, then exit |
+| `--log_perf` | Print performance statistics (records/s, MB/s) after processing |
+| `--debug` | Verbose decoding debug output (only sensible for small files) |
+| `--debug_include_framing` | Include framing layer in the debug output (requires `--debug`) |
+
+**ARTAS MD5** (only in builds with OpenSSL)
+
+| Option | Meaning |
+|---|---|
+| `--add_artas_md5` | Add ARTAS MD5 hashes to the output |
+| `--check_artas_md5 <cats>` | Compute and verify ARTAS MD5 hashes for the given categories, e.g. `1,20,21,48`. Implies record data; cannot be combined with `--write_type` |
+
+**Flat re-encoding** (JSON back to binary ASTERIX)
+
+| Option | Meaning |
+|---|---|
+| `--encode_flat <path>` | Encode flat columnar JSON from a text file (one flat chunk object per line, as written by `--flat --write_type text`) back to raw/netto ASTERIX. Needs `--encode_filename` |
+| `--encode_flat_zip <path>` | Same, from a zip archive (members = chunks, as written by `--flat --write_type zip`) |
+| `--encode_filename <path>` | Output binary file for the re-encoded raw/netto ASTERIX |
+| `--encode_cat <n>` | Restrict encoding to a single category. Default 0 encodes all categories present. Editions are taken from `--editions`, defaults otherwise |
+
+### Example commands
+
+Structured mode (default):
+
+```bash
+# Print an IOSS-framed recording as indented structured JSON
+jasterix_client --definition_path definitions/ --filename recording.ff --framing ioss \
+    --print --print_indent 2
+
+# Decode a raw/netto recording, only CAT021 + CAT048, with specific editions, into a zip
+jasterix_client --definition_path definitions/ --filename recording.rec \
+    --only_cats 21,48 --editions 21:2.1,48:1.15 \
+    --write_type zip --write_filename out.zip
+
+# Decode the ASTERIX payload of a PCAP capture, print compact JSON
+jasterix_client --definition_path definitions/ --filename capture.pcap --pcap \
+    --print --print_indent -1
+
+# Analyze a recording (data sources, categories, item statistics), no JSON output
+jasterix_client --definition_path definitions/ --filename recording.ff --framing ioss --analyze
+
+# Verify ARTAS MD5 hashes for CAT048 tracks
+jasterix_client --definition_path definitions/ --filename recording.rec --check_artas_md5 48
+```
+
+Flat mode:
+
+```bash
+# Print a recording as flat columnar JSON
+jasterix_client --definition_path definitions/ --filename recording.rec --flat \
+    --print --print_indent 2
+
+# Write flat output to a text file (one flat chunk object per line)
+jasterix_client --definition_path definitions/ --filename recording.rec --flat \
+    --write_type text --write_filename flat.json
+
+# Round trip: decode to flat zip, then re-encode to binary ASTERIX (byte-exact)
+jasterix_client --definition_path definitions/ --filename recording.rec --flat \
+    --write_type zip --write_filename flat.zip
+jasterix_client --definition_path definitions/ \
+    --encode_flat_zip flat.zip --encode_filename reencoded.rec
+
+# Re-encode only CAT062 from a flat text file, using a non-default edition
+jasterix_client --definition_path definitions/ \
+    --encode_flat flat.json --encode_cat 62 --editions 62:1.21 \
+    --encode_filename cat062.rec
+```
+
+Note that framed input decodes fine, but re-encoding always produces raw/netto output - framings are not re-generated.
+
+## Testing
+
+```bash
+./build/bin/test_categories --definition_path definitions/ --data_path src/test/
+```
+
+One `test_cat<NNN>_<edition>.cpp` per category/edition decoding a small binary sample and asserting field values; `test_encode.cpp` for round-trip encoding; `test_limits.cpp` for edge cases; `test_performance.cpp` for benchmarks. Register new tests in `src/test/CMakeLists.txt`.
+
+## Relationship to COMPASS
+
+- COMPASS ships a copy of the definitions in `compass/data/jasterix_definitions/` - **keep it in sync** with `~/workspace/jasterix/definitions/` whenever definitions change.
+- `ASTERIXImportTask` constructs one `jASTERIX` instance against that folder and applies the active data context's per-category edition/REF/SPF selection (`configurejASTERIX()`).
+- The decoded JSON is mapped to DBContent variables via the `ASTERIXJSONParser` mappings in `conf/default/task_import_asterix_cat<NNN>.json`.
+- The ASTERIX format itself (categories, layered information hierarchy, position accuracy and altitude variants, framings/REF/SPF semantics) and the full import pipeline are documented in [readme_asterix.md](/home/sk/workspace/compass/src/task/import/asterix/readme_asterix.md).
+
+## Reference documents
+
+EUROCONTROL spec PDFs live at the jASTERIX repo root (Part 1 ed 3.1) and, organized per category with historical editions, under `~/Nextcloud/documents/asterix/` - see the reference table in readme_asterix.md for the exact files backing each implemented edition.

@@ -162,6 +162,11 @@ void ItemParserBase::setColumnTarget(nlohmann::json* column_array, size_t* recor
     record_index_ = record_index;
 }
 
+void ItemParserBase::setColumnArrayAppend(bool append)
+{
+    column_array_append_ = append;
+}
+
 // size_t parseFixedBitsItem (const std::string& name, const std::string& type, const
 // nlohmann::json& item_definition,
 //                           const char* data, size_t index, size_t size, size_t

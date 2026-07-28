@@ -86,6 +86,11 @@ void encodeSetPath(nlohmann::json& obj, const std::string& path, const nlohmann:
 
 // Reconstruct nested per-record JSON objects from one category's flat columns.
 // A null column entry means the item/subfield was not present in that record.
+// Repetitive item leaves are flattened as struct-of-arrays: the cell is an array
+// of scalars aligned by repetition index (e.g. 'SPF.Target Report Identifiers.TRI'
+// -> ["c1f176d0", ...]). Those are zipped back into the array-of-objects form the
+// nested encoder expects at the parent path. Extendable item cells are arrays of
+// objects and pass through unchanged.
 std::vector<nlohmann::json> encodeReconstructRecords(const nlohmann::json& cat_cols)
 {
     size_t num_records = 0;
@@ -107,7 +112,32 @@ std::vector<nlohmann::json> encodeReconstructRecords(const nlohmann::json& cat_c
             const nlohmann::json& val = col.at(i);
             if (val.is_null())
                 continue;
-            encodeSetPath(rec, it.key(), val);
+
+            const std::string& path = it.key();
+            size_t last_dot = path.rfind('.');
+
+            if (val.is_array() && last_dot != std::string::npos &&
+                (val.empty() || !val.at(0).is_object()))
+            {
+                // repetitive leaf: zip scalars into array-of-objects at parent path
+                nlohmann::json* parent = &rec;
+                size_t start = 0;
+                while (true)
+                {
+                    size_t dot = path.find('.', start);
+                    if (dot == std::string::npos || dot == last_dot)
+                        break;
+                    parent = &((*parent)[path.substr(start, dot - start)]);
+                    start = dot + 1;
+                }
+                nlohmann::json& container = (*parent)[path.substr(start, last_dot - start)];
+                const std::string leaf = path.substr(last_dot + 1);
+
+                for (size_t k = 0; k < val.size(); ++k)
+                    container[k][leaf] = val.at(k);
+            }
+            else
+                encodeSetPath(rec, path, val);
         }
         records.push_back(std::move(rec));
     }

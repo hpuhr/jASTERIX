@@ -1775,6 +1775,13 @@ std::vector<char> jASTERIX::encodeRecord(unsigned int category,
     if (!rec)
         throw runtime_error("jASTERIX: encodeRecord: no record for category " + to_string(category));
 
+    // inject current REF/SPF so they encode also in encode-only runs
+    // (otherwise this only happens when an ASTERIXParser is constructed for decoding)
+    if (cat->hasCurrentREFEdition())
+        rec->setRef(cat->getCurrentREFEdition()->reservedExpansionField());
+    if (cat->hasCurrentSPFEdition())
+        rec->setSpf(cat->getCurrentSPFEdition()->specialPurposeField());
+
     // allocate working buffer (64KB should be more than enough for any single record)
     const size_t buf_size = 65536;
     vector<char> buffer(buf_size, 0);
@@ -1811,6 +1818,13 @@ std::vector<char> jASTERIX::encodeDataBlock(unsigned int category,
 
     if (!rec)
         throw runtime_error("jASTERIX: encodeDataBlock: no record for category " + to_string(category));
+
+    // inject current REF/SPF so they encode also in encode-only runs
+    // (otherwise this only happens when an ASTERIXParser is constructed for decoding)
+    if (cat->hasCurrentREFEdition())
+        rec->setRef(cat->getCurrentREFEdition()->reservedExpansionField());
+    if (cat->hasCurrentSPFEdition())
+        rec->setSpf(cat->getCurrentSPFEdition()->specialPurposeField());
 
     // allocate working buffer
     const size_t buf_size = 65536 * records.size();

@@ -256,7 +256,7 @@ Columnar layout keyed by category number. Each leaf field becomes a top-level ar
 
 Fields absent from a record (not selected by FSPEC) are `null` in the corresponding array position.
 
-Repetitive items additionally emit their repetition count: as a `"REP"` key next to the repetition array in structured mode (e.g. `"REF": { "CSN": { "CSN": [...], "REP": 2 } }`), and as a `<prefix>.REP` column in flat mode (e.g. `REF.CSN.REP` next to `REF.CSN.CSN`).
+Repetitive items are represented differently per format. Structured mode nests them as an array of objects plus a `"REP"` count key next to it (e.g. `"SPF": { "REP": 2, "Target Report Identifiers": [ { "TRI": "76427f0a" }, { "TRI": "10c4d792" } ] }`). Flat mode flattens down to the leaf (struct-of-arrays): one column per leaf path whose per-record cells are arrays of scalars aligned by repetition index (e.g. `"SPF.Target Report Identifiers.TRI": [["76427f0a", "10c4d792"], null, ...]`), plus a `<prefix>.REP` column mirroring the structured REP location (e.g. `SPF.REP`, `REF.CSN.REP`). Extendable items keep their whole array-of-objects in a single column keyed by the item path.
 
 ## ASTERIX definition format
 
