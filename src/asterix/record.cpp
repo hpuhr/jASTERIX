@@ -369,7 +369,8 @@ size_t Record::parseItem(const char* data, size_t index, size_t size, size_t cur
                     if (ref_bytes != re_bytes)
                     {
                         logerr << "parsing error in REF '"
-                               << binary2hex((const unsigned char*)&data[index + parsed_bytes], re_bytes) << "'";
+                               << binary2hex_bounded((const unsigned char*)data, index + parsed_bytes,
+                                                     re_bytes, total_size) << "'";
 
                         throw runtime_error(
                             "record item '" + name_ + "' reserved expansion field definition read " +
@@ -444,7 +445,8 @@ size_t Record::parseItem(const char* data, size_t index, size_t size, size_t cur
                     if (ref_bytes != re_bytes)
                     {
                         logerr << "parsing error in SPF '"
-                               << binary2hex((const unsigned char*)&data[index + parsed_bytes], re_bytes) << "'";
+                               << binary2hex_bounded((const unsigned char*)data, index + parsed_bytes,
+                                                     re_bytes, total_size) << "'";
 
                         throw runtime_error(
                             "record item '" + name_ + "' special purpose field definition read " +

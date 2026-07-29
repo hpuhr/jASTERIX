@@ -18,6 +18,7 @@
 #include "string_conv.h"
 #include "traced_assert.h"
 
+#include <algorithm>
 #include <cassert>
 #include <cstring>
 #include <iomanip>
@@ -96,6 +97,25 @@ std::string binary2hex(const unsigned char* data, unsigned int len)
         s[2 * i + 1] = hexmap[data[i] & 0x0F];
     }
     return s;
+}
+
+std::string binary2hex_bounded(const unsigned char* data, size_t index, size_t length,
+                               size_t total_size)
+{
+    // lengths in error paths come from possibly corrupt input data; never
+    // read past the end of the (memory-mapped) buffer
+    if (index >= total_size)
+        return "<index " + std::to_string(index) + " beyond buffer size " +
+               std::to_string(total_size) + ">";
+
+    size_t len = std::min(length, total_size - index);
+
+    std::string result = binary2hex(data + index, static_cast<unsigned int>(len));
+
+    if (len < length)
+        result += "...";  // declared length exceeded the buffer, dump clamped
+
+    return result;
 }
 
 std::string bin2hex(const char* src, size_t length)

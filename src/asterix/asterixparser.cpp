@@ -18,8 +18,10 @@
 #include "asterixparser.h"
 
 
+#include <cmath>
 #include <iomanip>
 #include <iostream>
+#include <limits>
 
 #include "itemparserbase.h"
 #include "jasterix.h"
@@ -363,10 +365,11 @@ std::pair<size_t, size_t> ASTERIXParser::decodeDataBlock(const char* data, size_
     if (debug)
         loginf << "ASTERIXParser: decodeDataBlock: index " << data_block_index << " length "
                << data_block_length << " data '"
-               << binary2hex((const unsigned char*)&data[data_block_index], data_block_length)
+               << binary2hex_bounded((const unsigned char*)data, data_block_index, data_block_length, total_size)
                << "'" << logendl;
 
     constexpr double tod_24h = 86400.0;
+    constexpr double tod_trunc_period = 512.0;  // period of I001/141 truncated Time of Day
 
     // try to decode
     if (records_.count(cat) != 0)
@@ -478,55 +481,113 @@ std::pair<size_t, size_t> ASTERIXParser::decodeDataBlock(const char* data, size_
                                     {
                                         double t_trunc = cat_cols.at(src_col)[ri].get<double>();
 
-                                        traced_assert(t_trunc >= 0 && t_trunc <= tod_24h);
-
-                                        auto period_it = cat002_last_tod_period_.find(source_id);
-
-                                        if (period_it != cat002_last_tod_period_.end())
-                                        {
-                                            traced_assert(period_it->second >= 0 && period_it->second < tod_24h);
-
-                                            double full_tod = t_trunc + period_it->second;
-
-                                            //loginf << "UGA1 " << source_id << " full_tod " << full_tod;
-
-                                            traced_assert(full_tod >= 0 && full_tod < tod_24h);
-                                            cat_cols[dst_col][ri] = full_tod;
-                                        }
-                                        else
+                                        // I001/141 is the full Time of Day truncated to
+                                        // 16 bit at LSB 1/128 s, i.e. the full time modulo
+                                        // 512 s (CAT001 Part 2a section 5.2.15). Values
+                                        // outside [0, 512) cannot occur in valid data;
+                                        // reconstruction is impossible for them.
+                                        if (t_trunc < 0 || t_trunc >= tod_trunc_period)
                                             cat_cols[dst_col][ri] = nullptr;
+                                        else
+                                        {
+                                            // Reconstruct the full Time of Day from the
+                                            // truncated value using the last I002/030 Time
+                                            // of Day of the same SAC/SIC as reference, as
+                                            // recommended in CAT001 Part 2a section 5.3.2.7.
+                                            //
+                                            // Per section 5.2.15 Note 1 the derivation is
+                                            // guaranteed for source/sink clock offsets below
+                                            // 512 s and requires "special care" at the 512 s
+                                            // wrap ("all ones" to "all zeros" transition):
+                                            // record and reference may lie in different
+                                            // 512 s periods, so the reference's own period
+                                            // and both neighboring periods are candidates.
+                                            //
+                                            // Per Note 2 the Time of Day resets to 0 at
+                                            // midnight. Since 86400 s is not a multiple of
+                                            // 512 s (86400 mod 512 = 384), the truncated
+                                            // sequence is discontinuous at midnight; two
+                                            // additional candidates cover records just
+                                            // after the reset (t_trunc itself) and records
+                                            // in the truncated last period of the day
+                                            // (last period base + t_trunc).
+                                            //
+                                            // Of all candidates, the one closest to the
+                                            // reference on the circular 24 h clock is
+                                            // chosen. A unique interpretation only exists
+                                            // for offsets below half a period (256 s);
+                                            // beyond that the sync precondition of Note 1
+                                            // is violated and null is stored.
+                                            double ref = ref_it->second;
+
+                                            double period_base =
+                                                tod_trunc_period * std::floor(ref / tod_trunc_period);
+                                            double last_period_base =
+                                                tod_trunc_period * std::floor(tod_24h / tod_trunc_period);
+
+                                            double best_tod = -1.0;
+                                            double best_dist = std::numeric_limits<double>::max();
+
+                                            auto add_candidate = [&](double cand)
+                                            {
+                                                if (cand < 0 || cand >= tod_24h)
+                                                    return;
+
+                                                double dist = std::fabs(cand - ref);
+                                                dist = std::min(dist, tod_24h - dist);  // circular day distance
+
+                                                if (dist < best_dist)
+                                                {
+                                                    best_dist = dist;
+                                                    best_tod = cand;
+                                                }
+                                            };
+
+                                            // reference period and both neighbors (5.2.15 Note 1)
+                                            add_candidate(period_base - tod_trunc_period + t_trunc);
+                                            add_candidate(period_base + t_trunc);
+                                            add_candidate(period_base + tod_trunc_period + t_trunc);
+                                            // midnight edges (5.2.15 Note 2)
+                                            add_candidate(t_trunc);
+                                            add_candidate(last_period_base + t_trunc);
+
+                                            if (best_dist < tod_trunc_period / 2.0)
+                                                cat_cols[dst_col][ri] = best_tod;
+                                            else
+                                                cat_cols[dst_col][ri] = nullptr;
+                                        }
                                     }
                                     else
                                     {
-                                        traced_assert(ref_it->second >= 0 && ref_it->second <= tod_24h);
+                                        // no truncated time in the record: use the
+                                        // reference time directly (validated on storage)
                                         cat_cols[dst_col][ri] = ref_it->second;
-
-                                        //loginf << "UGA1b " << source_id << " full_tod " << ref_it->second;
                                     }
                                 }
                             }
                         }
                     }
 
-                    // CAT002: store full Time of Day and 512-second period base
-                    // per data source for CAT001 truncated time reconstruction.
+                    // CAT002: store the last full I002/030 Time of Day per data source
+                    // as reference for CAT001 truncated time reconstruction (CAT001
+                    // Part 2a section 5.3.2.7). I002/030 resets to 0 at midnight
+                    // (CAT002 Part 2b section 5.2.4 Note 1), but its 24 bit at LSB
+                    // 1/128 s can encode values beyond 24 h; such values indicate a
+                    // faulty sensor clock and are ignored instead of stored, so the
+                    // reference always holds a valid time in [0, 86400).
                     if (cat == 2 && record_scratch.contains("SAC")
                         && record_scratch.contains("Time of Day"))
                     {
                         double tod = record_scratch.at("Time of Day").get<double>();
-                        traced_assert(tod >= 0 && tod < tod_24h);
 
-                        std::string source_id = to_string(record_scratch.at("SAC").get<size_t>()) +
-                                                "/" +
-                                                to_string(record_scratch.at("SIC").get<size_t>());
+                        if (tod >= 0 && tod < tod_24h)
+                        {
+                            std::string source_id = to_string(record_scratch.at("SAC").get<size_t>()) +
+                                                    "/" +
+                                                    to_string(record_scratch.at("SIC").get<size_t>());
 
-                        double tod_period = 512.0 * static_cast<int>(tod / 512.0);
-                        traced_assert(tod_period >= 0 && tod_period < 86400.0);
-
-                        cat002_last_tod_[source_id] = tod;
-                        cat002_last_tod_period_[source_id] = tod_period;
-
-                        //loginf << "UGA2 " << source_id << " tod " << tod << " period " << tod_period;
+                            cat002_last_tod_[source_id] = tod;
+                        }
                     }
 
 #if USE_OPENSSL
@@ -552,7 +613,7 @@ std::pair<size_t, size_t> ASTERIXParser::decodeDataBlock(const char* data, size_
                                << data_block_parsed_bytes << " > " << data_block_length << ")"
                                << " after index " << data_block_index + data_block_parsed_bytes
                                << " data block "
-                               << binary2hex((const unsigned char*)&data[data_block_index], data_block_length)
+                               << binary2hex_bounded((const unsigned char*)data, data_block_index, data_block_length, total_size)
                                << logendl;
 
                         ++num_errors;
@@ -568,7 +629,7 @@ std::pair<size_t, size_t> ASTERIXParser::decodeDataBlock(const char* data, size_
                 logerr << "asterix parser decoding flat of cat " << cat << " failed with exception: '"
                        << e.what()
                        << "' after index " << data_block_index + data_block_parsed_bytes
-                       << " data block " << binary2hex((const unsigned char*)&data[data_block_index], data_block_length)
+                       << " data block " << binary2hex_bounded((const unsigned char*)data, data_block_index, data_block_length, total_size)
                        << logendl;
 
                 ++num_errors;
@@ -643,7 +704,7 @@ std::pair<size_t, size_t> ASTERIXParser::decodeDataBlock(const char* data, size_
                                << data_block_parsed_bytes << " > " << data_block_length << ")"
                                << " after index " << data_block_index + data_block_parsed_bytes
                                << " data block "
-                               << binary2hex((const unsigned char*)&data[data_block_index], data_block_length)
+                               << binary2hex_bounded((const unsigned char*)data, data_block_index, data_block_length, total_size)
                                << logendl;
 
                         ++num_errors;
@@ -677,7 +738,7 @@ std::pair<size_t, size_t> ASTERIXParser::decodeDataBlock(const char* data, size_
                 logerr << "asterix parser decoding of cat " << cat << " failed with exception: '"
                        << e.what()
                        << "' after index " << data_block_index + data_block_parsed_bytes
-                       << " data block " << binary2hex((const unsigned char*)&data[data_block_index], data_block_length)
+                       << " data block " << binary2hex_bounded((const unsigned char*)data, data_block_index, data_block_length, total_size)
                        << (record_json.size() ? " record json '" + record_json + "'" : "")
                        << logendl;
 

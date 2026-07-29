@@ -266,7 +266,7 @@ std::pair<size_t, size_t> FrameParser::decodeFrame(const char* data, size_t tota
     {
         loginf << "FrameParser: decodeFrame: index " << index << " length "
                << size << " data '"
-               << binary2hex((const unsigned char*)&data[index], size)
+               << binary2hex_bounded((const unsigned char*)data, index, size, total_size)
                << "'" << logendl;
     }
 
