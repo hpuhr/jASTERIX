@@ -244,6 +244,13 @@ std::unique_ptr<nlohmann::json> jASTERIX::analyzeFile(
     (*analysis_result)["num_frames"]  = 0;
     (*analysis_result)["num_records"] = 0;
     (*analysis_result)["num_errors"]  = 0;
+    (*analysis_result)["num_ref_errors"] = 0;
+    (*analysis_result)["num_spf_errors"] = 0;
+
+    // REF/SPF fallback counts accumulate in the local parser; members stay cumulative
+    // per instance like num_errors_
+    size_t ref_errors_base = num_ref_errors_;
+    size_t spf_errors_base = num_spf_errors_;
 
     std::unique_ptr<FrameParserTask> task {
                                           new FrameParserTask(*this, frame_parser, json_header, data, index, file_size, debug_framing)};
@@ -294,9 +301,13 @@ std::unique_ptr<nlohmann::json> jASTERIX::analyzeFile(
             dec_ret = frame_parser.decodeFrames(data, file_size, data_chunk.get(), debug_);
             num_records_ += dec_ret.first;
             num_errors_ += dec_ret.second;
+            num_ref_errors_ = ref_errors_base + asterix_parser.numREFErrors();
+            num_spf_errors_ = spf_errors_base + asterix_parser.numSPFErrors();
 
             (*analysis_result)["num_records"] = num_records_;
             (*analysis_result)["num_errors"] = num_errors_;
+            (*analysis_result)["num_ref_errors"] = num_ref_errors_;
+            (*analysis_result)["num_spf_errors"] = num_spf_errors_;
 
             if (debug_)
                 loginf << "jASTERIX analyze " << num_frames_ << " frames, " << num_records_
@@ -479,6 +490,8 @@ std::unique_ptr<nlohmann::json> jASTERIX::analyzePCAPFile(const std::string& fil
         // reset per-invocation counters so each stream is analyzed independently
         num_records_ = 0;
         num_errors_  = 0;
+        num_ref_errors_ = 0;
+        num_spf_errors_ = 0;
 
         std::unique_ptr<nlohmann::json> stream_result =
             analyzeData(stream.data.data(), stream.data.size(), record_limit);
@@ -582,6 +595,13 @@ std::unique_ptr<nlohmann::json> jASTERIX::analyzeData(const char* data, unsigned
     // any chunk is decoded
     (*analysis_result)["num_records"] = 0;
     (*analysis_result)["num_errors"]  = 0;
+    (*analysis_result)["num_ref_errors"] = 0;
+    (*analysis_result)["num_spf_errors"] = 0;
+
+    // REF/SPF fallback counts accumulate in the local parser; members stay cumulative
+    // per instance like num_errors_
+    size_t ref_errors_base = num_ref_errors_;
+    size_t spf_errors_base = num_spf_errors_;
 
     std::pair<size_t, size_t> dec_ret{0, 0};
 
@@ -628,9 +648,13 @@ std::unique_ptr<nlohmann::json> jASTERIX::analyzeData(const char* data, unsigned
 
             num_records_ += dec_ret.first;
             num_errors_ += dec_ret.second;
+            num_ref_errors_ = ref_errors_base + asterix_parser.numREFErrors();
+            num_spf_errors_ = spf_errors_base + asterix_parser.numSPFErrors();
 
             (*analysis_result)["num_records"] = num_records_;
             (*analysis_result)["num_errors"] = num_errors_;
+            (*analysis_result)["num_ref_errors"] = num_ref_errors_;
+            (*analysis_result)["num_spf_errors"] = num_spf_errors_;
 
             if (num_errors_)
             {
@@ -811,6 +835,11 @@ void jASTERIX::decodeFile(
             // create ASTERIX parser
     ASTERIXParser asterix_parser(data_block_definition_, category_definitions_, debug_);
 
+    // REF/SPF fallback counts accumulate in the local parser; members stay cumulative
+    // per instance like num_errors_
+    size_t ref_errors_base = num_ref_errors_;
+    size_t spf_errors_base = num_spf_errors_;
+
     if (do_flat)
     {
         flat_record_indices_.clear();
@@ -894,6 +923,8 @@ void jASTERIX::decodeFile(
             dec_ret = frame_parser.decodeFrames(data, file_size, data_chunk.get(), debug_);
             num_records_ += dec_ret.first;
             num_errors_ += dec_ret.second;
+            num_ref_errors_ = ref_errors_base + asterix_parser.numREFErrors();
+            num_spf_errors_ = spf_errors_base + asterix_parser.numSPFErrors();
 
             if (debug_)
                 loginf << "jASTERIX processing " << num_frames_ << " frames, " << num_records_
@@ -962,6 +993,11 @@ void jASTERIX::decodeFile(
 
     // create ASTERIX parser
     ASTERIXParser asterix_parser(data_block_definition_, category_definitions_, debug_);
+
+    // REF/SPF fallback counts accumulate in the local parser; members stay cumulative
+    // per instance like num_errors_
+    size_t ref_errors_base = num_ref_errors_;
+    size_t spf_errors_base = num_spf_errors_;
 
     if (do_flat)
     {
@@ -1041,6 +1077,8 @@ void jASTERIX::decodeFile(
                 asterix_parser.decodeDataBlocks(data, file_size, data_block_chunk->at("data_blocks"), debug_);
             num_records_ += dec_ret.first;
             num_errors_ += dec_ret.second;
+            num_ref_errors_ = ref_errors_base + asterix_parser.numREFErrors();
+            num_spf_errors_ = spf_errors_base + asterix_parser.numSPFErrors();
 
             if (do_flat)
             {
@@ -1116,6 +1154,11 @@ void jASTERIX::decodeData(const char* data,
                           bool do_flat)
 {
     ASTERIXParser asterix_parser_instance (data_block_definition_, category_definitions_, debug_);
+
+    // REF/SPF fallback counts accumulate in the local parser; members stay cumulative
+    // per instance like num_errors_
+    size_t ref_errors_base = num_ref_errors_;
+    size_t spf_errors_base = num_spf_errors_;
 
     if (do_flat)
     {
@@ -1193,6 +1236,8 @@ void jASTERIX::decodeData(const char* data,
                 asterix_parser_instance.decodeDataBlocks(data, total_size, data_block_chunk->at("data_blocks"), debug_);
             num_records_ += dec_ret.first;
             num_errors_ += dec_ret.second;
+            num_ref_errors_ = ref_errors_base + asterix_parser_instance.numREFErrors();
+            num_spf_errors_ = spf_errors_base + asterix_parser_instance.numSPFErrors();
 
             // when decoding a PCAP, stamp each data block with its network capture time
             // (before printing / callback so both see it). only for structured output.
@@ -1283,6 +1328,8 @@ void jASTERIX::decodePCAPFile(const std::string& filename,
     num_frames_  = 0;
     num_records_ = 0;
     num_errors_  = 0;
+    num_ref_errors_ = 0;
+    num_spf_errors_ = 0;
 
     stop_decoding_ = false;
 
@@ -1407,6 +1454,10 @@ const std::string& jASTERIX::framingsFolderPath() const { return framing_path_; 
 void jASTERIX::setDebug(bool debug) { debug_ = debug; }
 
 size_t jASTERIX::numErrors() const { return num_errors_; }
+
+size_t jASTERIX::numREFErrors() const { return num_ref_errors_; }
+
+size_t jASTERIX::numSPFErrors() const { return num_spf_errors_; }
 
 size_t jASTERIX::openFile (const std::string& filename)
 {

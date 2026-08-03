@@ -83,6 +83,12 @@ public:
     // Inject column target for this parser (called by LeafSetupCallback).
     void setColumnTarget(nlohmann::json* column_array, size_t* record_index);
 
+    // Reset the captured columns' cells of the current record to null. Discards the
+    // flat-mode output of a partial REF/SPF decode whose content did not match the
+    // definition. Only effective on parsers that set up their column writers via
+    // captureColumns(); no-op otherwise.
+    void clearCapturedColumnCells();
+
     // Leaves inside a repetitive item append to a per-record array cell instead of
     // assigning a scalar (struct-of-arrays, aligned by repetition index).
     void setColumnArrayAppend(bool append);
@@ -91,6 +97,11 @@ public:
     size_t* recordIndex() const { return record_index_; }
 
 protected:
+    // Wrap a LeafSetupCallback so all columns created for this parser's subtree are
+    // remembered for later cell cleanup via clearCapturedColumnCells(). The returned
+    // callback must not outlive the wrapped one (use within setupColumnWriters only).
+    LeafSetupCallback captureColumns(const LeafSetupCallback& callback);
+
     // Write a parsed value: to column array in columnar mode, or to target in structured mode.
     // In columnar mode, also writes to target (scratch json) for conditional UAP lookups.
     template<typename T>
@@ -119,6 +130,11 @@ protected:
     size_t* record_index_ = nullptr;           // shared pointer to current record counter
     bool column_mode_ = false;                 // true when columnar mode is active (set on containers)
     bool column_array_append_ = false;         // leaf inside repetitive: append to array cell
+
+    // Columns of this parser's subtree captured via captureColumns(), plus the shared
+    // record counter, for clearCapturedColumnCells()
+    std::vector<nlohmann::json*> captured_columns_;
+    size_t* captured_record_index_ = nullptr;
 };
 
 bool variableHasValue(const nlohmann::json& data,

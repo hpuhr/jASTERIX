@@ -162,6 +162,32 @@ void ItemParserBase::setColumnTarget(nlohmann::json* column_array, size_t* recor
     record_index_ = record_index;
 }
 
+LeafSetupCallback ItemParserBase::captureColumns(const LeafSetupCallback& callback)
+{
+    return [this, &callback](ItemParserBase* leaf, const std::string& long_name) -> nlohmann::json*
+    {
+        nlohmann::json* column = callback(leaf, long_name);
+
+        if (column)
+            captured_columns_.push_back(column);
+
+        // the record counter is injected into the leaf by the callback
+        if (leaf && !captured_record_index_)
+            captured_record_index_ = leaf->recordIndex();
+
+        return column;
+    };
+}
+
+void ItemParserBase::clearCapturedColumnCells()
+{
+    if (!captured_record_index_)
+        return;
+
+    for (nlohmann::json* column : captured_columns_)
+        (*column)[*captured_record_index_] = nullptr;
+}
+
 void ItemParserBase::setColumnArrayAppend(bool append)
 {
     column_array_append_ = append;

@@ -411,6 +411,11 @@ std::pair<size_t, size_t> ASTERIXParser::decodeDataBlock(const char* data, size_
                                 data_block_length - data_block_parsed_bytes,
                                 data_block_parsed_bytes, total_size, record_scratch, debug);
 
+                    if (record_scratch.contains("ref_error"))
+                        ++num_ref_errors_;
+                    if (record_scratch.contains("spf_error"))
+                        ++num_spf_errors_;
+
                     // CAT001: propagate SAC/SIC from first record to subsequent records
                     // that omit item 010 within the same data block.
                     // In flat/columnar mode the ItemParser skips creating the "010"
@@ -664,6 +669,11 @@ std::pair<size_t, size_t> ASTERIXParser::decodeDataBlock(const char* data, size_
                                 data, data_block_index + data_block_parsed_bytes,
                                 data_block_length - data_block_parsed_bytes,
                                 data_block_parsed_bytes, total_size, current_record, debug);
+
+                    if (current_record.contains("ref_error"))
+                        ++num_ref_errors_;
+                    if (current_record.contains("spf_error"))
+                        ++num_spf_errors_;
 
                     if (debug)
                         loginf << "record with cat " << cat << " index "

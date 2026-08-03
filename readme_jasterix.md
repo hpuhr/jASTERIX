@@ -103,7 +103,19 @@ A category definition is a `record` with a `field_specification` (FSPEC), a `uap
 
 **ASCII only**: definition JSONs (here and in the COMPASS copy) must use plain ASCII - no Greek letters, curly quotes, or en/em-dashes. Their content renders through pdflatex in the COMPASS ASTERIX Import / Data Item Analysis reports.
 
-When adding a new edition: create the `cat<NNN>_<edition>.json`, register it in `categories.json`, add a `test_cat<NNN>_<edition>.cpp` with a small binary sample in `src/test/`, and sync the file into `compass/data/jasterix_definitions/`.
+### Adding a new edition, REF, or SPF
+
+1. Create the definition file in `categories/<NNN>/`: `cat<NNN>_<edition>.json` for an edition, `cat<NNN>_ref_<edition>.json` for a REF, `cat<NNN>_spf_<name>.json` for an SPF. SPF definitions have type `SimpleSpecialPurposeField` (plain item list, parsed in order) or `ComplexSpecialPurposeField` (own FSPEC + `items_indicator` UAP, structured like an REF).
+2. Register it in `categories/categories.json` under the category's `editions` / `ref_editions` / `spf_editions` object. The key is the edition name, the value an object with `document` (source spec title), `date`, and `file` (path relative to `categories/`). Beware: the three registry keys look alike - registering an SPF under `ref_editions` silently replaces the existing REF registration (duplicate JSON keys, last one wins).
+3. Set or keep the category's `default_edition` / `default_ref_edition` / `default_spf_edition`. An empty `default_spf_edition` means the SPF content is not decoded (kept as a hex string) unless a consumer selects an SPF edition via `Category::setCurrentSPFEdition()` - which COMPASS does per data context, but `jasterix_client` has no CLI option for, so only the default applies there.
+4. Add a `test_cat<NNN>_<edition>.cpp` with a small binary sample in `src/test/` and register it in `src/test/CMakeLists.txt`.
+5. Sync the changed definition files AND `categories.json` into `compass/data/jasterix_definitions/`.
+
+### REF/SPF length-mismatch fallback
+
+REF and SPF fields carry a leading 1-byte length indicator, which is authoritative for framing. When a REF/SPF definition is selected but the field content does not match it (the definition reads more or fewer bytes than announced, e.g. a foreign SPF from other equipment mixed into the stream), the field is NOT treated as a decode error: the partial decode is discarded, the content is kept as a raw hex string (same representation as when no REF/SPF edition is selected), a `"ref_error": true` / `"spf_error": true` flag is added to the record, a warning is logged, and parsing resumes after the announced length. The rest of the record and data block decode normally. Only an announced length that overruns the data block remains a hard decode error (stream desync).
+
+Affected records are counted: `jASTERIX::numREFErrors()` / `numSPFErrors()` after decoding, and `num_ref_errors` / `num_spf_errors` keys in the `analyzeFile()`/`analyzeData()` result (next to `num_errors`, which stays 0 for these records). In flat mode the field's leaf columns are null for such records; the hex string and flag are not part of the columnar output.
 
 ## JSON output formats
 
@@ -123,6 +135,8 @@ Two output formats: **structured** (default) and **flat** (`--flat` / `do_flat`)
 ```json
 { "48": { "010.SAC": [0, 0, 5], "040.RHO": [73.92, null, 55.10] } }
 ```
+
+In flat mode two CAT001 corrections are applied during decoding, since the record ordering needed for them is lost in columnar output: SAC/SIC from the first record of a data block is propagated to subsequent records that omit I001/010, and a full `140.Time-of-Day` column is reconstructed from the truncated Time of Day (I001/141) using the last CAT002 Time of Day (I002/030) of the same SAC/SIC as reference. The reconstruction picks the time consistent with the truncated value that is closest to the reference on the circular 24 h clock, handling the 512 s wrap and the midnight reset per CAT001 Part 2a section 5.2.15 Notes 1 and 2; offsets of 256 s or more from the reference are ambiguous and yield `null`.
 
 Repetitive items are represented differently per format. Structured mode nests them as an array of objects plus a `"REP"` count key (`"SPF": { "REP": 2, "Target Report Identifiers": [ { "TRI": "76427f0a" }, { "TRI": "10c4d792" } ] }`). Flat mode flattens down to the leaf (struct-of-arrays): one column per leaf path, each per-record cell an array of scalars aligned by repetition index (`"SPF.Target Report Identifiers.TRI": [["76427f0a", "10c4d792"], null, ...]`), plus a `<prefix>.REP` column mirroring the structured REP location (`"SPF.REP"`). Multi-field repetitions produce one such column per field, aligned by index. Extendable items keep their whole array-of-objects in a single column keyed by the item path. Flat-to-nested reconstruction stays lossless: repetitive leaf cells (arrays of scalars) are zipped back into the array-of-objects form by repetition index.
 

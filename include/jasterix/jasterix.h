@@ -143,6 +143,12 @@ class jASTERIX
     size_t numRecords() const;
     size_t numErrors() const;
 
+    // records whose REF/SPF content did not match the selected REF/SPF definition and
+    // was kept as raw hex data (with a ref_error/spf_error flag in the record);
+    // cumulative over the last decode/analyze call
+    size_t numREFErrors() const;
+    size_t numSPFErrors() const;
+
     void addDataBlockChunk(std::unique_ptr<nlohmann::json> data_block_chunk, size_t bytes_read,
                            bool error, bool done);
     void addDataChunk(std::unique_ptr<nlohmann::json> data_chunk, size_t bytes_read, bool done);
@@ -193,6 +199,8 @@ class jASTERIX
     size_t num_frames_{0};
     size_t num_records_{0};
     size_t num_errors_{0};
+    size_t num_ref_errors_{0};
+    size_t num_spf_errors_{0};
 
     std::atomic<bool> stop_decoding_{false};
 
