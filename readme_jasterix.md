@@ -42,6 +42,7 @@ From `definitions/categories/` (the `categories.json` registry lists the default
 | 020 | 1.5, 1.8 | 1.3 | | Multilateration target reports |
 | 021 | 0.26, 2.1, 2.4 | 1.5 | | ADS-B target reports |
 | 023 | 1.2 | | | CNS/ATM ground station status |
+| 025 | 1.1 | | | CNS/ATM ground system status reports |
 | 030 | 7.0, nonstd | | | ARTAS track messages |
 | 034 | 1.26 | | | Monoradar service messages |
 | 048 | 1.15, 1.23 | 1.9 | | Monoradar target reports |
@@ -51,7 +52,7 @@ From `definitions/categories/` (the `categories.json` registry lists the default
 | 247 | 1.2 | | | Version number exchange |
 | 252 | 7.0 | | | ARTAS track updates |
 
-COMPASS imports all of these except the ARTAS-internal 030/252 (decodable, but not mapped to DBContent).
+COMPASS imports all of these except the ARTAS-internal 030/252 and the status-only 025 (decodable, but not mapped to DBContent).
 
 ## ASTERIX binary format essentials
 
