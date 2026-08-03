@@ -143,7 +143,6 @@ TEST_CASE("jASTERIX CAT062 1.21 SPF", "[jASTERIX CAT062]")
         cat062->setCurrentEdition("1.21");
         REQUIRE(cat062->hasSPFEdition("ARTAS"));
         cat062->setCurrentSPFEdition("ARTAS");
-        cat062->setCurrentMapping("");
 
         REQUIRE(jASTERIX::Files::fileExists(data_path + filename));
         REQUIRE(jASTERIX::Files::fileSize(data_path + filename) == 284);
@@ -161,7 +160,6 @@ TEST_CASE("jASTERIX CAT062 1.21 SPF", "[jASTERIX CAT062]")
         cat062->setCurrentEdition("1.21");
         REQUIRE(cat062->hasSPFEdition("ARTAS"));
         cat062->setCurrentSPFEdition("ARTAS");
-        cat062->setCurrentMapping("");
 
         REQUIRE(jASTERIX::Files::fileExists(data_path + filename));
 

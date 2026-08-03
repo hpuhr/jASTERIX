@@ -24,7 +24,6 @@
 #include "edition.h"
 #include "jasterix/global.h"
 #include "json.hpp"
-#include "mapping.h"
 
 namespace jASTERIX
 {
@@ -65,7 +64,6 @@ class ASTERIXParser
     std::string data_block_name_;
     std::vector<std::unique_ptr<ItemParserBase>> data_block_items_;
     std::map<unsigned int, std::shared_ptr<Record>> records_;
-    std::map<unsigned int, std::shared_ptr<Mapping>> mappings_;
 
     std::map<unsigned int, size_t>* flat_record_indices_{nullptr};
     std::map<unsigned int, nlohmann::json*>* flat_hash_columns_{nullptr};

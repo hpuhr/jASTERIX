@@ -15,9 +15,9 @@ Build, code conventions, dependencies, and naming rules for the library are cove
 
 | Path | What lives there |
 |---|---|
-| `include/jasterix/` | Public API headers: `jasterix.h` (main `jASTERIX` class), `category.h`, `edition.h`/`editionbase.h`, `refedition.h`/`ref.h`, `spfedition.h`/`spf.h`, `mapping.h`, `frameparser.h`, `record.h` (FSPEC/UAP), `itemparserbase.h`, `iteminfo.h` |
+| `include/jasterix/` | Public API headers: `jasterix.h` (main `jASTERIX` class), `category.h`, `edition.h`/`editionbase.h`, `refedition.h`/`ref.h`, `spfedition.h`/`spf.h`, `frameparser.h`, `record.h` (FSPEC/UAP), `itemparserbase.h`, `iteminfo.h` |
 | `src/jasterix.cpp` | Main library implementation (decode entry points, chunking, TBB task orchestration) |
-| `src/asterix/` | Parsing core: `ASTERIXParser` (data block splitting), `Category`, `Edition`, `Record`, `Mapping`, REF/SPF editions |
+| `src/asterix/` | Parsing core: `ASTERIXParser` (data block splitting), `Category`, `Edition`, `Record`, REF/SPF editions |
 | `src/frames/` | Framing parsers (`FrameParser`, `FrameParserTask`) for IOSS / IOSS-seq / RFF wrappers |
 | `src/items/` | Item parser implementations, one per definition item type: fixed bytes/bits/bitfield, extendable, compound, repetitive, dynamic bytes, optional, skip. Factory dispatch via `ItemParserBase::createItemParser()` |
 | `src/write/` | JSON output writing (`JsonWriter`, `JsonFileWriteTask`) |

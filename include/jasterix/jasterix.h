@@ -21,7 +21,6 @@
 #include <jasterix/edition.h>
 #include <jasterix/frameparser.h>
 #include <jasterix/global.h>
-#include <jasterix/mapping.h>
 
 #include <boost/iostreams/device/mapped_file.hpp>
 #include <deque>

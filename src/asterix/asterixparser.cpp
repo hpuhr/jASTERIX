@@ -102,12 +102,6 @@ ASTERIXParser::ASTERIXParser(
         if (cat_it.second->hasCurrentSPFEdition())
             records_.at(cat_it.first)
                 ->setSpf(cat_it.second->getCurrentSPFEdition()->specialPurposeField());
-
-        if (cat_it.second->hasCurrentMapping())
-        {
-            mappings_.insert(std::pair<unsigned int, std::shared_ptr<Mapping>>(
-                cat_it.first, std::shared_ptr<Mapping>{cat_it.second->getCurrentMapping()}));
-        }
     }
 }
 
@@ -774,22 +768,6 @@ std::pair<size_t, size_t> ASTERIXParser::decodeDataBlock(const char* data, size_
         loginf << "asterix parser decoding record with cat " << cat << " index " << data_block_index
                << " length " << data_block_length << " skipped since cat definition is missing "
                << logendl;
-
-    if (num_records && !flat_record_indices_ && mappings_.count(cat))
-    {
-        if (debug)
-            loginf << "asterix parser decoding mapping cat " << cat << ", num records " << num_records
-                   << logendl;
-
-        std::shared_ptr<Mapping> current_mapping = mappings_.at(cat);
-        json& mapping_src = data_block_content.at("records");
-        json mapping_dest = json::array();
-
-        for (size_t cnt = 0; cnt < num_records; ++cnt)
-            current_mapping->map(mapping_src[cnt], mapping_dest[cnt]);
-
-        mapping_src = std::move(mapping_dest);
-    }
 
     if (debug)
         loginf << "ASTERIXParser: decodeDataBlock: done num records " << num_records << " errors "

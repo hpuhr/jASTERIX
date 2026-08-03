@@ -34,7 +34,6 @@ TEST_CASE("jASTERIX CAT001 1.1 flat SAC/SIC propagation", "[jASTERIX CAT001]")
     std::shared_ptr<jASTERIX::Category> cat001 = jasterix.category(1);
     REQUIRE(cat001->hasEdition("1.1"));
     cat001->setCurrentEdition("1.1");
-    cat001->setCurrentMapping("");
 
     // Data block with 3 CAT001 records:
     //   Record 1: FSPEC=0xfe — has I001/010 (SAC=0, SIC=1), 020, 040, 070, 090, 130, 141

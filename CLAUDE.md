@@ -16,12 +16,12 @@ jASTERIX is a **shared library** (`libjasterix`) with a **CLI client** (`jasteri
 
 **Key architectural layers:**
 - **Parsing layer**: `jASTERIX` class is the main entry point. Decodes binary ASTERIX data in chunks using callbacks. Frame parsing (`FrameParser`) handles network framings (IOSS, RFF, raw/netto). Data block parsing (`ASTERIXParser`) splits blocks into records.
-- **Definition layer**: All ASTERIX structure is defined in JSON files under `definitions/`. Categories, editions, REFs, SPFs, mappings, and framings are loaded at runtime — no hardcoded ASTERIX knowledge in the C++ code.
+- **Definition layer**: All ASTERIX structure is defined in JSON files under `definitions/`. Categories, editions, REFs, SPFs, and framings are loaded at runtime — no hardcoded ASTERIX knowledge in the C++ code.
 - **Item parsing layer**: Hierarchical item parsers (`ItemParserBase` subclasses) handle the various ASTERIX data item types: fixed bits/bytes, extendable, compound, repetitive, dynamic bytes, optional, skip.
 - **Threading**: Intel TBB for multi-threaded frame/data-block processing. `DataBlockFinderTask` and `FrameParserTask` run as TBB tasks. Single-thread mode available via `--single_thread`.
 - **Output**: JSON via nlohmann/json. Streaming callback-based architecture for processing large files without loading everything into memory.
 
-**Design patterns**: Factory pattern for item parsers (`ItemParserBase::createItemParser()`), callback-based streaming (`std::function` callbacks for frame/record/data-block events), shared_ptr for editions/mappings.
+**Design patterns**: Factory pattern for item parsers (`ItemParserBase::createItemParser()`), callback-based streaming (`std::function` callbacks for frame/record/data-block events), shared_ptr for editions.
 
 ## Build
 
@@ -64,11 +64,10 @@ When adding tests for a new category/edition, add a `test_cat<NNN>_<edition>.cpp
 ```
 include/jasterix/        Public API headers
   jasterix.h              Main library entry point (jASTERIX class)
-  category.h              Category management (editions, REFs, SPFs, mappings)
+  category.h              Category management (editions, REFs, SPFs)
   edition.h / editionbase.h   Edition definitions
   refedition.h / ref.h    Reserved Expansion Field support
   spfedition.h / spf.h    Special Purpose Field support
-  mapping.h               Data mapping between formats
   frameparser.h           Frame parsing interface
   record.h                Record parsing (FSPEC, UAP)
   itemparserbase.h        Base class for item parsers
@@ -76,7 +75,7 @@ include/jasterix/        Public API headers
   global.h.in             Build-time config template (generates global.h)
 src/                      Implementation source code
   jasterix.cpp            Main library implementation (~42KB)
-  asterix/                ASTERIX parsing core (ASTERIXParser, Category, Edition, Record, Mapping, REF, SPF)
+  asterix/                ASTERIX parsing core (ASTERIXParser, Category, Edition, Record, REF, SPF)
   frames/                 Frame parsing (FrameParser, FrameParserTask)
   items/                  Item parser implementations (fixed bits/bytes, extendable, compound, repetitive, dynamic, optional, skip)
   utils/                  Utilities (files, logger, string_conv, hashchecker, traced_assert)
@@ -88,7 +87,7 @@ definitions/              ASTERIX definitions (JSON, configuration-only)
   categories/             Per-category definitions (001/, 002/, ..., 252/)
   framings/               Frame format definitions (ioss.json, rff.json, ioss_seq.json)
   data_block_definition.json   ASTERIX data block structure
-  categories.json         Category registry with default editions/mappings
+  categories.json         Category registry with default editions
 cmake_modules/            CMake find-scripts (FindTBB.cmake, FindLOG4CPP.cmake)
 analyze/                  Python analysis scripts (data_items.py, adsb_quality.py, mapping checks)
 appimage/                 AppImage packaging files
@@ -103,14 +102,14 @@ appimage/                 AppImage packaging files
 - **Functions:** camelCase: `hasEdition()`, `setCurrentEdition()`, `decodeFile()`, `parseItem()`
 - **Getters:** no `get` prefix, just the property name: `name()`, `number()`, `comment()`
 - **Setters:** `set` prefix: `setCurrentEdition()`, `setDebug()`
-- **Query methods:** `has` prefix: `hasEdition()`, `hasMapping()`, `hasCurrentMapping()`
+- **Query methods:** `has` prefix: `hasEdition()`, `hasCurrentREFEdition()`, `hasCategory()`
 - **Member variables:** snake_case with trailing underscore: `number_`, `comment_`, `current_edition_`, `definition_path_`
 - **Local variables:** snake_case without trailing underscore
 - **Namespace:** `jASTERIX`
 
 ### Patterns
 - **Factory pattern:** `ItemParserBase::createItemParser()` dispatches to concrete item parser subclasses based on JSON type field
-- **Smart pointers:** `std::shared_ptr` for editions/mappings, `std::unique_ptr` for item parsers
+- **Smart pointers:** `std::shared_ptr` for editions, `std::unique_ptr` for item parsers
 - **JSON-driven configuration:** all ASTERIX structure defined in JSON, loaded at runtime via nlohmann/json
 - **Callback-based streaming:** `std::function` callbacks for processing frames, data blocks, and records without buffering entire files
 - **using declarations:** `using namespace std;`, `using namespace nlohmann;` at top of `.cpp` files
@@ -154,7 +153,6 @@ All source files must include the GPL-3.0 header referencing jASTERIX (see any e
 - **FSPEC (Field Specification)**: Variable-length bitmask at the start of each Data Record. Each bit selects a UAP entry as present/absent. FX bit (LSB) chains additional FSPEC octets. No fixed record layout — output shape varies per record.
 - **REF (Reserved Expansion Field)**: Extension mechanism for categories with blocking. Has its own length indicator + FX-extendable presence bits.
 - **SPF (Special Purpose Field)**: Vendor-specific escape field with explicit length. Contents defined by the sending system.
-- **Mapping**: Transforms decoded data between formats (e.g. edition-specific field names to normalized names).
 - **Framing**: Network encapsulation around ASTERIX data blocks (IOSS, IOSS with sequence numbers, RFF, or raw/netto for no framing).
 - **Data Block**: ASTERIX container: 1-byte CAT + 2-byte LEN + one or more Data Records.
 - **SAC/SIC**: System Area Code / System Identification Code — identifies the data source sensor.

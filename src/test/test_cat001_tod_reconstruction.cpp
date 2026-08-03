@@ -54,13 +54,11 @@ TEST_CASE("jASTERIX CAT001 1.1 flat ToD reconstruction", "[jASTERIX CAT001]")
     std::shared_ptr<jASTERIX::Category> cat001 = jasterix.category(1);
     REQUIRE(cat001->hasEdition("1.1"));
     cat001->setCurrentEdition("1.1");
-    cat001->setCurrentMapping("");
 
     REQUIRE(jasterix.hasCategory(2));
     std::shared_ptr<jASTERIX::Category> cat002 = jasterix.category(2);
     REQUIRE(cat002->hasEdition("1.0"));
     cat002->setCurrentEdition("1.0");
-    cat002->setCurrentMapping("");
 
     const std::string filename = "cat001ed1.1_tod_reconstruction.bin";
 

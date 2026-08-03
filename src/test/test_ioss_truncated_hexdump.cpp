@@ -50,7 +50,6 @@ TEST_CASE("jASTERIX IOSS truncated file error-path hexdump", "[bounds]")
     std::shared_ptr<jASTERIX::Category> cat002 = jasterix.category(2);
     REQUIRE(cat002->hasEdition("1.0"));
     cat002->setCurrentEdition("1.0");
-    cat002->setCurrentMapping("");
 
     const std::string filename = "ioss_truncated_hexdump.bin";
 

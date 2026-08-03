@@ -122,38 +122,9 @@ Category::Category(const std::string& number, const nlohmann::json& definition,
                                    default_spf_edition_ + "' not defined");
     }
 
-    //    "default_mapping" : "1.0",
-
-    if (!definition.contains("default_mapping"))
-        throw runtime_error("category '" + number_ + "' has no default mapping");
-
-    default_mapping_ = definition.at("default_mapping");
-
-    //    "mappings":
-
-    if (!definition.contains("mappings"))
-        throw runtime_error("category '" + number_ + "' has no mappings");
-
-    const json& mapping_definitions = definition.at("mappings");
-
-    if (!mapping_definitions.is_object())
-        throw invalid_argument("category '" + number_ + "' with non-object mapping definition");
-
-    for (auto map_def_it = mapping_definitions.begin(); map_def_it != mapping_definitions.end();
-         ++map_def_it)
-    {
-        mappings_[map_def_it.key()] = std::shared_ptr<Mapping>(
-            new Mapping(map_def_it.key(), map_def_it.value(), definition_path));
-    }
-
-    if (default_mapping_.size() && mappings_.count(default_mapping_) != 1)
-        throw invalid_argument("category '" + number_ + "' default mapping '" + default_mapping_ +
-                               "' not defined");
-
     current_edition_ = default_edition_;
     current_ref_edition_ = default_ref_edition_;
     current_spf_edition_ = default_spf_edition_;
-    current_mapping_ = default_mapping_;
 }
 
 Category::~Category() {}
@@ -279,51 +250,6 @@ std::shared_ptr<SPFEdition> Category::getCurrentSPFEdition()
 const std::map<std::string, std::shared_ptr<SPFEdition>>& Category::spfEditions() const
 {
     return spf_editions_;
-}
-
-// mapping stuff
-bool Category::hasMapping(const std::string& mapping_str)
-{
-    return mappings_.count(mapping_str) == 1;
-}
-
-std::shared_ptr<Mapping> Category::mapping(const std::string& mapping_str)
-{
-    traced_assert(hasMapping(mapping_str));
-    return mappings_.at(mapping_str);
-}
-
-std::string Category::defaultMapping() const { return default_mapping_; }
-
-bool Category::hasCurrentMapping()
-{
-    if (current_mapping_.size() == 0)
-        return false;
-
-    return mappings_.count(current_mapping_) == 1;
-}
-
-void Category::setCurrentMapping(const std::string& mapping_str)
-{
-    if (mapping_str.size() == 0)  // erase current mapping
-    {
-        current_mapping_ = "";
-        return;
-    }
-
-    traced_assert(hasMapping(mapping_str));
-    current_mapping_ = mapping_str;
-}
-
-std::shared_ptr<Mapping> Category::getCurrentMapping()
-{
-    traced_assert(hasCurrentMapping());
-    return mappings_.at(current_mapping_);
-}
-
-const std::map<std::string, std::shared_ptr<Mapping>>& Category::mappings() const
-{
-    return mappings_;
 }
 
 bool Category::decode() const { return decode_; }

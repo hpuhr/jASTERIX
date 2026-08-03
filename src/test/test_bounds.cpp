@@ -60,7 +60,6 @@ TEST_CASE("Bounds: FixedBytes truncated", "[bounds]")
     auto cat = jasterix.category(2);
     REQUIRE(cat->hasEdition("1.0"));
     cat->setCurrentEdition("1.0");
-    cat->setCurrentMapping("");
 
     // LEN=6 means 3 bytes content, but FSPEC=0xD4 needs items 010(2)+000(1)+030(3)+050(var)
     // Only 1 byte of content after FSPEC → item 010 read overflows
@@ -89,7 +88,6 @@ TEST_CASE("Bounds: Record-level truncation", "[bounds]")
     auto cat = jasterix.category(2);
     REQUIRE(cat->hasEdition("1.0"));
     cat->setCurrentEdition("1.0");
-    cat->setCurrentMapping("");
 
     const char data[] = {0x02, 0x00, 0x04, 0x04};
     size_t errors = 0, records = 0;
@@ -117,7 +115,6 @@ TEST_CASE("Bounds: ExtendableBits FX overflow", "[bounds]")
     auto cat = jasterix.category(2);
     REQUIRE(cat->hasEdition("1.0"));
     cat->setCurrentEdition("1.0");
-    cat->setCurrentMapping("");
 
     const char data[] = {0x02, 0x00, 0x04, char(0xff)};
     size_t errors = 0, records = 0;
@@ -143,7 +140,6 @@ TEST_CASE("Bounds: ExtendableItem extend overflow", "[bounds]")
     auto cat = jasterix.category(2);
     REQUIRE(cat->hasEdition("1.0"));
     cat->setCurrentEdition("1.0");
-    cat->setCurrentMapping("");
 
     const char data[] = {0x02, 0x00, 0x05, 0x04, char(0x93)};
     size_t errors = 0, records = 0;
@@ -170,7 +166,6 @@ TEST_CASE("Bounds: Repetitive sub-item overflow", "[bounds]")
     auto cat = jasterix.category(48);
     REQUIRE(cat->hasEdition("1.15"));
     cat->setCurrentEdition("1.15");
-    cat->setCurrentMapping("");
 
     const char data[] = {0x30, 0x00, 0x06, 0x01, 0x20, 0x03};
     size_t errors = 0, records = 0;
@@ -198,7 +193,6 @@ TEST_CASE("Bounds: Compound sub-item truncated", "[bounds]")
     auto cat = jasterix.category(48);
     REQUIRE(cat->hasEdition("1.15"));
     cat->setCurrentEdition("1.15");
-    cat->setCurrentMapping("");
 
     const char data[] = {0x30, 0x00, 0x05, 0x02, char(0x80)};
     size_t errors = 0, records = 0;
@@ -229,7 +223,6 @@ TEST_CASE("Bounds: FSPEC exceeds UAP definition", "[bounds]")
     auto cat = jasterix.category(2);
     REQUIRE(cat->hasEdition("1.0"));
     cat->setCurrentEdition("1.0");
-    cat->setCurrentMapping("");
 
     // 3 FSPEC bytes → 24 bits, but CAT002 UAP only defines 16 → throw
     const char data[] = {0x02, 0x00, 0x06, 0x01, 0x01, 0x00};
@@ -260,7 +253,6 @@ TEST_CASE("Bounds: REF field longer than buffer", "[bounds]")
     auto cat = jasterix.category(34);
     REQUIRE(cat->hasEdition("1.26"));
     cat->setCurrentEdition("1.26");
-    cat->setCurrentMapping("");
 
     // FSPEC: 2 bytes selecting only RE. REF length byte claims 32 bytes.
     const char data[] = {0x22, 0x00, 0x06, 0x01, 0x04, 0x20};
@@ -290,7 +282,6 @@ TEST_CASE("Bounds: SPF field longer than buffer", "[bounds]")
     auto cat = jasterix.category(2);
     REQUIRE(cat->hasEdition("1.0"));
     cat->setCurrentEdition("1.0");
-    cat->setCurrentMapping("");
 
     // FSPEC: 2 bytes selecting only SP. SPF length byte claims 48 bytes.
     const char data[] = {0x02, 0x00, 0x06, 0x01, 0x04, 0x30};
@@ -319,7 +310,6 @@ TEST_CASE("Bounds: data block buffer shorter than LEN", "[bounds]")
     auto cat = jasterix.category(2);
     REQUIRE(cat->hasEdition("1.0"));
     cat->setCurrentEdition("1.0");
-    cat->setCurrentMapping("");
 
     // Valid CAT002 start, but buffer truncated at 8 bytes (LEN says 12).
     const char data[] = {0x02, 0x00, 0x0c, char(0xd4), 0x00, 0x01, 0x01, 0x41};
@@ -352,7 +342,6 @@ TEST_CASE("Bounds: second record in data block truncated", "[bounds]")
     auto cat = jasterix.category(2);
     REQUIRE(cat->hasEdition("1.0"));
     cat->setCurrentEdition("1.0");
-    cat->setCurrentMapping("");
 
     // Record 1: FSPEC=0x40 (only item 000), 000=0x01 → 2 bytes, valid.
     // Record 2: FSPEC=0xD4, item 010 SAC at index 6 (ok), SIC at index 7.
@@ -386,7 +375,6 @@ TEST_CASE("Bounds: unparsed bytes in data block", "[bounds]")
     auto cat = jasterix.category(2);
     REQUIRE(cat->hasEdition("1.0"));
     cat->setCurrentEdition("1.0");
-    cat->setCurrentMapping("");
 
     const char data[] = {0x02, 0x00, 0x07, 0x40, 0x01, 0x00, 0x00};
     size_t errors = 0, records = 0;
