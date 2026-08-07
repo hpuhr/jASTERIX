@@ -170,6 +170,10 @@ void RepetetiveItemParser::setupColumnWriters(const LeafSetupCallback& callback)
     // sub-item present exactly once), so sibling leaf arrays stay aligned.
     leaf_columns_.clear();
 
+    // the shared record counter is re-created on every setup run, so the latched
+    // pointer from the previous run dangles and has to be taken again below
+    record_index_ = nullptr;
+
     LeafSetupCallback append_callback =
         [this, &callback](ItemParserBase* leaf, const std::string& long_name) -> nlohmann::json*
     {

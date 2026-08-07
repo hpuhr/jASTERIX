@@ -164,6 +164,13 @@ void ItemParserBase::setColumnTarget(nlohmann::json* column_array, size_t* recor
 
 LeafSetupCallback ItemParserBase::captureColumns(const LeafSetupCallback& callback)
 {
+    // setupColumnWriters() runs again for every decoded chunk, and each run destroys
+    // the previous column arrays and the previous record counter before creating new
+    // ones. Anything captured by an earlier run therefore dangles and must be dropped
+    // here, not appended to.
+    captured_columns_.clear();
+    captured_record_index_ = nullptr;
+
     return [this, &callback](ItemParserBase* leaf, const std::string& long_name) -> nlohmann::json*
     {
         nlohmann::json* column = callback(leaf, long_name);
