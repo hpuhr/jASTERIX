@@ -52,7 +52,7 @@ From `definitions/categories/` (the `categories.json` registry lists the default
 | 247 | 1.2 | | | Version number exchange |
 | 252 | 7.0 | | | ARTAS track updates |
 
-COMPASS imports all of these except the ARTAS-internal 030/252 and the status-only 025 (decodable, but not mapped to DBContent).
+COMPASS imports all of these except the ARTAS-internal 030/252.
 
 ## ASTERIX binary format essentials
 
