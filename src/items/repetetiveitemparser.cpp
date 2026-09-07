@@ -30,7 +30,7 @@ RepetetiveItemParser::RepetetiveItemParser(const nlohmann::json& item_definition
 {
     traced_assert(type_ == "repetitive");
 
-    // REP byte is always 1 unsigned byte per ASTERIX spec — no sub-parser needed
+    // REP byte is always 1 unsigned byte per ASTERIX spec - no sub-parser needed
 
     if (!item_definition.contains("items"))
         throw runtime_error("parsing repetitive item '" + name_ + "' without items");
@@ -73,15 +73,20 @@ size_t RepetetiveItemParser::parseItem(const char* data, size_t index, size_t si
     if (debug)
         loginf << "parsing repetitive item '" + name_ + "' items " << rep << " times" << logendl;
 
-    if (column_target_)
+    if (column_mode_)
     {
         if (rep_column_target_)
             (*rep_column_target_)[*record_index_] = rep;
 
-        json arr = json::array();
+        // struct-of-arrays: each child leaf appends into its own column cell,
+        // aligned by repetition index. Initialize the cells to empty arrays so
+        // leftovers from an aborted record at the same index cannot leak in.
+        for (nlohmann::json* leaf_col : leaf_columns_)
+            (*leaf_col)[*record_index_] = json::array();
+
+        json scratch = json::object();
         for (unsigned int cnt = 0; cnt < rep; ++cnt)
         {
-            json elem = json::object();
             for (auto& data_item_it : items_)
             {
                 if (debug)
@@ -90,11 +95,9 @@ size_t RepetetiveItemParser::parseItem(const char* data, size_t index, size_t si
                            << cnt << logendl;
 
                 parsed_bytes += data_item_it->parseItem(
-                            data, index + parsed_bytes, size, parsed_bytes, total_size, elem, debug);
+                            data, index + parsed_bytes, size, parsed_bytes, total_size, scratch, debug);
             }
-            arr.push_back(std::move(elem));
         }
-        (*column_target_)[*record_index_] = std::move(arr);
     }
     else
     {
@@ -155,13 +158,41 @@ void RepetetiveItemParser::addInfo (const std::string& edition, CategoryItemInfo
 
 void RepetetiveItemParser::setupColumnWriters(const LeafSetupCallback& callback)
 {
-    callback(this, long_name_);
+    column_mode_ = true;
 
     // extra column for the REP count, e.g. 'REF.CSN.REP' next to 'REF.CSN.CSN'
     std::string rep_name = long_name_prefix_.size() ? long_name_prefix_ + ".REP" : "REP";
     rep_column_target_ = callback(nullptr, rep_name);
 
-    // Do NOT recurse into children — they write structured into each repetition element
+    // struct-of-arrays: each child leaf gets its own column keyed by its full leaf
+    // path (e.g. 'SPF.Target Report Identifiers.TRI'); per-record cells hold arrays
+    // of scalars aligned by repetition index. Repetitions have a fixed layout (every
+    // sub-item present exactly once), so sibling leaf arrays stay aligned.
+    leaf_columns_.clear();
+
+    // the shared record counter is re-created on every setup run, so the latched
+    // pointer from the previous run dangles and has to be taken again below
+    record_index_ = nullptr;
+
+    LeafSetupCallback append_callback =
+        [this, &callback](ItemParserBase* leaf, const std::string& long_name) -> nlohmann::json*
+    {
+        nlohmann::json* column = callback(leaf, long_name);
+        if (leaf && column)
+        {
+            leaf->setColumnArrayAppend(true);
+            leaf_columns_.push_back(column);
+
+            // this parser is not registered as a leaf itself, so take the shared
+            // record counter from the first registered child leaf
+            if (!record_index_)
+                record_index_ = leaf->recordIndex();
+        }
+        return column;
+    };
+
+    for (auto& data_item_it : items_)
+        data_item_it->setupColumnWriters(append_callback);
 }
 
 }  // namespace jASTERIX

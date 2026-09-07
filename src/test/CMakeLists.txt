@@ -15,6 +15,8 @@ target_sources( test_categories
     PRIVATE
         "${CMAKE_CURRENT_LIST_DIR}/test_cat001_1.1.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/test_cat001_flat_sacsic.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/test_cat001_tod_reconstruction.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/test_ioss_truncated_hexdump.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/test_cat002_1.0.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/test_cat004_1.4.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/test_cat010_0.31.cpp"
@@ -23,17 +25,22 @@ target_sources( test_categories
         "${CMAKE_CURRENT_LIST_DIR}/test_cat020_1.5.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/test_cat021_0.26.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/test_cat021_2.1.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/test_cat021_spf_aireon.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/test_cat025_1.1.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/test_cat025_1.5.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/test_cat030_7.0.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/test_cat034_1.26.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/test_cat048_1.15.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/test_cat048_1.23.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/test_cat062_1.12.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/test_cat062_1.16.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/test_cat062_1.21_spf.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/test_cat063_1.0.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/test_cat065_1.3.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/test_cat247_1.2.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/test_cat252_7.0.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/test_encode.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/test_spf_fallback.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/test_bounds.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/test_artas_md5.cpp"
 )
@@ -68,5 +75,5 @@ if ( TEST_FILENAME AND EXISTS "${TEST_FILENAME}" )
     add_test(NAME TestLimits COMMAND test_limits --definition_path ${DEFINITION_PATH} --filename ${TEST_FILENAME})
     add_test(NAME TestRAM COMMAND test_performance --definition_path ${DEFINITION_PATH} --filename ${TEST_FILENAME})
 else()
-    message(STATUS "TEST_FILENAME not set/found — skipping TestLimits/TestRAM benchmark tests")
+    message(STATUS "TEST_FILENAME not set/found - skipping TestLimits/TestRAM benchmark tests")
 endif()

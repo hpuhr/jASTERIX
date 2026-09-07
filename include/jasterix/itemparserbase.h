@@ -55,7 +55,7 @@ public:
     // @param index               Absolute byte offset where this item starts in 'data'
     // @param size                Remaining bytes in the current data block content
     // @param current_parsed_bytes  Bytes parsed so far within the enclosing record/REF/SPF
-    // @param total_size          Total buffer size — hard upper bound for any data[offset] access
+    // @param total_size          Total buffer size - hard upper bound for any data[offset] access
     // @param target              JSON object to write parsed values into
     // @param debug               Enable debug logging
     virtual size_t parseItem(const char* data, size_t index, size_t size,
@@ -83,7 +83,25 @@ public:
     // Inject column target for this parser (called by LeafSetupCallback).
     void setColumnTarget(nlohmann::json* column_array, size_t* record_index);
 
+    // Reset the captured columns' cells of the current record to null. Discards the
+    // flat-mode output of a partial REF/SPF decode whose content did not match the
+    // definition. Only effective on parsers that set up their column writers via
+    // captureColumns(); no-op otherwise.
+    void clearCapturedColumnCells();
+
+    // Leaves inside a repetitive item append to a per-record array cell instead of
+    // assigning a scalar (struct-of-arrays, aligned by repetition index).
+    void setColumnArrayAppend(bool append);
+
+    // Shared record counter injected via setColumnTarget (nullptr when not in columnar mode)
+    size_t* recordIndex() const { return record_index_; }
+
 protected:
+    // Wrap a LeafSetupCallback so all columns created for this parser's subtree are
+    // remembered for later cell cleanup via clearCapturedColumnCells(). The returned
+    // callback must not outlive the wrapped one (use within setupColumnWriters only).
+    LeafSetupCallback captureColumns(const LeafSetupCallback& callback);
+
     // Write a parsed value: to column array in columnar mode, or to target in structured mode.
     // In columnar mode, also writes to target (scratch json) for conditional UAP lookups.
     template<typename T>
@@ -92,7 +110,10 @@ protected:
         if (column_target_)
         {
             target.emplace(name_, value);  // copy to scratch for conditional UAP
-            (*column_target_)[*record_index_] = std::forward<T>(value);
+            if (column_array_append_)
+                (*column_target_)[*record_index_].push_back(std::forward<T>(value));
+            else
+                (*column_target_)[*record_index_] = std::forward<T>(value);
         }
         else
             target.emplace(name_, std::forward<T>(value));
@@ -108,6 +129,12 @@ protected:
     nlohmann::json* column_target_ = nullptr;  // pointer to this leaf's column array
     size_t* record_index_ = nullptr;           // shared pointer to current record counter
     bool column_mode_ = false;                 // true when columnar mode is active (set on containers)
+    bool column_array_append_ = false;         // leaf inside repetitive: append to array cell
+
+    // Columns of this parser's subtree captured via captureColumns(), plus the shared
+    // record counter, for clearCapturedColumnCells()
+    std::vector<nlohmann::json*> captured_columns_;
+    size_t* captured_record_index_ = nullptr;
 };
 
 bool variableHasValue(const nlohmann::json& data,

@@ -43,6 +43,9 @@ class RepetetiveItemParser : public ItemParserBase
 
     // Column for the REP count ('<prefix>.REP') in columnar mode
     nlohmann::json* rep_column_target_ = nullptr;
+
+    // Child leaf columns in columnar mode, for per-record cell initialization
+    std::vector<nlohmann::json*> leaf_columns_;
 };
 
 }  // namespace jASTERIX

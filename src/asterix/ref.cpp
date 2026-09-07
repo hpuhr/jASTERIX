@@ -254,8 +254,12 @@ void ReservedExpansionField::setupColumnWriters(const LeafSetupCallback& callbac
 {
     column_mode_ = true;
 
+    // capture the created columns so a partial decode of a non-matching REF can be
+    // discarded via clearCapturedColumnCells()
+    LeafSetupCallback capturing = captureColumns(callback);
+
     for (auto& item_it : items_)
-        item_it.second->setupColumnWriters(callback);
+        item_it.second->setupColumnWriters(capturing);
 }
 
 // bool ReservedExpansionField::compareKey (const nlohmann::json& container, const std::string&

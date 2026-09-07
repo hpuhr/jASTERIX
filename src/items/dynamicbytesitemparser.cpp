@@ -100,7 +100,7 @@ size_t DynamicBytesItemParser::parseItem(const char* data, size_t index, size_t 
         loginf << "parsing dynamic bytes item '" + name_ + "' index " << index << " length "
                << length << logendl;
 
-    //traced_assert(!target.contains(name_));  // hot path — O(N) json lookup per field
+    //traced_assert(!target.contains(name_));  // hot path - O(N) json lookup per field
 
     writeValue(target, json::object({{"index", index}, {"length", length}}));
 

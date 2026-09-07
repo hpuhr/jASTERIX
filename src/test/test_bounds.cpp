@@ -46,7 +46,7 @@ void decode_malformed(jASTERIX::jASTERIX& jasterix,
 
 }  // anonymous namespace
 
-// ─── Test 1: FixedBytesItemParser — truncated fixed-length item ───
+// ─── Test 1: FixedBytesItemParser - truncated fixed-length item ───
 // CAT002 FSPEC 0xD4 selects items 010, 000, 030, 050.
 // Item 010 is 2 bytes (FixedBytes). Buffer only has 1 byte after FSPEC.
 // Data: 02 00 06 d4 00
@@ -60,7 +60,6 @@ TEST_CASE("Bounds: FixedBytes truncated", "[bounds]")
     auto cat = jasterix.category(2);
     REQUIRE(cat->hasEdition("1.0"));
     cat->setCurrentEdition("1.0");
-    cat->setCurrentMapping("");
 
     // LEN=6 means 3 bytes content, but FSPEC=0xD4 needs items 010(2)+000(1)+030(3)+050(var)
     // Only 1 byte of content after FSPEC → item 010 read overflows
@@ -89,7 +88,6 @@ TEST_CASE("Bounds: Record-level truncation", "[bounds]")
     auto cat = jasterix.category(2);
     REQUIRE(cat->hasEdition("1.0"));
     cat->setCurrentEdition("1.0");
-    cat->setCurrentMapping("");
 
     const char data[] = {0x02, 0x00, 0x04, 0x04};
     size_t errors = 0, records = 0;
@@ -103,7 +101,7 @@ TEST_CASE("Bounds: Record-level truncation", "[bounds]")
     REQUIRE(records >= 1);
 }
 
-// ─── Test 3: ExtendableBitsItemParser — FSPEC FX=1 at buffer end ───
+// ─── Test 3: ExtendableBitsItemParser - FSPEC FX=1 at buffer end ───
 // CAT002 FSPEC byte 0xFF has FX=1 (extension bit set), meaning another
 // FSPEC byte should follow, but the buffer ends.
 // Data: 02 00 04 ff
@@ -117,7 +115,6 @@ TEST_CASE("Bounds: ExtendableBits FX overflow", "[bounds]")
     auto cat = jasterix.category(2);
     REQUIRE(cat->hasEdition("1.0"));
     cat->setCurrentEdition("1.0");
-    cat->setCurrentMapping("");
 
     const char data[] = {0x02, 0x00, 0x04, char(0xff)};
     size_t errors = 0, records = 0;
@@ -129,7 +126,7 @@ TEST_CASE("Bounds: ExtendableBits FX overflow", "[bounds]")
     REQUIRE(errors > 0);
 }
 
-// ─── Test 4: ExtendableItemParser — extend=1 at buffer end ───
+// ─── Test 4: ExtendableItemParser - extend=1 at buffer end ───
 // CAT002 FSPEC 0x04 selects only item 050 (extendable).
 // One byte 0x93 = 10010011b, bit 0 (extend) = 1 → expects another byte, but buffer ends.
 // Data: 02 00 05 04 93
@@ -143,7 +140,6 @@ TEST_CASE("Bounds: ExtendableItem extend overflow", "[bounds]")
     auto cat = jasterix.category(2);
     REQUIRE(cat->hasEdition("1.0"));
     cat->setCurrentEdition("1.0");
-    cat->setCurrentMapping("");
 
     const char data[] = {0x02, 0x00, 0x05, 0x04, char(0x93)};
     size_t errors = 0, records = 0;
@@ -155,7 +151,7 @@ TEST_CASE("Bounds: ExtendableItem extend overflow", "[bounds]")
     REQUIRE(errors > 0);
 }
 
-// ─── Test 5: RepetetiveItemParser — sub-item overflow ───
+// ─── Test 5: RepetetiveItemParser - sub-item overflow ───
 // CAT048 item 250 (Mode S MB Data) is repetitive (8 bytes per sub-item).
 // FSPEC: 0x01 0x20 (FX=1 in byte 1, FRN10=250 in byte 2, FX=0).
 // Provide REP=3 but no sub-item data → sub-item parser throws on bounds check.
@@ -170,7 +166,6 @@ TEST_CASE("Bounds: Repetitive sub-item overflow", "[bounds]")
     auto cat = jasterix.category(48);
     REQUIRE(cat->hasEdition("1.15"));
     cat->setCurrentEdition("1.15");
-    cat->setCurrentMapping("");
 
     const char data[] = {0x30, 0x00, 0x06, 0x01, 0x20, 0x03};
     size_t errors = 0, records = 0;
@@ -182,7 +177,7 @@ TEST_CASE("Bounds: Repetitive sub-item overflow", "[bounds]")
     REQUIRE(errors > 0);
 }
 
-// ─── Test 6: CompoundItemParser — sub-item truncated ───
+// ─── Test 6: CompoundItemParser - sub-item truncated ───
 // CAT048 item 130 (Radar Plot Characteristics) is compound.
 // FSPEC byte 1: 0x02 = only FRN7 (item 130) set, FX=0.
 // Compound sub-FSPEC byte: 0x80 = sub-FRN1 (SRL, 1-byte FixedBitField) selected.
@@ -198,7 +193,6 @@ TEST_CASE("Bounds: Compound sub-item truncated", "[bounds]")
     auto cat = jasterix.category(48);
     REQUIRE(cat->hasEdition("1.15"));
     cat->setCurrentEdition("1.15");
-    cat->setCurrentMapping("");
 
     const char data[] = {0x30, 0x00, 0x05, 0x02, char(0x80)};
     size_t errors = 0, records = 0;
@@ -229,7 +223,6 @@ TEST_CASE("Bounds: FSPEC exceeds UAP definition", "[bounds]")
     auto cat = jasterix.category(2);
     REQUIRE(cat->hasEdition("1.0"));
     cat->setCurrentEdition("1.0");
-    cat->setCurrentMapping("");
 
     // 3 FSPEC bytes → 24 bits, but CAT002 UAP only defines 16 → throw
     const char data[] = {0x02, 0x00, 0x06, 0x01, 0x01, 0x00};
@@ -244,7 +237,7 @@ TEST_CASE("Bounds: FSPEC exceeds UAP definition", "[bounds]")
 
 // ─── Test 9: REF field longer than remaining buffer ───
 // CAT034 has RE at FRN14 (FSPEC byte 2, bit 2) but NO REF definition file,
-// so the else-branch in Record::parseItem stores raw bytes — and checks
+// so the else-branch in Record::parseItem stores raw bytes - and checks
 // index + parsed_bytes + re_bytes > total_size → throws
 //   "reserved expansion field longer than max size".
 // FSPEC: byte 1 = 0x01 (FX=1), byte 2 = 0x04 (bit2 = RE, FX=0).
@@ -260,7 +253,6 @@ TEST_CASE("Bounds: REF field longer than buffer", "[bounds]")
     auto cat = jasterix.category(34);
     REQUIRE(cat->hasEdition("1.26"));
     cat->setCurrentEdition("1.26");
-    cat->setCurrentMapping("");
 
     // FSPEC: 2 bytes selecting only RE. REF length byte claims 32 bytes.
     const char data[] = {0x22, 0x00, 0x06, 0x01, 0x04, 0x20};
@@ -290,7 +282,6 @@ TEST_CASE("Bounds: SPF field longer than buffer", "[bounds]")
     auto cat = jasterix.category(2);
     REQUIRE(cat->hasEdition("1.0"));
     cat->setCurrentEdition("1.0");
-    cat->setCurrentMapping("");
 
     // FSPEC: 2 bytes selecting only SP. SPF length byte claims 48 bytes.
     const char data[] = {0x02, 0x00, 0x06, 0x01, 0x04, 0x30};
@@ -319,7 +310,6 @@ TEST_CASE("Bounds: data block buffer shorter than LEN", "[bounds]")
     auto cat = jasterix.category(2);
     REQUIRE(cat->hasEdition("1.0"));
     cat->setCurrentEdition("1.0");
-    cat->setCurrentMapping("");
 
     // Valid CAT002 start, but buffer truncated at 8 bytes (LEN says 12).
     const char data[] = {0x02, 0x00, 0x0c, char(0xd4), 0x00, 0x01, 0x01, 0x41};
@@ -330,7 +320,7 @@ TEST_CASE("Bounds: data block buffer shorter than LEN", "[bounds]")
     loginf << "bounds test: data block buffer shorter than LEN errors=" << errors
            << " records=" << records << logendl;
 
-    // Parser should handle gracefully — either error or partial parse, no crash.
+    // Parser should handle gracefully - either error or partial parse, no crash.
     // The record parse attempt will fail because Time of Day (3 bytes) is incomplete.
     REQUIRE(errors > 0);
 }
@@ -352,7 +342,6 @@ TEST_CASE("Bounds: second record in data block truncated", "[bounds]")
     auto cat = jasterix.category(2);
     REQUIRE(cat->hasEdition("1.0"));
     cat->setCurrentEdition("1.0");
-    cat->setCurrentMapping("");
 
     // Record 1: FSPEC=0x40 (only item 000), 000=0x01 → 2 bytes, valid.
     // Record 2: FSPEC=0xD4, item 010 SAC at index 6 (ok), SIC at index 7.
@@ -386,7 +375,6 @@ TEST_CASE("Bounds: unparsed bytes in data block", "[bounds]")
     auto cat = jasterix.category(2);
     REQUIRE(cat->hasEdition("1.0"));
     cat->setCurrentEdition("1.0");
-    cat->setCurrentMapping("");
 
     const char data[] = {0x02, 0x00, 0x07, 0x40, 0x01, 0x00, 0x00};
     size_t errors = 0, records = 0;

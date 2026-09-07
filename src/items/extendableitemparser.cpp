@@ -173,7 +173,7 @@ void ExtendableItemParser::addInfo (const std::string& edition, CategoryItemInfo
 void ExtendableItemParser::setupColumnWriters(const LeafSetupCallback& callback)
 {
     callback(this, long_name_);
-    // Do NOT recurse into children — they write structured into each extension element
+    // Do NOT recurse into children - they write structured into each extension element
 }
 
 }  // namespace jASTERIX

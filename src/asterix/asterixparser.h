@@ -17,13 +17,13 @@
 
  #pragma once
 
+#include <atomic>
 #include <tuple>
 
 #include "category.h"
 #include "edition.h"
 #include "jasterix/global.h"
 #include "json.hpp"
-#include "mapping.h"
 
 namespace jASTERIX
 {
@@ -55,20 +55,29 @@ class ASTERIXParser
     void setFlatData(std::map<unsigned int, nlohmann::json>* data);
     bool flatMode() const { return flat_record_indices_ != nullptr; }
 
+    // records whose REF/SPF content did not match the definition and was kept as raw
+    // data (see Record::parseItem fallback); cumulative over this parser's lifetime
+    size_t numREFErrors() const { return num_ref_errors_; }
+    size_t numSPFErrors() const { return num_spf_errors_; }
+
   private:
     std::string data_block_name_;
     std::vector<std::unique_ptr<ItemParserBase>> data_block_items_;
     std::map<unsigned int, std::shared_ptr<Record>> records_;
-    std::map<unsigned int, std::shared_ptr<Mapping>> mappings_;
 
     std::map<unsigned int, size_t>* flat_record_indices_{nullptr};
     std::map<unsigned int, nlohmann::json*>* flat_hash_columns_{nullptr};
     std::map<unsigned int, nlohmann::json>* flat_data_{nullptr};
 
-    // CAT002 time tracking per data source (key: "SAC/SIC").
-    // Used in flat mode to reconstruct CAT001 truncated time.
-    std::map<std::string, double> cat002_last_tod_;         // full Time of Day
-    std::map<std::string, double> cat002_last_tod_period_;  // floor(tod/512)*512
+    // atomic: data blocks of one chunk are decoded in parallel (TBB) sharing this parser
+    std::atomic<size_t> num_ref_errors_{0};
+    std::atomic<size_t> num_spf_errors_{0};
+
+    // Last full I002/030 Time of Day per data source (key: "SAC/SIC"),
+    // always in [0, 86400). Used in flat mode as reference to reconstruct
+    // the full time from the CAT001 truncated Time of Day (I001/141), as
+    // recommended in CAT001 Part 2a section 5.3.2.7.
+    std::map<std::string, double> cat002_last_tod_;
 
 #if USE_OPENSSL
     void calculateARTASMD5Hash(const char* data, size_t length, nlohmann::json& target);

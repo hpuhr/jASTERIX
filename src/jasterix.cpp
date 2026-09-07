@@ -244,6 +244,13 @@ std::unique_ptr<nlohmann::json> jASTERIX::analyzeFile(
     (*analysis_result)["num_frames"]  = 0;
     (*analysis_result)["num_records"] = 0;
     (*analysis_result)["num_errors"]  = 0;
+    (*analysis_result)["num_ref_errors"] = 0;
+    (*analysis_result)["num_spf_errors"] = 0;
+
+    // REF/SPF fallback counts accumulate in the local parser; members stay cumulative
+    // per instance like num_errors_
+    size_t ref_errors_base = num_ref_errors_;
+    size_t spf_errors_base = num_spf_errors_;
 
     std::unique_ptr<FrameParserTask> task {
                                           new FrameParserTask(*this, frame_parser, json_header, data, index, file_size, debug_framing)};
@@ -294,9 +301,13 @@ std::unique_ptr<nlohmann::json> jASTERIX::analyzeFile(
             dec_ret = frame_parser.decodeFrames(data, file_size, data_chunk.get(), debug_);
             num_records_ += dec_ret.first;
             num_errors_ += dec_ret.second;
+            num_ref_errors_ = ref_errors_base + asterix_parser.numREFErrors();
+            num_spf_errors_ = spf_errors_base + asterix_parser.numSPFErrors();
 
             (*analysis_result)["num_records"] = num_records_;
             (*analysis_result)["num_errors"] = num_errors_;
+            (*analysis_result)["num_ref_errors"] = num_ref_errors_;
+            (*analysis_result)["num_spf_errors"] = num_spf_errors_;
 
             if (debug_)
                 loginf << "jASTERIX analyze " << num_frames_ << " frames, " << num_records_
@@ -360,8 +371,11 @@ std::unique_ptr<nlohmann::json> jASTERIX::analyzeFile(
     for (const auto& ana_it : data_item_analysis_) // add to preserve num counters
         (*analysis_result)[ana_it.first] = ana_it.second;
 
+    addSkippedCategoriesAnalysis(*analysis_result);
+
             //sensor_counts_.clear();
     data_item_analysis_.clear();
+    skipped_category_counts_.clear();
 
     return analysis_result;
 }
@@ -476,6 +490,8 @@ std::unique_ptr<nlohmann::json> jASTERIX::analyzePCAPFile(const std::string& fil
         // reset per-invocation counters so each stream is analyzed independently
         num_records_ = 0;
         num_errors_  = 0;
+        num_ref_errors_ = 0;
+        num_spf_errors_ = 0;
 
         std::unique_ptr<nlohmann::json> stream_result =
             analyzeData(stream.data.data(), stream.data.size(), record_limit);
@@ -579,6 +595,13 @@ std::unique_ptr<nlohmann::json> jASTERIX::analyzeData(const char* data, unsigned
     // any chunk is decoded
     (*analysis_result)["num_records"] = 0;
     (*analysis_result)["num_errors"]  = 0;
+    (*analysis_result)["num_ref_errors"] = 0;
+    (*analysis_result)["num_spf_errors"] = 0;
+
+    // REF/SPF fallback counts accumulate in the local parser; members stay cumulative
+    // per instance like num_errors_
+    size_t ref_errors_base = num_ref_errors_;
+    size_t spf_errors_base = num_spf_errors_;
 
     std::pair<size_t, size_t> dec_ret{0, 0};
 
@@ -625,9 +648,13 @@ std::unique_ptr<nlohmann::json> jASTERIX::analyzeData(const char* data, unsigned
 
             num_records_ += dec_ret.first;
             num_errors_ += dec_ret.second;
+            num_ref_errors_ = ref_errors_base + asterix_parser.numREFErrors();
+            num_spf_errors_ = spf_errors_base + asterix_parser.numSPFErrors();
 
             (*analysis_result)["num_records"] = num_records_;
             (*analysis_result)["num_errors"] = num_errors_;
+            (*analysis_result)["num_ref_errors"] = num_ref_errors_;
+            (*analysis_result)["num_spf_errors"] = num_spf_errors_;
 
             if (num_errors_)
             {
@@ -659,6 +686,7 @@ std::unique_ptr<nlohmann::json> jASTERIX::analyzeData(const char* data, unsigned
             forceStopTask(*task);
 
             data_item_analysis_.clear();
+            skipped_category_counts_.clear();
 
             throw;
         }
@@ -697,8 +725,11 @@ std::unique_ptr<nlohmann::json> jASTERIX::analyzeData(const char* data, unsigned
     for (const auto& ana_it : data_item_analysis_) // add to preserve num counters
         (*analysis_result)[ana_it.first] = ana_it.second;
 
+    addSkippedCategoriesAnalysis(*analysis_result);
+
             //sensor_counts_.clear();
     data_item_analysis_.clear();
+    skipped_category_counts_.clear();
 
     return analysis_result;
 }
@@ -804,6 +835,11 @@ void jASTERIX::decodeFile(
             // create ASTERIX parser
     ASTERIXParser asterix_parser(data_block_definition_, category_definitions_, debug_);
 
+    // REF/SPF fallback counts accumulate in the local parser; members stay cumulative
+    // per instance like num_errors_
+    size_t ref_errors_base = num_ref_errors_;
+    size_t spf_errors_base = num_spf_errors_;
+
     if (do_flat)
     {
         flat_record_indices_.clear();
@@ -887,6 +923,8 @@ void jASTERIX::decodeFile(
             dec_ret = frame_parser.decodeFrames(data, file_size, data_chunk.get(), debug_);
             num_records_ += dec_ret.first;
             num_errors_ += dec_ret.second;
+            num_ref_errors_ = ref_errors_base + asterix_parser.numREFErrors();
+            num_spf_errors_ = spf_errors_base + asterix_parser.numSPFErrors();
 
             if (debug_)
                 loginf << "jASTERIX processing " << num_frames_ << " frames, " << num_records_
@@ -955,6 +993,11 @@ void jASTERIX::decodeFile(
 
     // create ASTERIX parser
     ASTERIXParser asterix_parser(data_block_definition_, category_definitions_, debug_);
+
+    // REF/SPF fallback counts accumulate in the local parser; members stay cumulative
+    // per instance like num_errors_
+    size_t ref_errors_base = num_ref_errors_;
+    size_t spf_errors_base = num_spf_errors_;
 
     if (do_flat)
     {
@@ -1034,6 +1077,8 @@ void jASTERIX::decodeFile(
                 asterix_parser.decodeDataBlocks(data, file_size, data_block_chunk->at("data_blocks"), debug_);
             num_records_ += dec_ret.first;
             num_errors_ += dec_ret.second;
+            num_ref_errors_ = ref_errors_base + asterix_parser.numREFErrors();
+            num_spf_errors_ = spf_errors_base + asterix_parser.numSPFErrors();
 
             if (do_flat)
             {
@@ -1109,6 +1154,11 @@ void jASTERIX::decodeData(const char* data,
                           bool do_flat)
 {
     ASTERIXParser asterix_parser_instance (data_block_definition_, category_definitions_, debug_);
+
+    // REF/SPF fallback counts accumulate in the local parser; members stay cumulative
+    // per instance like num_errors_
+    size_t ref_errors_base = num_ref_errors_;
+    size_t spf_errors_base = num_spf_errors_;
 
     if (do_flat)
     {
@@ -1186,6 +1236,8 @@ void jASTERIX::decodeData(const char* data,
                 asterix_parser_instance.decodeDataBlocks(data, total_size, data_block_chunk->at("data_blocks"), debug_);
             num_records_ += dec_ret.first;
             num_errors_ += dec_ret.second;
+            num_ref_errors_ = ref_errors_base + asterix_parser_instance.numREFErrors();
+            num_spf_errors_ = spf_errors_base + asterix_parser_instance.numSPFErrors();
 
             // when decoding a PCAP, stamp each data block with its network capture time
             // (before printing / callback so both see it). only for structured output.
@@ -1276,6 +1328,8 @@ void jASTERIX::decodePCAPFile(const std::string& filename,
     num_frames_  = 0;
     num_records_ = 0;
     num_errors_  = 0;
+    num_ref_errors_ = 0;
+    num_spf_errors_ = 0;
 
     stop_decoding_ = false;
 
@@ -1401,6 +1455,10 @@ void jASTERIX::setDebug(bool debug) { debug_ = debug; }
 
 size_t jASTERIX::numErrors() const { return num_errors_; }
 
+size_t jASTERIX::numREFErrors() const { return num_ref_errors_; }
+
+size_t jASTERIX::numSPFErrors() const { return num_spf_errors_; }
+
 size_t jASTERIX::openFile (const std::string& filename)
 {
     // check and open file
@@ -1466,7 +1524,10 @@ void jASTERIX::analyzeChunk(const std::unique_ptr<nlohmann::json>& data_chunk, b
                 traced_assert(data_block.contains("category"));
 
                 if (!data_block.contains("content") || !data_block.at("content").contains("records"))
+                {
+                    countSkippedDataBlock(data_block);
                     continue;
+                }
 
                 traced_assert(data_block.contains("content"));
                 traced_assert(data_block.at("content").contains("records"));
@@ -1492,7 +1553,10 @@ void jASTERIX::analyzeChunk(const std::unique_ptr<nlohmann::json>& data_chunk, b
             traced_assert(data_block.contains("category"));
 
             if (!data_block.contains("content") || !data_block.at("content").contains("records"))
+            {
+                countSkippedDataBlock(data_block);
                 continue;
+            }
 
             traced_assert(data_block.contains("content"));
             traced_assert(data_block.at("content").contains("records"));
@@ -1538,6 +1602,44 @@ void jASTERIX::analyzeRecord(unsigned int category, const nlohmann::json& record
     addJSONAnalysis(sensor_id, cat_str, "", record);
 }
 
+void jASTERIX::countSkippedDataBlock(const nlohmann::json& data_block)
+{
+    unsigned int category = data_block.at("category");
+
+    // only count data blocks skipped because the category cannot be decoded,
+    // either since no definition exists or since decoding is disabled
+    if (category_definitions_.count(category) && category_definitions_.at(category)->decode())
+        return;
+
+    size_t bytes = 0;
+
+    if (data_block.contains("length")) // whole data block incl. CAT/LEN header
+        bytes = data_block.at("length");
+    else if (data_block.contains("content") && data_block.at("content").contains("length"))
+        bytes = data_block.at("content").at("length");
+
+    auto& counts = skipped_category_counts_[category];
+    counts.first += 1;
+    counts.second += bytes;
+}
+
+void jASTERIX::addSkippedCategoriesAnalysis(nlohmann::json& analysis_result)
+{
+    if (skipped_category_counts_.empty())
+        return;
+
+    nlohmann::json& skipped = analysis_result["skipped_categories"];
+
+    for (const auto& cat_it : skipped_category_counts_)
+    {
+        string cat_str = to_string(cat_it.first);
+
+        skipped[cat_str]["data_blocks"] = cat_it.second.first;
+        skipped[cat_str]["bytes"]       = cat_it.second.second;
+        skipped[cat_str]["reason"]      = category_definitions_.count(cat_it.first) ?
+                    "decoding disabled" : "no specification";
+    }
+}
 
 void jASTERIX::addJSONAnalysis(const std::string& sensor_id, const std::string& cat_str,
                                const std::string& prefix, const nlohmann::json& item)
@@ -1586,7 +1688,7 @@ void jASTERIX::addJSONAnalysis(const std::string& sensor_id, const std::string& 
                 }
             }
 
-            // first occurrence — create entry via operator[]
+            // first occurrence - create entry via operator[]
             {
                 auto& entry = data_item_analysis_[sensor_id][cat_str][sub_prefix];
                 entry["count"] = 1;
@@ -1724,6 +1826,13 @@ std::vector<char> jASTERIX::encodeRecord(unsigned int category,
     if (!rec)
         throw runtime_error("jASTERIX: encodeRecord: no record for category " + to_string(category));
 
+    // inject current REF/SPF so they encode also in encode-only runs
+    // (otherwise this only happens when an ASTERIXParser is constructed for decoding)
+    if (cat->hasCurrentREFEdition())
+        rec->setRef(cat->getCurrentREFEdition()->reservedExpansionField());
+    if (cat->hasCurrentSPFEdition())
+        rec->setSpf(cat->getCurrentSPFEdition()->specialPurposeField());
+
     // allocate working buffer (64KB should be more than enough for any single record)
     const size_t buf_size = 65536;
     vector<char> buffer(buf_size, 0);
@@ -1760,6 +1869,13 @@ std::vector<char> jASTERIX::encodeDataBlock(unsigned int category,
 
     if (!rec)
         throw runtime_error("jASTERIX: encodeDataBlock: no record for category " + to_string(category));
+
+    // inject current REF/SPF so they encode also in encode-only runs
+    // (otherwise this only happens when an ASTERIXParser is constructed for decoding)
+    if (cat->hasCurrentREFEdition())
+        rec->setRef(cat->getCurrentREFEdition()->reservedExpansionField());
+    if (cat->hasCurrentSPFEdition())
+        rec->setSpf(cat->getCurrentSPFEdition()->specialPurposeField());
 
     // allocate working buffer
     const size_t buf_size = 65536 * records.size();

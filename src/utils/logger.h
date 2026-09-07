@@ -29,7 +29,7 @@ namespace jASTERIX
 {
 #if USE_LOG4CPP
 #define logerr log4cpp::Category::getRoot().errorStream()
-//#define logwrn log4cpp::Category::getRoot().warnStream()
+#define logwrn log4cpp::Category::getRoot().warnStream()
 #define loginf log4cpp::Category::getRoot().infoStream()
 //#define logdbg log4cpp::Category::getRoot().debugStream()
 //#define logdbg if(0) log4cpp::Category::getRoot().debugStream() // for improved
@@ -38,6 +38,7 @@ namespace jASTERIX
 #else
 
 #define logerr std::cerr
+#define logwrn std::cerr
 #define loginf std::cout
 #define logendl std::endl
 

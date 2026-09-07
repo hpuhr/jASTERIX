@@ -35,8 +35,17 @@ namespace po = boost::program_options;
 #include <chrono>
 #include <cstdlib>
 #include <iostream>
+#include <fstream>
+#include <sstream>
+#include <algorithm>
+#include <cctype>
+#include <string>
+#include <vector>
 #include <thread>
 #include <memory>
+
+#include <archive.h>
+#include <archive_entry.h>
 
 #include <tbb/tbb.h>
 
@@ -51,6 +60,195 @@ using namespace std;
 extern std::unique_ptr<jASTERIX::JSONWriter> json_writer;
 
 std::unique_ptr<jASTERIX::JSONWriter> json_writer;
+
+namespace
+{
+// Flat encode helpers: turn the flat columnar JSON (cat -> leaf_name -> array)
+// produced by --flat back into raw/netto ASTERIX via the jASTERIX encode API.
+
+// Set a value at a dotted leaf path ("080.CST") inside a nested record object.
+void encodeSetPath(nlohmann::json& obj, const std::string& path, const nlohmann::json& val)
+{
+    nlohmann::json* cur = &obj;
+    size_t start = 0;
+    while (true)
+    {
+        size_t dot = path.find('.', start);
+        if (dot == std::string::npos)
+        {
+            (*cur)[path.substr(start)] = val;
+            break;
+        }
+        cur = &((*cur)[path.substr(start, dot - start)]);
+        start = dot + 1;
+    }
+}
+
+// Reconstruct nested per-record JSON objects from one category's flat columns.
+// A null column entry means the item/subfield was not present in that record.
+// Repetitive item leaves are flattened as struct-of-arrays: the cell is an array
+// of scalars aligned by repetition index (e.g. 'SPF.Target Report Identifiers.TRI'
+// -> ["c1f176d0", ...]). Those are zipped back into the array-of-objects form the
+// nested encoder expects at the parent path. Extendable item cells are arrays of
+// objects and pass through unchanged.
+std::vector<nlohmann::json> encodeReconstructRecords(const nlohmann::json& cat_cols)
+{
+    size_t num_records = 0;
+    for (auto it = cat_cols.begin(); it != cat_cols.end(); ++it)
+        if (it.value().is_array())
+            num_records = std::max(num_records, it.value().size());
+
+    std::vector<nlohmann::json> records;
+    records.reserve(num_records);
+
+    for (size_t i = 0; i < num_records; ++i)
+    {
+        nlohmann::json rec = nlohmann::json::object();
+        for (auto it = cat_cols.begin(); it != cat_cols.end(); ++it)
+        {
+            const nlohmann::json& col = it.value();
+            if (!col.is_array() || i >= col.size())
+                continue;
+            const nlohmann::json& val = col.at(i);
+            if (val.is_null())
+                continue;
+
+            const std::string& path = it.key();
+            size_t last_dot = path.rfind('.');
+
+            if (val.is_array() && last_dot != std::string::npos &&
+                (val.empty() || !val.at(0).is_object()))
+            {
+                // repetitive leaf: zip scalars into array-of-objects at parent path
+                nlohmann::json* parent = &rec;
+                size_t start = 0;
+                while (true)
+                {
+                    size_t dot = path.find('.', start);
+                    if (dot == std::string::npos || dot == last_dot)
+                        break;
+                    parent = &((*parent)[path.substr(start, dot - start)]);
+                    start = dot + 1;
+                }
+                nlohmann::json& container = (*parent)[path.substr(start, last_dot - start)];
+                const std::string leaf = path.substr(last_dot + 1);
+
+                for (size_t k = 0; k < val.size(); ++k)
+                    container[k][leaf] = val.at(k);
+            }
+            else
+                encodeSetPath(rec, path, val);
+        }
+        records.push_back(std::move(rec));
+    }
+    return records;
+}
+
+// Encode one flat chunk object (top-level cat -> columns) into data blocks and
+// append them to out. Records are batched into data blocks bounded by the 2-byte
+// ASTERIX length field (max 65535 bytes per block).
+void encodeFlatChunk(jASTERIX::jASTERIX& asterix, const nlohmann::json& chunk, int only_cat,
+                     std::ofstream& out, size_t& total_records, size_t& total_blocks)
+{
+    for (auto it = chunk.begin(); it != chunk.end(); ++it)
+    {
+        const std::string& key = it.key();
+
+        // category keys are numeric strings (e.g. "62"); skip "rec_num" etc.
+        if (key.empty() ||
+            !std::all_of(key.begin(), key.end(), [](unsigned char c) { return std::isdigit(c); }))
+            continue;
+        if (!it.value().is_object())
+            continue;
+
+        unsigned int cat = static_cast<unsigned int>(std::atoi(key.c_str()));
+        if (only_cat > 0 && cat != static_cast<unsigned int>(only_cat))
+            continue;
+
+        std::vector<nlohmann::json> records = encodeReconstructRecords(it.value());
+        if (records.empty())
+            continue;
+
+        const size_t max_data_block = 65535;
+        std::vector<nlohmann::json> group;
+        size_t group_payload = 0;
+
+        auto flush = [&]() {
+            if (group.empty())
+                return;
+            std::vector<char> bytes = asterix.encodeDataBlock(cat, group);
+            out.write(bytes.data(), static_cast<std::streamsize>(bytes.size()));
+            ++total_blocks;
+            group.clear();
+            group_payload = 0;
+        };
+
+        for (const auto& rec : records)
+        {
+            // measure the record's encoded payload (encodeRecord returns CAT+LEN+record)
+            std::vector<char> one = asterix.encodeRecord(cat, rec);
+            size_t payload = one.size() - 3;
+
+            if (!group.empty() && 3 + group_payload + payload > max_data_block)
+                flush();
+
+            group.push_back(rec);
+            group_payload += payload;
+            ++total_records;
+        }
+        flush();
+    }
+}
+
+// Parse newline-separated flat chunk objects (one compact object per line, as
+// written by --flat --print_indent -1) and encode each.
+void encodeFlatText(jASTERIX::jASTERIX& asterix, const std::string& text, int only_cat,
+                    std::ofstream& out, size_t& total_records, size_t& total_blocks,
+                    size_t& total_chunks)
+{
+    size_t start = 0;
+    while (start < text.size())
+    {
+        size_t nl = text.find('\n', start);
+        std::string line =
+            text.substr(start, nl == std::string::npos ? std::string::npos : nl - start);
+        start = (nl == std::string::npos) ? text.size() : nl + 1;
+
+        size_t b = line.find_first_not_of(" \t\r\n");
+        if (b == std::string::npos)
+            continue;
+        size_t e = line.find_last_not_of(" \t\r\n");
+        line = line.substr(b, e - b + 1);
+        if (line.empty())
+            continue;
+
+        try
+        {
+            nlohmann::json chunk = nlohmann::json::parse(line);
+            encodeFlatChunk(asterix, chunk, only_cat, out, total_records, total_blocks);
+            ++total_chunks;
+        }
+        catch (std::exception& ex)
+        {
+            logerr << "jASTERIX client: failed to parse flat chunk: " << ex.what() << logendl;
+        }
+    }
+}
+
+// Read the full content of the current archive entry.
+std::string encodeReadArchiveEntry(struct archive* a)
+{
+    std::string content;
+    const void* buff;
+    size_t size;
+    la_int64_t offset;
+
+    while (archive_read_data_block(a, &buff, &size, &offset) == ARCHIVE_OK)
+        content.append(static_cast<const char*>(buff), size);
+
+    return content;
+}
+}  // namespace
 
 void write_callback(std::unique_ptr<nlohmann::json> data_chunk, size_t total_num_bytes,
                     size_t num_frames, size_t num_records, size_t num_errors)
@@ -99,6 +297,11 @@ int main(int argc, char** argv)
     std::string write_type;
     std::string write_filename;
     bool log_performance{false};
+
+    std::string encode_flat_zip;
+    std::string encode_flat;
+    std::string encode_filename;
+    int encode_cat{0};
 
     bool flat{false};
 
@@ -157,7 +360,18 @@ int main(int argc, char** argv)
                 "write_type", po::value<std::string>(&write_type),
                 "optional write type, e.g. text,zip. needs write_filename.")(
                 "write_filename", po::value<std::string>(&write_filename),
-                "optional write filename, e.g. test.zip.");
+                "optional write filename, e.g. test.zip.")(
+                "encode_flat_zip", po::value<std::string>(&encode_flat_zip),
+                "encode flat columnar JSON from a zip (members = chunks, as written by "
+                "--flat --write_type zip) back to raw/netto ASTERIX. needs encode_filename.")(
+                "encode_flat", po::value<std::string>(&encode_flat),
+                "encode flat columnar JSON from a text file (one flat chunk object per line) "
+                "back to raw/netto ASTERIX. needs encode_filename.")(
+                "encode_filename", po::value<std::string>(&encode_filename),
+                "output binary file for flat encoding (raw/netto ASTERIX).")(
+                "encode_cat", po::value<int>(&encode_cat),
+                "restrict flat encoding to a single category. 0 (default) encodes all "
+                "categories present. editions are taken from --editions (defaults otherwise).");
 
     try
     {
@@ -338,6 +552,68 @@ int main(int argc, char** argv)
 
             loginf << "jASTERIX client: category " << ed_it.first << " using edition '"
                    << ed_it.second << "'" << logendl;
+        }
+
+        if (encode_filename.size())
+        {
+            if (!encode_flat_zip.size() && !encode_flat.size())
+            {
+                logerr << "jASTERIX client: encode_filename requires encode_flat_zip or "
+                          "encode_flat" << logendl;
+                return -1;
+            }
+
+            std::ofstream out(encode_filename, std::ios::binary);
+            if (!out)
+            {
+                logerr << "jASTERIX client: cannot open encode output '" << encode_filename << "'"
+                       << logendl;
+                return -1;
+            }
+
+            size_t total_records = 0, total_blocks = 0, total_chunks = 0;
+
+            if (encode_flat_zip.size())
+            {
+                struct archive* a = archive_read_new();
+                archive_read_support_format_zip(a);
+
+                if (archive_read_open_filename(a, encode_flat_zip.c_str(), 65536) != ARCHIVE_OK)
+                {
+                    logerr << "jASTERIX client: cannot open zip '" << encode_flat_zip
+                           << "': " << archive_error_string(a) << logendl;
+                    archive_read_free(a);
+                    return -1;
+                }
+
+                struct archive_entry* entry;
+                while (archive_read_next_header(a, &entry) == ARCHIVE_OK)
+                {
+                    std::string content = encodeReadArchiveEntry(a);
+                    encodeFlatText(asterix, content, encode_cat, out, total_records, total_blocks,
+                                   total_chunks);
+                }
+                archive_read_free(a);
+            }
+            else
+            {
+                std::ifstream in(encode_flat);
+                if (!in)
+                {
+                    logerr << "jASTERIX client: cannot open '" << encode_flat << "'" << logendl;
+                    return -1;
+                }
+                std::stringstream ss;
+                ss << in.rdbuf();
+                encodeFlatText(asterix, ss.str(), encode_cat, out, total_records, total_blocks,
+                               total_chunks);
+            }
+
+            out.close();
+            loginf << "jASTERIX client: encoded " << total_records << " records in "
+                   << total_blocks << " data blocks from " << total_chunks
+                   << " chunks to '" << encode_filename << "'" << logendl;
+            return 0;
         }
 
         if (print_cat_info)

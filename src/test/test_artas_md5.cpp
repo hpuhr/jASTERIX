@@ -26,7 +26,7 @@
 using namespace std;
 using namespace nlohmann;
 
-// Expected hash value for the cat062 1.12 test record — computed once in structured mode
+// Expected hash value for the cat062 1.12 test record - computed once in structured mode
 // and verified to be stable across runs.
 static std::string expected_hash;
 
@@ -97,7 +97,6 @@ TEST_CASE("jASTERIX ARTAS MD5 structured mode", "[jASTERIX ARTAS MD5]")
     std::shared_ptr<jASTERIX::Category> cat062 = jasterix.category(62);
     REQUIRE(cat062->hasEdition("1.12"));
     cat062->setCurrentEdition("1.12");
-    cat062->setCurrentMapping("");
 
     const std::string filename = "cat062ed1.12.bin";
     REQUIRE(jASTERIX::Files::fileExists(data_path + filename));
@@ -124,7 +123,6 @@ TEST_CASE("jASTERIX ARTAS MD5 flat mode", "[jASTERIX ARTAS MD5]")
     std::shared_ptr<jASTERIX::Category> cat062 = jasterix.category(62);
     REQUIRE(cat062->hasEdition("1.12"));
     cat062->setCurrentEdition("1.12");
-    cat062->setCurrentMapping("");
 
     const std::string filename = "cat062ed1.12.bin";
     REQUIRE(jASTERIX::Files::fileExists(data_path + filename));

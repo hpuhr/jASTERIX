@@ -359,11 +359,15 @@ void SpecialPurposeField::setupColumnWriters(const LeafSetupCallback& callback)
 {
     column_mode_ = true;
 
+    // capture the created columns so a partial decode of a non-matching SPF can be
+    // discarded via clearCapturedColumnCells()
+    LeafSetupCallback capturing = captureColumns(callback);
+
     for (auto& item_it : complex_items_)
-        item_it.second->setupColumnWriters(callback);
+        item_it.second->setupColumnWriters(capturing);
 
     for (auto& item_it : simple_items_)
-        item_it->setupColumnWriters(callback);
+        item_it->setupColumnWriters(capturing);
 }
 
 

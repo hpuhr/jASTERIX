@@ -67,7 +67,6 @@ void roundtrip_test(const string& filename, unsigned int category,
     auto cat = jasterix.category(category);
     REQUIRE(cat->hasEdition(edition));
     cat->setCurrentEdition(edition);
-    cat->setCurrentMapping("");
 
     // decode file, capture JSON
     unique_ptr<json> decoded_json;

@@ -337,6 +337,11 @@ size_t Record::parseItem(const char* data, size_t index, size_t size, size_t cur
             parsed_bytes += 1;  // read 1 len byte
             re_bytes -= 1;      // includes 1 len byte
 
+            // the announced length must fit into the buffer - if not, the stream is
+            // desynced and parsing cannot resume
+            if (index + parsed_bytes + re_bytes > total_size)
+                throw std::runtime_error("reserved expansion field longer than max size");
+
             if (ref_)  // decode ref
             {
                 if (debug)
@@ -350,30 +355,46 @@ size_t Record::parseItem(const char* data, size_t index, size_t size, size_t cur
                 }
                 else
                 {
-                    traced_assert(re_bytes >= 1);
+                    // the length indicator is authoritative: if the content does not match
+                    // the definition, the field is kept as raw data and parsing resumes
+                    // after the announced length instead of failing the whole data block
+                    size_t ref_bytes{0};
+                    bool decoded_ok{true};
 
-                    if (index + parsed_bytes >= total_size)
+                    try
                     {
-                        logerr << "unexpected record ref item at index " << index + parsed_bytes
-                               << " total_size " << total_size << ", quitting";
-                        return parsed_bytes;
-                    }
+                        ref_bytes = ref_->parseItem(
+                            data, index + parsed_bytes, re_bytes, 0, total_size, target["REF"], debug);
 
-                    size_t ref_bytes =
-                        ref_->parseItem(data, index + parsed_bytes, re_bytes, 0, total_size, target["REF"], debug);
+                        decoded_ok = (ref_bytes == re_bytes);
+                    }
+                    catch (const std::exception& e)
+                    {
+                        if (debug)
+                            loginf << "record '" + name_ + "' reserved expansion field parsing"
+                                   << " failed: " << e.what() << logendl;
+
+                        decoded_ok = false;
+                    }
 
                     if (debug)
                         loginf << "record '" + name_ + "' parsed reserved expansion field, read "
                                << ref_bytes << " ref in " << re_bytes << " bytes " << logendl;
 
-                    if (ref_bytes != re_bytes)
+                    if (!decoded_ok)
                     {
-                        logerr << "parsing error in REF '"
-                               << binary2hex((const unsigned char*)&data[index + parsed_bytes], re_bytes) << "'";
+                        logwrn << "record item '" << name_ << "' reserved expansion field content '"
+                               << binary2hex((const unsigned char*)&data[index + parsed_bytes], re_bytes)
+                               << "' does not match the definition (read " << ref_bytes
+                               << " bytes instead of specified " << re_bytes
+                               << "), keeping as raw data" << logendl;
 
-                        throw runtime_error(
-                            "record item '" + name_ + "' reserved expansion field definition read " +
-                            to_string(ref_bytes) + " bytes instead of specified " + to_string(re_bytes));
+                        // discard flat-mode column output of the partial decode
+                        ref_->clearCapturedColumnCells();
+
+                        target["REF"] =
+                            binary2hex((const unsigned char*)&data[index + parsed_bytes], re_bytes);
+                        target["ref_error"] = true;
                     }
 
                     parsed_bytes += re_bytes;
@@ -385,16 +406,6 @@ size_t Record::parseItem(const char* data, size_t index, size_t size, size_t cur
                 if (debug)
                     loginf << "record '" + name_ + "' has reserved expansion field, reading "
                            << re_bytes << " bytes " << logendl;
-
-                if (index + parsed_bytes + re_bytes > total_size)
-                    throw std::runtime_error("reserved expansion field longer than max size");
-
-                if (index + parsed_bytes >= total_size)
-                {
-                    logerr << "unexpected record item ref at index " << index + parsed_bytes
-                           << " total_size " << total_size << ", quitting";
-                    return parsed_bytes;
-                }
 
                 target["REF"] = binary2hex((const unsigned char*)&data[index + parsed_bytes], re_bytes);
 
@@ -412,7 +423,12 @@ size_t Record::parseItem(const char* data, size_t index, size_t size, size_t cur
             parsed_bytes += 1;  // read 1 len byte
             re_bytes -= 1;      // includes 1 len byte
 
-            if (spf_)  // decode ref
+            // the announced length must fit into the buffer - if not, the stream is
+            // desynced and parsing cannot resume
+            if (index + parsed_bytes + re_bytes > total_size)
+                throw std::runtime_error("special purpose field longer than max size");
+
+            if (spf_)  // decode spf
             {
                 if (debug)
                     loginf << "record '" + name_ + "' has special purpose field, reading " << re_bytes
@@ -425,30 +441,46 @@ size_t Record::parseItem(const char* data, size_t index, size_t size, size_t cur
                 }
                 else
                 {
-                    traced_assert(re_bytes >= 1);
+                    // the length indicator is authoritative: if the content does not match
+                    // the definition, the field is kept as raw data and parsing resumes
+                    // after the announced length instead of failing the whole data block
+                    size_t spf_bytes{0};
+                    bool decoded_ok{true};
 
-                    if (index + parsed_bytes >= total_size)
+                    try
                     {
-                        logerr << "unexpected record spf item at index " << index + parsed_bytes
-                               << " total_size " << total_size << ", quitting";
-                        return parsed_bytes;
+                        spf_bytes = spf_->parseItem(
+                            data, index + parsed_bytes, re_bytes, 0, total_size, target["SPF"], debug);
+
+                        decoded_ok = (spf_bytes == re_bytes);
+                    }
+                    catch (const std::exception& e)
+                    {
+                        if (debug)
+                            loginf << "record '" + name_ + "' special purpose field parsing"
+                                   << " failed: " << e.what() << logendl;
+
+                        decoded_ok = false;
                     }
 
-                    size_t ref_bytes = spf_->parseItem(
-                        data, index + parsed_bytes, re_bytes, 0, total_size, target["SPF"], debug);
-
                     if (debug)
-                        loginf << "record '" + name_ + "' parsed special purpose field, read " << ref_bytes
+                        loginf << "record '" + name_ + "' parsed special purpose field, read " << spf_bytes
                                << " ref in " << re_bytes << " bytes " << logendl;
 
-                    if (ref_bytes != re_bytes)
+                    if (!decoded_ok)
                     {
-                        logerr << "parsing error in SPF '"
-                               << binary2hex((const unsigned char*)&data[index + parsed_bytes], re_bytes) << "'";
+                        logwrn << "record item '" << name_ << "' special purpose field content '"
+                               << binary2hex((const unsigned char*)&data[index + parsed_bytes], re_bytes)
+                               << "' does not match the definition (read " << spf_bytes
+                               << " bytes instead of specified " << re_bytes
+                               << "), keeping as raw data" << logendl;
 
-                        throw runtime_error(
-                            "record item '" + name_ + "' special purpose field definition read " +
-                            to_string(ref_bytes) + " bytes instead of specified " + to_string(re_bytes));
+                        // discard flat-mode column output of the partial decode
+                        spf_->clearCapturedColumnCells();
+
+                        target["SPF"] =
+                            binary2hex((const unsigned char*)&data[index + parsed_bytes], re_bytes);
+                        target["spf_error"] = true;
                     }
 
                     parsed_bytes += re_bytes;
@@ -460,16 +492,6 @@ size_t Record::parseItem(const char* data, size_t index, size_t size, size_t cur
                 if (debug)
                     loginf << "record '" + name_ + "' has special purpose field, reading " << re_bytes
                            << " bytes " << logendl;
-
-                if (index + parsed_bytes + re_bytes > total_size)
-                    throw std::runtime_error("special purpose field longer than max size");
-
-                if (index + parsed_bytes >= total_size)
-                {
-                    logerr << "unexpected record spf item at index " << index + parsed_bytes
-                           << " total_size " << total_size << ", quitting";
-                    return parsed_bytes;
-                }
 
                 target["SPF"] = binary2hex((const unsigned char*)&data[index + parsed_bytes], re_bytes);
                 parsed_bytes += re_bytes;
@@ -517,7 +539,7 @@ std::string Record::getValue(const nlohmann::json& container, bool debug)
 
     if (column_mode_)
     {
-        // In column mode, containers skip nesting — leaves write flat to target.
+        // In column mode, containers skip nesting - leaves write flat to target.
         // Look up the last sub-key directly (the leaf name).
         const auto& leaf_key = conditional_uaps_sub_keys_.back();
 
@@ -617,7 +639,7 @@ size_t Record::encodeRecord(const nlohmann::json& record_json, char* target,
         }
     }
 
-    // Build raw FSPEC bits (without FX bits — those are at positions 7, 15, 23...)
+    // Build raw FSPEC bits (without FX bits - those are at positions 7, 15, 23...)
     size_t total_uap = all_uap_names.size();
     fspec_bits.resize(total_uap, false);
 

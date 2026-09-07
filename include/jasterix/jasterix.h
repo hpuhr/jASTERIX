@@ -21,7 +21,6 @@
 #include <jasterix/edition.h>
 #include <jasterix/frameparser.h>
 #include <jasterix/global.h>
-#include <jasterix/mapping.h>
 
 #include <boost/iostreams/device/mapped_file.hpp>
 #include <deque>
@@ -96,11 +95,11 @@ class jASTERIX
                                    unsigned int record_limit=0);
 
     // Callback signature for decodeFile/decodeData:
-    //   data          — decoded JSON chunk (frames or data_blocks, or flat columnar data)
-    //   total_num_bytes — cumulative number of bytes decoded so far (for progress tracking)
-    //   num_frames      — number of frames in this chunk (0 when decoding without framing)
-    //   num_records     — number of records decoded in this chunk
-    //   num_errors      — number of decode errors in this chunk
+    //   data          - decoded JSON chunk (frames or data_blocks, or flat columnar data)
+    //   total_num_bytes - cumulative number of bytes decoded so far (for progress tracking)
+    //   num_frames      - number of frames in this chunk (0 when decoding without framing)
+    //   num_records     - number of records decoded in this chunk
+    //   num_errors      - number of decode errors in this chunk
     using decode_callback_t = std::function<void(std::unique_ptr<nlohmann::json> data,
                                                  size_t total_num_bytes,
                                                  size_t num_frames,
@@ -142,6 +141,12 @@ class jASTERIX
     size_t numFrames() const;
     size_t numRecords() const;
     size_t numErrors() const;
+
+    // records whose REF/SPF content did not match the selected REF/SPF definition and
+    // was kept as raw hex data (with a ref_error/spf_error flag in the record);
+    // cumulative over the last decode/analyze call
+    size_t numREFErrors() const;
+    size_t numSPFErrors() const;
 
     void addDataBlockChunk(std::unique_ptr<nlohmann::json> data_block_chunk, size_t bytes_read,
                            bool error, bool done);
@@ -193,6 +198,8 @@ class jASTERIX
     size_t num_frames_{0};
     size_t num_records_{0};
     size_t num_errors_{0};
+    size_t num_ref_errors_{0};
+    size_t num_spf_errors_{0};
 
     std::atomic<bool> stop_decoding_{false};
 
@@ -211,10 +218,16 @@ class jASTERIX
     // sac/sic -> cat -> key -> count/min/max
     std::map<std::string, std::map<std::string, std::map<std::string, nlohmann::json>>> data_item_analysis_;
 
+    // cat -> {num data blocks, num bytes} of data blocks skipped during analysis
+    // because the category could not be decoded (no definition or decoding disabled)
+    std::map<unsigned int, std::pair<size_t, size_t>> skipped_category_counts_;
+
     size_t openFile (const std::string& filename); // returns file size
     nlohmann::json loadFramingDefinition(const std::string& framing_str);
     void analyzeChunk(const std::unique_ptr<nlohmann::json>& data_chunk, bool framing);
     void analyzeRecord(unsigned int category, const nlohmann::json& record);
+    void countSkippedDataBlock(const nlohmann::json& data_block);
+    void addSkippedCategoriesAnalysis(nlohmann::json& analysis_result);
 
     void addJSONAnalysis(const std::string& sensor_id, const std::string& cat_str,
                          const std::string& prefix, const nlohmann::json& item);

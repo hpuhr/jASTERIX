@@ -180,7 +180,6 @@ TEST_CASE("jASTERIX cat252 7.0", "[jASTERIX cat252]")
     std::shared_ptr<jASTERIX::Category> cat252 = jasterix.category(252);
     REQUIRE(cat252->hasEdition("7.0"));
     cat252->setCurrentEdition("7.0");
-    cat252->setCurrentMapping("");
 
     const std::string filename = "cat252ed7.0.bin";
 

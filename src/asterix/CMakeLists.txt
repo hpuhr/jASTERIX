@@ -12,7 +12,6 @@ target_sources(jasterix
         "${CMAKE_CURRENT_LIST_DIR}/category.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/editionbase.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/edition.cpp"
-        "${CMAKE_CURRENT_LIST_DIR}/mapping.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/record.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/refedition.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/ref.cpp"
