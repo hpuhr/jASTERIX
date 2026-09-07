@@ -118,6 +118,19 @@ REF and SPF fields carry a leading 1-byte length indicator, which is authoritati
 
 Affected records are counted: `jASTERIX::numREFErrors()` / `numSPFErrors()` after decoding, and `num_ref_errors` / `num_spf_errors` keys in the `analyzeFile()`/`analyzeData()` result (next to `num_errors`, which stays 0 for these records). In flat mode the field's leaf columns are null for such records; the hex string and flag are not part of the columnar output.
 
+### Skipped categories in the analysis result
+
+Data blocks of categories that were not decoded are counted per category and reported in the `analyzeFile()` / `analyzeData()` result (and in `--analyze`) under the `skipped_categories` key. `analyzePCAPFile()` returns one sub-result per network stream, each carrying its own `skipped_categories`.
+
+```json
+"skipped_categories": {
+    "23": { "data_blocks": 412, "bytes": 8240, "reason": "no specification" },
+    "34": { "data_blocks": 1150, "bytes": 27600, "reason": "decoding disabled" }
+}
+```
+
+`reason` is `no specification` when no definition exists for the category, and `decoding disabled` when a definition exists but decoding was switched off (`decodeCategory()` / `--only_cats`). The key is absent when nothing was skipped. This is what COMPASS uses to report unknown categories found in a recording during import probing.
+
 ## JSON output formats
 
 Two output formats: **structured** (default) and **flat** (`--flat` / `do_flat`).

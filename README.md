@@ -58,12 +58,12 @@ Also, the Nlohmann::JSON and the Catch2 libraries are used.
 
 ## Client Installation without Building
 
-Since v0.0.3 an client AppImage is supplied, which can be executed (without setup effort) under all recent Linux distributions (since Ubuntu 14.04).
+A client AppImage is supplied, which can be executed (without setup effort) under all recent Linux distributions. The AppImage is built on Debian 10 (Buster), so it runs on Debian 10 and later, Ubuntu 18.04 and later, and comparable distributions.
 
 Download the AppImage and the jASTERIX definitions from the [Releases](https://github.com/hpuhr/jASTERIX/releases) page, and extract the definitions into a local folder, e.g. 'definitions'. Execute the following command to add the executable flag to the AppImage:
 
 ```
-chmod +x jASTERIX_client_v0.0.3-x86_64.AppImage
+chmod +x jASTERIX_client_v0.1.5-deb10.AppImage
 ```
 
 After this, the jASTERIX client can be run from the console (see Usage section).
@@ -91,41 +91,61 @@ After building, the following jASTERIX client can be used (from the check-out fo
 ```
 ./jASTERIX_client-x86_64.AppImage --help
 INFO    : Allowed options:
-  --help                   produce help message
-  --filename arg           input file name
-  --definition_path arg    path to jASTERIX definition files
-  --framing arg            input framine format, as specified in the framing 
-                           definitions. raw/netto is default
-  --frame_limit arg        number of frames to process with framing, default 
-                           -1, use -1 to disable.
-  --frame_chunk_size arg   number of frames to process in one chunk, default 
-                           1000, use -1 to disable.
-  --data_block_limit arg   number of data blocks to process without framing, 
-                           default 10000, use -1 to disable.
-  --data_write_size arg    number of frame chunks to write in one file write, 
-                           default 1, use -1 to disable.
-  --debug                  print debug output (only for small files)
-  --debug_include_framing  print debug output including framing, debug still 
-                           has to be set, disable per default
-  --single_thread          process data in single thread
-  --only_cats arg          restricts categories to be decoded, e.g. 20,21.
-  --editions arg           set non-default editions per category, e.g. 
-                           21:0.26,48:1.15.
-  --pcap                   input file is a PCAP capture (libpcap); ASTERIX 
-                           payload is extracted and decoded as raw/netto (no 
-                           framing).
-  --log_perf               enable performance log after processing
-  --add_artas_md5          add ARTAS MD5 hashes
-  --check_artas_md5 arg    add and check ARTAS MD5 hashes (with record data), 
-                           stating which categories to check, e.g. 1,20,21,48
-  --flat                   output in flat/columnar format (cat -> leaf_name -> 
-                           array)
-  --add_record_data        add original record data in hex
-  --print                  print JSON output
-  --print_indent arg       intendation of json print, use -1 to disable.
-  --write_type arg         optional write type, e.g. text,zip. needs 
-                           write_filename.
-  --write_filename arg     optional write filename, e.g. test.zip.
+  --help                      produce help message
+  --filename arg              input file name
+  --definition_path arg       path to jASTERIX definition files
+  --framing arg               input framine format, as specified in the framing
+                              definitions. raw/netto is default
+  --frame_limit arg           number of frames to process with framing, default
+                              -1, use -1 to disable.
+  --frame_chunk_size arg      number of frames to process in one chunk, default
+                              1000, use -1 to disable.
+  --data_block_limit arg      number of data blocks to process without framing,
+                              default -1, use -1 to disable.
+  --data_block_chunk_size arg number of data blocks to process in one chunk, 
+                              default 1000, use -1 to disable.
+  --data_write_size arg       number of frame chunks to write in one file 
+                              write, default 1, use -1 to disable.
+  --debug                     print debug output (only for small files)
+  --debug_include_framing     print debug output including framing, debug still
+                              has to be set, disable per default
+  --print_cat_info            print category info
+  --single_thread             process data in single thread
+  --only_cats arg             restricts categories to be decoded, e.g. 20,21.
+  --editions arg              set non-default editions per category, e.g. 
+                              21:0.26,48:1.15.
+  --pcap                      input file is a PCAP capture (libpcap); ASTERIX 
+                              payload is extracted and decoded as raw/netto (no
+                              framing).
+  --log_perf                  enable performance log after processing
+  --analyze                   analyze data sources and contents
+  --analyze_csv               analyze data sources and contents, print as CSV
+  --analyze_record_limit arg  number of records to analyze. 0 (default) 
+                              disables limit.
+  --add_artas_md5             add ARTAS MD5 hashes
+  --check_artas_md5 arg       add and check ARTAS MD5 hashes (with record 
+                              data), stating which categories to check, e.g. 
+                              1,20,21,48
+  --flat                      output in flat/columnar format (cat -> leaf_name 
+                              -> array)
+  --add_record_data           add original record data in hex
+  --print                     print JSON output
+  --print_indent arg          intendation of json print, use -1 to disable.
+  --write_type arg            optional write type, e.g. text,zip. needs 
+                              write_filename.
+  --write_filename arg        optional write filename, e.g. test.zip.
+  --encode_flat_zip arg       encode flat columnar JSON from a zip (members = 
+                              chunks, as written by --flat --write_type zip) 
+                              back to raw/netto ASTERIX. needs encode_filename.
+  --encode_flat arg           encode flat columnar JSON from a text file (one 
+                              flat chunk object per line) back to raw/netto 
+                              ASTERIX. needs encode_filename.
+  --encode_filename arg       output binary file for flat encoding (raw/netto 
+                              ASTERIX).
+  --encode_cat arg            restrict flat encoding to a single category. 0 
+                              (default) encodes all categories present. 
+                              editions are taken from --editions (defaults 
+                              otherwise).
 ```
 ### Decoding Test & Performance
 
@@ -402,6 +422,54 @@ By default the JSON output is structured (nested per record, mirroring the ASTER
 ```
 
 This format is convenient for direct import into columnar/data-frame tooling (e.g. pandas, Apache Arrow). It is available both via the CLI `--flat` flag and the library API (the `do_flat` parameter of `decodeFile()` / `decodeData()` / `decodePCAPFile()`).
+
+#### Repetitive Items in Flat Output
+
+Repetitive items (a REP count octet followed by N identical subitems) are flattened down to the leaf. Each leaf gets its own column, keyed by its full path. The cell of a record holds an array of scalars, aligned by repetition index. A `<prefix>.REP` column holds the count. The structured output keeps its array-of-objects form for the same item.
+
+Structured:
+
+```
+"SPF": { "REP": 2, "Target Report Identifiers": [ { "TRI": "76427f0a" }, { "TRI": "10c4d792" } ] }
+```
+
+Flat:
+
+```
+"SPF.REP": [2, ...],
+"SPF.Target Report Identifiers.TRI": [["76427f0a", "10c4d792"], null, ...]
+```
+
+An item with several fields per repetition produces one such column per field. The columns stay aligned by repetition index. Extendable items are not flattened this way, they keep their whole array-of-objects in one column.
+
+Note that this representation changed in v0.1.5. Before, the whole repetitive item was a single column holding an array of objects per record. Consumers of flat output must be adapted.
+
+### Re-Encoding to Binary ASTERIX
+
+Flat JSON output can be encoded back to binary ASTERIX. Decode with `--flat --write_type text` or `--flat --write_type zip`, then encode the result with `--encode_flat` or `--encode_flat_zip`. The output file is set with `--encode_filename`. Round trips are byte-exact.
+
+```
+./jASTERIX_client-x86_64.AppImage --definition_path definitions/ --filename recording.rec --flat --write_type zip --write_filename flat.zip
+./jASTERIX_client-x86_64.AppImage --definition_path definitions/ --encode_flat_zip flat.zip --encode_filename reencoded.rec
+```
+
+Use `--encode_cat` to restrict the output to one category. Editions come from `--editions`, or from the defaults. The encoder always writes raw/netto output, framings are not generated again.
+
+```
+./jASTERIX_client-x86_64.AppImage --definition_path definitions/ --encode_flat flat.json --encode_cat 62 --editions 62:1.21 --encode_filename cat062.rec
+```
+
+The library API encodes structured JSON directly, via `encodeRecord()` and `encodeDataBlock()`. Both return a complete data block (CAT, LEN, records).
+
+### REF and SPF Fields
+
+A Reserved Expansion Field (REF) and a Special Purpose Field (SPF) carry a leading length octet. That length is authoritative for the framing of the record.
+
+If the content of such a field does not match the selected definition, jASTERIX does not fail the data block. The partial decode is discarded. The field content is kept as a raw hex string, the same as when no REF or SPF edition is selected. A `ref_error` or `spf_error` flag is added to the record, and a warning is logged. Parsing resumes after the announced length, so the rest of the record and the data block decode normally. This happens for example when equipment writes its own content into an SPF.
+
+Only an announced length that overruns the data block stays a hard decode error, because the stream is then out of sync.
+
+Affected records are counted. The library reports them through `numREFErrors()` and `numSPFErrors()`. The analysis result holds them as `num_ref_errors` and `num_spf_errors`, next to `num_errors`, which stays 0 for these records. In flat output the leaf columns of the field are null for such records.
 
 ### PCAP Captures
 
