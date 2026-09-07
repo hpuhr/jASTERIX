@@ -26,7 +26,7 @@
 using namespace std;
 using namespace nlohmann;
 
-// Expected hash value for the cat062 1.12 test record — computed once in structured mode
+// Expected hash value for the cat062 1.12 test record - computed once in structured mode
 // and verified to be stable across runs.
 static std::string expected_hash;
 

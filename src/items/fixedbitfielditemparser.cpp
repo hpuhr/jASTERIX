@@ -93,7 +93,7 @@ size_t FixedBitFieldItemParser::parseItem(const char* data, size_t index, size_t
                                         optional_variable_value_);
 
         // Fallback: if variable not found in JSON (e.g. no_output FX bit),
-        // read it from the binary data — FX bits are always bit 0 of the preceding byte
+        // read it from the binary data - FX bits are always bit 0 of the preceding byte
         if (!var_set && index > 0 &&
             !target.contains(optional_variable_name_parts_.front()))
         {

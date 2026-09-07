@@ -95,11 +95,11 @@ class jASTERIX
                                    unsigned int record_limit=0);
 
     // Callback signature for decodeFile/decodeData:
-    //   data          — decoded JSON chunk (frames or data_blocks, or flat columnar data)
-    //   total_num_bytes — cumulative number of bytes decoded so far (for progress tracking)
-    //   num_frames      — number of frames in this chunk (0 when decoding without framing)
-    //   num_records     — number of records decoded in this chunk
-    //   num_errors      — number of decode errors in this chunk
+    //   data          - decoded JSON chunk (frames or data_blocks, or flat columnar data)
+    //   total_num_bytes - cumulative number of bytes decoded so far (for progress tracking)
+    //   num_frames      - number of frames in this chunk (0 when decoding without framing)
+    //   num_records     - number of records decoded in this chunk
+    //   num_errors      - number of decode errors in this chunk
     using decode_callback_t = std::function<void(std::unique_ptr<nlohmann::json> data,
                                                  size_t total_num_bytes,
                                                  size_t num_frames,

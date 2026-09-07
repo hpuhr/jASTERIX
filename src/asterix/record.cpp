@@ -539,7 +539,7 @@ std::string Record::getValue(const nlohmann::json& container, bool debug)
 
     if (column_mode_)
     {
-        // In column mode, containers skip nesting — leaves write flat to target.
+        // In column mode, containers skip nesting - leaves write flat to target.
         // Look up the last sub-key directly (the leaf name).
         const auto& leaf_key = conditional_uaps_sub_keys_.back();
 
@@ -639,7 +639,7 @@ size_t Record::encodeRecord(const nlohmann::json& record_json, char* target,
         }
     }
 
-    // Build raw FSPEC bits (without FX bits — those are at positions 7, 15, 23...)
+    // Build raw FSPEC bits (without FX bits - those are at positions 7, 15, 23...)
     size_t total_uap = all_uap_names.size();
     fspec_bits.resize(total_uap, false);
 

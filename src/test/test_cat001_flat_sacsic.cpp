@@ -36,9 +36,9 @@ TEST_CASE("jASTERIX CAT001 1.1 flat SAC/SIC propagation", "[jASTERIX CAT001]")
     cat001->setCurrentEdition("1.1");
 
     // Data block with 3 CAT001 records:
-    //   Record 1: FSPEC=0xfe — has I001/010 (SAC=0, SIC=1), 020, 040, 070, 090, 130, 141
-    //   Record 2: FSPEC=0x7e — no I001/010, has 020, 040, 070, 090, 130, 141
-    //   Record 3: FSPEC=0x7e — same as record 2
+    //   Record 1: FSPEC=0xfe - has I001/010 (SAC=0, SIC=1), 020, 040, 070, 090, 130, 141
+    //   Record 2: FSPEC=0x7e - no I001/010, has 020, 040, 070, 090, 130, 141
+    //   Record 3: FSPEC=0x7e - same as record 2
     // Per CAT001 spec §5.3.2.1, SAC/SIC is only required in the first record of a data block.
     // In flat mode, the library must propagate SAC/SIC from record 1 to records 2 and 3.
     const std::string filename = "cat001ed1.1_sacsic_propagation.bin";

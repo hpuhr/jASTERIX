@@ -373,7 +373,7 @@ std::pair<size_t, size_t> ASTERIXParser::decodeDataBlock(const char* data, size_
 
         if (flat_record_indices_ && flat_record_indices_->count(cat))
         {
-            // flat/columnar mode — no records array, leaves write to column arrays
+            // flat/columnar mode - no records array, leaves write to column arrays
             try
             {
                 if (debug)
@@ -413,7 +413,7 @@ std::pair<size_t, size_t> ASTERIXParser::decodeDataBlock(const char* data, size_
                     // CAT001: propagate SAC/SIC from first record to subsequent records
                     // that omit item 010 within the same data block.
                     // In flat/columnar mode the ItemParser skips creating the "010"
-                    // sub-object — leaf values (SAC, SIC) are written directly into
+                    // sub-object - leaf values (SAC, SIC) are written directly into
                     // record_scratch, so we check for "SAC" instead of "010".
                     if (cat == 1)
                     {
@@ -439,7 +439,7 @@ std::pair<size_t, size_t> ASTERIXParser::decodeDataBlock(const char* data, size_
                         // cannot perform this correction itself.
                         if (flat_data_ && flat_data_->count(1))
                         {
-                            // Determine SAC/SIC — either from this record or propagated
+                            // Determine SAC/SIC - either from this record or propagated
                             size_t sac = 0, sic = 0;
                             bool have_source = false;
 
@@ -636,7 +636,7 @@ std::pair<size_t, size_t> ASTERIXParser::decodeDataBlock(const char* data, size_
         }
         else
         {
-            // structured mode — current behavior
+            // structured mode - current behavior
             try
             {
                 if (debug)

@@ -1688,7 +1688,7 @@ void jASTERIX::addJSONAnalysis(const std::string& sensor_id, const std::string& 
                 }
             }
 
-            // first occurrence — create entry via operator[]
+            // first occurrence - create entry via operator[]
             {
                 auto& entry = data_item_analysis_[sensor_id][cat_str][sub_prefix];
                 entry["count"] = 1;

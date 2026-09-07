@@ -43,7 +43,7 @@ From `definitions/categories/` (the `categories.json` registry lists the default
 | 021 | 0.26, 2.1, 2.4 | 1.5 | Aireon (validation, not default) | ADS-B target reports |
 | 023 | 1.2 | | | CNS/ATM ground station status |
 | 025 | 1.1, 1.5 | | | CNS/ATM ground system status reports |
-| 030 | 7.0, nonstd | | | ARTAS track messages |
+| 030 | 7.0 | | | ARTAS track messages |
 | 034 | 1.26 | | | Monoradar service messages |
 | 048 | 1.15, 1.23 | 1.9 | | Monoradar target reports |
 | 062 | 1.12, 1.16, 1.18, 1.21 | 1.2, 1.4 | ARTAS TRIs | System track messages (SDPS/ARTAS) |

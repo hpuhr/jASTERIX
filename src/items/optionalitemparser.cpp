@@ -60,7 +60,7 @@ size_t OptionalItemParser::parseItem(const char* data, size_t index, size_t size
                                      size_t current_parsed_bytes, size_t total_size,
                                      nlohmann::json& target, bool debug)
 {
-    // Fallback path — should not be called in normal compound parsing flow
+    // Fallback path - should not be called in normal compound parsing flow
     // (CompoundItemParser should call the overload with presence_bits)
     throw runtime_error("OptionalItemParser '" + name_ +
                         "' parseItem called without presence_bits");
@@ -91,7 +91,7 @@ size_t OptionalItemParser::parseItem(const char* data, size_t index, size_t size
     if (!presence_bits[bitfield_index_])
         return 0;
 
-    // item exists — parse sub-items
+    // item exists - parse sub-items
     size_t parsed_bytes{0};
 
     if (debug)
@@ -125,7 +125,7 @@ size_t OptionalItemParser::parseItem(const char* data, size_t index, size_t size
 size_t OptionalItemParser::encodeItem(const nlohmann::json& source, char* target,
                                       size_t max_size, bool debug)
 {
-    // Fallback path — should not be called in normal compound encoding flow
+    // Fallback path - should not be called in normal compound encoding flow
     throw runtime_error("OptionalItemParser '" + name_ +
                         "' encodeItem called without presence_bits");
 }

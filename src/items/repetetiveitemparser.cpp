@@ -30,7 +30,7 @@ RepetetiveItemParser::RepetetiveItemParser(const nlohmann::json& item_definition
 {
     traced_assert(type_ == "repetitive");
 
-    // REP byte is always 1 unsigned byte per ASTERIX spec — no sub-parser needed
+    // REP byte is always 1 unsigned byte per ASTERIX spec - no sub-parser needed
 
     if (!item_definition.contains("items"))
         throw runtime_error("parsing repetitive item '" + name_ + "' without items");

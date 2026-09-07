@@ -8,24 +8,25 @@ For a detailed list of features, as well as the offered commercial services, ple
 
 ## Supported Editions
 
-| CAT |         Editions | REFs |       SPFs |
-|-----|------------------|------|------------|
-| 001 |              1.1 |      |            |
-| 002 |              1.0 |      |            |
-| 004 |              1.4 |      |            |
-| 010 |             0.31 |      |            |
-| 019 |         1.2, 1.3 |      |            |
-| 020 |         1.5, 1.8 |  1.3 |            |
-| 021 |   0.26, 2.1, 2.4 |      |            |
-| 023 |              1.2 |      |            |
-| 030 |              7.0 |      |            |
-| 034 |             1.26 |      |            |
-| 048 |       1.15, 1.23 |  1.9 |            |
-| 062 | 1.12, 1.16, 1.18, 1.21 |  1.2 | ARTAS TRIs |
-| 063 |          1.0,1.1 |      |            |
-| 065 |         1.2, 1.3 |      |            |
-| 247 |              1.2 |      |            |
-| 252 |              7.0 |      |            |
+| CAT |               Editions |     REFs |       SPFs |
+|-----|------------------------|----------|------------|
+| 001 |                    1.1 |          |            |
+| 002 |                    1.0 |          |            |
+| 004 |                    1.4 |          |            |
+| 010 |    0.24 (Sensis), 0.31 |          |            |
+| 019 |               1.2, 1.3 |          |            |
+| 020 |               1.5, 1.8 |      1.3 |            |
+| 021 |         0.26, 2.1, 2.4 |      1.5 |     Aireon |
+| 023 |                    1.2 |          |            |
+| 025 |               1.1, 1.5 |          |            |
+| 030 |                    7.0 |          |            |
+| 034 |                   1.26 |          |            |
+| 048 |             1.15, 1.23 |      1.9 |            |
+| 062 | 1.12, 1.16, 1.18, 1.21 | 1.2, 1.4 | ARTAS TRIs |
+| 063 |               1.0, 1.1 |          |            |
+| 065 |               1.2, 1.3 |          |            |
+| 247 |                    1.2 |          |            |
+| 252 |                    7.0 |          |            |
 
 
 
@@ -413,9 +414,9 @@ ASTERIX data captured in a PCAP file (e.g. recorded with `tcpdump`/Wireshark) ca
 `--pcap` combines with the other arguments, e.g. `--flat`, `--only_cats`, `--write_type`/`--write_filename`, and `--analyze`/`--analyze_csv`.
 
 In the library API the corresponding entry points are:
-- `decodePCAPFile(filename, callback, do_flat)` — decode a PCAP capture, delivering JSON chunks to the callback
-- `analyzePCAPFile(filename, record_limit)` — return a JSON summary of the data sources/contents in a capture
-- `analyzePCAPFileCSV(filename, record_limit)` — same analysis, returned as CSV text
+- `decodePCAPFile(filename, callback, do_flat)` - decode a PCAP capture, delivering JSON chunks to the callback
+- `analyzePCAPFile(filename, record_limit)` - return a JSON summary of the data sources/contents in a capture
+- `analyzePCAPFileCSV(filename, record_limit)` - same analysis, returned as CSV text
 
 ### Analysis
 

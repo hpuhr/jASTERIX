@@ -55,7 +55,7 @@ public:
     // @param index               Absolute byte offset where this item starts in 'data'
     // @param size                Remaining bytes in the current data block content
     // @param current_parsed_bytes  Bytes parsed so far within the enclosing record/REF/SPF
-    // @param total_size          Total buffer size — hard upper bound for any data[offset] access
+    // @param total_size          Total buffer size - hard upper bound for any data[offset] access
     // @param target              JSON object to write parsed values into
     // @param debug               Enable debug logging
     virtual size_t parseItem(const char* data, size_t index, size_t size,

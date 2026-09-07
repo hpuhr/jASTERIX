@@ -1,22 +1,22 @@
-# jASTERIX — ASTERIX to JSON Converter
+# jASTERIX - ASTERIX to JSON Converter
 
 jASTERIX is a C++ library for EUROCONTROL ASTERIX binary data to JSON conversion. It is part of the OpenATS COMPASS project but released as a standalone library for use in other projects. ASTERIX definitions are configuration-only (JSON), so categories and editions can be added without recompilation.
 
 ## Platform & distribution
 
-- **OS**: Linux 64-bit (x86_64) only — no Windows or macOS support
-- **Distribution format**: AppImage — single self-contained executable, no installation required. Downloaded from GitHub releases. The AppImage is built on Debian 10 (Buster) via Docker to maximize glibc compatibility across distributions.
+- **OS**: Linux 64-bit (x86_64) only - no Windows or macOS support
+- **Distribution format**: AppImage - single self-contained executable, no installation required. Downloaded from GitHub releases. The AppImage is built on Debian 10 (Buster) via Docker to maximize glibc compatibility across distributions.
 - **Licensing**: Source code is GPL-3.0; AppImage binary is CC BY 4.0. Free for all use including commercial.
 - **Primary use case**: Embedded library inside COMPASS. COMPASS calls `decodeFile()`/`decodeData()` with a callback receiving `std::unique_ptr<nlohmann::json>` chunks for in-memory processing. The CLI client and file output are secondary/rare use cases.
-- **Output contract**: The public API returns `nlohmann::json` objects to the caller — this is a hard interface requirement. COMPASS depends on receiving JSON trees, not raw bytes or strings.
+- **Output contract**: The public API returns `nlohmann::json` objects to the caller - this is a hard interface requirement. COMPASS depends on receiving JSON trees, not raw bytes or strings.
 
 ## Architecture
 
-jASTERIX is a **shared library** (`libjasterix`) with a **CLI client** (`jasterix_client`). There is no GUI — all interaction is via command line or library API.
+jASTERIX is a **shared library** (`libjasterix`) with a **CLI client** (`jasterix_client`). There is no GUI - all interaction is via command line or library API.
 
 **Key architectural layers:**
 - **Parsing layer**: `jASTERIX` class is the main entry point. Decodes binary ASTERIX data in chunks using callbacks. Frame parsing (`FrameParser`) handles network framings (IOSS, RFF, raw/netto). Data block parsing (`ASTERIXParser`) splits blocks into records.
-- **Definition layer**: All ASTERIX structure is defined in JSON files under `definitions/`. Categories, editions, REFs, SPFs, and framings are loaded at runtime — no hardcoded ASTERIX knowledge in the C++ code.
+- **Definition layer**: All ASTERIX structure is defined in JSON files under `definitions/`. Categories, editions, REFs, SPFs, and framings are loaded at runtime - no hardcoded ASTERIX knowledge in the C++ code.
 - **Item parsing layer**: Hierarchical item parsers (`ItemParserBase` subclasses) handle the various ASTERIX data item types: fixed bits/bytes, extendable, compound, repetitive, dynamic bytes, optional, skip.
 - **Threading**: Intel TBB for multi-threaded frame/data-block processing. `DataBlockFinderTask` and `FrameParserTask` run as TBB tasks. Single-thread mode available via `--single_thread`.
 - **Output**: JSON via nlohmann/json. Streaming callback-based architecture for processing large files without loading everything into memory.
@@ -39,11 +39,11 @@ Build output goes to `build/bin/` (executables) and `build/lib/` (libraries).
 - Local: `-UNDEBUG -Wall -std=c++17 -fno-omit-frame-pointer`
 
 **Targets:**
-- `jasterix` — shared library (core ASTERIX decoding)
-- `jasterix_client` — CLI application
-- `test_categories` — unit tests for all ASTERIX categories
-- `test_limits` — edge-case/resource tests
-- `test_performance` — performance benchmarks
+- `jasterix` - shared library (core ASTERIX decoding)
+- `jasterix_client` - CLI application
+- `test_categories` - unit tests for all ASTERIX categories
+- `test_limits` - edge-case/resource tests
+- `test_performance` - performance benchmarks
 
 ## Testing
 
@@ -116,16 +116,16 @@ appimage/                 AppImage packaging files
 
 ### Logging
 Use the LOG4CPP-based stream macros defined in `src/utils/logger.h`. They auto-prepend the function name and are used like C++ output streams:
-- `logerr` — errors (always printed)
-- `logwrn` — warnings
-- `loginf` — informational messages
-- `logdbg` — debug (compiled in, but filtered by runtime log level)
+- `logerr` - errors (always printed)
+- `logwrn` - warnings
+- `loginf` - informational messages
+- `logdbg` - debug (compiled in, but filtered by runtime log level)
 
 Usage: `loginf << "decoded " << count << " records";`
 
 Do **not** use `std::cout`, `std::cerr`, or `printf` for application logging.
 
-LOG4CPP is optional — can be disabled via `USE_LOG4CPP=false` in CMakeLists.txt.
+LOG4CPP is optional - can be disabled via `USE_LOG4CPP=false` in CMakeLists.txt.
 
 ### Include order
 1. Project includes: `#include <jasterix/...>`
@@ -138,24 +138,24 @@ All source files must include the GPL-3.0 header referencing jASTERIX (see any e
 ## Key dependencies
 
 - **Boost** (>= 1.73.0: program_options, filesystem, iostreams, regex, system, stacktrace_backtrace)
-- **Intel TBB** — multi-threaded frame/data-block processing
-- **LibArchive** — archive handling (ZIP output)
-- **LOG4CPP** — logging (optional, enabled by default)
-- **OpenSSL** — ARTAS MD5 hash computation (optional, enabled by default)
-- **nlohmann/json** — JSON serialization (header-only in `lib/`)
-- **Catch2** — unit testing (header-only in `lib/`)
+- **Intel TBB** - multi-threaded frame/data-block processing
+- **LibArchive** - archive handling (ZIP output)
+- **LOG4CPP** - logging (optional, enabled by default)
+- **OpenSSL** - ARTAS MD5 hash computation (optional, enabled by default)
+- **nlohmann/json** - JSON serialization (header-only in `lib/`)
+- **Catch2** - unit testing (header-only in `lib/`)
 
 ## Domain concepts
 
 - **Category**: Classification number (001–252). E.g. CAT048 = monoradar, CAT062 = tracker, CAT021 = ADS-B.
 - **Edition**: Version of a category's item definitions (e.g. CAT048 v1.15 vs v1.23). Defines the UAP and all item structures.
 - **UAP (User Application Profile)**: Ordered table mapping FRN positions to data item numbers. Each category/edition has exactly one UAP (some have conditional UAPs selected by a data item value).
-- **FSPEC (Field Specification)**: Variable-length bitmask at the start of each Data Record. Each bit selects a UAP entry as present/absent. FX bit (LSB) chains additional FSPEC octets. No fixed record layout — output shape varies per record.
+- **FSPEC (Field Specification)**: Variable-length bitmask at the start of each Data Record. Each bit selects a UAP entry as present/absent. FX bit (LSB) chains additional FSPEC octets. No fixed record layout - output shape varies per record.
 - **REF (Reserved Expansion Field)**: Extension mechanism for categories with blocking. Has its own length indicator + FX-extendable presence bits.
 - **SPF (Special Purpose Field)**: Vendor-specific escape field with explicit length. Contents defined by the sending system.
 - **Framing**: Network encapsulation around ASTERIX data blocks (IOSS, IOSS with sequence numbers, RFF, or raw/netto for no framing).
 - **Data Block**: ASTERIX container: 1-byte CAT + 2-byte LEN + one or more Data Records.
-- **SAC/SIC**: System Area Code / System Identification Code — identifies the data source sensor.
+- **SAC/SIC**: System Area Code / System Identification Code - identifies the data source sensor.
 - **FRN (Field Reference Number)**: Position of a data item in the UAP, corresponding to FSPEC bit position.
 - **ASTERIX**: EUROCONTROL standard binary format for surveillance data exchange (EUROCONTROL-SPEC-0149 Part 1, Edition 3.1).
 
