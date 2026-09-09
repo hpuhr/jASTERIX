@@ -773,6 +773,7 @@ void jASTERIX::setupFlatColumns()
 {
     flat_data_.clear();
     flat_hash_columns_.clear();
+    flat_record_data_columns_.clear();
 
     for (auto& [cat, cat_def] : category_definitions_)
     {
@@ -793,6 +794,11 @@ void jASTERIX::setupFlatColumns()
                 flat_hash_columns_[cat] = &flat_data_[cat]["artas_md5"];
             }
 #endif
+            if (add_record_data)
+            {
+                flat_data_[cat]["record_data"] = nlohmann::json::array();
+                flat_record_data_columns_[cat] = &flat_data_[cat]["record_data"];
+            }
         }
     }
 }
@@ -846,6 +852,7 @@ void jASTERIX::decodeFile(
         setupFlatColumns();
         asterix_parser.setFlatRecordIndices(&flat_record_indices_);
         asterix_parser.setFlatHashColumns(&flat_hash_columns_);
+        asterix_parser.setFlatRecordDataColumns(&flat_record_data_columns_);
         asterix_parser.setFlatData(&flat_data_);
     }
 
@@ -1005,6 +1012,7 @@ void jASTERIX::decodeFile(
         setupFlatColumns();
         asterix_parser.setFlatRecordIndices(&flat_record_indices_);
         asterix_parser.setFlatHashColumns(&flat_hash_columns_);
+        asterix_parser.setFlatRecordDataColumns(&flat_record_data_columns_);
         asterix_parser.setFlatData(&flat_data_);
     }
 
@@ -1166,11 +1174,14 @@ void jASTERIX::decodeData(const char* data,
         setupFlatColumns();
         asterix_parser_instance.setFlatRecordIndices(&flat_record_indices_);
         asterix_parser_instance.setFlatHashColumns(&flat_hash_columns_);
+        asterix_parser_instance.setFlatRecordDataColumns(&flat_record_data_columns_);
+        asterix_parser_instance.setFlatData(&flat_data_);
     }
     else
     {
         asterix_parser_instance.setFlatRecordIndices(nullptr);
         asterix_parser_instance.setFlatHashColumns(nullptr);
+        asterix_parser_instance.setFlatRecordDataColumns(nullptr);
         asterix_parser_instance.setFlatData(nullptr);
     }
 
